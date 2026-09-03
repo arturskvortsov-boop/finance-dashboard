@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
     <style>
-        /* --- ОБЩИЕ СТИЛИ (компактные) --- */
+        /* --- Компактные стили (такие же как в прошлом сообщении) --- */
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -27,7 +27,6 @@
             width: 100%;
             margin: 0 auto;
         }
-        /* --- ОБЛАСТЬ ЗАГРУЗКИ (уменьшена) --- */
         .upload-area {
             background: #1a1f2a;
             border: 2px dashed #3b4a5e;
@@ -39,22 +38,10 @@
             cursor: pointer;
             position: relative;
         }
-        .upload-area:hover {
-            border-color: #fbbf24;
-            background: #1e2533;
-        }
+        .upload-area:hover { border-color: #fbbf24; background: #1e2533; }
         .upload-area input[type="file"] { display: none; }
-        .upload-area label {
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: #fbbf24;
-            cursor: pointer;
-        }
-        .upload-area p {
-            color: #7a8aa3;
-            margin-top: 4px;
-            font-size: 0.8rem;
-        }
+        .upload-area label { font-size: 0.95rem; font-weight: 500; color: #fbbf24; cursor: pointer; }
+        .upload-area p { color: #7a8aa3; margin-top: 4px; font-size: 0.8rem; }
         .upload-area .clear-data {
             position: absolute;
             right: 12px;
@@ -66,7 +53,6 @@
             border-radius: 30px;
             font-size: 0.7rem;
             cursor: pointer;
-            transition: background 0.2s;
             z-index: 10;
         }
         .upload-area .clear-data:hover { background: #3b2a33; }
@@ -105,47 +91,6 @@
             flex-wrap: wrap;
         }
 
-        /* --- КУРС (теперь внизу) --- */
-        .rate-bar {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-            background: #171e2a;
-            border-radius: 12px;
-            padding: 4px 12px;
-            border: 1px solid #2a3344;
-            margin-top: 12px;
-            margin-bottom: 12px;
-            font-size: 0.8rem;
-        }
-        .rate-bar .label { color: #8b9bb5; font-size: 0.75rem; }
-        .rate-bar input {
-            background: #1a1f2a;
-            border: 1px solid #2a3344;
-            color: #e8edf5;
-            padding: 2px 8px;
-            border-radius: 8px;
-            width: 80px;
-            font-size: 0.8rem;
-        }
-        .rate-bar input:focus { outline: none; border-color: #fbbf24; }
-        .rate-bar .update-btn {
-            background: #fbbf24;
-            border: none;
-            color: #0b0e14;
-            padding: 2px 12px;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 0.7rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .rate-bar .update-btn:hover { background: #fcd34d; }
-        .rate-bar .rate-info { color: #4ade80; font-weight: 500; font-size: 0.8rem; margin-left: auto; }
-        .rate-bar .rate-change { color: #8b9bb5; font-size: 0.7rem; margin-left: 4px; }
-
-        /* --- ФИЛЬТРЫ (компактные) --- */
         .filter-bar {
             display: flex;
             gap: 8px;
@@ -169,7 +114,6 @@
         .filter-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
         .period-label { margin-left: auto; color: #7a8aa3; font-size: 0.75rem; }
 
-        /* --- КАРТОЧКИ СТАТИСТИКИ (уменьшены) --- */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -213,7 +157,6 @@
         .stats-grid-extra .stat-card { padding: 8px 10px; }
         .stats-grid-extra .stat-card .value { font-size: 1.1rem; }
 
-        /* --- ИНСАЙТЫ (уменьшены) --- */
         .insight-row {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -239,7 +182,6 @@
             color: #e8edf5;
         }
 
-        /* --- СОВЕТ (уменьшен) --- */
         .tip-box {
             background: #1e2636;
             border-radius: 14px;
@@ -254,7 +196,6 @@
         .tip-box .text { font-size: 0.85rem; color: #d1d9e6; flex: 1; }
         .tip-box .source { font-size: 0.6rem; color: #7a8aa3; white-space: nowrap; }
 
-        /* --- ГРАФИКИ (меньше) --- */
         .charts-row {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr;
@@ -281,7 +222,68 @@
         .full-width { grid-column: 1 / -1; }
         .full-width canvas { max-height: 180px; }
 
-        /* --- ТРАНЗАКЦИИ (компактно) --- */
+        /* --- БЛОК КУРСА И ГРАФИКА КУРСА (внизу) --- */
+        .rate-section {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .rate-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            background: #171e2a;
+            border-radius: 12px;
+            padding: 4px 12px;
+            border: 1px solid #2a3344;
+            font-size: 0.8rem;
+        }
+        .rate-bar .label { color: #8b9bb5; font-size: 0.75rem; }
+        .rate-bar input {
+            background: #1a1f2a;
+            border: 1px solid #2a3344;
+            color: #e8edf5;
+            padding: 2px 8px;
+            border-radius: 8px;
+            width: 80px;
+            font-size: 0.8rem;
+        }
+        .rate-bar input:focus { outline: none; border-color: #fbbf24; }
+        .rate-bar .update-btn {
+            background: #fbbf24;
+            border: none;
+            color: #0b0e14;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .rate-bar .update-btn:hover { background: #fcd34d; }
+        .rate-bar .rate-info { color: #4ade80; font-weight: 500; font-size: 0.8rem; margin-left: auto; }
+        .rate-bar .rate-change { color: #8b9bb5; font-size: 0.7rem; margin-left: 4px; }
+
+        /* График курса (внизу) */
+        .rate-chart-box {
+            background: #171e2a;
+            border-radius: 14px;
+            padding: 12px 12px;
+            border: 1px solid #2a3344;
+        }
+        .rate-chart-box h3 {
+            font-weight: 500;
+            font-size: 0.75rem;
+            color: #c8d0e0;
+            margin-bottom: 8px;
+            letter-spacing: 0.2px;
+        }
+        .rate-chart-box canvas {
+            max-height: 150px;
+            max-width: 100%;
+        }
+
         .transactions {
             background: #171e2a;
             border-radius: 14px;
@@ -328,7 +330,6 @@
         }
         .hidden { display: none !important; }
 
-        /* --- АДАПТИВ --- */
         @media (max-width: 900px) {
             .charts-row { grid-template-columns: 1fr 1fr; }
             .full-width { grid-column: 1 / -1; }
@@ -351,6 +352,7 @@
             .rate-bar { flex-direction: column; align-items: stretch; gap: 4px; padding: 6px 12px; }
             .rate-bar .rate-info { margin-left: 0; text-align: center; }
             .full-width canvas { max-height: 150px; }
+            .rate-chart-box canvas { max-height: 120px; }
         }
         .footer {
             margin-top: 16px;
@@ -365,7 +367,7 @@
 <body>
     <div class="container">
 
-        <!-- ОБЛАСТЬ ЗАГРУЗКИ (уменьшена) -->
+        <!-- ОБЛАСТЬ ЗАГРУЗКИ -->
         <div class="upload-area" id="uploadArea">
             <div class="upload-trigger">
                 <label for="fileInput">📁 Загрузить stats2.json</label>
@@ -379,7 +381,7 @@
 
         <div id="dashboard" class="hidden">
 
-            <!-- ФИЛЬТРЫ (компактные) -->
+            <!-- ФИЛЬТРЫ -->
             <div class="filter-bar">
                 <button class="filter-btn disabled" data-period="day">День</button>
                 <button class="filter-btn disabled" data-period="week">Неделя</button>
@@ -387,7 +389,7 @@
                 <span class="period-label" id="periodLabel">за последние 30 дней</span>
             </div>
 
-            <!-- СТАТИСТИКА: доход слева, расход справа, баланс по центру -->
+            <!-- СТАТИСТИКА -->
             <div class="stats-grid">
                 <div class="stat-card income">
                     <div class="label">💰 Доход (RUB)</div>
@@ -458,7 +460,7 @@
                 <span class="source" id="tipSource"></span>
             </div>
 
-            <!-- ГРАФИКИ -->
+            <!-- ГРАФИКИ ДОХОДОВ/РАСХОДОВ И КАТЕГОРИЙ -->
             <div class="charts-row">
                 <div class="chart-box full-width">
                     <h3>📈 Динамика доходов и расходов (RUB)</h3>
@@ -474,27 +476,27 @@
                 </div>
             </div>
 
-            <!-- ГРАФИК ИСТОРИИ КУРСА -->
-            <div class="charts-row">
-                <div class="chart-box full-width">
-                    <h3>📊 История курса USD/RUB</h3>
-                    <canvas id="rateHistoryChart"></canvas>
-                </div>
-            </div>
-
             <!-- ТРАНЗАКЦИИ -->
             <div class="transactions">
                 <h3>📋 Последние транзакции</h3>
                 <div class="tx-list" id="transactionList"></div>
             </div>
 
-            <!-- КУРС (теперь внизу) -->
-            <div class="rate-bar">
-                <span class="label">💵 Курс USD/RUB</span>
-                <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
-                <button class="update-btn" id="updateRateBtn">Обновить</button>
-                <span class="rate-info" id="rateInfo">1 USD = 85.00 ₽</span>
-                <span class="rate-change" id="rateChangeInfo"></span>
+            <!-- БЛОК КУРСА И ГРАФИКА КУРСА (внизу) -->
+            <div class="rate-section">
+                <!-- График истории курса -->
+                <div class="rate-chart-box">
+                    <h3>📊 История курса USD/RUB</h3>
+                    <canvas id="rateHistoryChart"></canvas>
+                </div>
+                <!-- Панель управления курсом -->
+                <div class="rate-bar">
+                    <span class="label">💵 Курс USD/RUB</span>
+                    <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
+                    <button class="update-btn" id="updateRateBtn">Обновить</button>
+                    <span class="rate-info" id="rateInfo">1 USD = 85.00 ₽</span>
+                    <span class="rate-change" id="rateChangeInfo"></span>
+                </div>
             </div>
 
         </div>
@@ -590,7 +592,7 @@
                 return transactions;
             }
 
-            // --- ПАРСИНГ ИСТОРИИ КУРСА ---
+            // --- ПАРСИНГ ИСТОРИИ КУРСА (улучшенный) ---
             function parseRateHistory(jsonText) {
                 let data;
                 try { data = JSON.parse(jsonText); } catch { return []; }
@@ -599,14 +601,21 @@
                 const history = [];
                 for (const line of lines) {
                     if (line.toLowerCase().includes('курс')) continue;
+                    // Ищем дату ДД.ММ.ГГГГ
                     const dateMatch = line.match(/(\d{2})\.(\d{2})\.(\d{4})/);
                     if (!dateMatch) continue;
                     const day = parseInt(dateMatch[1]);
                     const month = parseInt(dateMatch[2]) - 1;
                     const year = parseInt(dateMatch[3]);
+                    // Ищем время ЧЧ:ММ (может быть с двоеточием после или без)
                     const timeMatch = line.match(/(\d{2}):(\d{2})/);
-                    let hour = 0, minute = 0;
-                    if (timeMatch) { hour = parseInt(timeMatch[1]); minute = parseInt(timeMatch[2]); }
+                    let hour = 0,
+                        minute = 0;
+                    if (timeMatch) {
+                        hour = parseInt(timeMatch[1]);
+                        minute = parseInt(timeMatch[2]);
+                    }
+                    // Ищем число с запятой или точкой
                     const numMatch = line.match(/(\d+[.,]\d+)/);
                     if (!numMatch) continue;
                     const rate = parseFloat(numMatch[1].replace(',', '.'));
@@ -794,12 +803,13 @@
                     if (!json.text || typeof json.text !== 'string') throw new Error('Нет поля text');
 
                     const history = parseRateHistory(json.text);
+                    console.log('📊 Распознано записей курса:', history.length);
                     if (history.length) {
                         rateHistory = history;
                         saveRateHistory(history);
                         const last = history[history.length - 1];
                         setRate(last.rate);
-                        console.log('✅ Загружено', history.length, 'записей курса');
+                        fileStatus.textContent = `✅ Курс: ${last.rate.toFixed(2)} ₽ (${history.length} записей)`;
                         return true;
                     }
                     throw new Error('Нет записей курса');
@@ -1037,7 +1047,8 @@
                     }
                 });
 
-                // 4. История курса
+                // 4. График истории курса (теперь рисуем отдельно в rate-chart-box)
+                const ctxRate = document.getElementById('rateHistoryChart').getContext('2d');
                 if (rateHistory.length >= 2) {
                     const rateLabels = rateHistory.map(item => {
                         const d = item.date;
@@ -1045,7 +1056,6 @@
                             minute: '2-digit' });
                     });
                     const rateData = rateHistory.map(item => item.rate);
-                    const ctxRate = document.getElementById('rateHistoryChart').getContext('2d');
                     rateHistoryChart = new Chart(ctxRate, {
                         type: 'line',
                         data: {
@@ -1084,7 +1094,7 @@
                         }
                     });
                 } else {
-                    const ctxRate = document.getElementById('rateHistoryChart').getContext('2d');
+                    // Если данных мало, показываем сообщение
                     rateHistoryChart = new Chart(ctxRate, {
                         type: 'line',
                         data: {
