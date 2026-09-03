@@ -38,7 +38,7 @@
             border-radius: 24px;
             padding: 40px 20px;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             transition: all 0.3s ease;
             cursor: pointer;
             position: relative;
@@ -128,30 +128,32 @@
             gap: 12px;
             flex-wrap: wrap;
         }
-        /* --- КУРС --- */
+
+        /* --- КУРС (компактный) --- */
         .rate-bar {
             display: flex;
-            gap: 16px;
             align-items: center;
+            gap: 8px;
             flex-wrap: wrap;
             background: #171e2a;
-            border-radius: 20px;
-            padding: 14px 22px;
+            border-radius: 16px;
+            padding: 6px 16px;
             border: 1px solid #2a3344;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
         }
         .rate-bar .label {
             color: #8b9bb5;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
         }
         .rate-bar input {
             background: #1a1f2a;
             border: 1px solid #2a3344;
             color: #e8edf5;
-            padding: 6px 12px;
-            border-radius: 12px;
-            width: 120px;
-            font-size: 1rem;
+            padding: 4px 10px;
+            border-radius: 10px;
+            width: 90px;
+            font-size: 0.9rem;
         }
         .rate-bar input:focus {
             outline: none;
@@ -161,9 +163,10 @@
             background: #fbbf24;
             border: none;
             color: #0b0e14;
-            padding: 6px 18px;
+            padding: 4px 14px;
             border-radius: 30px;
             font-weight: 600;
+            font-size: 0.8rem;
             cursor: pointer;
             transition: background 0.2s;
         }
@@ -173,13 +176,20 @@
         .rate-bar .rate-info {
             color: #4ade80;
             font-weight: 500;
+            font-size: 0.9rem;
             margin-left: auto;
         }
+        .rate-bar .rate-change {
+            color: #8b9bb5;
+            font-size: 0.75rem;
+            margin-left: 4px;
+        }
+
         /* --- ФИЛЬТРЫ --- */
         .filter-bar {
             display: flex;
             gap: 12px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
             align-items: center;
         }
@@ -213,12 +223,13 @@
             color: #7a8aa3;
             font-size: 0.9rem;
         }
-        /* --- КАРТОЧКИ СТАТИСТИКИ (новое расположение) --- */
+
+        /* --- КАРТОЧКИ СТАТИСТИКИ --- */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 16px;
-            margin-bottom: 28px;
+            margin-bottom: 20px;
         }
         .stat-card {
             background: #171e2a;
@@ -263,19 +274,20 @@
         .stat-card.count .value {
             color: #93c5fd;
         }
-        /* Доп. карточки (вторая строка) */
+
         .stats-grid-extra {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 16px;
-            margin-bottom: 28px;
+            margin-bottom: 20px;
         }
+
         /* --- ИНСАЙТЫ --- */
         .insight-row {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr 1fr;
             gap: 16px;
-            margin-bottom: 28px;
+            margin-bottom: 20px;
         }
         .insight-box {
             background: #171e2a;
@@ -295,13 +307,14 @@
             font-weight: 600;
             color: #e8edf5;
         }
+
         /* --- СОВЕТ --- */
         .tip-box {
             background: #1e2636;
             border-radius: 20px;
             padding: 18px 22px;
             border-left: 4px solid #fbbf24;
-            margin-bottom: 28px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -319,12 +332,13 @@
             color: #7a8aa3;
             white-space: nowrap;
         }
-        /* --- ГРАФИКИ (круговые уменьшены) --- */
+
+        /* --- ГРАФИКИ --- */
         .charts-row {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr;
             gap: 20px;
-            margin-bottom: 28px;
+            margin-bottom: 20px;
         }
         .chart-box {
             background: #171e2a;
@@ -340,7 +354,7 @@
             letter-spacing: 0.2px;
         }
         .chart-box canvas {
-            max-height: 100px; /* уменьшено */
+            max-height: 140px;
             max-width: 100%;
         }
         .full-width {
@@ -349,6 +363,7 @@
         .full-width canvas {
             max-height: 240px;
         }
+
         /* --- ТРАНЗАКЦИИ --- */
         .transactions {
             background: #171e2a;
@@ -411,6 +426,7 @@
         .tx-item .right.expense {
             color: #f87171;
         }
+
         .empty-state {
             text-align: center;
             color: #7a8aa3;
@@ -420,6 +436,7 @@
         .hidden {
             display: none !important;
         }
+
         /* --- АДАПТИВ --- */
         @media (max-width: 900px) {
             .charts-row {
@@ -477,6 +494,8 @@
             .rate-bar {
                 flex-direction: column;
                 align-items: stretch;
+                gap: 4px;
+                padding: 8px 12px;
             }
             .rate-bar .rate-info {
                 margin-left: 0;
@@ -501,7 +520,7 @@
             <div class="upload-trigger">
                 <label for="fileInput">📁 Загрузить stats2.json</label>
                 <span class="file-status" id="fileStatus"></span>
-                <button id="refreshBtn" style="background:#fbbf24;border:none;color:#0b0e14;padding:4px 14px;border-radius:30px;font-weight:600;margin-left:10px;cursor:pointer;">🔄 Обновить</button>
+                <button id="refreshBtn" style="background:#fbbf24;border:none;color:#0b0e14;padding:4px 14px;border-radius:30px;font-weight:600;margin-left:10px;cursor:pointer;font-size:0.85rem;">🔄 Обновить</button>
             </div>
             <input type="file" id="fileInput" accept=".json">
             <p>Нажмите или перетащите файл (данные сохранятся в браузере)</p>
@@ -510,13 +529,13 @@
 
         <div id="dashboard" class="hidden">
 
-            <!-- КУРС -->
+            <!-- КУРС (компактный) -->
             <div class="rate-bar">
                 <span class="label">💵 Курс USD/RUB</span>
                 <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
                 <button class="update-btn" id="updateRateBtn">Обновить</button>
                 <span class="rate-info" id="rateInfo">1 USD = 85.00 ₽</span>
-                <span style="color:#8b9bb5; font-size:0.85rem;" id="rateChangeInfo"></span>
+                <span class="rate-change" id="rateChangeInfo"></span>
             </div>
 
             <!-- ФИЛЬТРЫ -->
@@ -543,7 +562,7 @@
                 </div>
             </div>
 
-            <!-- ДОПОЛНИТЕЛЬНЫЕ КАРТОЧКИ (USD, курсовая разница, кол-во) -->
+            <!-- ДОПОЛНИТЕЛЬНЫЕ КАРТОЧКИ -->
             <div class="stats-grid-extra">
                 <div class="stat-card usd">
                     <div class="label">💰 Доход (USD)</div>
@@ -627,7 +646,7 @@
         </div>
 
         <div class="footer">
-            Данные из stats2.json • Автообновление с GitHub • Работает офлайн
+            Данные из stats2.json • Курс из rate.json • Автообновление
         </div>
     </div>
 
@@ -661,7 +680,7 @@
                 expensePieChart = null,
                 incomePieChart = null;
 
-            // --- ПАРСИНГ (как был) ---
+            // --- ПАРСИНГ ТРАНЗАКЦИЙ ---
             function parseNumber(str) {
                 const cleaned = str.replace(/\s/g, '').replace(',', '.');
                 const match = cleaned.match(/(\d+\.?\d*)/);
@@ -874,6 +893,68 @@
                 rateChangeInfo.style.color = diff >= 0 ? '#4ade80' : '#f87171';
             }
 
+            // --- ЗАГРУЗКА КУРСА ИЗ rate.json (с историей) ---
+            async function loadRateFromServer() {
+                try {
+                    const url = 'rate.json?t=' + Date.now();
+                    const response = await fetch(url, { cache: 'no-store' });
+                    if (!response.ok) throw new Error('rate.json не найден');
+                    const json = await response.json();
+                    if (!json.text || typeof json.text !== 'string') throw new Error('Нет поля text');
+
+                    const lines = json.text.split('\n').filter(line => line.trim() !== '');
+                    // Пропускаем заголовок "Курс USD" и подобные
+                    const rateLines = lines.filter(line => !line.toLowerCase().includes('курс'));
+                    if (!rateLines.length) throw new Error('Нет записей курса');
+
+                    // Берём последнюю строку
+                    const lastLine = rateLines[rateLines.length - 1];
+                    const match = lastLine.match(/(\d+[.,]\d+)/);
+                    if (!match) throw new Error('Не удалось извлечь курс');
+                    const rate = parseFloat(match[1].replace(',', '.'));
+                    if (isNaN(rate) || rate <= 0) throw new Error('Некорректный курс');
+
+                    setRate(rate);
+                    console.log('✅ Курс загружен из rate.json:', rate);
+                    return true;
+                } catch (e) {
+                    console.warn('Не удалось загрузить rate.json:', e.message);
+                    return false;
+                }
+            }
+
+            // --- ЗАГРУЗКА ТРАНЗАКЦИЙ ---
+            async function loadTransactionsFromServer() {
+                try {
+                    const url = 'stats2.json?t=' + Date.now();
+                    const response = await fetch(url, { cache: 'no-store' });
+                    if (!response.ok) throw new Error('stats2.json не найден');
+                    const content = await response.text();
+                    const transactions = parseData(content);
+                    if (transactions.length) {
+                        initData(transactions);
+                        fileStatus.textContent = `✅ Загружено с сервера: ${transactions.length} записей`;
+                        return true;
+                    }
+                    throw new Error('Нет транзакций');
+                } catch (e) {
+                    console.warn('Не удалось загрузить stats2.json:', e.message);
+                    const stored = loadTransactions();
+                    if (stored && stored.length) {
+                        initData(stored);
+                        fileStatus.textContent = `📂 Загружено из кэша: ${stored.length} записей`;
+                        return true;
+                    }
+                    return false;
+                }
+            }
+
+            // --- ОБЩАЯ ЗАГРУЗКА ---
+            async function loadFromServer() {
+                await loadRateFromServer();
+                return await loadTransactionsFromServer();
+            }
+
             // --- РЕНДЕРИНГ ---
             function renderDashboard(transactions, period) {
                 if (!transactions.length) {
@@ -1006,7 +1087,6 @@
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
                         plugins: {
                             legend: { position: 'right', labels: { color: '#c8d0e0', boxWidth: 12, padding: 8 } },
                             tooltip: {
@@ -1041,7 +1121,6 @@
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
                         plugins: {
                             legend: { position: 'right', labels: { color: '#c8d0e0', boxWidth: 12, padding: 8 } },
                             tooltip: {
@@ -1111,32 +1190,6 @@
                 fileStatus.textContent = `✅ ${transactions.length} записей`;
                 fileInput.value = '';
                 uploadArea.classList.add('compact');
-            }
-
-            // --- ЗАГРУЗКА С СЕРВЕРА (автообновление) ---
-            async function loadFromServer() {
-                try {
-                    const url = 'stats2.json?t=' + Date.now();
-                    const response = await fetch(url, { cache: 'no-store' });
-                    if (!response.ok) throw new Error('Файл не найден на сервере');
-                    const content = await response.text();
-                    const transactions = parseData(content);
-                    if (transactions.length) {
-                        initData(transactions);
-                        fileStatus.textContent = `✅ Загружено с сервера: ${transactions.length} записей`;
-                        return true;
-                    }
-                    throw new Error('Нет транзакций');
-                } catch (e) {
-                    console.warn('Автозагрузка не удалась:', e.message);
-                    const stored = loadTransactions();
-                    if (stored && stored.length) {
-                        initData(stored);
-                        fileStatus.textContent = `📂 Загружено из кэша: ${stored.length} записей`;
-                        return true;
-                    }
-                    return false;
-                }
             }
 
             // --- ОБРАБОТКА ФАЙЛА (ручная загрузка) ---
@@ -1251,14 +1304,14 @@
                 });
             });
 
-            // --- ЗАПУСК ПРИ ОТКРЫТИИ ---
+            // --- ЗАПУСК ---
             (async function start() {
-                loadRate();
-                const loaded = await loadFromServer();
+                loadRate(); // загружаем сохранённый курс (если есть)
+                const loaded = await loadFromServer(); // загружаем курс + транзакции
                 if (!loaded) {
                     dashboard.classList.add('hidden');
                     emptyState.classList.remove('hidden');
-                    fileStatus.textContent = '📂 Нет данных. Загрузите файл вручную или проверьте stats2.json на сервере.';
+                    fileStatus.textContent = '📂 Нет данных. Загрузите файл вручную или проверьте stats2.json и rate.json.';
                     uploadArea.classList.remove('compact');
                 }
             })();
