@@ -340,6 +340,9 @@
             gap: 20px;
             margin-bottom: 20px;
         }
+        .charts-row .chart-box:first-child {
+            grid-column: 1 / 2;
+        }
         .chart-box {
             background: #171e2a;
             border-radius: 20px;
@@ -361,7 +364,7 @@
             grid-column: 1 / -1;
         }
         .full-width canvas {
-            max-height: 240px;
+            max-height: 220px;
         }
 
         /* --- ТРАНЗАКЦИИ --- */
@@ -442,6 +445,9 @@
             .charts-row {
                 grid-template-columns: 1fr 1fr;
             }
+            .charts-row .chart-box:first-child {
+                grid-column: 1 / -1;
+            }
             .full-width {
                 grid-column: 1 / -1;
             }
@@ -500,6 +506,9 @@
             .rate-bar .rate-info {
                 margin-left: 0;
                 text-align: center;
+            }
+            .full-width canvas {
+                max-height: 180px;
             }
         }
         .footer {
@@ -633,6 +642,14 @@
                 </div>
             </div>
 
+            <!-- НОВЫЙ ГРАФИК ИСТОРИИ КУРСА (полная ширина) -->
+            <div class="charts-row">
+                <div class="chart-box full-width">
+                    <h3>📊 История курса USD/RUB</h3>
+                    <canvas id="rateHistoryChart"></canvas>
+                </div>
+            </div>
+
             <!-- ТРАНЗАКЦИИ -->
             <div class="transactions">
                 <h3>📋 Последние транзакции</h3>
@@ -671,16 +688,19 @@
 
             const STORAGE_KEY = 'financeDataTransactions';
             const RATE_STORAGE_KEY = 'usdRate';
+            const RATE_HISTORY_KEY = 'rateHistory';
 
             let allTransactions = [];
+            let rateHistory = []; // массив {date, rate}
             let currentFilter = 'month';
             let dataLoaded = false;
             let currentUsdRate = 85.00;
             let dailyChart = null,
                 expensePieChart = null,
-                incomePieChart = null;
+                incomePieChart = null,
+                rateHistoryChart = null;
 
-            // --- ПАРСИНГ ТРАНЗАКЦИЙ ---
+            // --- ПАРСИНГ ТРАНЗАКЦИЙ (без изменений) ---
             function parseNumber(str) {
                 const cleaned = str.replace(/\s/g, '').replace(',', '.');
                 const match = cleaned.match(/(\d+\.?\d*)/);
@@ -729,7 +749,42 @@
                 return transactions;
             }
 
-            // --- ФИЛЬТРАЦИЯ И АГРЕГАЦИЯ ---
+            // --- ПАРСИНГ ИСТОРИИ КУРСА ИЗ rate.json ---
+            function parseRateHistory(jsonText) {
+                let data;
+                try { data = JSON.parse(jsonText); } catch { return []; }
+                if (!data.text || typeof data.text !== 'string') return [];
+                const lines = data.text.split('\n').filter(line => line.trim() !== '');
+                const history = [];
+                // Пропускаем заголовок "Курс USD" и подобные
+                const rateLines = lines.filter(line => !line.toLowerCase().includes('курс'));
+                for (const line of rateLines) {
+                    // Ищем дату и курс в разных форматах
+                    // Примеры: "25.08.2026, 13:56: 83,44"  или "25.08.2026, 14:01;83,44"
+                    const match = line.match(/(\d{2}\.\d{2}\.\d{4})\s*[,:;]\s*(\d{2}:\d{2})?\s*[:;]?\s*([\d,]+)/);
+                    if (!match) continue;
+                    const dateStr = match[1];
+                    const timeStr = match[2] || '00:00';
+                    const rawValue = match[3].replace(',', '.');
+                    const rate = parseFloat(rawValue);
+                    if (isNaN(rate) || rate <= 0) continue;
+                    // Собираем дату
+                    const parts = dateStr.split('.');
+                    const day = parseInt(parts[0]);
+                    const month = parseInt(parts[1]) - 1;
+                    const year = parseInt(parts[2]);
+                    const timeParts = timeStr.split(':');
+                    const hour = parseInt(timeParts[0]);
+                    const minute = parseInt(timeParts[1]) || 0;
+                    const dateObj = new Date(year, month, day, hour, minute);
+                    history.push({ date: dateObj, rate: rate });
+                }
+                // Сортируем по дате
+                history.sort((a, b) => a.date - b.date);
+                return history;
+            }
+
+            // --- ФИЛЬТРАЦИЯ И АГРЕГАЦИЯ (для транзакций) ---
             function filterTransactions(transactions, period) {
                 if (!transactions.length) return [];
                 const now = new Date();
@@ -770,7 +825,7 @@
                     .map(([label, value]) => ({ label, value }));
             }
 
-            // --- СОВЕТЫ ---
+            // --- СОВЕТЫ (без изменений) ---
             async function fetchAdvice() {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 3000);
@@ -811,14 +866,11 @@
                 }
             }
 
-            // --- ХРАНИЛИЩЕ ---
+            // --- ХРАНИЛИЩЕ (добавляем сохранение истории курса) ---
             function saveTransactions(transactions) {
                 try {
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
-                    fileStatus.textContent = '✅ Данные сохранены';
-                } catch (e) {
-                    fileStatus.textContent = '⚠️ Не удалось сохранить данные';
-                }
+                } catch (e) { /* ignore */ }
             }
 
             function loadTransactions() {
@@ -832,10 +884,29 @@
                 return null;
             }
 
+            function saveRateHistory(history) {
+                try {
+                    localStorage.setItem(RATE_HISTORY_KEY, JSON.stringify(history));
+                } catch (e) { /* ignore */ }
+            }
+
+            function loadRateHistory() {
+                try {
+                    const stored = localStorage.getItem(RATE_HISTORY_KEY);
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        return parsed.map(item => ({ ...item, date: new Date(item.date) }));
+                    }
+                } catch (e) { /* ignore */ }
+                return null;
+            }
+
             function clearStoredData() {
                 localStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem(RATE_HISTORY_KEY);
                 fileStatus.textContent = '🗑️ Данные очищены';
                 allTransactions = [];
+                rateHistory = [];
                 dataLoaded = false;
                 dashboard.classList.add('hidden');
                 emptyState.classList.remove('hidden');
@@ -847,6 +918,8 @@
                     expensePieChart = null; }
                 if (incomePieChart) { incomePieChart.destroy();
                     incomePieChart = null; }
+                if (rateHistoryChart) { rateHistoryChart.destroy();
+                    rateHistoryChart = null; }
                 fileInput.value = '';
                 updateRateDisplay();
             }
@@ -893,7 +966,7 @@
                 rateChangeInfo.style.color = diff >= 0 ? '#4ade80' : '#f87171';
             }
 
-            // --- ЗАГРУЗКА КУРСА ИЗ rate.json (с историей) ---
+            // --- ЗАГРУЗКА rate.json (история + последний курс) ---
             async function loadRateFromServer() {
                 try {
                     const url = 'rate.json?t=' + Date.now();
@@ -902,23 +975,29 @@
                     const json = await response.json();
                     if (!json.text || typeof json.text !== 'string') throw new Error('Нет поля text');
 
-                    const lines = json.text.split('\n').filter(line => line.trim() !== '');
-                    // Пропускаем заголовок "Курс USD" и подобные
-                    const rateLines = lines.filter(line => !line.toLowerCase().includes('курс'));
-                    if (!rateLines.length) throw new Error('Нет записей курса');
-
-                    // Берём последнюю строку
-                    const lastLine = rateLines[rateLines.length - 1];
-                    const match = lastLine.match(/(\d+[.,]\d+)/);
-                    if (!match) throw new Error('Не удалось извлечь курс');
-                    const rate = parseFloat(match[1].replace(',', '.'));
-                    if (isNaN(rate) || rate <= 0) throw new Error('Некорректный курс');
-
-                    setRate(rate);
-                    console.log('✅ Курс загружен из rate.json:', rate);
-                    return true;
+                    // Парсим историю
+                    const history = parseRateHistory(json.text);
+                    if (history.length) {
+                        rateHistory = history;
+                        saveRateHistory(history);
+                        // Берём последний курс
+                        const last = history[history.length - 1];
+                        setRate(last.rate);
+                        console.log('✅ Загружено', history.length, 'записей курса');
+                        return true;
+                    }
+                    throw new Error('Нет записей курса');
                 } catch (e) {
                     console.warn('Не удалось загрузить rate.json:', e.message);
+                    // Пробуем загрузить из localStorage
+                    const stored = loadRateHistory();
+                    if (stored && stored.length) {
+                        rateHistory = stored;
+                        const last = stored[stored.length - 1];
+                        setRate(last.rate);
+                        console.log('📂 Загружено из кэша', stored.length, 'записей курса');
+                        return true;
+                    }
                     return false;
                 }
             }
@@ -951,11 +1030,14 @@
 
             // --- ОБЩАЯ ЗАГРУЗКА ---
             async function loadFromServer() {
-                await loadRateFromServer();
-                return await loadTransactionsFromServer();
+                // Сначала загружаем курс (историю)
+                const rateLoaded = await loadRateFromServer();
+                // Затем транзакции
+                const txLoaded = await loadTransactionsFromServer();
+                return rateLoaded || txLoaded; // если хоть что-то загружено
             }
 
-            // --- РЕНДЕРИНГ ---
+            // --- РЕНДЕРИНГ (добавляем график истории курса) ---
             function renderDashboard(transactions, period) {
                 if (!transactions.length) {
                     dashboard.classList.add('hidden');
@@ -963,6 +1045,7 @@
                     return;
                 }
 
+                // ---- СТАТИСТИКА (как раньше) ----
                 const totalIncomeRub = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.rub, 0);
                 const totalExpenseRub = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.rub, 0);
                 const netRub = totalIncomeRub - totalExpenseRub;
@@ -1016,11 +1099,14 @@
 
                 updateAdvice(netRub, totalIncomeRub);
 
-                // Графики
+                // ---- ГРАФИКИ ----
+                // Уничтожаем старые
                 if (dailyChart) dailyChart.destroy();
                 if (expensePieChart) expensePieChart.destroy();
                 if (incomePieChart) incomePieChart.destroy();
+                if (rateHistoryChart) rateHistoryChart.destroy();
 
+                // 1. Динамика доходов/расходов
                 const dailyData = aggregateByDay(transactions);
                 const labels = dailyData.map(d => d.date);
                 const incomeData = dailyData.map(d => d.income);
@@ -1069,6 +1155,7 @@
                     }
                 });
 
+                // 2. Расходы по категориям
                 const expenseCat = aggregateByCategory(transactions, 'expense');
                 const ctxExpPie = document.getElementById('expensePieChart').getContext('2d');
                 expensePieChart = new Chart(ctxExpPie, {
@@ -1103,6 +1190,7 @@
                     }
                 });
 
+                // 3. Доходы по категориям
                 const incomeCat = aggregateByCategory(transactions, 'income');
                 const ctxIncPie = document.getElementById('incomePieChart').getContext('2d');
                 incomePieChart = new Chart(ctxIncPie, {
@@ -1137,7 +1225,99 @@
                     }
                 });
 
-                // Список транзакций
+                // 4. ГРАФИК ИСТОРИИ КУРСА
+                if (rateHistory.length >= 2) {
+                    const rateLabels = rateHistory.map(item => {
+                        const d = item.date;
+                        return d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit',
+                            minute: '2-digit' });
+                    });
+                    const rateData = rateHistory.map(item => item.rate);
+                    const ctxRate = document.getElementById('rateHistoryChart').getContext('2d');
+                    rateHistoryChart = new Chart(ctxRate, {
+                        type: 'line',
+                        data: {
+                            labels: rateLabels,
+                            datasets: [{
+                                label: 'Курс USD/RUB',
+                                data: rateData,
+                                borderColor: '#fbbf24',
+                                backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                                borderWidth: 2,
+                                pointBackgroundColor: '#fbbf24',
+                                pointRadius: 2,
+                                tension: 0.2,
+                                fill: true,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: { labels: { color: '#c8d0e0' } },
+                                tooltip: {
+                                    callbacks: {
+                                        label: ctx => ctx.parsed.y.toFixed(2) + ' ₽'
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    ticks: { color: '#8b9bb5', callback: v => v.toFixed(2) + ' ₽' }
+                                },
+                                x: {
+                                    ticks: { color: '#8b9bb5', maxTicksLimit: 15, maxRotation: 30, autoSkip: true }
+                                }
+                            }
+                        }
+                    });
+                } else {
+                    // Если данных мало, показываем пустой график с сообщением
+                    const ctxRate = document.getElementById('rateHistoryChart').getContext('2d');
+                    rateHistoryChart = new Chart(ctxRate, {
+                        type: 'line',
+                        data: {
+                            labels: [],
+                            datasets: [{
+                                label: 'Курс USD/RUB',
+                                data: [],
+                                borderColor: '#fbbf24',
+                                backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                                borderWidth: 2,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: { labels: { color: '#c8d0e0' } }
+                            }
+                        }
+                    });
+                    // Добавляем текстовое сообщение через плагин
+                    const originalDraw = rateHistoryChart.draw;
+                    rateHistoryChart.draw = function() {
+                        originalDraw.apply(this, arguments);
+                        const ctx2 = this.ctx;
+                        const chartArea = this.chartArea;
+                        if (this.data.datasets[0].data.length < 2) {
+                            ctx2.save();
+                            ctx2.fillStyle = '#7a8aa3';
+                            ctx2.font = '14px -apple-system, sans-serif';
+                            ctx2.textAlign = 'center';
+                            ctx2.textBaseline = 'middle';
+                            ctx2.fillText(
+                                rateHistory.length === 0 ? 'Нет данных курса' : 'Недостаточно точек (минимум 2)',
+                                (chartArea.left + chartArea.right) / 2,
+                                (chartArea.top + chartArea.bottom) / 2
+                            );
+                            ctx2.restore();
+                        }
+                    };
+                    rateHistoryChart.update();
+                }
+
+                // --- СПИСОК ТРАНЗАКЦИЙ ---
                 const sorted = [...transactions].sort((a, b) => b.date.getTime() - a.date.getTime());
                 const list = document.getElementById('transactionList');
                 list.innerHTML = '';
@@ -1316,7 +1496,7 @@
                 }
             })();
 
-            // Регистрация Service Worker (для офлайн-режима)
+            // Регистрация Service Worker
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')
                     .then(() => console.log('✅ Service Worker зарегистрирован'))
