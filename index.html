@@ -249,40 +249,55 @@
         .stats-grid-extra .stat-card { padding: 8px 10px; }
         .stats-grid-extra .stat-card .value { font-size: 1.1rem; }
 
-        /* --- БЫСТРЫЕ ИТОГИ (три карточки в ряд) --- */
-        .quick-sums {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 12px;
-            justify-content: center;
-        }
-        .quick-sums .group {
-            background: #111;
-            border-radius: 14px;
-            padding: 12px 14px;
-            border: 1px solid #2a2a2a;
-            text-align: center;
-            flex: 1 1 150px;
-            min-width: 120px;
-        }
-        .quick-sums .group .period-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #8b9bb5;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-        .quick-sums .group .sums-row {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-        .quick-sums .group .sum.income { color: #4ade80; }
-        .quick-sums .group .sum.expense { color: #f87171; }
+        /* --- БЫСТРЫЕ ИТОГИ (всегда в одну строку) --- */
+.quick-sums {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 12px;
+}
+.quick-sums .group {
+    background: #111;
+    border-radius: 14px;
+    padding: 12px 8px;
+    border: 1px solid #2a2a2a;
+    text-align: center;
+    min-width: 0; /* чтобы не вылезало */
+}
+.quick-sums .group .period-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #8b9bb5;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+.quick-sums .group .sums-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+}
+.quick-sums .group .sum.income { color: #4ade80; }
+.quick-sums .group .sum.expense { color: #f87171; }
+
+@media (max-width: 600px) {
+    .quick-sums {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
+    .quick-sums .group {
+        padding: 8px 4px;
+    }
+    .quick-sums .group .period-label {
+        font-size: 0.6rem;
+    }
+    .quick-sums .group .sums-row {
+        font-size: 0.85rem;
+        gap: 4px;
+    }
+}
 
         /* --- СВОРАЧИВАЕМЫЕ БЛОКИ --- */
         .collapsible { margin-bottom: 12px; }
