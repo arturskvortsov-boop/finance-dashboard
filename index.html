@@ -70,6 +70,35 @@
         }
         .top-bar .actions button.clear:hover { background: rgba(248, 113, 113, 0.2); }
 
+        /* --- ОБЩИЙ БАЛАНС (всегда виден) --- */
+        .total-balance {
+            background: #111;
+            border-radius: 14px;
+            padding: 12px 16px;
+            border: 1px solid #2a2a2a;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .total-balance .item {
+            text-align: center;
+        }
+        .total-balance .item .label {
+            color: #8b9bb5;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .total-balance .item .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+        .total-balance .item .value.usd { color: #60a5fa; }
+        .total-balance .item .value.rub { color: #fbbf24; }
+
         /* --- КУРС (внизу) --- */
         .rate-bar {
             display: flex;
@@ -183,7 +212,7 @@
         .stats-grid-extra .stat-card { padding: 8px 10px; }
         .stats-grid-extra .stat-card .value { font-size: 1.1rem; }
 
-        /* --- БЫСТРЫЕ ИТОГИ (горизонтально) --- */
+        /* --- БЫСТРЫЕ ИТОГИ --- */
         .quick-sums {
             display: flex;
             flex-wrap: wrap;
@@ -371,6 +400,7 @@
             .quick-sums .group { flex-direction: row; justify-content: space-between; padding: 6px 12px; min-width: 0; }
             .quick-sums .group .period-label { margin-bottom: 0; }
             .quick-sums .group .sums-row { gap: 12px; }
+            .total-balance { flex-direction: column; align-items: center; gap: 6px; }
             .rate-bar { flex-direction: column; align-items: stretch; gap: 4px; padding: 6px 12px; }
             .rate-bar .rate-info { margin-left: 0; text-align: center; }
             .full-width canvas { max-height: 150px; }
@@ -394,6 +424,18 @@
             <div class="actions">
                 <button id="refreshBtn">🔄 Обновить</button>
                 <button id="clearDataBtn" class="clear">🗑️ Очистить</button>
+            </div>
+        </div>
+
+        <!-- ОБЩИЙ БАЛАНС (всегда виден) -->
+        <div class="total-balance" id="totalBalanceBlock">
+            <div class="item">
+                <div class="label">Общий баланс</div>
+                <div class="value usd" id="totalBalanceUsd">0 $</div>
+            </div>
+            <div class="item">
+                <div class="label">Эквивалент в RUB</div>
+                <div class="value rub" id="totalBalanceRub">0 ₽</div>
             </div>
         </div>
 
@@ -449,7 +491,7 @@
                 </div>
             </div>
 
-            <!-- БЫСТРЫЕ ИТОГИ (горизонтально) -->
+            <!-- БЫСТРЫЕ ИТОГИ -->
             <div class="quick-sums" id="quickSums">
                 <div class="group">
                     <span class="period-label">День</span>
@@ -689,6 +731,7 @@
                 if (incomePieChart) { incomePieChart.destroy();
                     incomePieChart = null; }
                 updateRateDisplay();
+                updateTotalBalance(); // обновим общий баланс
             }
 
             // --- КУРС ---
@@ -713,6 +756,8 @@
                 if (dataLoaded) {
                     updateWithFilter(currentFilter);
                 }
+                // Обновляем общий баланс (зависит от курса)
+                updateTotalBalance();
             }
             function setRate(rate) {
                 if (isNaN(rate) || rate <= 0) {
@@ -726,6 +771,34 @@
                 const diff = ((rate - oldRate) / oldRate * 100).toFixed(2);
                 rateChangeInfo.textContent = diff >= 0 ? `📈 +${diff}%` : `📉 ${diff}%`;
                 rateChangeInfo.style.color = diff >= 0 ? '#4ade80' : '#f87171';
+            }
+
+            // --- ФУНКЦИЯ ОБНОВЛЕНИЯ ОБЩЕГО БАЛАНСА (все транзакции) ---
+            function updateTotalBalance() {
+                if (!allTransactions.length) {
+                    document.getElementById('totalBalanceUsd').textContent = '0 $';
+                    document.getElementById('totalBalanceRub').textContent = '0 ₽';
+                    return;
+                }
+                // Общий доход/расход в USD и RUB (только те, где usd==0 считаем в RUB, остальные в USD)
+                let totalUsdIncome = 0,
+                    totalUsdExpense = 0;
+                let totalRubIncome = 0,
+                    totalRubExpense = 0;
+                for (const tx of allTransactions) {
+                    if (tx.type === 'income') {
+                        if (tx.usd > 0) totalUsdIncome += tx.usd;
+                        else totalRubIncome += tx.rub;
+                    } else {
+                        if (tx.usd > 0) totalUsdExpense += tx.usd;
+                        else totalRubExpense += tx.rub;
+                    }
+                }
+                const netUsd = totalUsdIncome - totalUsdExpense;
+                const netRub = totalRubIncome - totalRubExpense;
+                const totalBalanceRub = netRub + netUsd * currentUsdRate;
+                document.getElementById('totalBalanceUsd').textContent = netUsd.toFixed(2) + ' $';
+                document.getElementById('totalBalanceRub').textContent = totalBalanceRub.toFixed(2) + ' ₽';
             }
 
             // --- ЗАГРУЗКА С ГИТХАБА ---
@@ -761,7 +834,7 @@
                     return;
                 }
 
-                // Разделение по валютам
+                // Разделение по валютам для отфильтрованных транзакций
                 const rubIncome = transactions.filter(t => t.type === 'income' && t.usd === 0).reduce((s, t) => s + t.rub, 0);
                 const rubExpense = transactions.filter(t => t.type === 'expense' && t.usd === 0).reduce((s, t) => s + t.rub, 0);
                 const usdIncome = transactions.filter(t => t.type === 'income' && t.usd > 0).reduce((s, t) => s + t.usd, 0);
@@ -1003,6 +1076,8 @@
                 renderDashboard(filtered, period);
                 const periodNames = { day: 'за сегодня', week: 'за последние 7 дней', month: 'за последние 30 дней' };
                 periodLabel.textContent = periodNames[period] || '';
+                // Обновляем общий баланс (он не зависит от фильтра)
+                updateTotalBalance();
             }
 
             function initData(transactions) {
@@ -1012,6 +1087,8 @@
                 filterBtns.forEach(btn => btn.classList.remove('disabled'));
                 document.querySelector(`.filter-btn[data-period="${currentFilter}"]`)?.classList.add('active');
                 updateWithFilter(currentFilter);
+                // При инициализации обновляем общий баланс
+                updateTotalBalance();
             }
 
             // --- СОБЫТИЯ ---
