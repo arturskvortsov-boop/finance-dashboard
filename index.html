@@ -11,11 +11,7 @@
     </script>
     <style>
         /* --- ОБЩИЕ СТИЛИ --- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #000;
@@ -31,8 +27,7 @@
             width: 100%;
             margin: 0 auto;
         }
-
-        /* --- ВЕРХНЯЯ ПАНЕЛЬ (статус + кнопки) --- */
+        /* --- ВЕРХНЯЯ ПАНЕЛЬ --- */
         .top-bar {
             display: flex;
             align-items: center;
@@ -67,19 +62,15 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        .top-bar .actions button:hover {
-            background: rgba(251, 191, 36, 0.3);
-        }
+        .top-bar .actions button:hover { background: rgba(251, 191, 36, 0.3); }
         .top-bar .actions button.clear {
             color: #f87171;
             border-color: #f87171;
             background: rgba(248, 113, 113, 0.1);
         }
-        .top-bar .actions button.clear:hover {
-            background: rgba(248, 113, 113, 0.2);
-        }
+        .top-bar .actions button.clear:hover { background: rgba(248, 113, 113, 0.2); }
 
-        /* --- КУРС (внизу, компактный) --- */
+        /* --- КУРС (внизу) --- */
         .rate-bar {
             display: flex;
             align-items: center;
@@ -117,7 +108,7 @@
         .rate-bar .rate-info { color: #4ade80; font-weight: 500; font-size: 0.8rem; margin-left: auto; }
         .rate-bar .rate-change { color: #8b9bb5; font-size: 0.7rem; margin-left: 4px; }
 
-        /* --- ФИЛЬТРЫ (день/неделя/месяц) --- */
+        /* --- ФИЛЬТРЫ --- */
         .filter-bar {
             display: flex;
             gap: 8px;
@@ -149,7 +140,7 @@
             font-size: 0.75rem;
         }
 
-        /* --- СТАТИСТИКА (карточки) --- */
+        /* --- СТАТИСТИКА --- */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -192,45 +183,47 @@
         .stats-grid-extra .stat-card { padding: 8px 10px; }
         .stats-grid-extra .stat-card .value { font-size: 1.1rem; }
 
-/* --- БЫСТРЫЕ ИТОГИ --- */
-.quick-sums {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 12px;
-    justify-content: center;
-}
-.quick-sums .group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: #111;
-    border-radius: 30px;
-    padding: 6px 14px;
-    border: 1px solid #2a2a2a;
-    min-width: 70px;
-}
-.quick-sums .group .period-label {
-    font-size: 0.65rem;
-    color: #8b9bb5;
-    margin-bottom: 2px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-.quick-sums .group .sum {
-    font-weight: 600;
-    font-size: 0.85rem;
-    padding: 1px 0;
-    line-height: 1.2;
-}
-.quick-sums .group .sum.income { color: #4ade80; }
-.quick-sums .group .sum.expense { color: #f87171; }
+        /* --- БЫСТРЫЕ ИТОГИ (горизонтально) --- */
+        .quick-sums {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+            justify-content: center;
+        }
+        .quick-sums .group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #111;
+            border-radius: 30px;
+            padding: 6px 14px;
+            border: 1px solid #2a2a2a;
+            min-width: 80px;
+        }
+        .quick-sums .group .period-label {
+            font-size: 0.65rem;
+            color: #8b9bb5;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .quick-sums .group .sums-row {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+        }
+        .quick-sums .group .sum {
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 1px 0;
+            line-height: 1.2;
+        }
+        .quick-sums .group .sum.income { color: #4ade80; }
         .quick-sums .group .sum.expense { color: #f87171; }
 
         /* --- СВОРАЧИВАЕМЫЕ БЛОКИ --- */
-        .collapsible {
-            margin-bottom: 12px;
-        }
+        .collapsible { margin-bottom: 12px; }
         .collapsible-header {
             display: flex;
             justify-content: space-between;
@@ -252,9 +245,7 @@
             color: #8b9bb5;
             transition: transform 0.3s;
         }
-        .collapsible-header .toggle.open {
-            transform: rotate(180deg);
-        }
+        .collapsible-header .toggle.open { transform: rotate(180deg); }
         .collapsible-content {
             max-height: 0;
             overflow: hidden;
@@ -301,7 +292,7 @@
         .full-width { grid-column: 1 / -1; }
         .full-width canvas { max-height: 180px; }
 
-        /* --- ТРАНЗАКЦИИ --- */
+        /* --- ИСТОРИЯ ТРАНЗАКЦИЙ --- */
         .transactions {
             background: #111;
             border-radius: 14px;
@@ -338,13 +329,8 @@
             gap: 1px;
             flex: 1;
         }
-        .tx-item .left .cat {
-            font-weight: 500;
-        }
-        .tx-item .left .date {
-            font-size: 0.65rem;
-            color: #8b9bb5;
-        }
+        .tx-item .left .cat { font-weight: 500; }
+        .tx-item .left .date { font-size: 0.65rem; color: #8b9bb5; }
         .tx-item .left .note {
             font-size: 0.65rem;
             color: #a0b0c0;
@@ -382,7 +368,9 @@
             .filter-bar { justify-content: center; }
             .period-label { margin-left: 0; width: 100%; text-align: center; }
             .quick-sums { flex-direction: column; align-items: stretch; }
-            .quick-sums .group { justify-content: center; }
+            .quick-sums .group { flex-direction: row; justify-content: space-between; padding: 6px 12px; min-width: 0; }
+            .quick-sums .group .period-label { margin-bottom: 0; }
+            .quick-sums .group .sums-row { gap: 12px; }
             .rate-bar { flex-direction: column; align-items: stretch; gap: 4px; padding: 6px 12px; }
             .rate-bar .rate-info { margin-left: 0; text-align: center; }
             .full-width canvas { max-height: 150px; }
@@ -417,7 +405,7 @@
             <span class="period-label" id="periodLabel">за последние 30 дней</span>
         </div>
 
-        <!-- КАРТОЧКИ СТАТИСТИКИ (баланс всегда виден) -->
+        <!-- КАРТОЧКИ СТАТИСТИКИ -->
         <div id="dashboard" class="hidden">
             <div class="stats-grid">
                 <div class="stat-card income">
@@ -461,22 +449,28 @@
                 </div>
             </div>
 
-            <!-- БЫСТРЫЕ ИТОГИ (доход/расход за день/неделю/месяц) -->
+            <!-- БЫСТРЫЕ ИТОГИ (горизонтально) -->
             <div class="quick-sums" id="quickSums">
                 <div class="group">
                     <span class="period-label">День</span>
-                    <span class="sum income" id="dayIncome">0 ₽</span>
-                    <span class="sum expense" id="dayExpense">0 ₽</span>
+                    <div class="sums-row">
+                        <span class="sum income" id="dayIncome">0 ₽</span>
+                        <span class="sum expense" id="dayExpense">0 ₽</span>
+                    </div>
                 </div>
                 <div class="group">
                     <span class="period-label">Неделя</span>
-                    <span class="sum income" id="weekIncome">0 ₽</span>
-                    <span class="sum expense" id="weekExpense">0 ₽</span>
+                    <div class="sums-row">
+                        <span class="sum income" id="weekIncome">0 ₽</span>
+                        <span class="sum expense" id="weekExpense">0 ₽</span>
+                    </div>
                 </div>
                 <div class="group">
                     <span class="period-label">Месяц</span>
-                    <span class="sum income" id="monthIncome">0 ₽</span>
-                    <span class="sum expense" id="monthExpense">0 ₽</span>
+                    <div class="sums-row">
+                        <span class="sum income" id="monthIncome">0 ₽</span>
+                        <span class="sum expense" id="monthExpense">0 ₽</span>
+                    </div>
                 </div>
             </div>
 
@@ -504,10 +498,10 @@
                 </div>
             </div>
 
-            <!-- СВОРАЧИВАЕМЫЙ БЛОК: ТРАНЗАКЦИИ -->
+            <!-- СВОРАЧИВАЕМЫЙ БЛОК: ИСТОРИЯ ТРАНЗАКЦИЙ -->
             <div class="collapsible">
                 <div class="collapsible-header" data-target="transactionsContent">
-                    <h3>📋 Последние транзакции</h3>
+                    <h3>📋 История транзакций</h3>
                     <span class="toggle">▼</span>
                 </div>
                 <div class="collapsible-content open" id="transactionsContent">
@@ -517,7 +511,7 @@
                 </div>
             </div>
 
-            <!-- КУРС (внизу) -->
+            <!-- КУРС -->
             <div class="rate-bar">
                 <span class="label">💵 Курс USD/RUB</span>
                 <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
@@ -566,7 +560,7 @@
                 expensePieChart = null,
                 incomePieChart = null;
 
-            // --- ПАРСИНГ ТРАНЗАКЦИЙ (без изменений) ---
+            // --- ПАРСИНГ ТРАНЗАКЦИЙ ---
             function parseNumber(str) {
                 const cleaned = str.replace(/\s/g, '').replace(',', '.');
                 const match = cleaned.match(/(\d+\.?\d*)/);
@@ -734,20 +728,18 @@
                 rateChangeInfo.style.color = diff >= 0 ? '#4ade80' : '#f87171';
             }
 
-            // --- ЗАГРУЗКА С ГИТХАБА (или из localStorage) ---
+            // --- ЗАГРУЗКА С ГИТХАБА ---
             async function loadData() {
-                // 1. Сначала пытаемся загрузить из localStorage (если файл уже выбирали)
                 const stored = loadTransactions();
                 if (stored && stored.length) {
                     initData(stored);
                     fileStatus.textContent = `📂 Загружено из кэша: ${stored.length} записей`;
                     return true;
                 }
-                // 2. Если в localStorage нет, пробуем загрузить с GitHub
                 try {
                     const url = 'stats2.json?t=' + Date.now();
                     const response = await fetch(url, { cache: 'no-store' });
-                    if (!response.ok) throw new Error('Файл не найден на сервере');
+                    if (!response.ok) throw new Error('Файл не найден');
                     const content = await response.text();
                     const transactions = parseData(content);
                     if (transactions.length) {
@@ -758,11 +750,10 @@
                 } catch (e) {
                     console.warn('Не удалось загрузить с GitHub:', e.message);
                 }
-                // 3. Если ничего не загрузилось
                 return false;
             }
 
-            // --- РЕНДЕРИНГ СТАТИСТИКИ (с разделением валют) ---
+            // --- РЕНДЕРИНГ ---
             function renderDashboard(transactions, period) {
                 if (!transactions.length) {
                     dashboard.classList.add('hidden');
@@ -770,19 +761,17 @@
                     return;
                 }
 
-                // Разделяем транзакции по типу и валюте
-                // Если usd > 0, считаем валютной и не учитываем rub в рублёвых суммах
+                // Разделение по валютам
                 const rubIncome = transactions.filter(t => t.type === 'income' && t.usd === 0).reduce((s, t) => s + t.rub, 0);
                 const rubExpense = transactions.filter(t => t.type === 'expense' && t.usd === 0).reduce((s, t) => s + t.rub, 0);
                 const usdIncome = transactions.filter(t => t.type === 'income' && t.usd > 0).reduce((s, t) => s + t.usd, 0);
                 const usdExpense = transactions.filter(t => t.type === 'expense' && t.usd > 0).reduce((s, t) => s + t.usd, 0);
 
-                // Общий доход/расход в рублях (с пересчётом долларов по текущему курсу)
                 const totalIncomeRub = rubIncome + usdIncome * currentUsdRate;
                 const totalExpenseRub = rubExpense + usdExpense * currentUsdRate;
                 const netRub = totalIncomeRub - totalExpenseRub;
 
-                // Для быстрых итогов (за день/неделю/месяц) используем те же расчёты
+                // Быстрые итоги
                 const now = new Date();
                 const dayStart = new Date(now);
                 dayStart.setHours(0, 0, 0, 0);
@@ -818,19 +807,16 @@
                 netEl.style.color = netRub >= 0 ? '#4ade80' : '#f87171';
                 document.getElementById('recordCount').textContent = transactions.length;
 
-                // Курсовая разница (сумма разниц для валютных транзакций)
                 let totalRateDiff = 0;
                 for (const tx of transactions) {
                     if (tx.usd > 0) {
-                        const rubEquivalent = tx.usd * currentUsdRate;
-                        totalRateDiff += (rubEquivalent - tx.rub);
+                        totalRateDiff += (tx.usd * currentUsdRate - tx.rub);
                     }
                 }
                 document.getElementById('rateProfit').textContent = (totalRateDiff >= 0 ? '+' : '') + totalRateDiff
                     .toLocaleString('ru-RU') + ' ₽';
                 document.getElementById('rateProfit').style.color = totalRateDiff >= 0 ? '#4ade80' : '#f87171';
 
-                // Быстрые итоги
                 document.getElementById('dayIncome').textContent = day.incRub.toLocaleString('ru-RU') + ' ₽';
                 document.getElementById('dayExpense').textContent = day.expRub.toLocaleString('ru-RU') + ' ₽';
                 document.getElementById('weekIncome').textContent = week.incRub.toLocaleString('ru-RU') + ' ₽';
@@ -838,8 +824,7 @@
                 document.getElementById('monthIncome').textContent = month.incRub.toLocaleString('ru-RU') + ' ₽';
                 document.getElementById('monthExpense').textContent = month.expRub.toLocaleString('ru-RU') + ' ₽';
 
-                // --- ГРАФИКИ (используем общий доход/расход в рублях для динамики) ---
-                // Для графиков используем агрегацию по дням с пересчётом валютных транзакций
+                // --- ГРАФИКИ ---
                 const dailyMap = {};
                 for (const tx of transactions) {
                     const key = tx.dateStr;
@@ -861,7 +846,6 @@
                 if (expensePieChart) expensePieChart.destroy();
                 if (incomePieChart) incomePieChart.destroy();
 
-                // График динамики
                 const ctxDaily = document.getElementById('dailyChart').getContext('2d');
                 dailyChart = new Chart(ctxDaily, {
                     type: 'bar',
@@ -905,7 +889,6 @@
                     }
                 });
 
-                // Расходы по категориям (RUB)
                 const expenseCat = aggregateByCategory(transactions, 'expense');
                 const ctxExpPie = document.getElementById('expensePieChart').getContext('2d');
                 expensePieChart = new Chart(ctxExpPie, {
@@ -940,7 +923,6 @@
                     }
                 });
 
-                // Доходы по категориям (RUB)
                 const incomeCat = aggregateByCategory(transactions, 'income');
                 const ctxIncPie = document.getElementById('incomePieChart').getContext('2d');
                 incomePieChart = new Chart(ctxIncPie, {
@@ -975,7 +957,7 @@
                     }
                 });
 
-                // --- СПИСОК ТРАНЗАКЦИЙ (с комментарием) ---
+                // --- ИСТОРИЯ ТРАНЗАКЦИЙ (с комментариями) ---
                 const sorted = [...transactions].sort((a, b) => b.date.getTime() - a.date.getTime());
                 const list = document.getElementById('transactionList');
                 list.innerHTML = '';
@@ -1032,10 +1014,6 @@
                 updateWithFilter(currentFilter);
             }
 
-            // --- ОБРАБОТКА ФАЙЛА (ручная загрузка — через input) ---
-            // Мы не используем input в этом дизайне, но оставляем возможность через кнопку "Обновить" (с GitHub)
-            // Для ручной загрузки можно добавить скрытый input, но по условию мы используем GitHub.
-
             // --- СОБЫТИЯ ---
             clearDataBtn.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -1074,7 +1052,7 @@
                 });
             });
 
-            // --- СВОРАЧИВАНИЕ БЛОКОВ ---
+            // --- СВОРАЧИВАНИЕ ---
             document.querySelectorAll('.collapsible-header').forEach(header => {
                 header.addEventListener('click', function() {
                     const targetId = this.dataset.target;
@@ -1098,7 +1076,6 @@
                 }
             })();
 
-            // Service Worker
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')
                     .then(() => console.log('✅ Service Worker зарегистрирован'))
