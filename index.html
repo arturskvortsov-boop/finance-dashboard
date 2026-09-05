@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
     <style>
-        /* --- ОБЩИЕ СТИЛИ --- */
+        /* --- (все стили такие же, как в финальной версии, плюс добавим для rate) --- */
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -27,7 +27,6 @@
             width: 100%;
             margin: 0 auto;
         }
-        /* --- ВЕРХНЯЯ ПАНЕЛЬ --- */
         .top-bar {
             display: flex;
             align-items: center;
@@ -69,8 +68,13 @@
             background: rgba(248, 113, 113, 0.1);
         }
         .top-bar .actions button.clear:hover { background: rgba(248, 113, 113, 0.2); }
+        .top-bar .actions .rate-upload-btn { /* отдельный стиль для загрузки rate */
+            background: rgba(96, 165, 250, 0.15);
+            border-color: #60a5fa;
+            color: #60a5fa;
+        }
+        .top-bar .actions .rate-upload-btn:hover { background: rgba(96, 165, 250, 0.3); }
 
-        /* --- БЛОК БАЛАНСА --- */
         .balance-card {
             background: #111;
             border-radius: 14px;
@@ -109,10 +113,7 @@
             border-top: 1px solid #2a2a2a;
             padding-top: 8px;
         }
-        .balance-card .bottom .period {
-            color: #8b9bb5;
-            font-size: 0.75rem;
-        }
+        .balance-card .bottom .period { color: #8b9bb5; font-size: 0.75rem; }
         .balance-card .bottom .month-change {
             display: flex;
             gap: 16px;
@@ -132,7 +133,6 @@
             flex-wrap: wrap;
         }
 
-        /* --- КУРС (внизу) --- */
         .rate-bar {
             display: flex;
             align-items: center;
@@ -170,7 +170,6 @@
         .rate-bar .rate-info { color: #4ade80; font-weight: 500; font-size: 0.8rem; margin-left: auto; }
         .rate-bar .rate-change { color: #8b9bb5; font-size: 0.7rem; margin-left: 4px; }
 
-        /* --- ФИЛЬТРЫ --- */
         .filter-bar {
             display: flex;
             gap: 8px;
@@ -202,7 +201,6 @@
             font-size: 0.75rem;
         }
 
-        /* --- СТАТИСТИКА --- */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -245,7 +243,6 @@
         .stats-grid-extra .stat-card { padding: 8px 10px; }
         .stats-grid-extra .stat-card .value { font-size: 1.1rem; }
 
-        /* --- БЫСТРЫЕ ИТОГИ (три карточки в строку) --- */
         .quick-sums {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -280,7 +277,7 @@
         .quick-sums .group .sum.income { color: #4ade80; }
         .quick-sums .group .sum.expense { color: #f87171; }
 
-        /* --- СВОРАЧИВАЕМЫЕ БЛОКИ (исправлено) --- */
+        /* Сворачиваемые блоки */
         .collapsible {
             margin-bottom: 12px;
             border-radius: 14px;
@@ -326,15 +323,9 @@
             background: #111;
             padding: 12px 14px;
         }
-        /* Чтобы при закрытом состоянии оставалась обводка */
-        .collapsible.closed .collapsible-header {
-            border-radius: 14px;
-        }
-        .collapsible:not(.closed) .collapsible-header {
-            border-radius: 14px 14px 0 0;
-        }
+        .collapsible.closed .collapsible-header { border-radius: 14px; }
+        .collapsible:not(.closed) .collapsible-header { border-radius: 14px 14px 0 0; }
 
-        /* --- ГРАФИКИ --- */
         .charts-row {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr;
@@ -360,7 +351,6 @@
         .full-width { grid-column: 1 / -1; }
         .full-width canvas { max-height: 180px; }
 
-        /* --- ИСТОРИЯ ТРАНЗАКЦИЙ --- */
         .transactions {
             background: #111;
             border-radius: 14px;
@@ -425,7 +415,6 @@
         }
         .hidden { display: none !important; }
 
-        /* --- АДАПТИВ --- */
         @media (max-width: 900px) {
             .charts-row { grid-template-columns: 1fr 1fr; }
             .full-width { grid-column: 1 / -1; }
@@ -451,6 +440,7 @@
             .rate-bar { flex-direction: column; align-items: stretch; gap: 4px; padding: 6px 12px; }
             .rate-bar .rate-info { margin-left: 0; text-align: center; }
             .full-width canvas { max-height: 150px; }
+            .top-bar .actions { justify-content: center; }
         }
         .footer {
             margin-top: 16px;
@@ -471,6 +461,7 @@
             <div class="actions">
                 <button id="refreshBtn">🔄 Обновить</button>
                 <button id="clearDataBtn" class="clear">🗑️ Очистить</button>
+                <button id="loadRateBtn" class="rate-upload-btn">📈 Загрузить rate.json</button>
             </div>
         </div>
 
@@ -545,7 +536,7 @@
                 </div>
             </div>
 
-            <!-- БЫСТРЫЕ ИТОГИ (три карточки в строку) -->
+            <!-- БЫСТРЫЕ ИТОГИ -->
             <div class="quick-sums" id="quickSums">
                 <div class="group">
                     <div class="period-label">День</div>
@@ -594,6 +585,19 @@
                 </div>
             </div>
 
+            <!-- НОВЫЙ БЛОК: ИСТОРИЯ КУРСА -->
+            <div class="collapsible" id="rateHistoryCollapsible">
+                <div class="collapsible-header" data-target="rateHistoryContent">
+                    <h3>📊 История курса USD/RUB</h3>
+                    <span class="toggle">▼</span>
+                </div>
+                <div class="collapsible-content open" id="rateHistoryContent">
+                    <div class="chart-box full-width" style="border-radius:0; border:none;">
+                        <canvas id="rateHistoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
             <!-- СВОРАЧИВАЕМЫЙ БЛОК: ИСТОРИЯ ТРАНЗАКЦИЙ -->
             <div class="collapsible" id="transactionsCollapsible">
                 <div class="collapsible-header" data-target="transactionsContent">
@@ -623,7 +627,7 @@
         </div>
 
         <div class="footer">
-            Данные из stats2.json • Автообновление каждую минуту
+            Данные из stats2.json • Автообновление каждую минуту • История курса из rate.json
         </div>
     </div>
 
@@ -635,6 +639,7 @@
             const fileStatus = document.getElementById('fileStatus');
             const clearDataBtn = document.getElementById('clearDataBtn');
             const refreshBtn = document.getElementById('refreshBtn');
+            const loadRateBtn = document.getElementById('loadRateBtn');
             const filterBtns = document.querySelectorAll('.filter-btn');
             const periodLabel = document.getElementById('periodLabel');
             const dashboard = document.getElementById('dashboard');
@@ -655,14 +660,17 @@
 
             const STORAGE_KEY = 'financeDataTransactions';
             const RATE_STORAGE_KEY = 'usdRate';
+            const RATE_HISTORY_KEY = 'rateHistory';
 
             let allTransactions = [];
+            let rateHistory = []; // массив объектов { date, rate }
             let currentFilter = 'month';
             let dataLoaded = false;
             let currentUsdRate = 85.00;
             let dailyChart = null,
                 expensePieChart = null,
                 incomePieChart = null;
+            let rateHistoryChart = null;
             let autoUpdateTimer = null;
 
             // --- ПАРСИНГ ТРАНЗАКЦИЙ ---
@@ -723,6 +731,40 @@
                 return transactions;
             }
 
+            // --- ПАРСИНГ ИСТОРИИ КУРСА ---
+            function parseRateHistory(jsonText) {
+                let data;
+                try { data = JSON.parse(jsonText); } catch { return []; }
+                if (!data.text || typeof data.text !== 'string') return [];
+                const lines = data.text.split('\n').filter(line => line.trim() !== '');
+                const history = [];
+                for (const line of lines) {
+                    // Пропускаем строку с заголовком
+                    if (line.toLowerCase().includes('курс')) continue;
+                    // Ищем дату ДД.ММ.ГГГГ
+                    const dateMatch = line.match(/(\d{2})\.(\d{2})\.(\d{4})/);
+                    if (!dateMatch) continue;
+                    const day = parseInt(dateMatch[1]);
+                    const month = parseInt(dateMatch[2]) - 1;
+                    const year = parseInt(dateMatch[3]);
+                    // Ищем время ЧЧ:ММ (может отсутствовать)
+                    const timeMatch = line.match(/(\d{2}):(\d{2})/);
+                    let hour = 0,
+                        minute = 0;
+                    if (timeMatch) { hour = parseInt(timeMatch[1]);
+                        minute = parseInt(timeMatch[2]); }
+                    // Ищем число с запятой или точкой после | или в конце строки
+                    const numMatch = line.match(/(\d+[.,]\d+)/);
+                    if (!numMatch) continue;
+                    const rate = parseFloat(numMatch[1].replace(',', '.'));
+                    if (isNaN(rate) || rate <= 0) continue;
+                    const dateObj = new Date(year, month, day, hour, minute);
+                    history.push({ date: dateObj, rate: rate });
+                }
+                history.sort((a, b) => a.date - b.date);
+                return history;
+            }
+
             // --- ФИЛЬТРАЦИЯ И АГРЕГАЦИЯ ---
             function filterTransactions(transactions, period) {
                 if (!transactions.length) return [];
@@ -778,11 +820,26 @@
                 } catch (e) { /* ignore */ }
                 return null;
             }
+            function saveRateHistory(history) {
+                try { localStorage.setItem(RATE_HISTORY_KEY, JSON.stringify(history)); } catch (e) { /* ignore */ }
+            }
+            function loadRateHistory() {
+                try {
+                    const stored = localStorage.getItem(RATE_HISTORY_KEY);
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        return parsed.map(item => ({ ...item, date: new Date(item.date) }));
+                    }
+                } catch (e) { /* ignore */ }
+                return null;
+            }
             function clearStoredData() {
                 localStorage.removeItem(STORAGE_KEY);
                 localStorage.removeItem(RATE_STORAGE_KEY);
+                localStorage.removeItem(RATE_HISTORY_KEY);
                 fileStatus.textContent = '🗑️ Данные очищены';
                 allTransactions = [];
+                rateHistory = [];
                 dataLoaded = false;
                 dashboard.classList.add('hidden');
                 emptyState.classList.remove('hidden');
@@ -793,6 +850,8 @@
                     expensePieChart = null; }
                 if (incomePieChart) { incomePieChart.destroy();
                     incomePieChart = null; }
+                if (rateHistoryChart) { rateHistoryChart.destroy();
+                    rateHistoryChart = null; }
                 if (autoUpdateTimer) {
                     clearInterval(autoUpdateTimer);
                     autoUpdateTimer = null;
@@ -902,7 +961,7 @@
                 monthExpenseDisplay.textContent = `↓ ${monthExpRub.toLocaleString('ru-RU')}`;
             }
 
-            // --- ЗАГРУЗКА С ГИТХАБА ---
+            // --- ЗАГРУЗКА С ГИТХАБА (stats2.json) ---
             async function loadData(showStatus = true) {
                 if (showStatus) fileStatus.textContent = '⏳ Загрузка...';
                 const stored = loadTransactions();
@@ -923,9 +982,144 @@
                         return true;
                     }
                 } catch (e) {
-                    console.warn('Не удалось загрузить с GitHub:', e.message);
+                    console.warn('Не удалось загрузить stats2.json:', e.message);
                 }
                 return false;
+            }
+
+            // --- ЗАГРУЗКА rate.json (история курса) ---
+            async function loadRateHistoryFromServer(showStatus = false) {
+                if (showStatus) fileStatus.textContent = '⏳ Загрузка rate.json...';
+                try {
+                    const url = 'rate.json?t=' + Date.now();
+                    const response = await fetch(url, { cache: 'no-store' });
+                    if (!response.ok) throw new Error('rate.json не найден');
+                    const json = await response.json();
+                    if (!json.text || typeof json.text !== 'string') throw new Error('Нет поля text');
+                    const history = parseRateHistory(json.text);
+                    if (history.length) {
+                        rateHistory = history;
+                        saveRateHistory(history);
+                        // Обновляем последний курс
+                        const last = history[history.length - 1];
+                        setRate(last.rate);
+                        if (showStatus) fileStatus.textContent = `✅ Загружено ${history.length} записей курса`;
+                        // Перерисовываем график
+                        drawRateHistoryChart();
+                        return true;
+                    }
+                } catch (e) {
+                    console.warn('Не удалось загрузить rate.json:', e.message);
+                    if (showStatus) fileStatus.textContent = '❌ rate.json не найден';
+                }
+                // Если не загрузилось, пытаемся взять из localStorage
+                const stored = loadRateHistory();
+                if (stored && stored.length) {
+                    rateHistory = stored;
+                    const last = stored[stored.length - 1];
+                    setRate(last.rate);
+                    drawRateHistoryChart();
+                    return true;
+                }
+                return false;
+            }
+
+            // --- ОТРИСОВКА ГРАФИКА ИСТОРИИ КУРСА ---
+            function drawRateHistoryChart() {
+                const canvas = document.getElementById('rateHistoryChart');
+                if (!canvas) return;
+                if (rateHistoryChart) {
+                    rateHistoryChart.destroy();
+                    rateHistoryChart = null;
+                }
+                const ctx = canvas.getContext('2d');
+                if (rateHistory.length < 2) {
+                    // Показываем сообщение
+                    rateHistoryChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: [],
+                            datasets: [{
+                                label: 'Курс USD/RUB',
+                                data: [],
+                                borderColor: '#60a5fa',
+                                backgroundColor: 'rgba(96, 165, 250, 0.1)',
+                                borderWidth: 2,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: { labels: { color: '#c8d0e0' } }
+                            }
+                        }
+                    });
+                    // Добавляем текст
+                    const originalDraw = rateHistoryChart.draw;
+                    rateHistoryChart.draw = function() {
+                        originalDraw.apply(this, arguments);
+                        const ctx2 = this.ctx;
+                        const chartArea = this.chartArea;
+                        if (this.data.datasets[0].data.length < 2) {
+                            ctx2.save();
+                            ctx2.fillStyle = '#7a8aa3';
+                            ctx2.font = '14px -apple-system, sans-serif';
+                            ctx2.textAlign = 'center';
+                            ctx2.textBaseline = 'middle';
+                            ctx2.fillText(
+                                rateHistory.length === 0 ? 'Нет данных курса' : 'Недостаточно точек (минимум 2)',
+                                (chartArea.left + chartArea.right) / 2,
+                                (chartArea.top + chartArea.bottom) / 2
+                            );
+                            ctx2.restore();
+                        }
+                    };
+                    rateHistoryChart.update();
+                    return;
+                }
+                const labels = rateHistory.map(item => {
+                    const d = item.date;
+                    return d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+                });
+                const data = rateHistory.map(item => item.rate);
+                rateHistoryChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Курс USD/RUB',
+                            data: data,
+                            borderColor: '#60a5fa',
+                            backgroundColor: 'rgba(96, 165, 250, 0.1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#60a5fa',
+                            pointRadius: 2,
+                            tension: 0.2,
+                            fill: true,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: {
+                            legend: { labels: { color: '#c8d0e0' } },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => ctx.parsed.y.toFixed(2) + ' ₽'
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                ticks: { color: '#8b9bb5', callback: v => v.toFixed(2) + ' ₽' }
+                            },
+                            x: {
+                                ticks: { color: '#8b9bb5', maxTicksLimit: 15, maxRotation: 30, autoSkip: true }
+                            }
+                        }
+                    }
+                });
             }
 
             // --- РЕНДЕРИНГ ---
@@ -946,7 +1140,7 @@
                 const totalExpenseRub = rubExpense + usdExpense * currentUsdRate;
                 const netRub = totalIncomeRub - totalExpenseRub;
 
-                // Быстрые итоги (день, неделя, месяц)
+                // Быстрые итоги
                 const now = new Date();
                 const dayStart = new Date(now);
                 dayStart.setHours(0, 0, 0, 0);
@@ -970,7 +1164,7 @@
                 const week = calcPeriod(weekStart);
                 const month = calcPeriod(monthStart);
 
-                // Обновляем карточки статистики
+                // Обновляем карточки
                 document.getElementById('totalIncomeRubOnly').textContent = rubIncome.toLocaleString('ru-RU') + ' ₽';
                 document.getElementById('totalExpenseRubOnly').textContent = rubExpense.toLocaleString('ru-RU') + ' ₽';
                 document.getElementById('totalIncomeUsd').textContent = usdIncome.toLocaleString('ru-RU') + ' $';
@@ -992,7 +1186,7 @@
                     .toLocaleString('ru-RU') + ' ₽';
                 document.getElementById('rateProfit').style.color = totalRateDiff >= 0 ? '#4ade80' : '#f87171';
 
-                // Быстрые итоги (формат: +число и -число с пробелами)
+                // Быстрые итоги
                 const formatNum = (num) => num.toLocaleString('ru-RU');
                 document.getElementById('dayIncome').textContent = (day.incRub >= 0 ? '+' : '') + formatNum(day.incRub);
                 document.getElementById('dayExpense').textContent = (day.expRub >= 0 ? '-' : '') + formatNum(day.expRub);
@@ -1001,7 +1195,7 @@
                 document.getElementById('monthIncome').textContent = (month.incRub >= 0 ? '+' : '') + formatNum(month.incRub);
                 document.getElementById('monthExpense').textContent = (month.expRub >= 0 ? '-' : '') + formatNum(month.expRub);
 
-                // --- ГРАФИКИ ---
+                // --- ГРАФИКИ (доходы/расходы, категории) ---
                 const dailyMap = {};
                 for (const tx of transactions) {
                     const key = tx.dateStr;
@@ -1191,11 +1385,11 @@
                 document.querySelector(`.filter-btn[data-period="${currentFilter}"]`)?.classList.add('active');
                 updateWithFilter(currentFilter);
                 updateBalanceBlock();
-                // Запускаем автообновление, если ещё не запущено
+                // Запускаем автообновление
                 if (!autoUpdateTimer) startAutoUpdate();
             }
 
-            // --- АВТООБНОВЛЕНИЕ КАЖДУЮ МИНУТУ ---
+            // --- АВТООБНОВЛЕНИЕ ---
             function startAutoUpdate() {
                 if (autoUpdateTimer) clearInterval(autoUpdateTimer);
                 autoUpdateTimer = setInterval(async function() {
@@ -1240,6 +1434,11 @@
                 if (!loaded) {
                     fileStatus.textContent = '❌ Не удалось загрузить данные';
                 }
+            });
+
+            loadRateBtn.addEventListener('click', async function(e) {
+                e.preventDefault();
+                await loadRateHistoryFromServer(true);
             });
 
             usdRateInput.addEventListener('keydown', function(e) {
@@ -1288,12 +1487,15 @@
             // --- ЗАПУСК ---
             (async function start() {
                 loadRate();
+                // Загружаем транзакции
                 const loaded = await loadData(true);
                 if (!loaded) {
                     dashboard.classList.add('hidden');
                     emptyState.classList.remove('hidden');
                     fileStatus.textContent = '📂 Загрузите файл вручную или проверьте stats2.json на GitHub.';
                 }
+                // Загружаем историю курса (если есть)
+                await loadRateHistoryFromServer(false);
             })();
 
             if ('serviceWorker' in navigator) {
