@@ -212,41 +212,37 @@
         .stats-grid-extra .stat-card { padding: 8px 10px; }
         .stats-grid-extra .stat-card .value { font-size: 1.1rem; }
 
-        /* --- БЫСТРЫЕ ИТОГИ (вертикальный список) --- */
+        /* --- БЫСТРЫЕ ИТОГИ (три карточки в ряд) --- */
         .quick-sums {
             display: flex;
-            flex-direction: column;
-            gap: 4px;
+            flex-wrap: wrap;
+            gap: 10px;
             margin-bottom: 12px;
-            background: #111;
-            border-radius: 14px;
-            padding: 10px 16px;
-            border: 1px solid #2a2a2a;
+            justify-content: center;
         }
         .quick-sums .group {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 4px 0;
-            border-bottom: 1px solid #2a2a2a;
-        }
-        .quick-sums .group:last-child {
-            border-bottom: none;
+            background: #111;
+            border-radius: 14px;
+            padding: 12px 14px;
+            border: 1px solid #2a2a2a;
+            text-align: center;
+            flex: 1 1 150px;
+            min-width: 120px;
         }
         .quick-sums .group .period-label {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #c8d0e0;
+            font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            color: #8b9bb5;
+            font-weight: 500;
+            margin-bottom: 4px;
         }
         .quick-sums .group .sums-row {
             display: flex;
-            gap: 16px;
-        }
-        .quick-sums .group .sum {
+            justify-content: center;
+            gap: 12px;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 1.1rem;
         }
         .quick-sums .group .sum.income { color: #4ade80; }
         .quick-sums .group .sum.expense { color: #f87171; }
@@ -394,11 +390,10 @@
             .charts-row { grid-template-columns: 1fr; }
             .stat-card .value { font-size: 1.1rem; }
             .stats-grid-extra { grid-template-columns: 1fr 1fr; }
+            .quick-sums { flex-direction: column; align-items: stretch; }
+            .quick-sums .group { flex: none; }
             .filter-bar { justify-content: center; }
             .period-label { margin-left: 0; width: 100%; text-align: center; }
-            .quick-sums .group { flex-wrap: wrap; gap: 4px; }
-            .quick-sums .group .period-label { font-size: 0.8rem; }
-            .quick-sums .group .sum { font-size: 0.9rem; }
             .total-balance { flex-direction: column; align-items: center; gap: 6px; }
             .rate-bar { flex-direction: column; align-items: stretch; gap: 4px; padding: 6px 12px; }
             .rate-bar .rate-info { margin-left: 0; text-align: center; }
@@ -490,24 +485,24 @@
                 </div>
             </div>
 
-            <!-- БЫСТРЫЕ ИТОГИ (вертикальный список) -->
+            <!-- БЫСТРЫЕ ИТОГИ (три карточки в ряд) -->
             <div class="quick-sums" id="quickSums">
                 <div class="group">
-                    <span class="period-label">Сегодня</span>
+                    <div class="period-label">День</div>
                     <div class="sums-row">
                         <span class="sum income" id="dayIncome">+0</span>
                         <span class="sum expense" id="dayExpense">-0</span>
                     </div>
                 </div>
                 <div class="group">
-                    <span class="period-label">7 дней</span>
+                    <div class="period-label">7 дней</div>
                     <div class="sums-row">
                         <span class="sum income" id="weekIncome">+0</span>
                         <span class="sum expense" id="weekExpense">-0</span>
                     </div>
                 </div>
                 <div class="group">
-                    <span class="period-label">Месяц</span>
+                    <div class="period-label">Месяц</div>
                     <div class="sums-row">
                         <span class="sum income" id="monthIncome">+0</span>
                         <span class="sum expense" id="monthExpense">-0</span>
@@ -771,7 +766,7 @@
                 rateChangeInfo.style.color = diff >= 0 ? '#4ade80' : '#f87171';
             }
 
-            // --- ОБНОВЛЕНИЕ ОБЩЕГО БАЛАНСА (все транзакции) ---
+            // --- ОБНОВЛЕНИЕ ОБЩЕГО БАЛАНСА ---
             function updateTotalBalance() {
                 if (!allTransactions.length) {
                     document.getElementById('totalBalanceUsd').textContent = '0 $';
@@ -865,7 +860,7 @@
                 const week = calcPeriod(weekStart);
                 const month = calcPeriod(monthStart);
 
-                // Обновляем карточки статистики (с пробелами)
+                // Обновляем карточки статистики
                 document.getElementById('totalIncomeRubOnly').textContent = rubIncome.toLocaleString('ru-RU') + ' ₽';
                 document.getElementById('totalExpenseRubOnly').textContent = rubExpense.toLocaleString('ru-RU') + ' ₽';
                 document.getElementById('totalIncomeUsd').textContent = usdIncome.toLocaleString('ru-RU') + ' $';
@@ -887,13 +882,14 @@
                     .toLocaleString('ru-RU') + ' ₽';
                 document.getElementById('rateProfit').style.color = totalRateDiff >= 0 ? '#4ade80' : '#f87171';
 
-                // Быстрые итоги (формат: +число и -число)
-                document.getElementById('dayIncome').textContent = (day.incRub >= 0 ? '+' : '') + day.incRub.toLocaleString('ru-RU');
-                document.getElementById('dayExpense').textContent = (day.expRub >= 0 ? '-' : '') + day.expRub.toLocaleString('ru-RU');
-                document.getElementById('weekIncome').textContent = (week.incRub >= 0 ? '+' : '') + week.incRub.toLocaleString('ru-RU');
-                document.getElementById('weekExpense').textContent = (week.expRub >= 0 ? '-' : '') + week.expRub.toLocaleString('ru-RU');
-                document.getElementById('monthIncome').textContent = (month.incRub >= 0 ? '+' : '') + month.incRub.toLocaleString('ru-RU');
-                document.getElementById('monthExpense').textContent = (month.expRub >= 0 ? '-' : '') + month.expRub.toLocaleString('ru-RU');
+                // Быстрые итоги (формат: +число и -число с пробелами)
+                const formatNum = (num) => num.toLocaleString('ru-RU');
+                document.getElementById('dayIncome').textContent = (day.incRub >= 0 ? '+' : '') + formatNum(day.incRub);
+                document.getElementById('dayExpense').textContent = (day.expRub >= 0 ? '-' : '') + formatNum(day.expRub);
+                document.getElementById('weekIncome').textContent = (week.incRub >= 0 ? '+' : '') + formatNum(week.incRub);
+                document.getElementById('weekExpense').textContent = (week.expRub >= 0 ? '-' : '') + formatNum(week.expRub);
+                document.getElementById('monthIncome').textContent = (month.incRub >= 0 ? '+' : '') + formatNum(month.incRub);
+                document.getElementById('monthExpense').textContent = (month.expRub >= 0 ? '-' : '') + formatNum(month.expRub);
 
                 // --- ГРАФИКИ ---
                 const dailyMap = {};
@@ -1028,7 +1024,7 @@
                     }
                 });
 
-                // --- ИСТОРИЯ ТРАНЗАКЦИЙ (с комментариями) ---
+                // --- ИСТОРИЯ ТРАНЗАКЦИЙ ---
                 const sorted = [...transactions].sort((a, b) => b.date.getTime() - a.date.getTime());
                 const list = document.getElementById('transactionList');
                 list.innerHTML = '';
