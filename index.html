@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
     <style>
-        /* --- ВСЕ СТИЛИ (такие же, как в предыдущей версии) --- */
+        /* --- ВСЕ СТИЛИ (без изменений) --- */
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -584,14 +584,15 @@
                 </div>
             </div>
 
-            <!-- НОВЫЙ БЛОК: ИСТОРИЯ КУРСА -->
+            <!-- БЛОК ИСТОРИИ КУРСА -->
             <div class="collapsible" id="rateHistoryCollapsible">
                 <div class="collapsible-header" data-target="rateHistoryContent">
                     <h3>📊 История курса USD/RUB</h3>
-                    <span class="toggle">▼</span>
+                    <span class="toggle open">▼</span>
                 </div>
                 <div class="collapsible-content open" id="rateHistoryContent">
                     <div class="chart-box full-width" style="border-radius:0; border:none;">
+                        <button id="refreshRateChartBtn" style="background:rgba(251,191,36,0.15);border:1px solid #fbbf24;color:#fbbf24;padding:2px 12px;border-radius:30px;font-size:0.7rem;cursor:pointer;margin-bottom:8px;">🔄 Обновить график</button>
                         <canvas id="rateHistoryChart"></canvas>
                     </div>
                 </div>
@@ -639,6 +640,7 @@
             const clearDataBtn = document.getElementById('clearDataBtn');
             const refreshBtn = document.getElementById('refreshBtn');
             const loadRateBtn = document.getElementById('loadRateBtn');
+            const refreshRateChartBtn = document.getElementById('refreshRateChartBtn');
             const filterBtns = document.querySelectorAll('.filter-btn');
             const periodLabel = document.getElementById('periodLabel');
             const dashboard = document.getElementById('dashboard');
@@ -729,32 +731,56 @@
                 return transactions;
             }
 
-            // --- ПАРСИНГ ИСТОРИИ КУРСА ---
+            // --- НОВАЯ ФУНКЦИЯ ПАРСИНГА ИСТОРИИ КУРСА (с подробным логом) ---
             function parseRateHistory(jsonText) {
+                console.log('🔍 Парсим rate.json');
                 let data;
-                try { data = JSON.parse(jsonText); } catch { return []; }
-                if (!data.text || typeof data.text !== 'string') return [];
+                try { data = JSON.parse(jsonText); } catch (e) {
+                    console.error('Ошибка парсинга JSON:', e);
+                    return [];
+                }
+                if (!data.text || typeof data.text !== 'string') {
+                    console.warn('Нет поля text');
+                    return [];
+                }
                 const lines = data.text.split('\n').filter(line => line.trim() !== '');
+                console.log(`📄 Найдено строк: ${lines.length}`);
                 const history = [];
                 for (const line of lines) {
-                    if (line.toLowerCase().includes('курс')) continue;
+                    console.log(`🔄 Обработка строки: "${line}"`);
+                    // Ищем дату
                     const dateMatch = line.match(/(\d{2})\.(\d{2})\.(\d{4})/);
-                    if (!dateMatch) continue;
+                    if (!dateMatch) {
+                        console.log('  ❌ Нет даты');
+                        continue;
+                    }
                     const day = parseInt(dateMatch[1]);
                     const month = parseInt(dateMatch[2]) - 1;
                     const year = parseInt(dateMatch[3]);
+                    // Ищем время (необязательно)
                     const timeMatch = line.match(/(\d{2}):(\d{2})/);
                     let hour = 0,
                         minute = 0;
-                    if (timeMatch) { hour = parseInt(timeMatch[1]);
-                        minute = parseInt(timeMatch[2]); }
+                    if (timeMatch) {
+                        hour = parseInt(timeMatch[1]);
+                        minute = parseInt(timeMatch[2]);
+                    }
+                    // Ищем число с запятой или точкой
                     const numMatch = line.match(/(\d+[.,]\d+)/);
-                    if (!numMatch) continue;
+                    if (!numMatch) {
+                        console.log('  ❌ Нет числа');
+                        continue;
+                    }
                     const rate = parseFloat(numMatch[1].replace(',', '.'));
-                    if (isNaN(rate) || rate <= 0) continue;
+                    if (isNaN(rate) || rate <= 0) {
+                        console.log('  ❌ Некорректный курс');
+                        continue;
+                    }
                     const dateObj = new Date(year, month, day, hour, minute);
                     history.push({ date: dateObj, rate: rate });
+                    console.log(`  ✅ Добавлена запись: ${dateObj.toISOString()} - ${rate}`);
                 }
+                console.log(`📊 Всего записей курса: ${history.length}`);
                 history.sort((a, b) => a.date - b.date);
                 return history;
             }
@@ -975,7 +1001,7 @@
                 return false;
             }
 
-            // --- ЗАГРУЗКА rate.json (история курса) ---
+            // --- ЗАГРУЗКА rate.json (с логированием) ---
             async function loadRateHistoryFromServer(showStatus = false) {
                 if (showStatus) fileStatus.textContent = '⏳ Загрузка rate.json...';
                 try {
@@ -992,10 +1018,14 @@
                         setRate(last.rate);
                         if (showStatus) fileStatus.textContent = `✅ Загружено ${history.length} записей курса`;
                         drawRateHistoryChart();
+                        console.log('📊 График курса обновлён, записей:', history.length);
                         return true;
+                    } else {
+                        console.warn('❌ Не найдено записей курса в rate.json');
+                        if (showStatus) fileStatus.textContent = '❌ Нет записей курса';
                     }
                 } catch (e) {
-                    console.warn('Не удалось загрузить rate.json:', e.message);
+                    console.warn('❌ Не удалось загрузить rate.json:', e.message);
                     if (showStatus) fileStatus.textContent = '❌ rate.json не найден';
                 }
                 const stored = loadRateHistory();
@@ -1004,17 +1034,24 @@
                     const last = stored[stored.length - 1];
                     setRate(last.rate);
                     drawRateHistoryChart();
+                    console.log('📊 График курса из кэша, записей:', stored.length);
                     return true;
                 }
+                console.warn('📊 Нет данных для графика курса');
                 return false;
             }
 
             // --- ОТРИСОВКА ГРАФИКА ИСТОРИИ КУРСА ---
             function drawRateHistoryChart() {
                 const canvas = document.getElementById('rateHistoryChart');
-                if (!canvas) return;
-                if (rateHistoryChart) { rateHistoryChart.destroy();
-                    rateHistoryChart = null; }
+                if (!canvas) {
+                    console.warn('Canvas rateHistoryChart не найден');
+                    return;
+                }
+                if (rateHistoryChart) {
+                    rateHistoryChart.destroy();
+                    rateHistoryChart = null;
+                }
                 const ctx = canvas.getContext('2d');
                 if (rateHistory.length < 2) {
                     rateHistoryChart = new Chart(ctx, {
@@ -1037,6 +1074,7 @@
                             }
                         }
                     });
+                    // Добавляем текст
                     const originalDraw = rateHistoryChart.draw;
                     rateHistoryChart.draw = function() {
                         originalDraw.apply(this, arguments);
@@ -1101,9 +1139,10 @@
                         }
                     }
                 });
+                console.log('✅ График курса отрисован');
             }
 
-            // --- РЕНДЕРИНГ ---
+            // --- РЕНДЕРИНГ (основной дашборд) ---
             function renderDashboard(transactions, period) {
                 if (!transactions.length) {
                     dashboard.classList.add('hidden');
@@ -1417,6 +1456,15 @@
                 await loadRateHistoryFromServer(true);
             });
 
+            refreshRateChartBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                drawRateHistoryChart();
+                fileStatus.textContent = '🔄 График курса обновлён';
+                setTimeout(() => {
+                    if (dataLoaded) fileStatus.textContent = `✅ ${allTransactions.length} записей`;
+                }, 2000);
+            });
+
             usdRateInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     const val = parseFloat(this.value);
@@ -1463,15 +1511,16 @@
             // --- ЗАПУСК ---
             (async function start() {
                 loadRate();
-                // Загружаем транзакции (главное)
                 const loaded = await loadData(true);
                 if (!loaded) {
                     dashboard.classList.add('hidden');
                     emptyState.classList.remove('hidden');
                     fileStatus.textContent = '📂 Загрузите файл вручную или проверьте stats2.json на GitHub.';
                 }
-                // Загружаем историю курса (в фоне, не блокируя интерфейс)
+                // Загружаем историю курса в фоне с логами
                 await loadRateHistoryFromServer(false);
+                // Принудительно отрисовываем график через секунду
+                setTimeout(() => drawRateHistoryChart(), 500);
             })();
 
             if ('serviceWorker' in navigator) {
