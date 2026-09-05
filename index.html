@@ -10,7 +10,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
     <style>
-        /* --- ВСЕ СТИЛИ (без изменений) --- */
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -22,11 +21,7 @@
             justify-content: center;
             align-items: flex-start;
         }
-        .container {
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-        }
+        .container { max-width:1200px; width:100%; margin:0 auto; }
         .top-bar {
             display: flex;
             align-items: center;
@@ -39,19 +34,10 @@
             border-radius: 16px;
             border: 1px solid #2a2a2a;
         }
-        .top-bar .status {
-            color: #60a5fa;
-            font-size: 0.8rem;
-            flex: 1;
-            min-width: 120px;
-        }
-        .top-bar .actions {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
+        .top-bar .status { color:#60a5fa; font-size:0.8rem; flex:1; min-width:120px; }
+        .top-bar .actions { display:flex; gap:6px; flex-wrap:wrap; }
         .top-bar .actions button {
-            background: rgba(251, 191, 36, 0.15);
+            background: rgba(251,191,36,0.15);
             border: 1px solid #fbbf24;
             color: #fbbf24;
             padding: 4px 14px;
@@ -61,19 +47,19 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        .top-bar .actions button:hover { background: rgba(251, 191, 36, 0.3); }
+        .top-bar .actions button:hover { background: rgba(251,191,36,0.3); }
         .top-bar .actions button.clear {
             color: #f87171;
             border-color: #f87171;
-            background: rgba(248, 113, 113, 0.1);
+            background: rgba(248,113,113,0.1);
         }
-        .top-bar .actions button.clear:hover { background: rgba(248, 113, 113, 0.2); }
+        .top-bar .actions button.clear:hover { background: rgba(248,113,113,0.2); }
         .top-bar .actions .rate-upload-btn {
-            background: rgba(96, 165, 250, 0.15);
+            background: rgba(96,165,250,0.15);
             border-color: #60a5fa;
             color: #60a5fa;
         }
-        .top-bar .actions .rate-upload-btn:hover { background: rgba(96, 165, 250, 0.3); }
+        .top-bar .actions .rate-upload-btn:hover { background: rgba(96,165,250,0.3); }
 
         .balance-card {
             background: #111;
@@ -85,52 +71,31 @@
             flex-direction: column;
             gap: 6px;
         }
-        .balance-card .top {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .balance-card .top .label {
-            color: #8b9bb5;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 500;
-        }
-        .balance-card .top .amount {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #fbbf24;
-        }
+        .balance-card .top { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px; }
+        .balance-card .top .label { color:#8b9bb5; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; font-weight:500; }
+        .balance-card .top .amount { font-size:1.8rem; font-weight:700; color:#fbbf24; }
         .balance-card .bottom {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 8px;
-            border-top: 1px solid #2a2a2a;
-            padding-top: 8px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            flex-wrap:wrap;
+            gap:8px;
+            border-top:1px solid #2a2a2a;
+            padding-top:8px;
         }
-        .balance-card .bottom .period { color: #8b9bb5; font-size: 0.75rem; }
-        .balance-card .bottom .month-change {
-            display: flex;
-            gap: 16px;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        .balance-card .bottom .month-change .income { color: #4ade80; }
-        .balance-card .bottom .month-change .expense { color: #f87171; }
+        .balance-card .bottom .period { color:#8b9bb5; font-size:0.75rem; }
+        .balance-card .bottom .month-change { display:flex; gap:16px; font-size:0.9rem; font-weight:500; }
+        .balance-card .bottom .month-change .income { color:#4ade80; }
+        .balance-card .bottom .month-change .expense { color:#f87171; }
         .balance-card .usd-info {
-            color: #60a5fa;
-            font-size: 0.85rem;
-            margin-top: 4px;
-            border-top: 1px solid #2a2a2a;
-            padding-top: 6px;
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
+            color:#60a5fa;
+            font-size:0.85rem;
+            margin-top:4px;
+            border-top:1px solid #2a2a2a;
+            padding-top:6px;
+            display:flex;
+            justify-content:space-between;
+            flex-wrap:wrap;
         }
 
         .rate-bar {
@@ -145,7 +110,7 @@
             margin-top: 12px;
             font-size: 0.8rem;
         }
-        .rate-bar .label { color: #8b9bb5; font-size: 0.75rem; }
+        .rate-bar .label { color:#8b9bb5; font-size:0.75rem; }
         .rate-bar input {
             background: #1a1f2a;
             border: 1px solid #2a3344;
@@ -155,20 +120,20 @@
             width: 80px;
             font-size: 0.8rem;
         }
-        .rate-bar input:focus { outline: none; border-color: #fbbf24; }
+        .rate-bar input:focus { outline:none; border-color:#fbbf24; }
         .rate-bar .update-btn {
-            background: rgba(251, 191, 36, 0.15);
-            border: 1px solid #fbbf24;
-            color: #fbbf24;
-            padding: 2px 12px;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 0.7rem;
-            cursor: pointer;
+            background: rgba(251,191,36,0.15);
+            border:1px solid #fbbf24;
+            color:#fbbf24;
+            padding:2px 12px;
+            border-radius:30px;
+            font-weight:600;
+            font-size:0.7rem;
+            cursor:pointer;
         }
-        .rate-bar .update-btn:hover { background: rgba(251, 191, 36, 0.3); }
-        .rate-bar .rate-info { color: #4ade80; font-weight: 500; font-size: 0.8rem; margin-left: auto; }
-        .rate-bar .rate-change { color: #8b9bb5; font-size: 0.7rem; margin-left: 4px; }
+        .rate-bar .update-btn:hover { background:rgba(251,191,36,0.3); }
+        .rate-bar .rate-info { color:#4ade80; font-weight:500; font-size:0.8rem; margin-left:auto; }
+        .rate-bar .rate-change { color:#8b9bb5; font-size:0.7rem; margin-left:4px; }
 
         .filter-bar {
             display: flex;
@@ -188,18 +153,14 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        .filter-btn:hover:not(.disabled) { background: rgba(255,255,255,0.1); color: #e8edf5; }
+        .filter-btn:hover:not(.disabled) { background: rgba(255,255,255,0.1); color:#e8edf5; }
         .filter-btn.active {
-            background: rgba(251, 191, 36, 0.15);
-            border-color: #fbbf24;
-            color: #fbbf24;
+            background: rgba(251,191,36,0.15);
+            border-color:#fbbf24;
+            color:#fbbf24;
         }
-        .filter-btn.disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
-        .period-label {
-            margin-left: auto;
-            color: #7a8aa3;
-            font-size: 0.75rem;
-        }
+        .filter-btn.disabled { opacity:0.3; cursor:not-allowed; pointer-events:none; }
+        .period-label { margin-left:auto; color:#7a8aa3; font-size:0.75rem; }
 
         .stats-grid {
             display: grid;
@@ -227,12 +188,12 @@
             margin-top: 2px;
             line-height: 1.2;
         }
-        .stat-card.income .value { color: #4ade80; }
-        .stat-card.expense .value { color: #f87171; }
-        .stat-card.balance .value { color: #fbbf24; }
-        .stat-card.usd .value { color: #60a5fa; }
-        .stat-card.rate-profit .value { color: #c084fc; }
-        .stat-card.count .value { color: #93c5fd; }
+        .stat-card.income .value { color:#4ade80; }
+        .stat-card.expense .value { color:#f87171; }
+        .stat-card.balance .value { color:#fbbf24; }
+        .stat-card.usd .value { color:#60a5fa; }
+        .stat-card.rate-profit .value { color:#c084fc; }
+        .stat-card.count .value { color:#93c5fd; }
 
         .stats-grid-extra {
             display: grid;
@@ -240,8 +201,8 @@
             gap: 10px;
             margin-bottom: 12px;
         }
-        .stats-grid-extra .stat-card { padding: 8px 10px; }
-        .stats-grid-extra .stat-card .value { font-size: 1.1rem; }
+        .stats-grid-extra .stat-card { padding:8px 10px; }
+        .stats-grid-extra .stat-card .value { font-size:1.1rem; }
 
         .quick-sums {
             display: grid;
@@ -274,8 +235,8 @@
             font-weight: 600;
             font-size: 1rem;
         }
-        .quick-sums .group .sum.income { color: #4ade80; }
-        .quick-sums .group .sum.expense { color: #f87171; }
+        .quick-sums .group .sum.income { color:#4ade80; }
+        .quick-sums .group .sum.expense { color:#f87171; }
 
         .collapsible {
             margin-bottom: 12px;
@@ -294,36 +255,29 @@
             user-select: none;
             border: none;
         }
-        .collapsible-header h3 {
-            font-weight: 500;
-            font-size: 0.85rem;
-            color: #c8d0e0;
-        }
+        .collapsible-header h3 { font-weight:500; font-size:0.85rem; color:#c8d0e0; }
         .collapsible-header .toggle {
-            font-size: 1.2rem;
-            color: #8b9bb5;
-            transition: transform 0.3s;
+            font-size:1.2rem;
+            color:#8b9bb5;
+            transition:transform 0.3s;
         }
-        .collapsible-header .toggle.open { transform: rotate(180deg); }
+        .collapsible-header .toggle.open { transform:rotate(180deg); }
         .collapsible-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-            border-top: none;
+            max-height:0;
+            overflow:hidden;
+            transition:max-height 0.3s ease-out;
+            border-top:none;
         }
-        .collapsible-content.open {
-            max-height: 2000px;
-            transition: max-height 0.5s ease-in;
-        }
+        .collapsible-content.open { max-height:2000px; transition:max-height 0.5s ease-in; }
         .collapsible-content .chart-box,
         .collapsible-content .transactions {
-            border: none;
-            border-radius: 0;
-            background: #111;
-            padding: 12px 14px;
+            border:none;
+            border-radius:0;
+            background:#111;
+            padding:12px 14px;
         }
-        .collapsible.closed .collapsible-header { border-radius: 14px; }
-        .collapsible:not(.closed) .collapsible-header { border-radius: 14px 14px 0 0; }
+        .collapsible.closed .collapsible-header { border-radius:14px; }
+        .collapsible:not(.closed) .collapsible-header { border-radius:14px 14px 0 0; }
 
         .charts-row {
             display: grid;
@@ -343,12 +297,9 @@
             margin-bottom: 8px;
             letter-spacing: 0.2px;
         }
-        .chart-box canvas {
-            max-height: 140px;
-            max-width: 100%;
-        }
-        .full-width { grid-column: 1 / -1; }
-        .full-width canvas { max-height: 180px; }
+        .chart-box canvas { max-height:140px; max-width:100%; }
+        .full-width { grid-column:1 / -1; }
+        .full-width canvas { max-height:180px; }
 
         .transactions {
             background: #111;
@@ -368,9 +319,9 @@
             scrollbar-width: thin;
             scrollbar-color: #3b4a5e transparent;
         }
-        .tx-list::-webkit-scrollbar { width: 4px; }
-        .tx-list::-webkit-scrollbar-track { background: transparent; }
-        .tx-list::-webkit-scrollbar-thumb { background: #3b4a5e; border-radius: 10px; }
+        .tx-list::-webkit-scrollbar { width:4px; }
+        .tx-list::-webkit-scrollbar-track { background:transparent; }
+        .tx-list::-webkit-scrollbar-thumb { background:#3b4a5e; border-radius:10px; }
         .tx-item {
             display: flex;
             justify-content: space-between;
@@ -379,7 +330,7 @@
             border-bottom: 1px solid #232b3b;
             font-size: 0.7rem;
         }
-        .tx-item:last-child { border-bottom: none; }
+        .tx-item:last-child { border-bottom:none; }
         .tx-item .left {
             display: flex;
             flex-direction: column;
@@ -387,67 +338,81 @@
             flex: 1;
             overflow: hidden;
         }
-        .tx-item .left .cat { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .tx-item .left .date { font-size: 0.6rem; color: #8b9bb5; }
+        .tx-item .left .cat { font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .tx-item .left .date { font-size:0.6rem; color:#8b9bb5; }
         .tx-item .left .note {
-            font-size: 0.6rem;
-            color: #a0b0c0;
-            font-style: italic;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size:0.6rem;
+            color:#a0b0c0;
+            font-style:italic;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
         }
         .tx-item .right {
-            font-weight: 600;
-            text-align: right;
-            white-space: nowrap;
-            margin-left: 8px;
+            font-weight:600;
+            text-align:right;
+            white-space:nowrap;
+            margin-left:8px;
         }
-        .tx-item .right.income { color: #4ade80; }
-        .tx-item .right.expense { color: #f87171; }
+        .tx-item .right.income { color:#4ade80; }
+        .tx-item .right.expense { color:#f87171; }
 
-        .empty-state {
-            text-align: center;
-            color: #7a8aa3;
-            padding: 20px 0;
-            font-size: 0.9rem;
-        }
-        .hidden { display: none !important; }
+        .empty-state { text-align:center; color:#7a8aa3; padding:20px 0; font-size:0.9rem; }
+        .hidden { display:none !important; }
 
-        @media (max-width: 900px) {
-            .charts-row { grid-template-columns: 1fr 1fr; }
-            .full-width { grid-column: 1 / -1; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
-            .stats-grid .stat-card:last-child { grid-column: span 2; }
+        /* Блок отладки */
+        .debug-block {
+            margin-top: 16px;
+            background: #1a1f2a;
+            border: 1px solid #4a5568;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 0.7rem;
+            color: #fbbf24;
+            max-height: 200px;
+            overflow-y: auto;
         }
-        @media (max-width: 600px) {
-            .stats-grid { grid-template-columns: 1fr 1fr; }
-            .stats-grid .stat-card:last-child { grid-column: span 2; }
-            .charts-row { grid-template-columns: 1fr; }
-            .stat-card .value { font-size: 1.1rem; }
-            .stats-grid-extra { grid-template-columns: 1fr 1fr; }
-            .quick-sums { grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 10px 0 8px 0; }
-            .quick-sums .group { padding: 6px 4px; border: 1px solid #2a3344; border-radius: 10px; }
-            .quick-sums .group .period-label { font-size: 0.6rem; }
-            .quick-sums .group .sums-row { font-size: 0.75rem; gap: 1px; }
-            .filter-bar { justify-content: center; }
-            .period-label { margin-left: 0; width: 100%; text-align: center; }
-            .balance-card .top { flex-direction: column; align-items: stretch; }
-            .balance-card .top .amount { font-size: 1.6rem; }
-            .balance-card .bottom { flex-direction: column; align-items: stretch; gap: 4px; }
-            .balance-card .bottom .month-change { justify-content: space-around; }
-            .rate-bar { flex-direction: column; align-items: stretch; gap: 4px; padding: 6px 12px; }
-            .rate-bar .rate-info { margin-left: 0; text-align: center; }
-            .full-width canvas { max-height: 150px; }
-            .top-bar .actions { justify-content: center; }
+        .debug-block .log-entry {
+            padding: 2px 0;
+            border-bottom: 1px solid #2a3344;
+        }
+        .debug-block .log-entry:last-child { border-bottom:none; }
+
+        @media (max-width:900px) {
+            .charts-row { grid-template-columns:1fr 1fr; }
+            .full-width { grid-column:1 / -1; }
+            .stats-grid { grid-template-columns:1fr 1fr; }
+            .stats-grid .stat-card:last-child { grid-column:span 2; }
+        }
+        @media (max-width:600px) {
+            .stats-grid { grid-template-columns:1fr 1fr; }
+            .stats-grid .stat-card:last-child { grid-column:span 2; }
+            .charts-row { grid-template-columns:1fr; }
+            .stat-card .value { font-size:1.1rem; }
+            .stats-grid-extra { grid-template-columns:1fr 1fr; }
+            .quick-sums { grid-template-columns:repeat(3,1fr); gap:6px; margin:10px 0 8px 0; }
+            .quick-sums .group { padding:6px 4px; border:1px solid #2a3344; border-radius:10px; }
+            .quick-sums .group .period-label { font-size:0.6rem; }
+            .quick-sums .group .sums-row { font-size:0.75rem; gap:1px; }
+            .filter-bar { justify-content:center; }
+            .period-label { margin-left:0; width:100%; text-align:center; }
+            .balance-card .top { flex-direction:column; align-items:stretch; }
+            .balance-card .top .amount { font-size:1.6rem; }
+            .balance-card .bottom { flex-direction:column; align-items:stretch; gap:4px; }
+            .balance-card .bottom .month-change { justify-content:space-around; }
+            .rate-bar { flex-direction:column; align-items:stretch; gap:4px; padding:6px 12px; }
+            .rate-bar .rate-info { margin-left:0; text-align:center; }
+            .full-width canvas { max-height:150px; }
+            .top-bar .actions { justify-content:center; }
+            .debug-block { font-size:0.6rem; max-height:150px; }
         }
         .footer {
-            margin-top: 16px;
-            text-align: center;
-            font-size: 0.65rem;
-            color: #5a6a80;
-            border-top: 1px solid #232b3b;
-            padding-top: 12px;
+            margin-top:16px;
+            text-align:center;
+            font-size:0.65rem;
+            color:#5a6a80;
+            border-top:1px solid #232b3b;
+            padding-top:12px;
         }
     </style>
 </head>
@@ -560,7 +525,7 @@
                 </div>
             </div>
 
-            <!-- СВОРАЧИВАЕМЫЙ БЛОК: ГРАФИКИ -->
+            <!-- ГРАФИКИ -->
             <div class="collapsible" id="chartsCollapsible">
                 <div class="collapsible-header" data-target="chartsContent">
                     <h3>📊 Графики</h3>
@@ -584,7 +549,7 @@
                 </div>
             </div>
 
-            <!-- БЛОК ИСТОРИИ КУРСА -->
+            <!-- ИСТОРИЯ КУРСА -->
             <div class="collapsible" id="rateHistoryCollapsible">
                 <div class="collapsible-header" data-target="rateHistoryContent">
                     <h3>📊 История курса USD/RUB</h3>
@@ -598,7 +563,7 @@
                 </div>
             </div>
 
-            <!-- СВОРАЧИВАЕМЫЙ БЛОК: ИСТОРИЯ ТРАНЗАКЦИЙ -->
+            <!-- ТРАНЗАКЦИИ -->
             <div class="collapsible" id="transactionsCollapsible">
                 <div class="collapsible-header" data-target="transactionsContent">
                     <h3>📋 История транзакций</h3>
@@ -626,6 +591,17 @@
             ⏳ Загрузите JSON-файл для отображения аналитики
         </div>
 
+        <!-- БЛОК ОТЛАДКИ -->
+        <div class="debug-block" id="debugBlock">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <span style="color:#8b9bb5;">🔍 Отладка</span>
+                <button id="toggleDebugBtn" style="background:none; border:none; color:#60a5fa; font-size:0.7rem; cursor:pointer;">Свернуть</button>
+            </div>
+            <div id="debugLog">
+                <div class="log-entry">⚡ Готов к работе</div>
+            </div>
+        </div>
+
         <div class="footer">
             Данные из stats2.json • Автообновление каждую минуту • История курса из rate.json
         </div>
@@ -635,7 +611,50 @@
         (function() {
             'use strict';
 
-            // DOM
+            // --- ОТЛАДКА В ИНТЕРФЕЙСЕ ---
+            const debugLog = document.getElementById('debugLog');
+            const toggleDebugBtn = document.getElementById('toggleDebugBtn');
+            let debugVisible = true;
+
+            function addLog(message) {
+                if (!debugLog) return;
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                entry.textContent = message;
+                debugLog.appendChild(entry);
+                while (debugLog.children.length > 20) {
+                    debugLog.removeChild(debugLog.firstChild);
+                }
+                debugLog.scrollTop = debugLog.scrollHeight;
+            }
+
+            toggleDebugBtn.addEventListener('click', function() {
+                if (debugVisible) {
+                    debugLog.style.display = 'none';
+                    toggleDebugBtn.textContent = 'Показать';
+                } else {
+                    debugLog.style.display = 'block';
+                    toggleDebugBtn.textContent = 'Свернуть';
+                }
+                debugVisible = !debugVisible;
+            });
+
+            // Перехват консоли
+            const originalLog = console.log;
+            console.log = function(...args) {
+                originalLog.apply(console, args);
+                addLog(args.join(' '));
+            };
+            console.warn = function(...args) {
+                originalLog.apply(console, args);
+                addLog('⚠️ ' + args.join(' '));
+            };
+            console.error = function(...args) {
+                originalLog.apply(console, args);
+                addLog('❌ ' + args.join(' '));
+            };
+
+            // --- DOM-элементы ---
             const fileStatus = document.getElementById('fileStatus');
             const clearDataBtn = document.getElementById('clearDataBtn');
             const refreshBtn = document.getElementById('refreshBtn');
@@ -731,7 +750,7 @@
                 return transactions;
             }
 
-            // --- НОВАЯ ФУНКЦИЯ ПАРСИНГА ИСТОРИИ КУРСА (с подробным логом) ---
+            // --- ПАРСИНГ ИСТОРИИ КУРСА (С ЛОГАМИ) ---
             function parseRateHistory(jsonText) {
                 console.log('🔍 Парсим rate.json');
                 let data;
@@ -747,13 +766,11 @@
                 console.log(`📄 Найдено строк: ${lines.length}`);
                 const history = [];
                 for (const line of lines) {
-                    console.log(`🔄 Обработка строки: "${line}"`);
+                    // Пропускаем заголовок
+                    if (line.toLowerCase().includes('курс')) continue;
                     // Ищем дату
                     const dateMatch = line.match(/(\d{2})\.(\d{2})\.(\d{4})/);
-                    if (!dateMatch) {
-                        console.log('  ❌ Нет даты');
-                        continue;
-                    }
+                    if (!dateMatch) continue;
                     const day = parseInt(dateMatch[1]);
                     const month = parseInt(dateMatch[2]) - 1;
                     const year = parseInt(dateMatch[3]);
@@ -767,18 +784,11 @@
                     }
                     // Ищем число с запятой или точкой
                     const numMatch = line.match(/(\d+[.,]\d+)/);
-                    if (!numMatch) {
-                        console.log('  ❌ Нет числа');
-                        continue;
-                    }
+                    if (!numMatch) continue;
                     const rate = parseFloat(numMatch[1].replace(',', '.'));
-                    if (isNaN(rate) || rate <= 0) {
-                        console.log('  ❌ Некорректный курс');
-                        continue;
-                    }
+                    if (isNaN(rate) || rate <= 0) continue;
                     const dateObj = new Date(year, month, day, hour, minute);
                     history.push({ date: dateObj, rate: rate });
-                    console.log(`  ✅ Добавлена запись: ${dateObj.toISOString()} - ${rate}`);
                 }
                 console.log(`📊 Всего записей курса: ${history.length}`);
                 history.sort((a, b) => a.date - b.date);
@@ -1001,7 +1011,7 @@
                 return false;
             }
 
-            // --- ЗАГРУЗКА rate.json (с логированием) ---
+            // --- ЗАГРУЗКА rate.json ---
             async function loadRateHistoryFromServer(showStatus = false) {
                 if (showStatus) fileStatus.textContent = '⏳ Загрузка rate.json...';
                 try {
@@ -1041,7 +1051,7 @@
                 return false;
             }
 
-            // --- ОТРИСОВКА ГРАФИКА ИСТОРИИ КУРСА ---
+            // --- ОТРИСОВКА ГРАФИКА КУРСА ---
             function drawRateHistoryChart() {
                 const canvas = document.getElementById('rateHistoryChart');
                 if (!canvas) {
@@ -1142,7 +1152,7 @@
                 console.log('✅ График курса отрисован');
             }
 
-            // --- РЕНДЕРИНГ (основной дашборд) ---
+            // --- РЕНДЕРИНГ ---
             function renderDashboard(transactions, period) {
                 if (!transactions.length) {
                     dashboard.classList.add('hidden');
@@ -1517,9 +1527,9 @@
                     emptyState.classList.remove('hidden');
                     fileStatus.textContent = '📂 Загрузите файл вручную или проверьте stats2.json на GitHub.';
                 }
-                // Загружаем историю курса в фоне с логами
+                // Загружаем историю курса в фоне
                 await loadRateHistoryFromServer(false);
-                // Принудительно отрисовываем график через секунду
+                // Принудительная отрисовка графика
                 setTimeout(() => drawRateHistoryChart(), 500);
             })();
 
