@@ -10,11 +10,15 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
     <style>
-        /* --- Компактные стили (такие же как в прошлом сообщении) --- */
-        * { margin:0; padding:0; box-sizing:border-box; }
+        /* --- ОБЩИЕ СТИЛИ --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0b0e14;
+            background: #000;
             color: #e8edf5;
             padding: 10px 12px;
             min-height: 100vh;
@@ -27,70 +31,93 @@
             width: 100%;
             margin: 0 auto;
         }
-        .upload-area {
-            background: #1a1f2a;
-            border: 2px dashed #3b4a5e;
-            border-radius: 16px;
-            padding: 12px 16px;
-            text-align: center;
-            margin-bottom: 12px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
-        }
-        .upload-area:hover { border-color: #fbbf24; background: #1e2533; }
-        .upload-area input[type="file"] { display: none; }
-        .upload-area label { font-size: 0.95rem; font-weight: 500; color: #fbbf24; cursor: pointer; }
-        .upload-area p { color: #7a8aa3; margin-top: 4px; font-size: 0.8rem; }
-        .upload-area .clear-data {
-            position: absolute;
-            right: 12px;
-            top: 8px;
-            background: #2a3344;
-            border: none;
-            color: #f87171;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            cursor: pointer;
-            z-index: 10;
-        }
-        .upload-area .clear-data:hover { background: #3b2a33; }
-        .upload-area .file-status {
-            color: #60a5fa;
-            font-size: 0.8rem;
-            margin-top: 4px;
-            min-height: 1.2em;
-        }
-        .upload-area.compact {
-            padding: 6px 16px;
-            border: 1px solid #2a3344;
-            border-radius: 12px;
+
+        /* --- ВЕРХНЯЯ ПАНЕЛЬ (статус + кнопки) --- */
+        .top-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 4px 10px;
-            cursor: default;
-        }
-        .upload-area.compact:hover { background: #1a1f2a; border-color: #2a3344; }
-        .upload-area.compact label { font-size: 0.85rem; display: inline-flex; align-items: center; gap: 4px; }
-        .upload-area.compact p { display: none; }
-        .upload-area.compact .file-status { margin-top: 0; font-size: 0.75rem; color: #8b9bb5; }
-        .upload-area.compact .clear-data {
-            position: static;
-            margin-left: auto;
-            background: transparent;
-            padding: 2px 10px;
-        }
-        .upload-area.compact .clear-data:hover { background: #2a1f22; }
-        .upload-area.compact .upload-trigger {
-            display: flex;
-            align-items: center;
             gap: 8px;
+            margin-bottom: 12px;
+            background: #111;
+            padding: 8px 14px;
+            border-radius: 16px;
+            border: 1px solid #2a2a2a;
+        }
+        .top-bar .status {
+            color: #60a5fa;
+            font-size: 0.8rem;
+            flex: 1;
+            min-width: 120px;
+        }
+        .top-bar .actions {
+            display: flex;
+            gap: 6px;
             flex-wrap: wrap;
         }
+        .top-bar .actions button {
+            background: rgba(251, 191, 36, 0.15);
+            border: 1px solid #fbbf24;
+            color: #fbbf24;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .top-bar .actions button:hover {
+            background: rgba(251, 191, 36, 0.3);
+        }
+        .top-bar .actions button.clear {
+            color: #f87171;
+            border-color: #f87171;
+            background: rgba(248, 113, 113, 0.1);
+        }
+        .top-bar .actions button.clear:hover {
+            background: rgba(248, 113, 113, 0.2);
+        }
 
+        /* --- КУРС (внизу, компактный) --- */
+        .rate-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            background: #111;
+            border-radius: 12px;
+            padding: 4px 12px;
+            border: 1px solid #2a2a2a;
+            margin-top: 12px;
+            font-size: 0.8rem;
+        }
+        .rate-bar .label { color: #8b9bb5; font-size: 0.75rem; }
+        .rate-bar input {
+            background: #1a1f2a;
+            border: 1px solid #2a3344;
+            color: #e8edf5;
+            padding: 2px 8px;
+            border-radius: 8px;
+            width: 80px;
+            font-size: 0.8rem;
+        }
+        .rate-bar input:focus { outline: none; border-color: #fbbf24; }
+        .rate-bar .update-btn {
+            background: rgba(251, 191, 36, 0.15);
+            border: 1px solid #fbbf24;
+            color: #fbbf24;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .rate-bar .update-btn:hover { background: rgba(251, 191, 36, 0.3); }
+        .rate-bar .rate-info { color: #4ade80; font-weight: 500; font-size: 0.8rem; margin-left: auto; }
+        .rate-bar .rate-change { color: #8b9bb5; font-size: 0.7rem; margin-left: 4px; }
+
+        /* --- ФИЛЬТРЫ (день/неделя/месяц) --- */
         .filter-bar {
             display: flex;
             gap: 8px;
@@ -99,8 +126,8 @@
             align-items: center;
         }
         .filter-btn {
-            background: #1a1f2a;
-            border: 1px solid #2a3344;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #2a2a2a;
             color: #8b9bb5;
             padding: 4px 14px;
             border-radius: 30px;
@@ -109,11 +136,20 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        .filter-btn:hover:not(.disabled) { background: #2a3344; color: #e8edf5; }
-        .filter-btn.active { background: #fbbf24; border-color: #fbbf24; color: #0b0e14; }
-        .filter-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
-        .period-label { margin-left: auto; color: #7a8aa3; font-size: 0.75rem; }
+        .filter-btn:hover:not(.disabled) { background: rgba(255,255,255,0.1); color: #e8edf5; }
+        .filter-btn.active {
+            background: rgba(251, 191, 36, 0.15);
+            border-color: #fbbf24;
+            color: #fbbf24;
+        }
+        .filter-btn.disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+        .period-label {
+            margin-left: auto;
+            color: #7a8aa3;
+            font-size: 0.75rem;
+        }
 
+        /* --- СТАТИСТИКА (карточки) --- */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -121,11 +157,10 @@
             margin-bottom: 12px;
         }
         .stat-card {
-            background: #171e2a;
+            background: #111;
             border-radius: 14px;
             padding: 12px 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            border: 1px solid #2a3344;
+            border: 1px solid #2a2a2a;
             text-align: center;
         }
         .stat-card .label {
@@ -157,56 +192,97 @@
         .stats-grid-extra .stat-card { padding: 8px 10px; }
         .stats-grid-extra .stat-card .value { font-size: 1.1rem; }
 
-        .insight-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 10px;
+        /* --- БЫСТРЫЕ ИТОГИ (кнопки с суммами) --- */
+        .quick-sums {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
             margin-bottom: 12px;
+            justify-content: center;
         }
-        .insight-box {
-            background: #171e2a;
-            border-radius: 14px;
-            padding: 10px 12px;
-            border: 1px solid #2a3344;
-        }
-        .insight-box .title {
-            font-size: 0.6rem;
-            text-transform: uppercase;
-            color: #8b9bb5;
-            letter-spacing: 0.3px;
-            margin-bottom: 2px;
-        }
-        .insight-box .main {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #e8edf5;
-        }
-
-        .tip-box {
-            background: #1e2636;
-            border-radius: 14px;
-            padding: 10px 14px;
-            border-left: 3px solid #fbbf24;
-            margin-bottom: 12px;
+        .quick-sums .group {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 4px;
+            background: #111;
+            border-radius: 30px;
+            padding: 2px 10px 2px 2px;
+            border: 1px solid #2a2a2a;
         }
-        .tip-box .emoji { font-size: 1.5rem; }
-        .tip-box .text { font-size: 0.85rem; color: #d1d9e6; flex: 1; }
-        .tip-box .source { font-size: 0.6rem; color: #7a8aa3; white-space: nowrap; }
+        .quick-sums .group .period-label {
+            font-size: 0.6rem;
+            color: #8b9bb5;
+            margin-right: 4px;
+        }
+        .quick-sums .group .sum {
+            font-weight: 600;
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 30px;
+            background: rgba(255,255,255,0.05);
+        }
+        .quick-sums .group .sum.income { color: #4ade80; }
+        .quick-sums .group .sum.expense { color: #f87171; }
 
+        /* --- СВОРАЧИВАЕМЫЕ БЛОКИ --- */
+        .collapsible {
+            margin-bottom: 12px;
+        }
+        .collapsible-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px 12px;
+            background: #111;
+            border-radius: 14px;
+            border: 1px solid #2a2a2a;
+            user-select: none;
+        }
+        .collapsible-header h3 {
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #c8d0e0;
+        }
+        .collapsible-header .toggle {
+            font-size: 1.2rem;
+            color: #8b9bb5;
+            transition: transform 0.3s;
+        }
+        .collapsible-header .toggle.open {
+            transform: rotate(180deg);
+        }
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .collapsible-content.open {
+            max-height: 2000px;
+            transition: max-height 0.5s ease-in;
+        }
+        .collapsible-content .chart-box,
+        .collapsible-content .transactions {
+            border: none;
+            border-radius: 0 0 14px 14px;
+            background: #111;
+            padding: 12px 14px;
+            border-left: 1px solid #2a2a2a;
+            border-right: 1px solid #2a2a2a;
+            border-bottom: 1px solid #2a2a2a;
+        }
+
+        /* --- ГРАФИКИ --- */
         .charts-row {
             display: grid;
             grid-template-columns: 2fr 1fr 1fr;
             gap: 12px;
-            margin-bottom: 12px;
         }
         .chart-box {
-            background: #171e2a;
+            background: #111;
             border-radius: 14px;
             padding: 12px 12px;
-            border: 1px solid #2a3344;
+            border: 1px solid #2a2a2a;
         }
         .chart-box h3 {
             font-weight: 500;
@@ -222,74 +298,12 @@
         .full-width { grid-column: 1 / -1; }
         .full-width canvas { max-height: 180px; }
 
-        /* --- БЛОК КУРСА И ГРАФИКА КУРСА (внизу) --- */
-        .rate-section {
-            margin-top: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .rate-bar {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-            background: #171e2a;
-            border-radius: 12px;
-            padding: 4px 12px;
-            border: 1px solid #2a3344;
-            font-size: 0.8rem;
-        }
-        .rate-bar .label { color: #8b9bb5; font-size: 0.75rem; }
-        .rate-bar input {
-            background: #1a1f2a;
-            border: 1px solid #2a3344;
-            color: #e8edf5;
-            padding: 2px 8px;
-            border-radius: 8px;
-            width: 80px;
-            font-size: 0.8rem;
-        }
-        .rate-bar input:focus { outline: none; border-color: #fbbf24; }
-        .rate-bar .update-btn {
-            background: #fbbf24;
-            border: none;
-            color: #0b0e14;
-            padding: 2px 12px;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 0.7rem;
-            cursor: pointer;
-        }
-        .rate-bar .update-btn:hover { background: #fcd34d; }
-        .rate-bar .rate-info { color: #4ade80; font-weight: 500; font-size: 0.8rem; margin-left: auto; }
-        .rate-bar .rate-change { color: #8b9bb5; font-size: 0.7rem; margin-left: 4px; }
-
-        /* График курса (внизу) */
-        .rate-chart-box {
-            background: #171e2a;
-            border-radius: 14px;
-            padding: 12px 12px;
-            border: 1px solid #2a3344;
-        }
-        .rate-chart-box h3 {
-            font-weight: 500;
-            font-size: 0.75rem;
-            color: #c8d0e0;
-            margin-bottom: 8px;
-            letter-spacing: 0.2px;
-        }
-        .rate-chart-box canvas {
-            max-height: 150px;
-            max-width: 100%;
-        }
-
+        /* --- ТРАНЗАКЦИИ --- */
         .transactions {
-            background: #171e2a;
+            background: #111;
             border-radius: 14px;
             padding: 12px 14px;
-            border: 1px solid #2a3344;
-            margin-top: 8px;
+            border: 1px solid #2a2a2a;
         }
         .transactions h3 {
             font-weight: 500;
@@ -309,16 +323,35 @@
         .tx-item {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             padding: 6px 0;
             border-bottom: 1px solid #232b3b;
             font-size: 0.75rem;
         }
         .tx-item:last-child { border-bottom: none; }
-        .tx-item .left { display: flex; flex-direction: column; gap: 1px; }
-        .tx-item .left .cat { font-weight: 500; }
-        .tx-item .left .date { font-size: 0.65rem; color: #8b9bb5; }
-        .tx-item .right { font-weight: 600; }
+        .tx-item .left {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            flex: 1;
+        }
+        .tx-item .left .cat {
+            font-weight: 500;
+        }
+        .tx-item .left .date {
+            font-size: 0.65rem;
+            color: #8b9bb5;
+        }
+        .tx-item .left .note {
+            font-size: 0.65rem;
+            color: #a0b0c0;
+            font-style: italic;
+        }
+        .tx-item .right {
+            font-weight: 600;
+            text-align: right;
+            white-space: nowrap;
+        }
         .tx-item .right.income { color: #4ade80; }
         .tx-item .right.expense { color: #f87171; }
 
@@ -330,10 +363,10 @@
         }
         .hidden { display: none !important; }
 
+        /* --- АДАПТИВ --- */
         @media (max-width: 900px) {
             .charts-row { grid-template-columns: 1fr 1fr; }
             .full-width { grid-column: 1 / -1; }
-            .insight-row { grid-template-columns: 1fr 1fr; }
             .stats-grid { grid-template-columns: 1fr 1fr; }
             .stats-grid .stat-card:last-child { grid-column: span 2; }
         }
@@ -341,18 +374,15 @@
             .stats-grid { grid-template-columns: 1fr 1fr; }
             .stats-grid .stat-card:last-child { grid-column: span 2; }
             .charts-row { grid-template-columns: 1fr; }
-            .insight-row { grid-template-columns: 1fr; }
             .stat-card .value { font-size: 1.1rem; }
             .stats-grid-extra { grid-template-columns: 1fr 1fr; }
             .filter-bar { justify-content: center; }
             .period-label { margin-left: 0; width: 100%; text-align: center; }
-            .upload-area.compact { flex-direction: column; align-items: stretch; padding: 6px 12px; }
-            .upload-area.compact .clear-data { margin-left: 0; text-align: center; }
-            .upload-area.compact .upload-trigger { justify-content: center; }
+            .quick-sums { flex-direction: column; align-items: stretch; }
+            .quick-sums .group { justify-content: center; }
             .rate-bar { flex-direction: column; align-items: stretch; gap: 4px; padding: 6px 12px; }
             .rate-bar .rate-info { margin-left: 0; text-align: center; }
             .full-width canvas { max-height: 150px; }
-            .rate-chart-box canvas { max-height: 120px; }
         }
         .footer {
             margin-top: 16px;
@@ -367,33 +397,29 @@
 <body>
     <div class="container">
 
-        <!-- ОБЛАСТЬ ЗАГРУЗКИ -->
-        <div class="upload-area" id="uploadArea">
-            <div class="upload-trigger">
-                <label for="fileInput">📁 Загрузить stats2.json</label>
-                <span class="file-status" id="fileStatus"></span>
-                <button id="refreshBtn" style="background:#fbbf24;border:none;color:#0b0e14;padding:2px 12px;border-radius:30px;font-weight:600;margin-left:6px;cursor:pointer;font-size:0.7rem;">🔄 Обновить</button>
+        <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+        <div class="top-bar" id="topBar">
+            <span class="status" id="fileStatus">📂 Загрузите файл</span>
+            <div class="actions">
+                <button id="refreshBtn">🔄 Обновить</button>
+                <button id="clearDataBtn" class="clear">🗑️ Очистить</button>
             </div>
-            <input type="file" id="fileInput" accept=".json">
-            <p>Нажмите или перетащите файл</p>
-            <button class="clear-data" id="clearDataBtn">🗑️ Очистить</button>
         </div>
 
+        <!-- ФИЛЬТРЫ -->
+        <div class="filter-bar" id="filterBar">
+            <button class="filter-btn disabled" data-period="day">День</button>
+            <button class="filter-btn disabled" data-period="week">Неделя</button>
+            <button class="filter-btn disabled active" data-period="month">Месяц</button>
+            <span class="period-label" id="periodLabel">за последние 30 дней</span>
+        </div>
+
+        <!-- КАРТОЧКИ СТАТИСТИКИ (баланс всегда виден) -->
         <div id="dashboard" class="hidden">
-
-            <!-- ФИЛЬТРЫ -->
-            <div class="filter-bar">
-                <button class="filter-btn disabled" data-period="day">День</button>
-                <button class="filter-btn disabled" data-period="week">Неделя</button>
-                <button class="filter-btn disabled active" data-period="month">Месяц</button>
-                <span class="period-label" id="periodLabel">за последние 30 дней</span>
-            </div>
-
-            <!-- СТАТИСТИКА -->
             <div class="stats-grid">
                 <div class="stat-card income">
                     <div class="label">💰 Доход (RUB)</div>
-                    <div class="value" id="totalIncome">0 ₽</div>
+                    <div class="value" id="totalIncomeRubOnly">0 ₽</div>
                 </div>
                 <div class="stat-card balance">
                     <div class="label">📈 Чистый баланс (RUB)</div>
@@ -401,11 +427,10 @@
                 </div>
                 <div class="stat-card expense">
                     <div class="label">💸 Расход (RUB)</div>
-                    <div class="value" id="totalExpense">0 ₽</div>
+                    <div class="value" id="totalExpenseRubOnly">0 ₽</div>
                 </div>
             </div>
 
-            <!-- ДОПОЛНИТЕЛЬНЫЕ КАРТОЧКИ -->
             <div class="stats-grid-extra">
                 <div class="stat-card usd">
                     <div class="label">💰 Доход (USD)</div>
@@ -415,13 +440,13 @@
                     <div class="label">💸 Расход (USD)</div>
                     <div class="value" id="totalExpenseUsd">0 $</div>
                 </div>
-                <div class="stat-card usd">
-                    <div class="label">📈 Чистый баланс (USD)</div>
-                    <div class="value" id="netIncomeUsd">0 $</div>
+                <div class="stat-card balance">
+                    <div class="label">💵 Общий доход (RUB)</div>
+                    <div class="value" id="totalIncomeRubTotal">0 ₽</div>
                 </div>
                 <div class="stat-card balance">
-                    <div class="label">💵 Эквивалент по курсу</div>
-                    <div class="value" id="netIncomeAtRate">0 ₽</div>
+                    <div class="label">💵 Общий расход (RUB)</div>
+                    <div class="value" id="totalExpenseRubTotal">0 ₽</div>
                 </div>
                 <div class="stat-card rate-profit">
                     <div class="label">📊 Курсовая разница</div>
@@ -433,70 +458,69 @@
                 </div>
             </div>
 
-            <!-- СРЕДНИЕ ПОКАЗАТЕЛИ -->
-            <div class="insight-row">
-                <div class="insight-box">
-                    <div class="title">📊 Средний доход в день (RUB)</div>
-                    <div class="main" id="avgDailyIncome">0 ₽</div>
+            <!-- БЫСТРЫЕ ИТОГИ (доход/расход за день/неделю/месяц) -->
+            <div class="quick-sums" id="quickSums">
+                <div class="group">
+                    <span class="period-label">День</span>
+                    <span class="sum income" id="dayIncome">0 ₽</span>
+                    <span class="sum expense" id="dayExpense">0 ₽</span>
                 </div>
-                <div class="insight-box">
-                    <div class="title">📊 Средний расход в день (RUB)</div>
-                    <div class="main" id="avgDailyExpense">0 ₽</div>
+                <div class="group">
+                    <span class="period-label">Неделя</span>
+                    <span class="sum income" id="weekIncome">0 ₽</span>
+                    <span class="sum expense" id="weekExpense">0 ₽</span>
                 </div>
-                <div class="insight-box">
-                    <div class="title">📈 Средний доход в неделю (RUB)</div>
-                    <div class="main" id="avgWeeklyIncome">0 ₽</div>
-                </div>
-                <div class="insight-box">
-                    <div class="title">📉 Средний расход в неделю (RUB)</div>
-                    <div class="main" id="avgWeeklyExpense">0 ₽</div>
-                </div>
-            </div>
-
-            <!-- СОВЕТ -->
-            <div class="tip-box" id="tipBox">
-                <span class="emoji">💡</span>
-                <span class="text" id="tipText">Загрузите данные, чтобы получить совет.</span>
-                <span class="source" id="tipSource"></span>
-            </div>
-
-            <!-- ГРАФИКИ ДОХОДОВ/РАСХОДОВ И КАТЕГОРИЙ -->
-            <div class="charts-row">
-                <div class="chart-box full-width">
-                    <h3>📈 Динамика доходов и расходов (RUB)</h3>
-                    <canvas id="dailyChart"></canvas>
-                </div>
-                <div class="chart-box">
-                    <h3>🧩 Расходы по категориям</h3>
-                    <canvas id="expensePieChart"></canvas>
-                </div>
-                <div class="chart-box">
-                    <h3>🧩 Доходы по категориям</h3>
-                    <canvas id="incomePieChart"></canvas>
+                <div class="group">
+                    <span class="period-label">Месяц</span>
+                    <span class="sum income" id="monthIncome">0 ₽</span>
+                    <span class="sum expense" id="monthExpense">0 ₽</span>
                 </div>
             </div>
 
-            <!-- ТРАНЗАКЦИИ -->
-            <div class="transactions">
-                <h3>📋 Последние транзакции</h3>
-                <div class="tx-list" id="transactionList"></div>
+            <!-- СВОРАЧИВАЕМЫЙ БЛОК: ГРАФИКИ -->
+            <div class="collapsible">
+                <div class="collapsible-header" data-target="chartsContent">
+                    <h3>📊 Графики</h3>
+                    <span class="toggle">▼</span>
+                </div>
+                <div class="collapsible-content open" id="chartsContent">
+                    <div class="chart-box full-width" style="border-radius:0;">
+                        <h3>📈 Динамика доходов и расходов (RUB)</h3>
+                        <canvas id="dailyChart"></canvas>
+                    </div>
+                    <div class="charts-row" style="margin-top:12px;">
+                        <div class="chart-box">
+                            <h3>🧩 Расходы по категориям</h3>
+                            <canvas id="expensePieChart"></canvas>
+                        </div>
+                        <div class="chart-box">
+                            <h3>🧩 Доходы по категориям</h3>
+                            <canvas id="incomePieChart"></canvas>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- БЛОК КУРСА И ГРАФИКА КУРСА (внизу) -->
-            <div class="rate-section">
-                <!-- График истории курса -->
-                <div class="rate-chart-box">
-                    <h3>📊 История курса USD/RUB</h3>
-                    <canvas id="rateHistoryChart"></canvas>
+            <!-- СВОРАЧИВАЕМЫЙ БЛОК: ТРАНЗАКЦИИ -->
+            <div class="collapsible">
+                <div class="collapsible-header" data-target="transactionsContent">
+                    <h3>📋 Последние транзакции</h3>
+                    <span class="toggle">▼</span>
                 </div>
-                <!-- Панель управления курсом -->
-                <div class="rate-bar">
-                    <span class="label">💵 Курс USD/RUB</span>
-                    <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
-                    <button class="update-btn" id="updateRateBtn">Обновить</button>
-                    <span class="rate-info" id="rateInfo">1 USD = 85.00 ₽</span>
-                    <span class="rate-change" id="rateChangeInfo"></span>
+                <div class="collapsible-content open" id="transactionsContent">
+                    <div class="transactions" style="border-radius:0;">
+                        <div class="tx-list" id="transactionList"></div>
+                    </div>
                 </div>
+            </div>
+
+            <!-- КУРС (внизу) -->
+            <div class="rate-bar">
+                <span class="label">💵 Курс USD/RUB</span>
+                <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
+                <button class="update-btn" id="updateRateBtn">Обновить</button>
+                <span class="rate-info" id="rateInfo">1 USD = 85.00 ₽</span>
+                <span class="rate-change" id="rateChangeInfo"></span>
             </div>
 
         </div>
@@ -506,7 +530,7 @@
         </div>
 
         <div class="footer">
-            Данные из stats2.json • Курс из rate.json • Автообновление
+            Данные из stats2.json • Автообновление
         </div>
     </div>
 
@@ -515,15 +539,14 @@
             'use strict';
 
             // DOM
-            const fileInput = document.getElementById('fileInput');
-            const uploadArea = document.getElementById('uploadArea');
-            const dashboard = document.getElementById('dashboard');
-            const emptyState = document.getElementById('emptyState');
-            const filterBtns = document.querySelectorAll('.filter-btn');
-            const periodLabel = document.getElementById('periodLabel');
             const fileStatus = document.getElementById('fileStatus');
             const clearDataBtn = document.getElementById('clearDataBtn');
             const refreshBtn = document.getElementById('refreshBtn');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const periodLabel = document.getElementById('periodLabel');
+            const dashboard = document.getElementById('dashboard');
+            const emptyState = document.getElementById('emptyState');
+
             const usdRateInput = document.getElementById('usdRateInput');
             const updateRateBtn = document.getElementById('updateRateBtn');
             const rateInfo = document.getElementById('rateInfo');
@@ -531,19 +554,16 @@
 
             const STORAGE_KEY = 'financeDataTransactions';
             const RATE_STORAGE_KEY = 'usdRate';
-            const RATE_HISTORY_KEY = 'rateHistory';
 
             let allTransactions = [];
-            let rateHistory = [];
             let currentFilter = 'month';
             let dataLoaded = false;
             let currentUsdRate = 85.00;
             let dailyChart = null,
                 expensePieChart = null,
-                incomePieChart = null,
-                rateHistoryChart = null;
+                incomePieChart = null;
 
-            // --- ПАРСИНГ ТРАНЗАКЦИЙ ---
+            // --- ПАРСИНГ ТРАНЗАКЦИЙ (без изменений) ---
             function parseNumber(str) {
                 const cleaned = str.replace(/\s/g, '').replace(',', '.');
                 const match = cleaned.match(/(\d+\.?\d*)/);
@@ -557,6 +577,7 @@
                 const dateTimePart = parts[1];
                 const amountPart = parts[2];
                 const categoryPart = parts[3];
+                const notePart = parts[4] || '';
                 let type = '';
                 if (typePart.includes('ДОХОД')) type = 'income';
                 else if (typePart.includes('РАСХОД')) type = 'expense';
@@ -576,7 +597,15 @@
                 const usdValue = parseNumber(left);
                 const rubValue = parseNumber(right);
                 const category = categoryPart.trim() || 'Без категории';
-                return { type, date: dateObj, dateStr: `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`, usd: usdValue, rub: rubValue, category };
+                return {
+                    type,
+                    date: dateObj,
+                    dateStr: `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`,
+                    usd: usdValue,
+                    rub: rubValue,
+                    category,
+                    note: notePart
+                };
             }
 
             function parseData(jsonText) {
@@ -590,41 +619,6 @@
                     if (tx) transactions.push(tx);
                 }
                 return transactions;
-            }
-
-            // --- ПАРСИНГ ИСТОРИИ КУРСА (улучшенный) ---
-            function parseRateHistory(jsonText) {
-                let data;
-                try { data = JSON.parse(jsonText); } catch { return []; }
-                if (!data.text || typeof data.text !== 'string') return [];
-                const lines = data.text.split('\n').filter(line => line.trim() !== '');
-                const history = [];
-                for (const line of lines) {
-                    if (line.toLowerCase().includes('курс')) continue;
-                    // Ищем дату ДД.ММ.ГГГГ
-                    const dateMatch = line.match(/(\d{2})\.(\d{2})\.(\d{4})/);
-                    if (!dateMatch) continue;
-                    const day = parseInt(dateMatch[1]);
-                    const month = parseInt(dateMatch[2]) - 1;
-                    const year = parseInt(dateMatch[3]);
-                    // Ищем время ЧЧ:ММ (может быть с двоеточием после или без)
-                    const timeMatch = line.match(/(\d{2}):(\d{2})/);
-                    let hour = 0,
-                        minute = 0;
-                    if (timeMatch) {
-                        hour = parseInt(timeMatch[1]);
-                        minute = parseInt(timeMatch[2]);
-                    }
-                    // Ищем число с запятой или точкой
-                    const numMatch = line.match(/(\d+[.,]\d+)/);
-                    if (!numMatch) continue;
-                    const rate = parseFloat(numMatch[1].replace(',', '.'));
-                    if (isNaN(rate) || rate <= 0) continue;
-                    const dateObj = new Date(year, month, day, hour, minute);
-                    history.push({ date: dateObj, rate: rate });
-                }
-                history.sort((a, b) => a.date - b.date);
-                return history;
             }
 
             // --- ФИЛЬТРАЦИЯ И АГРЕГАЦИЯ ---
@@ -668,47 +662,6 @@
                     .map(([label, value]) => ({ label, value }));
             }
 
-            // --- СОВЕТЫ ---
-            async function fetchAdvice() {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3000);
-                try {
-                    const response = await fetch('https://api.adviceslip.com/advice', { signal: controller.signal });
-                    clearTimeout(timeoutId);
-                    if (!response.ok) throw new Error('Network error');
-                    const data = await response.json();
-                    if (data && data.slip && data.slip.advice) {
-                        return { text: data.slip.advice, source: '🌟 AdviceSlip' };
-                    }
-                    throw new Error('Invalid response');
-                } catch (e) {
-                    return null;
-                }
-            }
-
-            function getLocalAdvice(net, totalIncome) {
-                if (totalIncome <= 0) return { text: 'Анализ завершён. Следи за балансом.', source: '💡 Локальный' };
-                const savePercent = Math.round((net / totalIncome) * 100);
-                if (savePercent > 30) return { text: 'Вау! У тебя остается больше 30% дохода. Ты финансовый гений! 😊', source: '💡 Локальный' };
-                else if (savePercent > 10) return { text: 'Хороший баланс! Попробуй увеличить сбережения до 20%.', source: '💡 Локальный' };
-                else if (savePercent >= 0) return { text: 'Старайся откладывать хотя бы 10% от дохода.', source: '💡 Локальный' };
-                else return { text: 'Расходы превышают доходы. Пересмотри траты!', source: '💡 Локальный' };
-            }
-
-            async function updateAdvice(net, totalIncome) {
-                const tipText = document.getElementById('tipText');
-                const tipSource = document.getElementById('tipSource');
-                const remote = await fetchAdvice();
-                if (remote) {
-                    tipText.textContent = remote.text;
-                    tipSource.textContent = remote.source;
-                } else {
-                    const local = getLocalAdvice(net, totalIncome);
-                    tipText.textContent = local.text;
-                    tipSource.textContent = local.source;
-                }
-            }
-
             // --- ХРАНИЛИЩЕ ---
             function saveTransactions(transactions) {
                 try { localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions)); } catch (e) { /* ignore */ }
@@ -723,36 +676,21 @@
                 } catch (e) { /* ignore */ }
                 return null;
             }
-            function saveRateHistory(history) {
-                try { localStorage.setItem(RATE_HISTORY_KEY, JSON.stringify(history)); } catch (e) { /* ignore */ }
-            }
-            function loadRateHistory() {
-                try {
-                    const stored = localStorage.getItem(RATE_HISTORY_KEY);
-                    if (stored) {
-                        const parsed = JSON.parse(stored);
-                        return parsed.map(item => ({ ...item, date: new Date(item.date) }));
-                    }
-                } catch (e) { /* ignore */ }
-                return null;
-            }
-
             function clearStoredData() {
                 localStorage.removeItem(STORAGE_KEY);
-                localStorage.removeItem(RATE_HISTORY_KEY);
+                localStorage.removeItem(RATE_STORAGE_KEY);
                 fileStatus.textContent = '🗑️ Данные очищены';
                 allTransactions = [];
-                rateHistory = [];
                 dataLoaded = false;
                 dashboard.classList.add('hidden');
                 emptyState.classList.remove('hidden');
                 filterBtns.forEach(btn => btn.classList.add('disabled'));
-                uploadArea.classList.remove('compact');
-                if (dailyChart) { dailyChart.destroy(); dailyChart = null; }
-                if (expensePieChart) { expensePieChart.destroy(); expensePieChart = null; }
-                if (incomePieChart) { incomePieChart.destroy(); incomePieChart = null; }
-                if (rateHistoryChart) { rateHistoryChart.destroy(); rateHistoryChart = null; }
-                fileInput.value = '';
+                if (dailyChart) { dailyChart.destroy();
+                    dailyChart = null; }
+                if (expensePieChart) { expensePieChart.destroy();
+                    expensePieChart = null; }
+                if (incomePieChart) { incomePieChart.destroy();
+                    incomePieChart = null; }
                 updateRateDisplay();
             }
 
@@ -793,74 +731,35 @@
                 rateChangeInfo.style.color = diff >= 0 ? '#4ade80' : '#f87171';
             }
 
-            // --- ЗАГРУЗКА rate.json ---
-            async function loadRateFromServer() {
-                try {
-                    const url = 'rate.json?t=' + Date.now();
-                    const response = await fetch(url, { cache: 'no-store' });
-                    if (!response.ok) throw new Error('rate.json не найден');
-                    const json = await response.json();
-                    if (!json.text || typeof json.text !== 'string') throw new Error('Нет поля text');
-
-                    const history = parseRateHistory(json.text);
-                    console.log('📊 Распознано записей курса:', history.length);
-                    if (history.length) {
-                        rateHistory = history;
-                        saveRateHistory(history);
-                        const last = history[history.length - 1];
-                        setRate(last.rate);
-                        fileStatus.textContent = `✅ Курс: ${last.rate.toFixed(2)} ₽ (${history.length} записей)`;
-                        return true;
-                    }
-                    throw new Error('Нет записей курса');
-                } catch (e) {
-                    console.warn('Не удалось загрузить rate.json:', e.message);
-                    const stored = loadRateHistory();
-                    if (stored && stored.length) {
-                        rateHistory = stored;
-                        const last = stored[stored.length - 1];
-                        setRate(last.rate);
-                        console.log('📂 Загружено из кэша', stored.length, 'записей курса');
-                        return true;
-                    }
-                    return false;
+            // --- ЗАГРУЗКА С ГИТХАБА (или из localStorage) ---
+            async function loadData() {
+                // 1. Сначала пытаемся загрузить из localStorage (если файл уже выбирали)
+                const stored = loadTransactions();
+                if (stored && stored.length) {
+                    initData(stored);
+                    fileStatus.textContent = `📂 Загружено из кэша: ${stored.length} записей`;
+                    return true;
                 }
-            }
-
-            // --- ЗАГРУЗКА stats2.json ---
-            async function loadTransactionsFromServer() {
+                // 2. Если в localStorage нет, пробуем загрузить с GitHub
                 try {
                     const url = 'stats2.json?t=' + Date.now();
                     const response = await fetch(url, { cache: 'no-store' });
-                    if (!response.ok) throw new Error('stats2.json не найден');
+                    if (!response.ok) throw new Error('Файл не найден на сервере');
                     const content = await response.text();
                     const transactions = parseData(content);
                     if (transactions.length) {
                         initData(transactions);
-                        fileStatus.textContent = `✅ Загружено с сервера: ${transactions.length} записей`;
+                        fileStatus.textContent = `✅ Загружено с GitHub: ${transactions.length} записей`;
                         return true;
                     }
-                    throw new Error('Нет транзакций');
                 } catch (e) {
-                    console.warn('Не удалось загрузить stats2.json:', e.message);
-                    const stored = loadTransactions();
-                    if (stored && stored.length) {
-                        initData(stored);
-                        fileStatus.textContent = `📂 Загружено из кэша: ${stored.length} записей`;
-                        return true;
-                    }
-                    return false;
+                    console.warn('Не удалось загрузить с GitHub:', e.message);
                 }
+                // 3. Если ничего не загрузилось
+                return false;
             }
 
-            // --- ОБЩАЯ ЗАГРУЗКА ---
-            async function loadFromServer() {
-                const rateLoaded = await loadRateFromServer();
-                const txLoaded = await loadTransactionsFromServer();
-                return rateLoaded || txLoaded;
-            }
-
-            // --- РЕНДЕРИНГ ---
+            // --- РЕНДЕРИНГ СТАТИСТИКИ (с разделением валют) ---
             function renderDashboard(transactions, period) {
                 if (!transactions.length) {
                     dashboard.classList.add('hidden');
@@ -868,17 +767,55 @@
                     return;
                 }
 
-                // Статистика
-                const totalIncomeRub = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.rub, 0);
-                const totalExpenseRub = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.rub, 0);
+                // Разделяем транзакции по типу и валюте
+                // Если usd > 0, считаем валютной и не учитываем rub в рублёвых суммах
+                const rubIncome = transactions.filter(t => t.type === 'income' && t.usd === 0).reduce((s, t) => s + t.rub, 0);
+                const rubExpense = transactions.filter(t => t.type === 'expense' && t.usd === 0).reduce((s, t) => s + t.rub, 0);
+                const usdIncome = transactions.filter(t => t.type === 'income' && t.usd > 0).reduce((s, t) => s + t.usd, 0);
+                const usdExpense = transactions.filter(t => t.type === 'expense' && t.usd > 0).reduce((s, t) => s + t.usd, 0);
+
+                // Общий доход/расход в рублях (с пересчётом долларов по текущему курсу)
+                const totalIncomeRub = rubIncome + usdIncome * currentUsdRate;
+                const totalExpenseRub = rubExpense + usdExpense * currentUsdRate;
                 const netRub = totalIncomeRub - totalExpenseRub;
 
-                const totalIncomeUsd = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.usd, 0);
-                const totalExpenseUsd = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.usd, 0);
-                const netUsd = totalIncomeUsd - totalExpenseUsd;
+                // Для быстрых итогов (за день/неделю/месяц) используем те же расчёты
+                const now = new Date();
+                const dayStart = new Date(now);
+                dayStart.setHours(0, 0, 0, 0);
+                const weekStart = new Date(now);
+                weekStart.setDate(now.getDate() - 7);
+                weekStart.setHours(0, 0, 0, 0);
+                const monthStart = new Date(now);
+                monthStart.setMonth(now.getMonth() - 1);
+                monthStart.setHours(0, 0, 0, 0);
 
-                const netUsdAtRate = netUsd * currentUsdRate;
+                function calcPeriod(start) {
+                    const filtered = transactions.filter(t => t.date >= start);
+                    const rInc = filtered.filter(t => t.type === 'income' && t.usd === 0).reduce((s, t) => s + t.rub, 0);
+                    const rExp = filtered.filter(t => t.type === 'expense' && t.usd === 0).reduce((s, t) => s + t.rub, 0);
+                    const uInc = filtered.filter(t => t.type === 'income' && t.usd > 0).reduce((s, t) => s + t.usd, 0);
+                    const uExp = filtered.filter(t => t.type === 'expense' && t.usd > 0).reduce((s, t) => s + t.usd, 0);
+                    return { incRub: rInc + uInc * currentUsdRate, expRub: rExp + uExp * currentUsdRate };
+                }
 
+                const day = calcPeriod(dayStart);
+                const week = calcPeriod(weekStart);
+                const month = calcPeriod(monthStart);
+
+                // Обновляем карточки
+                document.getElementById('totalIncomeRubOnly').textContent = rubIncome.toLocaleString('ru-RU') + ' ₽';
+                document.getElementById('totalExpenseRubOnly').textContent = rubExpense.toLocaleString('ru-RU') + ' ₽';
+                document.getElementById('totalIncomeUsd').textContent = usdIncome.toLocaleString('ru-RU') + ' $';
+                document.getElementById('totalExpenseUsd').textContent = usdExpense.toLocaleString('ru-RU') + ' $';
+                document.getElementById('totalIncomeRubTotal').textContent = totalIncomeRub.toLocaleString('ru-RU') + ' ₽';
+                document.getElementById('totalExpenseRubTotal').textContent = totalExpenseRub.toLocaleString('ru-RU') + ' ₽';
+                const netEl = document.getElementById('netIncome');
+                netEl.textContent = netRub.toLocaleString('ru-RU') + ' ₽';
+                netEl.style.color = netRub >= 0 ? '#4ade80' : '#f87171';
+                document.getElementById('recordCount').textContent = transactions.length;
+
+                // Курсовая разница (сумма разниц для валютных транзакций)
                 let totalRateDiff = 0;
                 for (const tx of transactions) {
                     if (tx.usd > 0) {
@@ -886,54 +823,42 @@
                         totalRateDiff += (rubEquivalent - tx.rub);
                     }
                 }
+                document.getElementById('rateProfit').textContent = (totalRateDiff >= 0 ? '+' : '') + totalRateDiff
+                    .toLocaleString('ru-RU') + ' ₽';
+                document.getElementById('rateProfit').style.color = totalRateDiff >= 0 ? '#4ade80' : '#f87171';
 
-                document.getElementById('totalIncome').textContent = totalIncomeRub.toLocaleString('ru-RU') + ' ₽';
-                document.getElementById('totalExpense').textContent = totalExpenseRub.toLocaleString('ru-RU') + ' ₽';
-                const netEl = document.getElementById('netIncome');
-                netEl.textContent = netRub.toLocaleString('ru-RU') + ' ₽';
-                netEl.style.color = netRub >= 0 ? '#4ade80' : '#f87171';
+                // Быстрые итоги
+                document.getElementById('dayIncome').textContent = day.incRub.toLocaleString('ru-RU') + ' ₽';
+                document.getElementById('dayExpense').textContent = day.expRub.toLocaleString('ru-RU') + ' ₽';
+                document.getElementById('weekIncome').textContent = week.incRub.toLocaleString('ru-RU') + ' ₽';
+                document.getElementById('weekExpense').textContent = week.expRub.toLocaleString('ru-RU') + ' ₽';
+                document.getElementById('monthIncome').textContent = month.incRub.toLocaleString('ru-RU') + ' ₽';
+                document.getElementById('monthExpense').textContent = month.expRub.toLocaleString('ru-RU') + ' ₽';
 
-                document.getElementById('totalIncomeUsd').textContent = totalIncomeUsd.toLocaleString('ru-RU') + ' $';
-                document.getElementById('totalExpenseUsd').textContent = totalExpenseUsd.toLocaleString('ru-RU') + ' $';
-                const netUsdEl = document.getElementById('netIncomeUsd');
-                netUsdEl.textContent = netUsd.toLocaleString('ru-RU') + ' $';
-                netUsdEl.style.color = netUsd >= 0 ? '#4ade80' : '#f87171';
+                // --- ГРАФИКИ (используем общий доход/расход в рублях для динамики) ---
+                // Для графиков используем агрегацию по дням с пересчётом валютных транзакций
+                const dailyMap = {};
+                for (const tx of transactions) {
+                    const key = tx.dateStr;
+                    if (!dailyMap[key]) dailyMap[key] = { income: 0, expense: 0 };
+                    if (tx.type === 'income') {
+                        const rubVal = tx.usd > 0 ? tx.usd * currentUsdRate : tx.rub;
+                        dailyMap[key].income += rubVal;
+                    } else {
+                        const rubVal = tx.usd > 0 ? tx.usd * currentUsdRate : tx.rub;
+                        dailyMap[key].expense += rubVal;
+                    }
+                }
+                const sortedKeys = Object.keys(dailyMap).sort();
+                const labels = sortedKeys;
+                const incomeData = sortedKeys.map(k => dailyMap[k].income);
+                const expenseData = sortedKeys.map(k => dailyMap[k].expense);
 
-                document.getElementById('netIncomeAtRate').textContent = netUsdAtRate.toLocaleString('ru-RU') + ' ₽';
-                const rateProfitEl = document.getElementById('rateProfit');
-                rateProfitEl.textContent = (totalRateDiff >= 0 ? '+' : '') + totalRateDiff.toLocaleString('ru-RU') + ' ₽';
-                rateProfitEl.style.color = totalRateDiff >= 0 ? '#4ade80' : '#f87171';
-
-                document.getElementById('recordCount').textContent = transactions.length;
-
-                const days = transactions.length ?
-                    Math.max(1, Math.ceil((Math.max(...transactions.map(t => t.date.getTime())) -
-                        Math.min(...transactions.map(t => t.date.getTime()))) / (1000 * 60 * 60 * 24)) + 1) : 1;
-                const avgDailyIncome = totalIncomeRub / days;
-                const avgDailyExpense = totalExpenseRub / days;
-                document.getElementById('avgDailyIncome').textContent = Math.round(avgDailyIncome).toLocaleString('ru-RU') +
-                    ' ₽';
-                document.getElementById('avgDailyExpense').textContent = Math.round(avgDailyExpense).toLocaleString('ru-RU') +
-                    ' ₽';
-                document.getElementById('avgWeeklyIncome').textContent = Math.round(avgDailyIncome * 7).toLocaleString(
-                    'ru-RU') + ' ₽';
-                document.getElementById('avgWeeklyExpense').textContent = Math.round(avgDailyExpense * 7).toLocaleString(
-                    'ru-RU') + ' ₽';
-
-                updateAdvice(netRub, totalIncomeRub);
-
-                // --- ГРАФИКИ ---
                 if (dailyChart) dailyChart.destroy();
                 if (expensePieChart) expensePieChart.destroy();
                 if (incomePieChart) incomePieChart.destroy();
-                if (rateHistoryChart) rateHistoryChart.destroy();
 
-                // 1. Динамика
-                const dailyData = aggregateByDay(transactions);
-                const labels = dailyData.map(d => d.date);
-                const incomeData = dailyData.map(d => d.income);
-                const expenseData = dailyData.map(d => d.expense);
-
+                // График динамики
                 const ctxDaily = document.getElementById('dailyChart').getContext('2d');
                 dailyChart = new Chart(ctxDaily, {
                     type: 'bar',
@@ -942,14 +867,14 @@
                         datasets: [{
                             label: 'Доход',
                             data: incomeData,
-                            backgroundColor: 'rgba(74, 222, 128, 0.7)',
+                            backgroundColor: 'rgba(74, 222, 128, 0.6)',
                             borderColor: 'rgba(74, 222, 128, 1)',
                             borderWidth: 1,
                             borderRadius: 4,
                         }, {
                             label: 'Расход',
                             data: expenseData,
-                            backgroundColor: 'rgba(248, 113, 113, 0.7)',
+                            backgroundColor: 'rgba(248, 113, 113, 0.6)',
                             borderColor: 'rgba(248, 113, 113, 1)',
                             borderWidth: 1,
                             borderRadius: 4,
@@ -977,7 +902,7 @@
                     }
                 });
 
-                // 2. Расходы по категориям
+                // Расходы по категориям (RUB)
                 const expenseCat = aggregateByCategory(transactions, 'expense');
                 const ctxExpPie = document.getElementById('expensePieChart').getContext('2d');
                 expensePieChart = new Chart(ctxExpPie, {
@@ -990,7 +915,7 @@
                                 '#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa',
                                 '#fb923c', '#f472b6', '#2dd4bf', '#e879f9', '#facc15'
                             ],
-                            borderColor: '#171e2a',
+                            borderColor: '#111',
                             borderWidth: 2,
                         }]
                     },
@@ -1012,7 +937,7 @@
                     }
                 });
 
-                // 3. Доходы по категориям
+                // Доходы по категориям (RUB)
                 const incomeCat = aggregateByCategory(transactions, 'income');
                 const ctxIncPie = document.getElementById('incomePieChart').getContext('2d');
                 incomePieChart = new Chart(ctxIncPie, {
@@ -1025,7 +950,7 @@
                                 '#4ade80', '#facc15', '#60a5fa', '#c084fc', '#fb923c',
                                 '#f472b6', '#2dd4bf', '#a3a3a3', '#e879f9', '#34d399'
                             ],
-                            borderColor: '#171e2a',
+                            borderColor: '#111',
                             borderWidth: 2,
                         }]
                     },
@@ -1047,101 +972,11 @@
                     }
                 });
 
-                // 4. График истории курса (теперь рисуем отдельно в rate-chart-box)
-                const ctxRate = document.getElementById('rateHistoryChart').getContext('2d');
-                if (rateHistory.length >= 2) {
-                    const rateLabels = rateHistory.map(item => {
-                        const d = item.date;
-                        return d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit',
-                            minute: '2-digit' });
-                    });
-                    const rateData = rateHistory.map(item => item.rate);
-                    rateHistoryChart = new Chart(ctxRate, {
-                        type: 'line',
-                        data: {
-                            labels: rateLabels,
-                            datasets: [{
-                                label: 'Курс USD/RUB',
-                                data: rateData,
-                                borderColor: '#fbbf24',
-                                backgroundColor: 'rgba(251, 191, 36, 0.1)',
-                                borderWidth: 2,
-                                pointBackgroundColor: '#fbbf24',
-                                pointRadius: 2,
-                                tension: 0.2,
-                                fill: true,
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: true,
-                            plugins: {
-                                legend: { labels: { color: '#c8d0e0' } },
-                                tooltip: {
-                                    callbacks: {
-                                        label: ctx => ctx.parsed.y.toFixed(2) + ' ₽'
-                                    }
-                                }
-                            },
-                            scales: {
-                                y: {
-                                    ticks: { color: '#8b9bb5', callback: v => v.toFixed(2) + ' ₽' }
-                                },
-                                x: {
-                                    ticks: { color: '#8b9bb5', maxTicksLimit: 15, maxRotation: 30, autoSkip: true }
-                                }
-                            }
-                        }
-                    });
-                } else {
-                    // Если данных мало, показываем сообщение
-                    rateHistoryChart = new Chart(ctxRate, {
-                        type: 'line',
-                        data: {
-                            labels: [],
-                            datasets: [{
-                                label: 'Курс USD/RUB',
-                                data: [],
-                                borderColor: '#fbbf24',
-                                backgroundColor: 'rgba(251, 191, 36, 0.1)',
-                                borderWidth: 2,
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: true,
-                            plugins: {
-                                legend: { labels: { color: '#c8d0e0' } }
-                            }
-                        }
-                    });
-                    const originalDraw = rateHistoryChart.draw;
-                    rateHistoryChart.draw = function() {
-                        originalDraw.apply(this, arguments);
-                        const ctx2 = this.ctx;
-                        const chartArea = this.chartArea;
-                        if (this.data.datasets[0].data.length < 2) {
-                            ctx2.save();
-                            ctx2.fillStyle = '#7a8aa3';
-                            ctx2.font = '12px -apple-system, sans-serif';
-                            ctx2.textAlign = 'center';
-                            ctx2.textBaseline = 'middle';
-                            ctx2.fillText(
-                                rateHistory.length === 0 ? 'Нет данных курса' : 'Недостаточно точек (минимум 2)',
-                                (chartArea.left + chartArea.right) / 2,
-                                (chartArea.top + chartArea.bottom) / 2
-                            );
-                            ctx2.restore();
-                        }
-                    };
-                    rateHistoryChart.update();
-                }
-
-                // Транзакции
+                // --- СПИСОК ТРАНЗАКЦИЙ (с комментарием) ---
                 const sorted = [...transactions].sort((a, b) => b.date.getTime() - a.date.getTime());
                 const list = document.getElementById('transactionList');
                 list.innerHTML = '';
-                const slice = sorted.slice(0, 15);
+                const slice = sorted.slice(0, 20);
                 for (const tx of slice) {
                     const div = document.createElement('div');
                     div.className = 'tx-item';
@@ -1158,6 +993,12 @@
                     });
                     left.appendChild(cat);
                     left.appendChild(date);
+                    if (tx.note) {
+                        const note = document.createElement('span');
+                        note.className = 'note';
+                        note.textContent = tx.note;
+                        left.appendChild(note);
+                    }
                     const right = document.createElement('span');
                     right.className = 'right ' + (tx.type === 'income' ? 'income' : 'expense');
                     right.textContent = (tx.type === 'income' ? '+' : '-') + tx.rub.toLocaleString('ru-RU') + ' ₽' +
@@ -1186,90 +1027,27 @@
                 filterBtns.forEach(btn => btn.classList.remove('disabled'));
                 document.querySelector(`.filter-btn[data-period="${currentFilter}"]`)?.classList.add('active');
                 updateWithFilter(currentFilter);
-                fileStatus.textContent = `✅ ${transactions.length} записей`;
-                fileInput.value = '';
-                uploadArea.classList.add('compact');
             }
 
-            // --- ОБРАБОТКА ФАЙЛА (ручная загрузка) ---
-            function handleFile(file) {
-                fileStatus.textContent = '⏳ Чтение...';
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        const content = e.target.result;
-                        const transactions = parseData(content);
-                        if (!transactions.length) {
-                            alert('Не удалось распознать транзакции. Проверьте формат файла.');
-                            fileStatus.textContent = '❌ Ошибка: не найдено транзакций';
-                            return;
-                        }
-                        initData(transactions);
-                    } catch (err) {
-                        alert('Ошибка при обработке файла: ' + err.message);
-                        fileStatus.textContent = '❌ Ошибка обработки';
-                    }
-                };
-                reader.onerror = function() {
-                    alert('Ошибка чтения файла');
-                    fileStatus.textContent = '❌ Ошибка чтения';
-                };
-                reader.readAsText(file);
-            }
+            // --- ОБРАБОТКА ФАЙЛА (ручная загрузка — через input) ---
+            // Мы не используем input в этом дизайне, но оставляем возможность через кнопку "Обновить" (с GitHub)
+            // Для ручной загрузки можно добавить скрытый input, но по условию мы используем GitHub.
 
             // --- СОБЫТИЯ ---
-            fileInput.addEventListener('change', function(e) {
-                e.stopPropagation();
-                if (this.files && this.files.length > 0) handleFile(this.files[0]);
-                else fileStatus.textContent = '⚠️ Файл не выбран';
-            });
-            fileInput.addEventListener('input', function(e) {
-                if (this.files && this.files.length > 0) handleFile(this.files[0]);
-            });
-
-            uploadArea.addEventListener('dragover', function(e) {
-                e.preventDefault();
-                if (!uploadArea.classList.contains('compact')) {
-                    this.style.borderColor = '#fbbf24';
-                    this.style.background = '#1e2533';
-                }
-            });
-            uploadArea.addEventListener('dragleave', function(e) {
-                e.preventDefault();
-                if (!uploadArea.classList.contains('compact')) {
-                    this.style.borderColor = '#3b4a5e';
-                    this.style.background = '#1a1f2a';
-                }
-            });
-            uploadArea.addEventListener('drop', function(e) {
-                e.preventDefault();
-                if (!uploadArea.classList.contains('compact')) {
-                    this.style.borderColor = '#3b4a5e';
-                    this.style.background = '#1a1f2a';
-                }
-                const files = e.dataTransfer.files;
-                if (files && files.length > 0) {
-                    fileInput.files = files;
-                    handleFile(files[0]);
-                }
-            });
-            uploadArea.addEventListener('click', function(e) {
-                if (e.target.closest('#clearDataBtn') || e.target.closest('#refreshBtn')) return;
-                fileInput.click();
-            });
-
             clearDataBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-                e.stopPropagation();
                 if (confirm('Удалить все сохранённые данные?')) {
                     clearStoredData();
                 }
             });
 
             refreshBtn.addEventListener('click', async function(e) {
-                e.stopPropagation();
+                e.preventDefault();
                 fileStatus.textContent = '⏳ Обновление...';
-                await loadFromServer();
+                const loaded = await loadData();
+                if (!loaded) {
+                    fileStatus.textContent = '❌ Не удалось загрузить данные';
+                }
             });
 
             usdRateInput.addEventListener('keydown', function(e) {
@@ -1293,15 +1071,27 @@
                 });
             });
 
+            // --- СВОРАЧИВАНИЕ БЛОКОВ ---
+            document.querySelectorAll('.collapsible-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    const targetId = this.dataset.target;
+                    const content = document.getElementById(targetId);
+                    const toggle = this.querySelector('.toggle');
+                    if (content) {
+                        content.classList.toggle('open');
+                        toggle.classList.toggle('open');
+                    }
+                });
+            });
+
             // --- ЗАПУСК ---
             (async function start() {
                 loadRate();
-                const loaded = await loadFromServer();
+                const loaded = await loadData();
                 if (!loaded) {
                     dashboard.classList.add('hidden');
                     emptyState.classList.remove('hidden');
-                    fileStatus.textContent = '📂 Нет данных. Загрузите файл вручную или проверьте stats2.json и rate.json.';
-                    uploadArea.classList.remove('compact');
+                    fileStatus.textContent = '📂 Загрузите файл вручную или проверьте stats2.json на GitHub.';
                 }
             })();
 
