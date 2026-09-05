@@ -249,7 +249,7 @@
         .stats-grid-extra .stat-card { padding: 8px 10px; }
         .stats-grid-extra .stat-card .value { font-size: 1.1rem; }
 
-        /* --- БЫСТРЫЕ ИТОГИ (всегда в одну строку) --- */
+  /* --- БЫСТРЫЕ ИТОГИ (доход сверху, расход снизу) --- */
 .quick-sums {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -259,10 +259,10 @@
 .quick-sums .group {
     background: #111;
     border-radius: 14px;
-    padding: 12px 8px;
+    padding: 10px 8px;
     border: 1px solid #2a2a2a;
     text-align: center;
-    min-width: 0; /* чтобы не вылезало */
+    min-width: 0;
 }
 .quick-sums .group .period-label {
     font-size: 0.7rem;
@@ -274,8 +274,9 @@
 }
 .quick-sums .group .sums-row {
     display: flex;
-    justify-content: center;
-    gap: 8px;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
     font-weight: 600;
     font-size: 1rem;
 }
@@ -288,14 +289,14 @@
         gap: 6px;
     }
     .quick-sums .group {
-        padding: 8px 4px;
+        padding: 6px 4px;
     }
     .quick-sums .group .period-label {
         font-size: 0.6rem;
     }
     .quick-sums .group .sums-row {
-        font-size: 0.85rem;
-        gap: 4px;
+        font-size: 0.8rem;
+        gap: 1px;
     }
 }
 
