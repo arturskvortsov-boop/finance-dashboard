@@ -301,49 +301,47 @@
 }
 
         /* --- СВОРАЧИВАЕМЫЕ БЛОКИ --- */
-        .collapsible { margin-bottom: 12px; }
-        .collapsible-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            padding: 8px 12px;
-            background: #111;
-            border-radius: 14px;
-            border: 1px solid #2a2a2a;
-            user-select: none;
-        }
-        .collapsible-header h3 {
-            font-weight: 500;
-            font-size: 0.85rem;
-            color: #c8d0e0;
-        }
-        .collapsible-header .toggle {
-            font-size: 1.2rem;
-            color: #8b9bb5;
-            transition: transform 0.3s;
-        }
-        .collapsible-header .toggle.open { transform: rotate(180deg); }
-        .collapsible-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-        .collapsible-content.open {
-            max-height: 2000px;
-            transition: max-height 0.5s ease-in;
-        }
-        .collapsible-content .chart-box,
-        .collapsible-content .transactions {
-            border: none;
-            border-radius: 0 0 14px 14px;
-            background: #111;
-            padding: 12px 14px;
-            border-left: 1px solid #2a2a2a;
-            border-right: 1px solid #2a2a2a;
-            border-bottom: 1px solid #2a2a2a;
-        }
-
+.collapsible { margin-bottom: 12px; }
+.collapsible-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px 12px;
+    background: #111;
+    border-radius: 14px 14px 0 0;
+    border: 1px solid #2a2a2a;
+    border-bottom: none;
+    user-select: none;
+}
+.collapsible-header h3 {
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: #c8d0e0;
+}
+.collapsible-header .toggle {
+    font-size: 1.2rem;
+    color: #8b9bb5;
+    transition: transform 0.3s;
+}
+.collapsible-header .toggle.open { transform: rotate(180deg); }
+.collapsible-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+.collapsible-content.open {
+    max-height: 2000px;
+    transition: max-height 0.5s ease-in;
+}
+.collapsible-content .chart-box,
+.collapsible-content .transactions {
+    border: 1px solid #2a2a2a;
+    border-radius: 0 0 14px 14px;
+    background: #111;
+    padding: 12px 14px;
+    margin-top: -1px;
+}
         /* --- ГРАФИКИ --- */
         .charts-row {
             display: grid;
