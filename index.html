@@ -70,34 +70,71 @@
         }
         .top-bar .actions button.clear:hover { background: rgba(248, 113, 113, 0.2); }
 
-        /* --- ОБЩИЙ БАЛАНС --- */
-        .total-balance {
+        /* --- НОВЫЙ БЛОК БАЛАНСА --- */
+        .balance-card {
             background: #111;
             border-radius: 14px;
-            padding: 12px 16px;
+            padding: 16px 20px;
             border: 1px solid #2a2a2a;
             margin-bottom: 12px;
             display: flex;
-            justify-content: space-around;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .balance-card .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 8px;
         }
-        .total-balance .item {
-            text-align: center;
-        }
-        .total-balance .item .label {
+        .balance-card .top .label {
             color: #8b9bb5;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            font-weight: 500;
         }
-        .total-balance .item .value {
-            font-size: 1.5rem;
+        .balance-card .top .amount {
+            font-size: 2rem;
             font-weight: 700;
-            margin-top: 2px;
+            color: #fbbf24;
         }
-        .total-balance .item .value.usd { color: #60a5fa; }
-        .total-balance .item .value.rub { color: #fbbf24; }
+        .balance-card .bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            border-top: 1px solid #2a2a2a;
+            padding-top: 8px;
+        }
+        .balance-card .bottom .period {
+            color: #8b9bb5;
+            font-size: 0.75rem;
+        }
+        .balance-card .bottom .month-change {
+            display: flex;
+            gap: 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .balance-card .bottom .month-change .income {
+            color: #4ade80;
+        }
+        .balance-card .bottom .month-change .expense {
+            color: #f87171;
+        }
+        .balance-card .usd-info {
+            color: #60a5fa;
+            font-size: 0.85rem;
+            margin-top: 4px;
+            border-top: 1px solid #2a2a2a;
+            padding-top: 6px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
 
         /* --- КУРС (внизу) --- */
         .rate-bar {
@@ -394,7 +431,10 @@
             .quick-sums .group { flex: none; }
             .filter-bar { justify-content: center; }
             .period-label { margin-left: 0; width: 100%; text-align: center; }
-            .total-balance { flex-direction: column; align-items: center; gap: 6px; }
+            .balance-card .top { flex-direction: column; align-items: stretch; }
+            .balance-card .top .amount { font-size: 1.6rem; }
+            .balance-card .bottom { flex-direction: column; align-items: stretch; gap: 4px; }
+            .balance-card .bottom .month-change { justify-content: space-around; }
             .rate-bar { flex-direction: column; align-items: stretch; gap: 4px; padding: 6px 12px; }
             .rate-bar .rate-info { margin-left: 0; text-align: center; }
             .full-width canvas { max-height: 150px; }
@@ -421,15 +461,22 @@
             </div>
         </div>
 
-        <!-- ОБЩИЙ БАЛАНС -->
-        <div class="total-balance" id="totalBalanceBlock">
-            <div class="item">
-                <div class="label">Общий баланс</div>
-                <div class="value usd" id="totalBalanceUsd">0 $</div>
+        <!-- НОВЫЙ БЛОК БАЛАНСА -->
+        <div class="balance-card" id="balanceCard">
+            <div class="top">
+                <span class="label">ЧИСТЫЙ БАЛАНС (на руках)</span>
+                <span class="amount" id="totalBalanceRubDisplay">0 ₽</span>
             </div>
-            <div class="item">
-                <div class="label">Эквивалент в RUB</div>
-                <div class="value rub" id="totalBalanceRub">0 ₽</div>
+            <div class="bottom">
+                <span class="period" id="periodDisplay">01.09.2026 — 30.09.2026</span>
+                <div class="month-change">
+                    <span class="income" id="monthIncomeDisplay">↑ 0</span>
+                    <span class="expense" id="monthExpenseDisplay">↓ 0</span>
+                </div>
+            </div>
+            <div class="usd-info">
+                <span>Баланс в USD: <strong id="totalBalanceUsdDisplay">0 $</strong></span>
+                <span>Курс: <strong id="rateInfoSmall">1 USD = 85.00 ₽</strong></span>
             </div>
         </div>
 
@@ -585,6 +632,14 @@
             const rateInfo = document.getElementById('rateInfo');
             const rateChangeInfo = document.getElementById('rateChangeInfo');
 
+            // Элементы блока баланса
+            const totalBalanceRubDisplay = document.getElementById('totalBalanceRubDisplay');
+            const totalBalanceUsdDisplay = document.getElementById('totalBalanceUsdDisplay');
+            const periodDisplay = document.getElementById('periodDisplay');
+            const monthIncomeDisplay = document.getElementById('monthIncomeDisplay');
+            const monthExpenseDisplay = document.getElementById('monthExpenseDisplay');
+            const rateInfoSmall = document.getElementById('rateInfoSmall');
+
             const STORAGE_KEY = 'financeDataTransactions';
             const RATE_STORAGE_KEY = 'usdRate';
 
@@ -725,7 +780,7 @@
                 if (incomePieChart) { incomePieChart.destroy();
                     incomePieChart = null; }
                 updateRateDisplay();
-                updateTotalBalance();
+                updateBalanceBlock();
             }
 
             // --- КУРС ---
@@ -747,10 +802,11 @@
             }
             function updateRateDisplay() {
                 rateInfo.textContent = `1 USD = ${currentUsdRate.toFixed(2)} ₽`;
+                rateInfoSmall.textContent = `1 USD = ${currentUsdRate.toFixed(2)} ₽`;
                 if (dataLoaded) {
                     updateWithFilter(currentFilter);
                 }
-                updateTotalBalance();
+                updateBalanceBlock();
             }
             function setRate(rate) {
                 if (isNaN(rate) || rate <= 0) {
@@ -766,13 +822,22 @@
                 rateChangeInfo.style.color = diff >= 0 ? '#4ade80' : '#f87171';
             }
 
-            // --- ОБНОВЛЕНИЕ ОБЩЕГО БАЛАНСА ---
-            function updateTotalBalance() {
+            // --- ОБНОВЛЕНИЕ БЛОКА БАЛАНСА (всегда показывает общий баланс) ---
+            function updateBalanceBlock() {
                 if (!allTransactions.length) {
-                    document.getElementById('totalBalanceUsd').textContent = '0 $';
-                    document.getElementById('totalBalanceRub').textContent = '0 ₽';
+                    totalBalanceRubDisplay.textContent = '0 ₽';
+                    totalBalanceUsdDisplay.textContent = '0 $';
+                    monthIncomeDisplay.textContent = '↑ 0';
+                    monthExpenseDisplay.textContent = '↓ 0';
+                    const now = new Date();
+                    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+                    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                    const format = d => d.toLocaleDateString('ru-RU');
+                    periodDisplay.textContent = `${format(firstDay)} — ${format(lastDay)}`;
                     return;
                 }
+
+                // Рассчитываем общий баланс (все транзакции)
                 let totalUsdIncome = 0,
                     totalUsdExpense = 0;
                 let totalRubIncome = 0,
@@ -789,8 +854,35 @@
                 const netUsd = totalUsdIncome - totalUsdExpense;
                 const netRub = totalRubIncome - totalRubExpense;
                 const totalBalanceRub = netRub + netUsd * currentUsdRate;
-                document.getElementById('totalBalanceUsd').textContent = netUsd.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' $';
-                document.getElementById('totalBalanceRub').textContent = totalBalanceRub.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₽';
+
+                // Доход и расход за текущий месяц
+                const now = new Date();
+                const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                const monthTxs = allTransactions.filter(tx => tx.date >= monthStart && tx.date <= monthEnd);
+                let monthIncRub = 0,
+                    monthExpRub = 0;
+                for (const tx of monthTxs) {
+                    if (tx.type === 'income') {
+                        if (tx.usd > 0) monthIncRub += tx.usd * currentUsdRate;
+                        else monthIncRub += tx.rub;
+                    } else {
+                        if (tx.usd > 0) monthExpRub += tx.usd * currentUsdRate;
+                        else monthExpRub += tx.rub;
+                    }
+                }
+
+                // Период
+                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+                const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                const format = d => d.toLocaleDateString('ru-RU');
+                periodDisplay.textContent = `${format(firstDay)} — ${format(lastDay)}`;
+
+                // Обновляем элементы
+                totalBalanceRubDisplay.textContent = totalBalanceRub.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₽';
+                totalBalanceUsdDisplay.textContent = netUsd.toFixed(2) + ' $';
+                monthIncomeDisplay.textContent = `↑ ${monthIncRub.toLocaleString('ru-RU')}`;
+                monthExpenseDisplay.textContent = `↓ ${monthExpRub.toLocaleString('ru-RU')}`;
             }
 
             // --- ЗАГРУЗКА С ГИТХАБА ---
@@ -1070,7 +1162,7 @@
                 renderDashboard(filtered, period);
                 const periodNames = { day: 'за сегодня', week: 'за последние 7 дней', month: 'за последние 30 дней' };
                 periodLabel.textContent = periodNames[period] || '';
-                updateTotalBalance();
+                updateBalanceBlock();
             }
 
             function initData(transactions) {
@@ -1080,7 +1172,7 @@
                 filterBtns.forEach(btn => btn.classList.remove('disabled'));
                 document.querySelector(`.filter-btn[data-period="${currentFilter}"]`)?.classList.add('active');
                 updateWithFilter(currentFilter);
-                updateTotalBalance();
+                updateBalanceBlock();
             }
 
             // --- СОБЫТИЯ ---
