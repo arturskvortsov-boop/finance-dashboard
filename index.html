@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
     <style>
-        /* --- (все стили такие же, как в финальной версии, плюс добавим для rate) --- */
+        /* --- ВСЕ СТИЛИ (такие же, как в предыдущей версии) --- */
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -68,7 +68,7 @@
             background: rgba(248, 113, 113, 0.1);
         }
         .top-bar .actions button.clear:hover { background: rgba(248, 113, 113, 0.2); }
-        .top-bar .actions .rate-upload-btn { /* отдельный стиль для загрузки rate */
+        .top-bar .actions .rate-upload-btn {
             background: rgba(96, 165, 250, 0.15);
             border-color: #60a5fa;
             color: #60a5fa;
@@ -277,7 +277,6 @@
         .quick-sums .group .sum.income { color: #4ade80; }
         .quick-sums .group .sum.expense { color: #f87171; }
 
-        /* Сворачиваемые блоки */
         .collapsible {
             margin-bottom: 12px;
             border-radius: 14px;
@@ -650,7 +649,6 @@
             const rateInfo = document.getElementById('rateInfo');
             const rateChangeInfo = document.getElementById('rateChangeInfo');
 
-            // Элементы блока баланса
             const totalBalanceRubDisplay = document.getElementById('totalBalanceRubDisplay');
             const totalBalanceUsdDisplay = document.getElementById('totalBalanceUsdDisplay');
             const periodDisplay = document.getElementById('periodDisplay');
@@ -663,7 +661,7 @@
             const RATE_HISTORY_KEY = 'rateHistory';
 
             let allTransactions = [];
-            let rateHistory = []; // массив объектов { date, rate }
+            let rateHistory = [];
             let currentFilter = 'month';
             let dataLoaded = false;
             let currentUsdRate = 85.00;
@@ -739,21 +737,17 @@
                 const lines = data.text.split('\n').filter(line => line.trim() !== '');
                 const history = [];
                 for (const line of lines) {
-                    // Пропускаем строку с заголовком
                     if (line.toLowerCase().includes('курс')) continue;
-                    // Ищем дату ДД.ММ.ГГГГ
                     const dateMatch = line.match(/(\d{2})\.(\d{2})\.(\d{4})/);
                     if (!dateMatch) continue;
                     const day = parseInt(dateMatch[1]);
                     const month = parseInt(dateMatch[2]) - 1;
                     const year = parseInt(dateMatch[3]);
-                    // Ищем время ЧЧ:ММ (может отсутствовать)
                     const timeMatch = line.match(/(\d{2}):(\d{2})/);
                     let hour = 0,
                         minute = 0;
                     if (timeMatch) { hour = parseInt(timeMatch[1]);
                         minute = parseInt(timeMatch[2]); }
-                    // Ищем число с запятой или точкой после | или в конце строки
                     const numMatch = line.match(/(\d+[.,]\d+)/);
                     if (!numMatch) continue;
                     const rate = parseFloat(numMatch[1].replace(',', '.'));
@@ -913,7 +907,6 @@
                     periodDisplay.textContent = `${format(firstDay)} — ${format(lastDay)}`;
                     return;
                 }
-                // Рассчитываем общий баланс (все транзакции)
                 let totalUsdIncome = 0,
                     totalUsdExpense = 0;
                 let totalRubIncome = 0,
@@ -931,7 +924,6 @@
                 const netRub = totalRubIncome - totalRubExpense;
                 const totalBalanceRub = netRub + netUsd * currentUsdRate;
 
-                // Доход и расход за текущий месяц
                 const now = new Date();
                 const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
                 const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -947,21 +939,17 @@
                         else monthExpRub += tx.rub;
                     }
                 }
-
-                // Период
                 const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
                 const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
                 const format = d => d.toLocaleDateString('ru-RU');
                 periodDisplay.textContent = `${format(firstDay)} — ${format(lastDay)}`;
-
-                // Обновляем элементы
                 totalBalanceRubDisplay.textContent = totalBalanceRub.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₽';
                 totalBalanceUsdDisplay.textContent = netUsd.toFixed(2) + ' $';
                 monthIncomeDisplay.textContent = `↑ ${monthIncRub.toLocaleString('ru-RU')}`;
                 monthExpenseDisplay.textContent = `↓ ${monthExpRub.toLocaleString('ru-RU')}`;
             }
 
-            // --- ЗАГРУЗКА С ГИТХАБА (stats2.json) ---
+            // --- ЗАГРУЗКА stats2.json ---
             async function loadData(showStatus = true) {
                 if (showStatus) fileStatus.textContent = '⏳ Загрузка...';
                 const stored = loadTransactions();
@@ -1000,11 +988,9 @@
                     if (history.length) {
                         rateHistory = history;
                         saveRateHistory(history);
-                        // Обновляем последний курс
                         const last = history[history.length - 1];
                         setRate(last.rate);
                         if (showStatus) fileStatus.textContent = `✅ Загружено ${history.length} записей курса`;
-                        // Перерисовываем график
                         drawRateHistoryChart();
                         return true;
                     }
@@ -1012,7 +998,6 @@
                     console.warn('Не удалось загрузить rate.json:', e.message);
                     if (showStatus) fileStatus.textContent = '❌ rate.json не найден';
                 }
-                // Если не загрузилось, пытаемся взять из localStorage
                 const stored = loadRateHistory();
                 if (stored && stored.length) {
                     rateHistory = stored;
@@ -1028,13 +1013,10 @@
             function drawRateHistoryChart() {
                 const canvas = document.getElementById('rateHistoryChart');
                 if (!canvas) return;
-                if (rateHistoryChart) {
-                    rateHistoryChart.destroy();
-                    rateHistoryChart = null;
-                }
+                if (rateHistoryChart) { rateHistoryChart.destroy();
+                    rateHistoryChart = null; }
                 const ctx = canvas.getContext('2d');
                 if (rateHistory.length < 2) {
-                    // Показываем сообщение
                     rateHistoryChart = new Chart(ctx, {
                         type: 'line',
                         data: {
@@ -1055,7 +1037,6 @@
                             }
                         }
                     });
-                    // Добавляем текст
                     const originalDraw = rateHistoryChart.draw;
                     rateHistoryChart.draw = function() {
                         originalDraw.apply(this, arguments);
@@ -1130,7 +1111,6 @@
                     return;
                 }
 
-                // Разделение по валютам
                 const rubIncome = transactions.filter(t => t.type === 'income' && t.usd === 0).reduce((s, t) => s + t.rub, 0);
                 const rubExpense = transactions.filter(t => t.type === 'expense' && t.usd === 0).reduce((s, t) => s + t.rub, 0);
                 const usdIncome = transactions.filter(t => t.type === 'income' && t.usd > 0).reduce((s, t) => s + t.usd, 0);
@@ -1140,7 +1120,6 @@
                 const totalExpenseRub = rubExpense + usdExpense * currentUsdRate;
                 const netRub = totalIncomeRub - totalExpenseRub;
 
-                // Быстрые итоги
                 const now = new Date();
                 const dayStart = new Date(now);
                 dayStart.setHours(0, 0, 0, 0);
@@ -1164,7 +1143,6 @@
                 const week = calcPeriod(weekStart);
                 const month = calcPeriod(monthStart);
 
-                // Обновляем карточки
                 document.getElementById('totalIncomeRubOnly').textContent = rubIncome.toLocaleString('ru-RU') + ' ₽';
                 document.getElementById('totalExpenseRubOnly').textContent = rubExpense.toLocaleString('ru-RU') + ' ₽';
                 document.getElementById('totalIncomeUsd').textContent = usdIncome.toLocaleString('ru-RU') + ' $';
@@ -1186,7 +1164,6 @@
                     .toLocaleString('ru-RU') + ' ₽';
                 document.getElementById('rateProfit').style.color = totalRateDiff >= 0 ? '#4ade80' : '#f87171';
 
-                // Быстрые итоги
                 const formatNum = (num) => num.toLocaleString('ru-RU');
                 document.getElementById('dayIncome').textContent = (day.incRub >= 0 ? '+' : '') + formatNum(day.incRub);
                 document.getElementById('dayExpense').textContent = (day.expRub >= 0 ? '-' : '') + formatNum(day.expRub);
@@ -1195,7 +1172,7 @@
                 document.getElementById('monthIncome').textContent = (month.incRub >= 0 ? '+' : '') + formatNum(month.incRub);
                 document.getElementById('monthExpense').textContent = (month.expRub >= 0 ? '-' : '') + formatNum(month.expRub);
 
-                // --- ГРАФИКИ (доходы/расходы, категории) ---
+                // --- ГРАФИКИ ---
                 const dailyMap = {};
                 for (const tx of transactions) {
                     const key = tx.dateStr;
@@ -1385,7 +1362,6 @@
                 document.querySelector(`.filter-btn[data-period="${currentFilter}"]`)?.classList.add('active');
                 updateWithFilter(currentFilter);
                 updateBalanceBlock();
-                // Запускаем автообновление
                 if (!autoUpdateTimer) startAutoUpdate();
             }
 
@@ -1487,14 +1463,14 @@
             // --- ЗАПУСК ---
             (async function start() {
                 loadRate();
-                // Загружаем транзакции
+                // Загружаем транзакции (главное)
                 const loaded = await loadData(true);
                 if (!loaded) {
                     dashboard.classList.add('hidden');
                     emptyState.classList.remove('hidden');
                     fileStatus.textContent = '📂 Загрузите файл вручную или проверьте stats2.json на GitHub.';
                 }
-                // Загружаем историю курса (если есть)
+                // Загружаем историю курса (в фоне, не блокируя интерфейс)
                 await loadRateHistoryFromServer(false);
             })();
 
