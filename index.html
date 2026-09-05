@@ -70,7 +70,7 @@
         }
         .top-bar .actions button.clear:hover { background: rgba(248, 113, 113, 0.2); }
 
-        /* --- НОВЫЙ БЛОК БАЛАНСА --- */
+        /* --- БЛОК БАЛАНСА --- */
         .balance-card {
             background: #111;
             border-radius: 14px;
@@ -96,7 +96,7 @@
             font-weight: 500;
         }
         .balance-card .top .amount {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 700;
             color: #fbbf24;
         }
@@ -119,12 +119,8 @@
             font-size: 0.9rem;
             font-weight: 500;
         }
-        .balance-card .bottom .month-change .income {
-            color: #4ade80;
-        }
-        .balance-card .bottom .month-change .expense {
-            color: #f87171;
-        }
+        .balance-card .bottom .month-change .income { color: #4ade80; }
+        .balance-card .bottom .month-change .expense { color: #f87171; }
         .balance-card .usd-info {
             color: #60a5fa;
             font-size: 0.85rem;
@@ -249,99 +245,95 @@
         .stats-grid-extra .stat-card { padding: 8px 10px; }
         .stats-grid-extra .stat-card .value { font-size: 1.1rem; }
 
-  /* --- БЫСТРЫЕ ИТОГИ (доход сверху, расход снизу) --- */
-.quick-sums {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-bottom: 12px;
-}
-.quick-sums .group {
-    background: #111;
-    border-radius: 14px;
-    padding: 10px 8px;
-    border: 1px solid #2a2a2a;
-    text-align: center;
-    min-width: 0;
-}
-.quick-sums .group .period-label {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #8b9bb5;
-    font-weight: 500;
-    margin-bottom: 4px;
-}
-.quick-sums .group .sums-row {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    font-weight: 600;
-    font-size: 1rem;
-}
-.quick-sums .group .sum.income { color: #4ade80; }
-.quick-sums .group .sum.expense { color: #f87171; }
+        /* --- БЫСТРЫЕ ИТОГИ (три карточки в строку) --- */
+        .quick-sums {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 14px 0 12px 0;
+        }
+        .quick-sums .group {
+            background: #1a1f2a;
+            border-radius: 14px;
+            padding: 10px 8px;
+            border: 1px solid #4a5568;
+            text-align: center;
+            min-width: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .quick-sums .group .period-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #8b9bb5;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        .quick-sums .group .sums-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .quick-sums .group .sum.income { color: #4ade80; }
+        .quick-sums .group .sum.expense { color: #f87171; }
 
-@media (max-width: 600px) {
-    .quick-sums {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 6px;
-    }
-    .quick-sums .group {
-        padding: 6px 4px;
-    }
-    .quick-sums .group .period-label {
-        font-size: 0.6rem;
-    }
-    .quick-sums .group .sums-row {
-        font-size: 0.8rem;
-        gap: 1px;
-    }
-}
+        /* --- СВОРАЧИВАЕМЫЕ БЛОКИ (исправлено) --- */
+        .collapsible {
+            margin-bottom: 12px;
+            border-radius: 14px;
+            border: 1px solid #2a2a2a;
+            overflow: hidden;
+            background: #111;
+        }
+        .collapsible-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px 12px;
+            background: #111;
+            user-select: none;
+            border: none;
+        }
+        .collapsible-header h3 {
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #c8d0e0;
+        }
+        .collapsible-header .toggle {
+            font-size: 1.2rem;
+            color: #8b9bb5;
+            transition: transform 0.3s;
+        }
+        .collapsible-header .toggle.open { transform: rotate(180deg); }
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            border-top: none;
+        }
+        .collapsible-content.open {
+            max-height: 2000px;
+            transition: max-height 0.5s ease-in;
+        }
+        .collapsible-content .chart-box,
+        .collapsible-content .transactions {
+            border: none;
+            border-radius: 0;
+            background: #111;
+            padding: 12px 14px;
+        }
+        /* Чтобы при закрытом состоянии оставалась обводка */
+        .collapsible.closed .collapsible-header {
+            border-radius: 14px;
+        }
+        .collapsible:not(.closed) .collapsible-header {
+            border-radius: 14px 14px 0 0;
+        }
 
-        /* --- СВОРАЧИВАЕМЫЕ БЛОКИ --- */
-.collapsible { margin-bottom: 12px; }
-.collapsible-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    padding: 8px 12px;
-    background: #111;
-    border-radius: 14px 14px 0 0;
-    border: 1px solid #2a2a2a;
-    border-bottom: none;
-    user-select: none;
-}
-.collapsible-header h3 {
-    font-weight: 500;
-    font-size: 0.85rem;
-    color: #c8d0e0;
-}
-.collapsible-header .toggle {
-    font-size: 1.2rem;
-    color: #8b9bb5;
-    transition: transform 0.3s;
-}
-.collapsible-header .toggle.open { transform: rotate(180deg); }
-.collapsible-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-out;
-}
-.collapsible-content.open {
-    max-height: 2000px;
-    transition: max-height 0.5s ease-in;
-}
-.collapsible-content .chart-box,
-.collapsible-content .transactions {
-    border: 1px solid #2a2a2a;
-    border-radius: 0 0 14px 14px;
-    background: #111;
-    padding: 12px 14px;
-    margin-top: -1px;
-}
         /* --- ГРАФИКИ --- */
         .charts-row {
             display: grid;
@@ -362,7 +354,7 @@
             letter-spacing: 0.2px;
         }
         .chart-box canvas {
-            max-height: 110px;
+            max-height: 140px;
             max-width: 100%;
         }
         .full-width { grid-column: 1 / -1; }
@@ -393,10 +385,10 @@
         .tx-item {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            padding: 6px 0;
+            align-items: center;
+            padding: 4px 0;
             border-bottom: 1px solid #232b3b;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
         }
         .tx-item:last-child { border-bottom: none; }
         .tx-item .left {
@@ -404,18 +396,23 @@
             flex-direction: column;
             gap: 1px;
             flex: 1;
+            overflow: hidden;
         }
-        .tx-item .left .cat { font-weight: 500; }
-        .tx-item .left .date { font-size: 0.65rem; color: #8b9bb5; }
+        .tx-item .left .cat { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .tx-item .left .date { font-size: 0.6rem; color: #8b9bb5; }
         .tx-item .left .note {
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             color: #a0b0c0;
             font-style: italic;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .tx-item .right {
             font-weight: 600;
             text-align: right;
             white-space: nowrap;
+            margin-left: 8px;
         }
         .tx-item .right.income { color: #4ade80; }
         .tx-item .right.expense { color: #f87171; }
@@ -441,8 +438,10 @@
             .charts-row { grid-template-columns: 1fr; }
             .stat-card .value { font-size: 1.1rem; }
             .stats-grid-extra { grid-template-columns: 1fr 1fr; }
-            .quick-sums { flex-direction: column; align-items: stretch; }
-            .quick-sums .group { flex: none; }
+            .quick-sums { grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 10px 0 8px 0; }
+            .quick-sums .group { padding: 6px 4px; border: 1px solid #2a3344; border-radius: 10px; }
+            .quick-sums .group .period-label { font-size: 0.6rem; }
+            .quick-sums .group .sums-row { font-size: 0.75rem; gap: 1px; }
             .filter-bar { justify-content: center; }
             .period-label { margin-left: 0; width: 100%; text-align: center; }
             .balance-card .top { flex-direction: column; align-items: stretch; }
@@ -475,7 +474,7 @@
             </div>
         </div>
 
-        <!-- НОВЫЙ БЛОК БАЛАНСА -->
+        <!-- БЛОК БАЛАНСА -->
         <div class="balance-card" id="balanceCard">
             <div class="top">
                 <span class="label">ЧИСТЫЙ БАЛАНС (на руках)</span>
@@ -546,7 +545,7 @@
                 </div>
             </div>
 
-            <!-- БЫСТРЫЕ ИТОГИ (три карточки в ряд) -->
+            <!-- БЫСТРЫЕ ИТОГИ (три карточки в строку) -->
             <div class="quick-sums" id="quickSums">
                 <div class="group">
                     <div class="period-label">День</div>
@@ -572,22 +571,22 @@
             </div>
 
             <!-- СВОРАЧИВАЕМЫЙ БЛОК: ГРАФИКИ -->
-            <div class="collapsible">
+            <div class="collapsible" id="chartsCollapsible">
                 <div class="collapsible-header" data-target="chartsContent">
                     <h3>📊 Графики</h3>
                     <span class="toggle">▼</span>
                 </div>
                 <div class="collapsible-content open" id="chartsContent">
-                    <div class="chart-box full-width" style="border-radius:0;">
+                    <div class="chart-box full-width" style="border-radius:0; border:none;">
                         <h3>📈 Динамика доходов и расходов (RUB)</h3>
                         <canvas id="dailyChart"></canvas>
                     </div>
                     <div class="charts-row" style="margin-top:12px;">
-                        <div class="chart-box">
+                        <div class="chart-box" style="border:none; border-radius:0;">
                             <h3>🧩 Расходы по категориям</h3>
                             <canvas id="expensePieChart"></canvas>
                         </div>
-                        <div class="chart-box">
+                        <div class="chart-box" style="border:none; border-radius:0;">
                             <h3>🧩 Доходы по категориям</h3>
                             <canvas id="incomePieChart"></canvas>
                         </div>
@@ -596,13 +595,13 @@
             </div>
 
             <!-- СВОРАЧИВАЕМЫЙ БЛОК: ИСТОРИЯ ТРАНЗАКЦИЙ -->
-            <div class="collapsible">
+            <div class="collapsible" id="transactionsCollapsible">
                 <div class="collapsible-header" data-target="transactionsContent">
                     <h3>📋 История транзакций</h3>
                     <span class="toggle">▼</span>
                 </div>
                 <div class="collapsible-content open" id="transactionsContent">
-                    <div class="transactions" style="border-radius:0;">
+                    <div class="transactions" style="border-radius:0; border:none;">
                         <div class="tx-list" id="transactionList"></div>
                     </div>
                 </div>
@@ -624,7 +623,7 @@
         </div>
 
         <div class="footer">
-            Данные из stats2.json • Автообновление
+            Данные из stats2.json • Автообновление каждую минуту
         </div>
     </div>
 
@@ -664,6 +663,7 @@
             let dailyChart = null,
                 expensePieChart = null,
                 incomePieChart = null;
+            let autoUpdateTimer = null;
 
             // --- ПАРСИНГ ТРАНЗАКЦИЙ ---
             function parseNumber(str) {
@@ -793,6 +793,10 @@
                     expensePieChart = null; }
                 if (incomePieChart) { incomePieChart.destroy();
                     incomePieChart = null; }
+                if (autoUpdateTimer) {
+                    clearInterval(autoUpdateTimer);
+                    autoUpdateTimer = null;
+                }
                 updateRateDisplay();
                 updateBalanceBlock();
             }
@@ -836,7 +840,7 @@
                 rateChangeInfo.style.color = diff >= 0 ? '#4ade80' : '#f87171';
             }
 
-            // --- ОБНОВЛЕНИЕ БЛОКА БАЛАНСА (всегда показывает общий баланс) ---
+            // --- ОБНОВЛЕНИЕ БЛОКА БАЛАНСА ---
             function updateBalanceBlock() {
                 if (!allTransactions.length) {
                     totalBalanceRubDisplay.textContent = '0 ₽';
@@ -850,7 +854,6 @@
                     periodDisplay.textContent = `${format(firstDay)} — ${format(lastDay)}`;
                     return;
                 }
-
                 // Рассчитываем общий баланс (все транзакции)
                 let totalUsdIncome = 0,
                     totalUsdExpense = 0;
@@ -900,11 +903,12 @@
             }
 
             // --- ЗАГРУЗКА С ГИТХАБА ---
-            async function loadData() {
+            async function loadData(showStatus = true) {
+                if (showStatus) fileStatus.textContent = '⏳ Загрузка...';
                 const stored = loadTransactions();
                 if (stored && stored.length) {
                     initData(stored);
-                    fileStatus.textContent = `📂 Загружено из кэша: ${stored.length} записей`;
+                    if (showStatus) fileStatus.textContent = `📂 Загружено из кэша: ${stored.length} записей`;
                     return true;
                 }
                 try {
@@ -915,7 +919,7 @@
                     const transactions = parseData(content);
                     if (transactions.length) {
                         initData(transactions);
-                        fileStatus.textContent = `✅ Загружено с GitHub: ${transactions.length} записей`;
+                        if (showStatus) fileStatus.textContent = `✅ Загружено с GitHub: ${transactions.length} записей`;
                         return true;
                     }
                 } catch (e) {
@@ -1187,6 +1191,38 @@
                 document.querySelector(`.filter-btn[data-period="${currentFilter}"]`)?.classList.add('active');
                 updateWithFilter(currentFilter);
                 updateBalanceBlock();
+                // Запускаем автообновление, если ещё не запущено
+                if (!autoUpdateTimer) startAutoUpdate();
+            }
+
+            // --- АВТООБНОВЛЕНИЕ КАЖДУЮ МИНУТУ ---
+            function startAutoUpdate() {
+                if (autoUpdateTimer) clearInterval(autoUpdateTimer);
+                autoUpdateTimer = setInterval(async function() {
+                    if (!dataLoaded) return;
+                    fileStatus.textContent = '⏳ Проверка обновлений...';
+                    try {
+                        const url = 'stats2.json?t=' + Date.now();
+                        const response = await fetch(url, { cache: 'no-store' });
+                        if (!response.ok) throw new Error('Файл не найден');
+                        const content = await response.text();
+                        const transactions = parseData(content);
+                        if (transactions.length && transactions.length !== allTransactions.length) {
+                            initData(transactions);
+                            fileStatus.textContent = `✅ Обновлено: ${transactions.length} записей`;
+                        } else {
+                            fileStatus.textContent = `✅ Данные актуальны (${allTransactions.length} записей)`;
+                        }
+                    } catch (e) {
+                        console.warn('Автообновление не удалось:', e.message);
+                        fileStatus.textContent = `⚠️ Ошибка обновления: ${e.message}`;
+                    }
+                    setTimeout(() => {
+                        if (dataLoaded) {
+                            fileStatus.textContent = `✅ ${allTransactions.length} записей`;
+                        }
+                    }, 3000);
+                }, 60000);
             }
 
             // --- СОБЫТИЯ ---
@@ -1200,7 +1236,7 @@
             refreshBtn.addEventListener('click', async function(e) {
                 e.preventDefault();
                 fileStatus.textContent = '⏳ Обновление...';
-                const loaded = await loadData();
+                const loaded = await loadData(true);
                 if (!loaded) {
                     fileStatus.textContent = '❌ Не удалось загрузить данные';
                 }
@@ -1233,9 +1269,18 @@
                     const targetId = this.dataset.target;
                     const content = document.getElementById(targetId);
                     const toggle = this.querySelector('.toggle');
+                    const parent = this.closest('.collapsible');
                     if (content) {
-                        content.classList.toggle('open');
-                        toggle.classList.toggle('open');
+                        const isOpen = content.classList.contains('open');
+                        if (isOpen) {
+                            content.classList.remove('open');
+                            toggle.classList.remove('open');
+                            parent.classList.add('closed');
+                        } else {
+                            content.classList.add('open');
+                            toggle.classList.add('open');
+                            parent.classList.remove('closed');
+                        }
                     }
                 });
             });
@@ -1243,7 +1288,7 @@
             // --- ЗАПУСК ---
             (async function start() {
                 loadRate();
-                const loaded = await loadData();
+                const loaded = await loadData(true);
                 if (!loaded) {
                     dashboard.classList.add('hidden');
                     emptyState.classList.remove('hidden');
