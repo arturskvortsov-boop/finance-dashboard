@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
     <style>
-        /* --- ВСЕ СТИЛИ (такие же, как в предыдущей версии) --- */
+        /* --- ВСЕ СТИЛИ (как в предыдущей версии, плюс правка для canvas) --- */
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -298,7 +298,15 @@
             margin-bottom: 8px;
             letter-spacing: 0.2px;
         }
-        .chart-box canvas { max-height:140px; max-width:100%; }
+        .chart-box canvas {
+            max-height: 140px;
+            max-width: 100%;
+        }
+        /* Явная высота для графика курса */
+        #rateHistoryChart {
+            height: 200px !important;
+            width: 100% !important;
+        }
         .full-width { grid-column:1 / -1; }
         .full-width canvas { max-height:180px; }
 
@@ -404,6 +412,8 @@
             .rate-bar { flex-direction:column; align-items:stretch; gap:4px; padding:6px 12px; }
             .rate-bar .rate-info { margin-left:0; text-align:center; }
             .full-width canvas { max-height:150px; }
+            /* Для мобильных уменьшаем высоту графика курса */
+            #rateHistoryChart { height: 150px !important; }
             .top-bar .actions { justify-content:center; }
             .debug-block { font-size:0.6rem; max-height:150px; }
         }
@@ -751,23 +761,19 @@
                 return transactions;
             }
 
-            // --- ПАРСИНГ ИСТОРИИ КУРСА (исправленный) ---
+            // --- ПАРСИНГ ИСТОРИИ КУРСА ---
             function parseRateHistory(text) {
                 console.log('🔍 Парсим rate.json');
-                // text уже строка (не JSON)
                 const lines = text.split('\n').filter(line => line.trim() !== '');
                 console.log(`📄 Найдено строк: ${lines.length}`);
                 const history = [];
                 for (const line of lines) {
-                    // Пропускаем заголовок
                     if (line.toLowerCase().includes('курс')) continue;
-                    // Ищем дату
                     const dateMatch = line.match(/(\d{2})\.(\d{2})\.(\d{4})/);
                     if (!dateMatch) continue;
                     const day = parseInt(dateMatch[1]);
                     const month = parseInt(dateMatch[2]) - 1;
                     const year = parseInt(dateMatch[3]);
-                    // Ищем время (необязательно)
                     const timeMatch = line.match(/(\d{2}):(\d{2})/);
                     let hour = 0,
                         minute = 0;
@@ -775,7 +781,6 @@
                         hour = parseInt(timeMatch[1]);
                         minute = parseInt(timeMatch[2]);
                     }
-                    // Ищем число с запятой или точкой
                     const numMatch = line.match(/(\d+[.,]\d+)/);
                     if (!numMatch) continue;
                     const rate = parseFloat(numMatch[1].replace(',', '.'));
@@ -1004,64 +1009,49 @@
                 return false;
             }
 
-            // --- ЗАГРУЗКА rate.json (исправлена: загружаем как текст, парсим вручную) ---
+            // --- ЗАГРУЗКА rate.json ---
             async function loadRateHistoryFromServer(showStatus = false) {
                 if (showStatus) fileStatus.textContent = '⏳ Загрузка rate.json...';
                 try {
-                    // Используем абсолютный URL для надёжности
                     const url = 'https://raw.githubusercontent.com/arturskvortsov-boop/finance-dashboard/main/rate.json?t=' + Date.now();
                     const response = await fetch(url, { cache: 'no-store' });
                     if (!response.ok) throw new Error('rate.json не найден (HTTP ' + response.status + ')');
                     const text = await response.text();
                     console.log('📄 Получен текст rate.json (первые 100 символов):', text.substring(0, 100));
-                    // Проверяем, что текст похож на JSON
-                    if (text.trim().startsWith('{')) {
-                        // Если это JSON, попробуем распарсить и извлечь поле text
-                        try {
-                            const json = JSON.parse(text);
-                            if (json.text) {
-                                const history = parseRateHistory(json.text);
-                                if (history.length) {
-                                    rateHistory = history;
-                                    saveRateHistory(history);
-                                    const last = history[history.length - 1];
-                                    setRate(last.rate);
-                                    if (showStatus) fileStatus.textContent = `✅ Загружено ${history.length} записей курса`;
-                                    drawRateHistoryChart();
-                                    console.log('📊 График курса обновлён, записей:', history.length);
-                                    return true;
-                                } else {
-                                    console.warn('❌ Нет записей курса в rate.json');
-                                    if (showStatus) fileStatus.textContent = '❌ Нет записей курса';
-                                }
-                            } else {
-                                console.warn('❌ Нет поля text в JSON');
-                            }
-                        } catch (e) {
-                            console.warn('❌ Ошибка парсинга JSON:', e);
-                        }
-                    } else {
-                        // Если это не JSON, возможно, это сырой текст с курсами
-                        console.log('📄 Ответ не является JSON, пробуем парсить как сырой текст');
-                        const history = parseRateHistory(text);
-                        if (history.length) {
-                            rateHistory = history;
-                            saveRateHistory(history);
-                            const last = history[history.length - 1];
-                            setRate(last.rate);
-                            if (showStatus) fileStatus.textContent = `✅ Загружено ${history.length} записей курса (сырой текст)`;
-                            drawRateHistoryChart();
-                            console.log('📊 График курса обновлён, записей:', history.length);
-                            return true;
+
+                    let history = [];
+                    // Пробуем как JSON
+                    try {
+                        const json = JSON.parse(text);
+                        if (json.text) {
+                            history = parseRateHistory(json.text);
                         } else {
-                            console.warn('❌ Не удалось извлечь записи из сырого текста');
+                            // если нет поля text, парсим сырой текст
+                            history = parseRateHistory(text);
                         }
+                    } catch (e) {
+                        // если не JSON, парсим как текст
+                        history = parseRateHistory(text);
+                    }
+
+                    if (history.length) {
+                        rateHistory = history;
+                        saveRateHistory(history);
+                        const last = history[history.length - 1];
+                        setRate(last.rate);
+                        if (showStatus) fileStatus.textContent = `✅ Загружено ${history.length} записей курса`;
+                        drawRateHistoryChart();
+                        console.log('📊 График курса обновлён, записей:', history.length);
+                        return true;
+                    } else {
+                        console.warn('❌ Нет записей курса');
+                        if (showStatus) fileStatus.textContent = '❌ Нет записей курса';
                     }
                 } catch (e) {
                     console.warn('❌ Не удалось загрузить rate.json:', e.message);
                     if (showStatus) fileStatus.textContent = '❌ rate.json не найден';
                 }
-                // Пытаемся загрузить из localStorage
+                // Пытаемся из кэша
                 const stored = loadRateHistory();
                 if (stored && stored.length) {
                     rateHistory = stored;
