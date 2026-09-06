@@ -63,6 +63,7 @@
         }
         .top-bar .actions .rate-upload-btn:hover { background: rgba(96,165,250,0.3); }
 
+        /* Карточка баланса (как раньше) */
         .balance-card {
             background: #111;
             border-radius: 14px;
@@ -100,6 +101,45 @@
             flex-wrap:wrap;
         }
 
+        /* Панель курса (стили исправлены) */
+        .rate-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            background: #111;
+            border-radius: 12px;
+            padding: 6px 16px;
+            border: 1px solid #2a2a2a;
+            margin-top: 12px;
+            font-size: 0.8rem;
+        }
+        .rate-bar .label { color:#8b9bb5; font-size:0.75rem; }
+        .rate-bar input {
+            background: #1a1f2a;
+            border: 1px solid #2a3344;
+            color: #e8edf5;
+            padding: 2px 8px;
+            border-radius: 8px;
+            width: 80px;
+            font-size: 0.8rem;
+        }
+        .rate-bar input:focus { outline:none; border-color:#fbbf24; }
+        .rate-bar .update-btn {
+            background: rgba(251,191,36,0.15);
+            border:1px solid #fbbf24;
+            color:#fbbf24;
+            padding:2px 14px;
+            border-radius:30px;
+            font-weight:600;
+            font-size:0.7rem;
+            cursor:pointer;
+        }
+        .rate-bar .update-btn:hover { background:rgba(251,191,36,0.3); }
+        .rate-bar .rate-info { color:#4ade80; font-weight:500; font-size:0.8rem; margin-left:auto; }
+        .rate-bar .rate-change { color:#8b9bb5; font-size:0.7rem; margin-left:4px; }
+
+        /* Остальные стили (фильтры, статистика, графики, транзакции) – без изменений */
         .filter-bar {
             display: flex;
             gap: 8px;
@@ -249,10 +289,6 @@
         .full-width { grid-column:1 / -1; }
         .full-width canvas { max-height:180px; }
 
-        /* Блок курса внизу */
-        .rate-section {
-            margin-top: 12px;
-        }
         .rate-chart-box {
             background: #111;
             border-radius: 14px;
@@ -526,7 +562,7 @@
                     <canvas id="rateHistoryChart"></canvas>
                 </div>
 
-                <!-- ПАНЕЛЬ УПРАВЛЕНИЯ КУРСОМ -->
+                <!-- ПАНЕЛЬ УПРАВЛЕНИЯ КУРСОМ (стили применены) -->
                 <div class="rate-bar">
                     <span class="label">💵 Курс USD/RUB</span>
                     <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
@@ -1421,9 +1457,7 @@
                     emptyState.classList.remove('hidden');
                     fileStatus.textContent = '📂 Загрузите файл вручную или проверьте stats2.json на GitHub.';
                 }
-                // Загружаем историю курса (автоматически)
                 await loadRateHistoryFromServer(false);
-                // Принудительно рисуем график
                 setTimeout(() => drawRateHistoryChart(), 500);
             })();
 
