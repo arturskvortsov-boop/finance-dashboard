@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
     <style>
-        /* --- ОБЩИЕ СТИЛИ --- */
+        /* --- ВСЕ СТИЛИ (без изменений, как в последней рабочей версии) --- */
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -99,43 +99,6 @@
             justify-content:space-between;
             flex-wrap:wrap;
         }
-
-        .rate-bar {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-            background: #111;
-            border-radius: 12px;
-            padding: 4px 12px;
-            border: 1px solid #2a2a2a;
-            margin-top: 12px;
-            font-size: 0.8rem;
-        }
-        .rate-bar .label { color:#8b9bb5; font-size:0.75rem; }
-        .rate-bar input {
-            background: #1a1f2a;
-            border: 1px solid #2a3344;
-            color: #e8edf5;
-            padding: 2px 8px;
-            border-radius: 8px;
-            width: 80px;
-            font-size: 0.8rem;
-        }
-        .rate-bar input:focus { outline:none; border-color:#fbbf24; }
-        .rate-bar .update-btn {
-            background: rgba(251,191,36,0.15);
-            border:1px solid #fbbf24;
-            color:#fbbf24;
-            padding:2px 12px;
-            border-radius:30px;
-            font-weight:600;
-            font-size:0.7rem;
-            cursor:pointer;
-        }
-        .rate-bar .update-btn:hover { background:rgba(251,191,36,0.3); }
-        .rate-bar .rate-info { color:#4ade80; font-weight:500; font-size:0.8rem; margin-left:auto; }
-        .rate-bar .rate-change { color:#8b9bb5; font-size:0.7rem; margin-left:4px; }
 
         .filter-bar {
             display: flex;
@@ -286,7 +249,23 @@
         .full-width { grid-column:1 / -1; }
         .full-width canvas { max-height:180px; }
 
-        /* Явная высота для графика курса */
+        /* Стили для графика курса (он внизу) */
+        .rate-chart-wrapper {
+            margin-bottom: 12px;
+        }
+        .rate-chart-wrapper .chart-box {
+            border-radius: 14px;
+            border: 1px solid #2a2a2a;
+            background: #111;
+            padding: 12px 12px;
+        }
+        .rate-chart-wrapper .chart-box h3 {
+            font-weight: 500;
+            font-size: 0.75rem;
+            color: #c8d0e0;
+            margin-bottom: 8px;
+            letter-spacing: 0.2px;
+        }
         #rateHistoryChart {
             height: 200px !important;
             width: 100% !important;
@@ -481,7 +460,7 @@
                 </div>
             </div>
 
-            <!-- ГРАФИКИ -->
+            <!-- ГРАФИКИ ДОХОДОВ/РАСХОДОВ -->
             <div class="collapsible" id="chartsCollapsible">
                 <div class="collapsible-header" data-target="chartsContent">
                     <h3>📊 Графики</h3>
@@ -505,21 +484,7 @@
                 </div>
             </div>
 
-            <!-- ИСТОРИЯ КУРСА -->
-            <div class="collapsible" id="rateHistoryCollapsible">
-                <div class="collapsible-header" data-target="rateHistoryContent">
-                    <h3>📊 История курса USD/RUB</h3>
-                    <span class="toggle open">▼</span>
-                </div>
-                <div class="collapsible-content open" id="rateHistoryContent">
-                    <div class="chart-box full-width" style="border-radius:0; border:none;">
-                        <button id="refreshRateChartBtn" style="background:rgba(251,191,36,0.15);border:1px solid #fbbf24;color:#fbbf24;padding:2px 12px;border-radius:30px;font-size:0.7rem;cursor:pointer;margin-bottom:8px;">🔄 Обновить график</button>
-                        <canvas id="rateHistoryChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ТРАНЗАКЦИИ -->
+            <!-- ИСТОРИЯ ТРАНЗАКЦИЙ -->
             <div class="collapsible" id="transactionsCollapsible">
                 <div class="collapsible-header" data-target="transactionsContent">
                     <h3>📋 История транзакций</h3>
@@ -532,7 +497,16 @@
                 </div>
             </div>
 
-            <!-- КУРС -->
+            <!-- БЛОК КУРСА (ГРАФИК + УПРАВЛЕНИЕ) – ПЕРЕНЕСЁН ВНИЗ -->
+            <div class="rate-chart-wrapper">
+                <div class="chart-box">
+                    <h3>📊 История курса USD/RUB</h3>
+                    <button id="refreshRateChartBtn" style="background:rgba(251,191,36,0.15);border:1px solid #fbbf24;color:#fbbf24;padding:2px 12px;border-radius:30px;font-size:0.7rem;cursor:pointer;margin-bottom:8px;">🔄 Обновить график</button>
+                    <canvas id="rateHistoryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- ПАНЕЛЬ УПРАВЛЕНИЯ КУРСОМ (всегда под графиком) -->
             <div class="rate-bar">
                 <span class="label">💵 Курс USD/RUB</span>
                 <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
@@ -654,29 +628,23 @@
 
             // --- ПАРСИНГ ИСТОРИИ КУРСА (исправленный) ---
             function parseRateHistory(text) {
-                console.log('🔍 Парсим rate.json');
                 const lines = text.split('\n').filter(line => line.trim() !== '');
-                console.log(`📄 Найдено строк: ${lines.length}`);
                 const history = [];
                 for (const line of lines) {
                     if (line.toLowerCase().includes('курс')) continue;
-                    // Разделяем по | (или ;)
                     const parts = line.split('|');
                     if (parts.length < 2) continue;
                     const leftPart = parts[0].trim();
                     const rightPart = parts[1].trim();
-                    // Извлекаем курс только из правой части
                     const numMatch = rightPart.match(/(\d+[.,]\d+)/);
                     if (!numMatch) continue;
                     const rate = parseFloat(numMatch[1].replace(',', '.'));
                     if (isNaN(rate) || rate <= 0) continue;
-                    // Извлекаем дату из левой части
                     const dateMatch = leftPart.match(/(\d{2})\.(\d{2})\.(\d{4})/);
                     if (!dateMatch) continue;
                     const day = parseInt(dateMatch[1]);
                     const month = parseInt(dateMatch[2]) - 1;
                     const year = parseInt(dateMatch[3]);
-                    // Время (необязательно)
                     const timeMatch = leftPart.match(/(\d{2}):(\d{2})/);
                     let hour = 0,
                         minute = 0;
@@ -687,7 +655,6 @@
                     const dateObj = new Date(year, month, day, hour, minute);
                     history.push({ date: dateObj, rate: rate });
                 }
-                console.log(`📊 Всего записей курса: ${history.length}`);
                 history.sort((a, b) => a.date - b.date);
                 return history;
             }
@@ -916,8 +883,6 @@
                     const response = await fetch(url, { cache: 'no-store' });
                     if (!response.ok) throw new Error('rate.json не найден (HTTP ' + response.status + ')');
                     const text = await response.text();
-                    console.log('📄 Получен текст rate.json (первые 100 символов):', text.substring(0, 100));
-
                     let history = [];
                     try {
                         const json = JSON.parse(text);
@@ -1435,7 +1400,9 @@
                     emptyState.classList.remove('hidden');
                     fileStatus.textContent = '📂 Загрузите файл вручную или проверьте stats2.json на GitHub.';
                 }
+                // Загружаем историю курса (автоматически)
                 await loadRateHistoryFromServer(false);
+                // Принудительно рисуем график
                 setTimeout(() => drawRateHistoryChart(), 500);
             })();
 
