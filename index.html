@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
     <style>
+        /* --- ОБЩИЕ СТИЛИ --- */
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -23,6 +24,7 @@
         }
         .container { max-width:1200px; width:100%; margin:0 auto; }
 
+        /* --- ВЕРХНЯЯ ПАНЕЛЬ --- */
         .top-bar {
             display: flex;
             align-items: center;
@@ -62,6 +64,7 @@
         }
         .top-bar .actions .rate-upload-btn:hover { background: rgba(96,165,250,0.3); }
 
+        /* --- БАЛАНС --- */
         .balance-card {
             background: #111;
             border-radius: 14px;
@@ -99,6 +102,7 @@
             flex-wrap:wrap;
         }
 
+        /* --- ФИЛЬТРЫ --- */
         .filter-bar {
             display: flex;
             gap: 8px;
@@ -126,6 +130,7 @@
         .filter-btn.disabled { opacity:0.3; cursor:not-allowed; pointer-events:none; }
         .period-label { margin-left:auto; color:#7a8aa3; font-size:0.75rem; }
 
+        /* --- СТАТИСТИКА --- */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -157,6 +162,7 @@
         .stats-grid-extra .stat-card { padding:8px 10px; }
         .stats-grid-extra .stat-card .value { font-size:1.1rem; }
 
+        /* --- БЫСТРЫЕ ИТОГИ --- */
         .quick-sums {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -191,6 +197,7 @@
         .quick-sums .group .sum.income { color:#4ade80; }
         .quick-sums .group .sum.expense { color:#f87171; }
 
+        /* --- СВОРАЧИВАЕМЫЕ БЛОКИ --- */
         .collapsible {
             margin-bottom: 12px;
             border-radius: 14px;
@@ -232,7 +239,7 @@
         .collapsible.closed .collapsible-header { border-radius:14px; }
         .collapsible:not(.closed) .collapsible-header { border-radius:14px 14px 0 0; }
 
-        /* Новая сетка для диаграмм: Доходы слева, Расходы справа */
+        /* --- ГРАФИКИ: доходы слева, расходы справа --- */
         .charts-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -273,10 +280,10 @@
         .chart-box .category-list .cat-item .value {
             color: #8b9bb5;
         }
-
         .full-width { grid-column: 1 / -1; }
         .full-width canvas { max-height: 180px; }
 
+        /* --- ГРАФИК КУРСА --- */
         .rate-chart-box {
             background: #111;
             border-radius: 14px;
@@ -314,6 +321,7 @@
             width: 100% !important;
         }
 
+        /* --- ИСТОРИЯ ТРАНЗАКЦИЙ --- */
         .transactions {
             background: #111;
             border-radius: 14px;
@@ -356,13 +364,13 @@
         .empty-state { text-align:center; color:#7a8aa3; padding:20px 0; font-size:0.9rem; }
         .hidden { display:none !important; }
 
-        /* Панель курса – улучшенный дизайн, центрирование */
+        /* --- ПАНЕЛЬ КУРСА (исправленная) --- */
         .rate-bar {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 10px;
             background: #111;
             border-radius: 12px;
             padding: 8px 16px;
@@ -370,7 +378,11 @@
             margin-top: 12px;
             font-size: 0.8rem;
         }
-        .rate-bar .label { color:#8b9bb5; font-size:0.75rem; margin-right:4px; }
+        .rate-bar .label {
+            color: #8b9bb5;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
         .rate-bar input {
             background: #1a1f2a;
             border: 1px solid #2a3344;
@@ -379,31 +391,31 @@
             border-radius: 8px;
             width: 90px;
             font-size: 0.8rem;
-            text-align: center;
+            text-align: left;
         }
         .rate-bar input:focus { outline:none; border-color:#fbbf24; }
         .rate-bar .update-btn {
-            background: rgba(251,191,36,0.15);
-            border:1px solid #fbbf24;
-            color:#fbbf24;
-            padding: 4px 16px;
-            border-radius:30px;
-            font-weight:600;
-            font-size:0.75rem;
-            cursor:pointer;
+            background: #fbbf24;
+            border: 1px solid #fbbf24;
+            color: #0b0e14;
+            padding: 4px 18px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            cursor: pointer;
             transition: background 0.2s;
         }
-        .rate-bar .update-btn:hover { background:rgba(251,191,36,0.3); }
+        .rate-bar .update-btn:hover { background: #fcd34d; }
         .rate-bar .rate-info {
-            color:#4ade80;
-            font-weight:500;
-            font-size:0.85rem;
-            margin-left:8px;
+            color: #4ade80;
+            font-weight: 500;
+            font-size: 0.85rem;
+            margin-left: auto;
         }
         .rate-bar .rate-change {
-            color:#8b9bb5;
-            font-size:0.7rem;
-            margin-left:4px;
+            color: #8b9bb5;
+            font-size: 0.7rem;
+            margin-left: 4px;
         }
 
         @media (max-width:900px) {
@@ -428,7 +440,7 @@
             .balance-card .top .amount { font-size:1.6rem; }
             .balance-card .bottom { flex-direction:column; align-items:stretch; gap:4px; }
             .balance-card .bottom .month-change { justify-content:space-around; }
-            .rate-bar { flex-direction:column; align-items:stretch; gap:6px; padding:8px 12px; }
+            .rate-bar { flex-direction:column; align-items:stretch; gap:8px; padding:10px 12px; }
             .rate-bar .rate-info { margin-left:0; text-align:center; }
             .full-width canvas { max-height:150px; }
             #rateHistoryChart { height: 150px !important; }
@@ -560,12 +572,10 @@
                     <span class="toggle">▼</span>
                 </div>
                 <div class="collapsible-content open" id="chartsContent">
-                    <!-- Динамика (на всю ширину) -->
                     <div class="chart-box full-width" style="border-radius:0; border:none; margin-bottom:12px;">
                         <h3>📈 Динамика доходов и расходов (RUB)</h3>
                         <canvas id="dailyChart"></canvas>
                     </div>
-                    <!-- Две колонки: Доходы слева, Расходы справа -->
                     <div class="charts-row">
                         <div class="chart-box" style="border:none; border-radius:0;">
                             <h3>🧩 Доходы по категориям</h3>
@@ -604,14 +614,14 @@
                     <canvas id="rateHistoryChart"></canvas>
                 </div>
 
-                <!-- ПАНЕЛЬ УПРАВЛЕНИЯ КУРСОМ (центрирована) -->
+                <!-- ПАНЕЛЬ УПРАВЛЕНИЯ КУРСОМ (исправленная) -->
                 <div class="rate-bar">
-    <span class="label">💵 Курс USD/RUB</span>
-    <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
-    <button class="update-btn" id="updateRateBtn">Обновить</button>
-    <span class="rate-info" id="rateInfo">1 USD = 85.00 ₽</span>
-    <span class="rate-change" id="rateChangeInfo"></span>
-</div>
+                    <span class="label">💵 Курс USD/RUB</span>
+                    <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
+                    <button class="update-btn" id="updateRateBtn">Обновить</button>
+                    <span class="rate-info" id="rateInfo">1 USD = 85.00 ₽</span>
+                    <span class="rate-change" id="rateChangeInfo"></span>
+                </div>
             </div>
 
         </div>
@@ -1124,7 +1134,7 @@
                 console.log('✅ График курса отрисован');
             }
 
-            // --- РЕНДЕРИНГ (с обновлённой разметкой для списка категорий) ---
+            // --- РЕНДЕРИНГ ---
             function renderDashboard(transactions, period) {
                 if (!transactions.length) {
                     dashboard.classList.add('hidden');
