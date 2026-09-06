@@ -10,7 +10,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
     <style>
-        /* --- ОБЩИЕ СТИЛИ --- */
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -63,7 +62,6 @@
         }
         .top-bar .actions .rate-upload-btn:hover { background: rgba(96,165,250,0.3); }
 
-        /* Карточка баланса (как раньше) */
         .balance-card {
             background: #111;
             border-radius: 14px;
@@ -101,45 +99,6 @@
             flex-wrap:wrap;
         }
 
-        /* Панель курса (стили исправлены) */
-        .rate-bar {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-            background: #111;
-            border-radius: 12px;
-            padding: 6px 16px;
-            border: 1px solid #2a2a2a;
-            margin-top: 12px;
-            font-size: 0.8rem;
-        }
-        .rate-bar .label { color:#8b9bb5; font-size:0.75rem; }
-        .rate-bar input {
-            background: #1a1f2a;
-            border: 1px solid #2a3344;
-            color: #e8edf5;
-            padding: 2px 8px;
-            border-radius: 8px;
-            width: 80px;
-            font-size: 0.8rem;
-        }
-        .rate-bar input:focus { outline:none; border-color:#fbbf24; }
-        .rate-bar .update-btn {
-            background: rgba(251,191,36,0.15);
-            border:1px solid #fbbf24;
-            color:#fbbf24;
-            padding:2px 14px;
-            border-radius:30px;
-            font-weight:600;
-            font-size:0.7rem;
-            cursor:pointer;
-        }
-        .rate-bar .update-btn:hover { background:rgba(251,191,36,0.3); }
-        .rate-bar .rate-info { color:#4ade80; font-weight:500; font-size:0.8rem; margin-left:auto; }
-        .rate-bar .rate-change { color:#8b9bb5; font-size:0.7rem; margin-left:4px; }
-
-        /* Остальные стили (фильтры, статистика, графики, транзакции) – без изменений */
         .filter-bar {
             display: flex;
             gap: 8px;
@@ -273,9 +232,10 @@
         .collapsible.closed .collapsible-header { border-radius:14px; }
         .collapsible:not(.closed) .collapsible-header { border-radius:14px 14px 0 0; }
 
+        /* Новая сетка для диаграмм: Доходы слева, Расходы справа */
         .charts-row {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
         .chart-box {
@@ -284,10 +244,38 @@
             padding: 12px 12px;
             border: 1px solid #2a2a2a;
         }
-        .chart-box h3 { font-weight:500; font-size:0.75rem; color:#c8d0e0; margin-bottom:8px; letter-spacing:0.2px; }
-        .chart-box canvas { max-height:140px; max-width:100%; }
-        .full-width { grid-column:1 / -1; }
-        .full-width canvas { max-height:180px; }
+        .chart-box h3 {
+            font-weight: 500;
+            font-size: 0.75rem;
+            color: #c8d0e0;
+            margin-bottom: 8px;
+            letter-spacing: 0.2px;
+        }
+        .chart-box canvas {
+            max-height: 140px;
+            max-width: 100%;
+        }
+        .chart-box .category-list {
+            margin-top: 8px;
+            font-size: 0.65rem;
+            color: #c8d0e0;
+            line-height: 1.4;
+            max-height: 80px;
+            overflow-y: auto;
+        }
+        .chart-box .category-list .cat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 2px 0;
+            border-bottom: 1px solid #232b3b;
+        }
+        .chart-box .category-list .cat-item:last-child { border-bottom:none; }
+        .chart-box .category-list .cat-item .value {
+            color: #8b9bb5;
+        }
+
+        .full-width { grid-column: 1 / -1; }
+        .full-width canvas { max-height: 180px; }
 
         .rate-chart-box {
             background: #111;
@@ -368,6 +356,56 @@
         .empty-state { text-align:center; color:#7a8aa3; padding:20px 0; font-size:0.9rem; }
         .hidden { display:none !important; }
 
+        /* Панель курса – улучшенный дизайн, центрирование */
+        .rate-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            background: #111;
+            border-radius: 12px;
+            padding: 8px 16px;
+            border: 1px solid #2a2a2a;
+            margin-top: 12px;
+            font-size: 0.8rem;
+        }
+        .rate-bar .label { color:#8b9bb5; font-size:0.75rem; margin-right:4px; }
+        .rate-bar input {
+            background: #1a1f2a;
+            border: 1px solid #2a3344;
+            color: #e8edf5;
+            padding: 4px 10px;
+            border-radius: 8px;
+            width: 90px;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+        .rate-bar input:focus { outline:none; border-color:#fbbf24; }
+        .rate-bar .update-btn {
+            background: rgba(251,191,36,0.15);
+            border:1px solid #fbbf24;
+            color:#fbbf24;
+            padding: 4px 16px;
+            border-radius:30px;
+            font-weight:600;
+            font-size:0.75rem;
+            cursor:pointer;
+            transition: background 0.2s;
+        }
+        .rate-bar .update-btn:hover { background:rgba(251,191,36,0.3); }
+        .rate-bar .rate-info {
+            color:#4ade80;
+            font-weight:500;
+            font-size:0.85rem;
+            margin-left:8px;
+        }
+        .rate-bar .rate-change {
+            color:#8b9bb5;
+            font-size:0.7rem;
+            margin-left:4px;
+        }
+
         @media (max-width:900px) {
             .charts-row { grid-template-columns:1fr 1fr; }
             .full-width { grid-column:1 / -1; }
@@ -390,7 +428,7 @@
             .balance-card .top .amount { font-size:1.6rem; }
             .balance-card .bottom { flex-direction:column; align-items:stretch; gap:4px; }
             .balance-card .bottom .month-change { justify-content:space-around; }
-            .rate-bar { flex-direction:column; align-items:stretch; gap:4px; padding:6px 12px; }
+            .rate-bar { flex-direction:column; align-items:stretch; gap:6px; padding:8px 12px; }
             .rate-bar .rate-info { margin-left:0; text-align:center; }
             .full-width canvas { max-height:150px; }
             #rateHistoryChart { height: 150px !important; }
@@ -515,25 +553,29 @@
                 </div>
             </div>
 
-            <!-- ГРАФИКИ ДОХОДОВ/РАСХОДОВ -->
+            <!-- ГРАФИКИ: ДИНАМИКА (сверху), ЗАТЕМ ДВЕ КОЛОНКИ: ДОХОДЫ СЛЕВА, РАСХОДЫ СПРАВА -->
             <div class="collapsible" id="chartsCollapsible">
                 <div class="collapsible-header" data-target="chartsContent">
                     <h3>📊 Графики</h3>
                     <span class="toggle">▼</span>
                 </div>
                 <div class="collapsible-content open" id="chartsContent">
-                    <div class="chart-box full-width" style="border-radius:0; border:none;">
+                    <!-- Динамика (на всю ширину) -->
+                    <div class="chart-box full-width" style="border-radius:0; border:none; margin-bottom:12px;">
                         <h3>📈 Динамика доходов и расходов (RUB)</h3>
                         <canvas id="dailyChart"></canvas>
                     </div>
-                    <div class="charts-row" style="margin-top:12px;">
-                        <div class="chart-box" style="border:none; border-radius:0;">
-                            <h3>🧩 Расходы по категориям</h3>
-                            <canvas id="expensePieChart"></canvas>
-                        </div>
+                    <!-- Две колонки: Доходы слева, Расходы справа -->
+                    <div class="charts-row">
                         <div class="chart-box" style="border:none; border-radius:0;">
                             <h3>🧩 Доходы по категориям</h3>
                             <canvas id="incomePieChart"></canvas>
+                            <div class="category-list" id="incomeCategoryList"></div>
+                        </div>
+                        <div class="chart-box" style="border:none; border-radius:0;">
+                            <h3>🧩 Расходы по категориям</h3>
+                            <canvas id="expensePieChart"></canvas>
+                            <div class="category-list" id="expenseCategoryList"></div>
                         </div>
                     </div>
                 </div>
@@ -552,7 +594,7 @@
                 </div>
             </div>
 
-            <!-- БЛОК КУРСА (ГРАФИК + УПРАВЛЕНИЕ) – ВНИЗУ -->
+            <!-- БЛОК КУРСА (ГРАФИК + УПРАВЛЕНИЕ) -->
             <div class="rate-section">
                 <div class="rate-chart-box">
                     <h3>📊 История курса USD/RUB</h3>
@@ -562,7 +604,7 @@
                     <canvas id="rateHistoryChart"></canvas>
                 </div>
 
-                <!-- ПАНЕЛЬ УПРАВЛЕНИЯ КУРСОМ (стили применены) -->
+                <!-- ПАНЕЛЬ УПРАВЛЕНИЯ КУРСОМ (центрирована) -->
                 <div class="rate-bar">
                     <span class="label">💵 Курс USD/RUB</span>
                     <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
@@ -1082,7 +1124,7 @@
                 console.log('✅ График курса отрисован');
             }
 
-            // --- РЕНДЕРИНГ ---
+            // --- РЕНДЕРИНГ (с обновлённой разметкой для списка категорий) ---
             function renderDashboard(transactions, period) {
                 if (!transactions.length) {
                     dashboard.classList.add('hidden');
@@ -1216,43 +1258,10 @@
                     }
                 });
 
-                const expenseCat = aggregateByCategory(transactions, 'expense');
-                const ctxExpPie = document.getElementById('expensePieChart').getContext('2d');
-                expensePieChart = new Chart(ctxExpPie, {
-                    type: 'doughnut',
-                    data: {
-                        labels: expenseCat.map(d => d.label),
-                        datasets: [{
-                            data: expenseCat.map(d => d.value),
-                            backgroundColor: [
-                                '#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa',
-                                '#fb923c', '#f472b6', '#2dd4bf', '#e879f9', '#facc15'
-                            ],
-                            borderColor: '#111',
-                            borderWidth: 2,
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: { position: 'right', labels: { color: '#c8d0e0', boxWidth: 12, padding: 8 } },
-                            tooltip: {
-                                callbacks: {
-                                    label: ctx => {
-                                        const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                                        const pct = ((ctx.parsed / total) * 100).toFixed(1);
-                                        return ctx.label + ': ' + ctx.parsed.toLocaleString('ru-RU') + ' ₽ (' +
-                                            pct + '%)';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-
+                // Доходы по категориям (слева)
                 const incomeCat = aggregateByCategory(transactions, 'income');
-                const ctxIncPie = document.getElementById('incomePieChart').getContext('2d');
-                incomePieChart = new Chart(ctxIncPie, {
+                const ctxIncome = document.getElementById('incomePieChart').getContext('2d');
+                incomePieChart = new Chart(ctxIncome, {
                     type: 'doughnut',
                     data: {
                         labels: incomeCat.map(d => d.label),
@@ -1269,7 +1278,7 @@
                     options: {
                         responsive: true,
                         plugins: {
-                            legend: { position: 'right', labels: { color: '#c8d0e0', boxWidth: 12, padding: 8 } },
+                            legend: { display: false },
                             tooltip: {
                                 callbacks: {
                                     label: ctx => {
@@ -1283,6 +1292,64 @@
                         }
                     }
                 });
+
+                // Расходы по категориям (справа)
+                const expenseCat = aggregateByCategory(transactions, 'expense');
+                const ctxExpense = document.getElementById('expensePieChart').getContext('2d');
+                expensePieChart = new Chart(ctxExpense, {
+                    type: 'doughnut',
+                    data: {
+                        labels: expenseCat.map(d => d.label),
+                        datasets: [{
+                            data: expenseCat.map(d => d.value),
+                            backgroundColor: [
+                                '#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa',
+                                '#fb923c', '#f472b6', '#2dd4bf', '#e879f9', '#facc15'
+                            ],
+                            borderColor: '#111',
+                            borderWidth: 2,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: ctx => {
+                                        const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                        const pct = ((ctx.parsed / total) * 100).toFixed(1);
+                                        return ctx.label + ': ' + ctx.parsed.toLocaleString('ru-RU') + ' ₽ (' +
+                                            pct + '%)';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // --- СПИСКИ КАТЕГОРИЙ ПОД ДИАГРАММАМИ ---
+                const incomeList = document.getElementById('incomeCategoryList');
+                incomeList.innerHTML = '';
+                const totalIncome = incomeCat.reduce((s, item) => s + item.value, 0);
+                for (const item of incomeCat) {
+                    const pct = totalIncome ? ((item.value / totalIncome) * 100).toFixed(1) : 0;
+                    const div = document.createElement('div');
+                    div.className = 'cat-item';
+                    div.innerHTML = `<span>${item.label}</span><span class="value">${item.value.toLocaleString('ru-RU')} ₽ (${pct}%)</span>`;
+                    incomeList.appendChild(div);
+                }
+
+                const expenseList = document.getElementById('expenseCategoryList');
+                expenseList.innerHTML = '';
+                const totalExpense = expenseCat.reduce((s, item) => s + item.value, 0);
+                for (const item of expenseCat) {
+                    const pct = totalExpense ? ((item.value / totalExpense) * 100).toFixed(1) : 0;
+                    const div = document.createElement('div');
+                    div.className = 'cat-item';
+                    div.innerHTML = `<span>${item.label}</span><span class="value">${item.value.toLocaleString('ru-RU')} ₽ (${pct}%)</span>`;
+                    expenseList.appendChild(div);
+                }
 
                 // --- ИСТОРИЯ ТРАНЗАКЦИЙ ---
                 const sorted = [...transactions].sort((a, b) => b.date.getTime() - a.date.getTime());
@@ -1344,7 +1411,6 @@
                 if (!autoUpdateTimer) startAutoUpdate();
             }
 
-            // --- АВТООБНОВЛЕНИЕ ---
             function startAutoUpdate() {
                 if (autoUpdateTimer) clearInterval(autoUpdateTimer);
                 autoUpdateTimer = setInterval(async function() {
@@ -1426,7 +1492,6 @@
                 });
             });
 
-            // --- СВОРАЧИВАНИЕ ---
             document.querySelectorAll('.collapsible-header').forEach(header => {
                 header.addEventListener('click', function() {
                     const targetId = this.dataset.target;
