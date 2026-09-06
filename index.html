@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
     </script>
     <style>
-        /* --- ВСЕ СТИЛИ (без изменений, как в последней рабочей версии) --- */
+        /* --- ОБЩИЕ СТИЛИ --- */
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -249,22 +249,41 @@
         .full-width { grid-column:1 / -1; }
         .full-width canvas { max-height:180px; }
 
-        /* Стили для графика курса (он внизу) */
-        .rate-chart-wrapper {
+        /* Блок курса внизу */
+        .rate-section {
+            margin-top: 12px;
+        }
+        .rate-chart-box {
+            background: #111;
+            border-radius: 14px;
+            padding: 12px 12px;
+            border: 1px solid #2a2a2a;
             margin-bottom: 12px;
         }
-        .rate-chart-wrapper .chart-box {
-            border-radius: 14px;
-            border: 1px solid #2a2a2a;
-            background: #111;
-            padding: 12px 12px;
-        }
-        .rate-chart-wrapper .chart-box h3 {
+        .rate-chart-box h3 {
             font-weight: 500;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             color: #c8d0e0;
             margin-bottom: 8px;
             letter-spacing: 0.2px;
+        }
+        .rate-chart-box .rate-chart-controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        .rate-chart-box .rate-chart-controls button {
+            background: rgba(251,191,36,0.15);
+            border: 1px solid #fbbf24;
+            color: #fbbf24;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            cursor: pointer;
+        }
+        .rate-chart-box .rate-chart-controls button:hover {
+            background: rgba(251,191,36,0.3);
         }
         #rateHistoryChart {
             height: 200px !important;
@@ -497,22 +516,24 @@
                 </div>
             </div>
 
-            <!-- БЛОК КУРСА (ГРАФИК + УПРАВЛЕНИЕ) – ПЕРЕНЕСЁН ВНИЗ -->
-            <div class="rate-chart-wrapper">
-                <div class="chart-box">
+            <!-- БЛОК КУРСА (ГРАФИК + УПРАВЛЕНИЕ) – ВНИЗУ -->
+            <div class="rate-section">
+                <div class="rate-chart-box">
                     <h3>📊 История курса USD/RUB</h3>
-                    <button id="refreshRateChartBtn" style="background:rgba(251,191,36,0.15);border:1px solid #fbbf24;color:#fbbf24;padding:2px 12px;border-radius:30px;font-size:0.7rem;cursor:pointer;margin-bottom:8px;">🔄 Обновить график</button>
+                    <div class="rate-chart-controls">
+                        <button id="refreshRateChartBtn">🔄 Обновить график</button>
+                    </div>
                     <canvas id="rateHistoryChart"></canvas>
                 </div>
-            </div>
 
-            <!-- ПАНЕЛЬ УПРАВЛЕНИЯ КУРСОМ (всегда под графиком) -->
-            <div class="rate-bar">
-                <span class="label">💵 Курс USD/RUB</span>
-                <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
-                <button class="update-btn" id="updateRateBtn">Обновить</button>
-                <span class="rate-info" id="rateInfo">1 USD = 85.00 ₽</span>
-                <span class="rate-change" id="rateChangeInfo"></span>
+                <!-- ПАНЕЛЬ УПРАВЛЕНИЯ КУРСОМ -->
+                <div class="rate-bar">
+                    <span class="label">💵 Курс USD/RUB</span>
+                    <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
+                    <button class="update-btn" id="updateRateBtn">Обновить</button>
+                    <span class="rate-info" id="rateInfo">1 USD = 85.00 ₽</span>
+                    <span class="rate-change" id="rateChangeInfo"></span>
+                </div>
             </div>
 
         </div>
@@ -626,7 +647,7 @@
                 return transactions;
             }
 
-            // --- ПАРСИНГ ИСТОРИИ КУРСА (исправленный) ---
+            // --- ПАРСИНГ ИСТОРИИ КУРСА ---
             function parseRateHistory(text) {
                 const lines = text.split('\n').filter(line => line.trim() !== '');
                 const history = [];
