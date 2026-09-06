@@ -364,65 +364,97 @@
         .empty-state { text-align:center; color:#7a8aa3; padding:20px 0; font-size:0.9rem; }
         .hidden { display:none !important; }
 
-        /* --- НОВАЯ ПАНЕЛЬ КУРСА (две строки) --- */
-        .rate-bar {
+        /* --- НОВАЯ ПАНЕЛЬ КУРСА (три строки) --- */
+        .rate-bar-new {
             background: #111;
             border-radius: 12px;
-            padding: 8px 16px;
+            padding: 10px 16px;
             border: 1px solid #2a2a2a;
             margin-top: 12px;
             display: flex;
             flex-direction: column;
             gap: 6px;
         }
-        .rate-input-row {
+        .rate-bar-new .rate-row-1,
+        .rate-bar-new .rate-row-2,
+        .rate-bar-new .rate-row-3 {
             display: flex;
             align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
+            width: 100%;
         }
-        .rate-input-row .label {
+        .rate-bar-new .rate-row-1 {
+            justify-content: flex-start;
+        }
+        .rate-bar-new .rate-row-1 .rate-label {
             color: #8b9bb5;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
             font-weight: 500;
         }
-        .rate-input-row input {
+        .rate-bar-new .rate-row-2 {
+            justify-content: space-between;
+        }
+        .rate-bar-new .rate-row-2 input {
             background: #1a1f2a;
             border: 1px solid #2a3344;
             color: #e8edf5;
-            padding: 4px 10px;
+            padding: 6px 12px;
             border-radius: 8px;
-            width: 90px;
-            font-size: 0.8rem;
+            width: 100px;
+            font-size: 0.9rem;
             text-align: left;
+            flex-shrink: 0;
         }
-        .rate-input-row input:focus { outline: none; border-color: #fbbf24; }
-        .rate-input-row .update-btn {
-            background: rgba(251,191,36,0.15);
-            border: 1px solid #fbbf24;
-            color: #fbbf24;
-            padding: 4px 18px;
+        .rate-bar-new .rate-row-2 input:focus {
+            outline: none;
+            border-color: #fbbf24;
+        }
+        .rate-bar-new .rate-row-2 .update-btn {
+            background: #fbbf24;
+            border: none;
+            color: #0b0e14;
+            padding: 6px 24px;
             border-radius: 30px;
             font-weight: 600;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             cursor: pointer;
             transition: background 0.2s;
         }
-        .rate-input-row .update-btn:hover { background: rgba(251,191,36,0.3); }
-        .rate-info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.85rem;
+        .rate-bar-new .rate-row-2 .update-btn:hover {
+            background: #fcd34d;
         }
-        .rate-info-row .rate-info {
+        .rate-bar-new .rate-row-3 {
+            justify-content: space-between;
+        }
+        .rate-bar-new .rate-row-3 .rate-info {
             color: #4ade80;
             font-weight: 500;
+            font-size: 0.85rem;
         }
-        .rate-info-row .rate-change {
+        .rate-bar-new .rate-row-3 .rate-change {
             color: #8b9bb5;
+            font-size: 0.8rem;
         }
 
+        @media (max-width:600px) {
+            .rate-bar-new .rate-row-2 {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .rate-bar-new .rate-row-2 input {
+                width: 100%;
+            }
+            .rate-bar-new .rate-row-2 .update-btn {
+                width: 100%;
+                text-align: center;
+            }
+            .rate-bar-new .rate-row-3 {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 2px;
+            }
+        }
+
+        /* --- АДАПТИВ ДЛЯ ВСЕХ БЛОКОВ --- */
         @media (max-width:900px) {
             .charts-row { grid-template-columns:1fr 1fr; }
             .full-width { grid-column:1 / -1; }
@@ -445,9 +477,6 @@
             .balance-card .top .amount { font-size:1.6rem; }
             .balance-card .bottom { flex-direction:column; align-items:stretch; gap:4px; }
             .balance-card .bottom .month-change { justify-content:space-around; }
-            .rate-bar { flex-direction:column; gap:6px; padding:10px 12px; }
-            .rate-input-row { justify-content:center; }
-            .rate-info-row { flex-direction:column; align-items:center; gap:4px; }
             .full-width canvas { max-height:150px; }
             #rateHistoryChart { height: 150px !important; }
             .top-bar .actions { justify-content:center; }
@@ -620,14 +649,16 @@
                     <canvas id="rateHistoryChart"></canvas>
                 </div>
 
-                <!-- НОВАЯ ПАНЕЛЬ УПРАВЛЕНИЯ КУРСОМ (две строки) -->
-                <div class="rate-bar">
-                    <div class="rate-input-row">
-                        <span class="label">💵 Курс USD/RUB</span>
+                <!-- НОВАЯ ПАНЕЛЬ УПРАВЛЕНИЯ КУРСОМ (три строки) -->
+                <div class="rate-bar-new">
+                    <div class="rate-row-1">
+                        <span class="rate-label">💵 Курс доллара</span>
+                    </div>
+                    <div class="rate-row-2">
                         <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
                         <button class="update-btn" id="updateRateBtn">Обновить</button>
                     </div>
-                    <div class="rate-info-row">
+                    <div class="rate-row-3">
                         <span class="rate-info" id="rateInfo">1 USD = 85.00 ₽</span>
                         <span class="rate-change" id="rateChangeInfo">+0.00%</span>
                     </div>
