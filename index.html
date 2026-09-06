@@ -364,26 +364,29 @@
         .empty-state { text-align:center; color:#7a8aa3; padding:20px 0; font-size:0.9rem; }
         .hidden { display:none !important; }
 
-        /* --- ПАНЕЛЬ КУРСА (исправленная) --- */
+        /* --- НОВАЯ ПАНЕЛЬ КУРСА (две строки) --- */
         .rate-bar {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            flex-wrap: wrap;
-            gap: 10px;
             background: #111;
             border-radius: 12px;
             padding: 8px 16px;
             border: 1px solid #2a2a2a;
             margin-top: 12px;
-            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
         }
-        .rate-bar .label {
+        .rate-input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .rate-input-row .label {
             color: #8b9bb5;
             font-size: 0.75rem;
             font-weight: 500;
         }
-        .rate-bar input {
+        .rate-input-row input {
             background: #1a1f2a;
             border: 1px solid #2a3344;
             color: #e8edf5;
@@ -393,11 +396,11 @@
             font-size: 0.8rem;
             text-align: left;
         }
-        .rate-bar input:focus { outline:none; border-color:#fbbf24; }
-        .rate-bar .update-btn {
-            background: #fbbf24;
+        .rate-input-row input:focus { outline: none; border-color: #fbbf24; }
+        .rate-input-row .update-btn {
+            background: rgba(251,191,36,0.15);
             border: 1px solid #fbbf24;
-            color: #0b0e14;
+            color: #fbbf24;
             padding: 4px 18px;
             border-radius: 30px;
             font-weight: 600;
@@ -405,17 +408,19 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-        .rate-bar .update-btn:hover { background: #fcd34d; }
-        .rate-bar .rate-info {
+        .rate-input-row .update-btn:hover { background: rgba(251,191,36,0.3); }
+        .rate-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+        .rate-info-row .rate-info {
             color: #4ade80;
             font-weight: 500;
-            font-size: 0.85rem;
-            margin-left: auto;
         }
-        .rate-bar .rate-change {
+        .rate-info-row .rate-change {
             color: #8b9bb5;
-            font-size: 0.7rem;
-            margin-left: 4px;
         }
 
         @media (max-width:900px) {
@@ -440,8 +445,9 @@
             .balance-card .top .amount { font-size:1.6rem; }
             .balance-card .bottom { flex-direction:column; align-items:stretch; gap:4px; }
             .balance-card .bottom .month-change { justify-content:space-around; }
-            .rate-bar { flex-direction:column; align-items:stretch; gap:8px; padding:10px 12px; }
-            .rate-bar .rate-info { margin-left:0; text-align:center; }
+            .rate-bar { flex-direction:column; gap:6px; padding:10px 12px; }
+            .rate-input-row { justify-content:center; }
+            .rate-info-row { flex-direction:column; align-items:center; gap:4px; }
             .full-width canvas { max-height:150px; }
             #rateHistoryChart { height: 150px !important; }
             .top-bar .actions { justify-content:center; }
@@ -604,7 +610,7 @@
                 </div>
             </div>
 
-            <!-- БЛОК КУРСА (ГРАФИК + УПРАВЛЕНИЕ) -->
+            <!-- БЛОК КУРСА (ГРАФИК + НОВАЯ ПАНЕЛЬ) -->
             <div class="rate-section">
                 <div class="rate-chart-box">
                     <h3>📊 История курса USD/RUB</h3>
@@ -614,13 +620,17 @@
                     <canvas id="rateHistoryChart"></canvas>
                 </div>
 
-                <!-- ПАНЕЛЬ УПРАВЛЕНИЯ КУРСОМ (исправленная) -->
+                <!-- НОВАЯ ПАНЕЛЬ УПРАВЛЕНИЯ КУРСОМ (две строки) -->
                 <div class="rate-bar">
-                    <span class="label">💵 Курс USD/RUB</span>
-                    <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
-                    <button class="update-btn" id="updateRateBtn">Обновить</button>
-                    <span class="rate-info" id="rateInfo">1 USD = 85.00 ₽</span>
-                    <span class="rate-change" id="rateChangeInfo"></span>
+                    <div class="rate-input-row">
+                        <span class="label">💵 Курс USD/RUB</span>
+                        <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
+                        <button class="update-btn" id="updateRateBtn">Обновить</button>
+                    </div>
+                    <div class="rate-info-row">
+                        <span class="rate-info" id="rateInfo">1 USD = 85.00 ₽</span>
+                        <span class="rate-change" id="rateChangeInfo">+0.00%</span>
+                    </div>
                 </div>
             </div>
 
