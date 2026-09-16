@@ -1,1594 +1,1083 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Финансовый дашборд</title>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="manifest.json">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
-    </script>
-    <style>
-        /* --- ОБЩИЕ СТИЛИ --- */
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #000;
-            color: #e8edf5;
-            padding: 10px 12px;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-        }
-        .container { max-width:1200px; width:100%; margin:0 auto; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Финансовый дашборд</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background:#000; color:#e8edf5; padding:10px 12px; min-height:100vh; display:flex; justify-content:center; align-items:flex-start; }
+.container { max-width:1200px; width:100%; margin:0 auto; }
 
-        /* --- ВЕРХНЯЯ ПАНЕЛЬ --- */
-        .top-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 12px;
-            background: #111;
-            padding: 8px 14px;
-            border-radius: 16px;
-            border: 1px solid #2a2a2a;
-        }
-        .top-bar .status { color:#60a5fa; font-size:0.8rem; flex:1; min-width:120px; }
-        .top-bar .actions { display:flex; gap:6px; flex-wrap:wrap; }
-        .top-bar .actions button {
-            background: rgba(251,191,36,0.15);
-            border: 1px solid #fbbf24;
-            color: #fbbf24;
-            padding: 4px 14px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .top-bar .actions button:hover { background: rgba(251,191,36,0.3); }
-        .top-bar .actions button.clear {
-            color: #f87171;
-            border-color: #f87171;
-            background: rgba(248,113,113,0.1);
-        }
-        .top-bar .actions button.clear:hover { background: rgba(248,113,113,0.2); }
-        .top-bar .actions .rate-upload-btn {
-            background: rgba(96,165,250,0.15);
-            border-color: #60a5fa;
-            color: #60a5fa;
-        }
-        .top-bar .actions .rate-upload-btn:hover { background: rgba(96,165,250,0.3); }
+/* Топ-бар */
+.top-bar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:12px; background:#111; padding:8px 14px; border-radius:16px; border:1px solid #2a2a2a; }
+.top-bar .status { color:#60a5fa; font-size:0.8rem; flex:1; min-width:120px; }
+.top-bar .actions { display:flex; gap:6px; flex-wrap:wrap; }
+.top-bar .actions button { background:rgba(251,191,36,0.15); border:1px solid #fbbf24; color:#fbbf24; padding:4px 14px; border-radius:30px; font-size:0.7rem; font-weight:500; cursor:pointer; transition:all 0.2s; }
+.top-bar .actions button:hover { background:rgba(251,191,36,0.3); }
+.top-bar .actions button.clear { color:#f87171; border-color:#f87171; background:rgba(248,113,113,0.1); }
+.top-bar .actions button.clear:hover { background:rgba(248,113,113,0.2); }
+.top-bar .actions .rate-upload-btn { background:rgba(96,165,250,0.15); border-color:#60a5fa; color:#60a5fa; }
+.top-bar .actions .rate-upload-btn:hover { background:rgba(96,165,250,0.3); }
 
-        /* --- БАЛАНС --- */
-        .balance-card {
-            background: #111;
-            border-radius: 14px;
-            padding: 16px 20px;
-            border: 1px solid #2a2a2a;
-            margin-bottom: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-        .balance-card .top { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px; }
-        .balance-card .top .label { color:#8b9bb5; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; font-weight:500; }
-        .balance-card .top .amount { font-size:1.8rem; font-weight:700; color:#fbbf24; }
-        .balance-card .bottom {
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            flex-wrap:wrap;
-            gap:8px;
-            border-top:1px solid #2a2a2a;
-            padding-top:8px;
-        }
-        .balance-card .bottom .period { color:#8b9bb5; font-size:0.75rem; }
-        .balance-card .bottom .month-change { display:flex; gap:16px; font-size:0.9rem; font-weight:500; }
-        .balance-card .bottom .month-change .income { color:#4ade80; }
-        .balance-card .bottom .month-change .expense { color:#f87171; }
-        .balance-card .usd-info {
-            color:#60a5fa;
-            font-size:0.85rem;
-            margin-top:4px;
-            border-top:1px solid #2a2a2a;
-            padding-top:6px;
-            display:flex;
-            justify-content:space-between;
-            flex-wrap:wrap;
-        }
+/* Баланс */
+.balance-card { background:#111; border-radius:14px; padding:16px 20px; border:1px solid #2a2a2a; margin-bottom:12px; display:flex; flex-direction:column; gap:6px; }
+.balance-card .top { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px; }
+.balance-card .top .label { color:#8b9bb5; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; font-weight:500; }
+.balance-card .top .amount { font-size:1.8rem; font-weight:700; color:#fbbf24; }
+.balance-card .bottom { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; border-top:1px solid #2a2a2a; padding-top:8px; }
+.balance-card .bottom .period { color:#8b9bb5; font-size:0.75rem; }
+.balance-card .bottom .month-change { display:flex; gap:16px; font-size:0.9rem; font-weight:500; }
+.balance-card .bottom .month-change .income { color:#4ade80; }
+.balance-card .bottom .month-change .expense { color:#f87171; }
+.balance-card .usd-info { color:#60a5fa; font-size:0.85rem; margin-top:4px; border-top:1px solid #2a2a2a; padding-top:6px; display:flex; justify-content:space-between; flex-wrap:wrap; }
 
-        /* --- ФИЛЬТРЫ --- */
-        .filter-bar {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .filter-btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid #2a2a2a;
-            color: #8b9bb5;
-            padding: 4px 14px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .filter-btn:hover:not(.disabled) { background: rgba(255,255,255,0.1); color:#e8edf5; }
-        .filter-btn.active {
-            background: rgba(251,191,36,0.15);
-            border-color:#fbbf24;
-            color:#fbbf24;
-        }
-        .filter-btn.disabled { opacity:0.3; cursor:not-allowed; pointer-events:none; }
-        .period-label { margin-left:auto; color:#7a8aa3; font-size:0.75rem; }
+/* Фильтры */
+.filter-bar { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
+.filter-btn { background:rgba(255,255,255,0.05); border:1px solid #2a2a2a; color:#8b9bb5; padding:4px 14px; border-radius:30px; font-size:0.75rem; font-weight:500; cursor:pointer; transition:all 0.2s; }
+.filter-btn.active { background:rgba(251,191,36,0.15); border-color:#fbbf24; color:#fbbf24; }
+.period-label { margin-left:auto; color:#7a8aa3; font-size:0.75rem; }
 
-        /* --- СТАТИСТИКА --- */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-        .stat-card {
-            background: #111;
-            border-radius: 14px;
-            padding: 12px 12px;
-            border: 1px solid #2a2a2a;
-            text-align: center;
-        }
-        .stat-card .label { font-size:0.6rem; text-transform:uppercase; letter-spacing:0.3px; color:#8b9bb5; font-weight:500; }
-        .stat-card .value { font-size:1.3rem; font-weight:700; margin-top:2px; line-height:1.2; }
-        .stat-card.income .value { color:#4ade80; }
-        .stat-card.expense .value { color:#f87171; }
-        .stat-card.balance .value { color:#fbbf24; }
-        .stat-card.usd .value { color:#60a5fa; }
-        .stat-card.rate-profit .value { color:#c084fc; }
-        .stat-card.count .value { color:#93c5fd; }
+/* Статистика */
+.stats-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:12px; }
+.stat-card { background:#111; border-radius:14px; padding:12px; border:1px solid #2a2a2a; text-align:center; }
+.stat-card .label { font-size:0.6rem; text-transform:uppercase; letter-spacing:0.3px; color:#8b9bb5; font-weight:500; }
+.stat-card .value { font-size:1.3rem; font-weight:700; margin-top:2px; line-height:1.2; }
+.stat-card.income .value { color:#4ade80; }
+.stat-card.expense .value { color:#f87171; }
+.stat-card.balance .value { color:#fbbf24; }
+.stat-card.usd .value { color:#60a5fa; }
+.stat-card.rate-profit .value { color:#c084fc; }
+.stat-card.count .value { color:#93c5fd; }
+.stats-grid-extra { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:10px; margin-bottom:12px; }
+.stats-grid-extra .stat-card { padding:8px 10px; }
+.stats-grid-extra .stat-card .value { font-size:1.1rem; }
 
-        .stats-grid-extra {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-        .stats-grid-extra .stat-card { padding:8px 10px; }
-        .stats-grid-extra .stat-card .value { font-size:1.1rem; }
+/* Быстрые итоги */
+.quick-sums { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:14px 0 12px 0; }
+.quick-sums .group { background:#1a1f2a; border-radius:14px; padding:10px 8px; border:1px solid #4a5568; text-align:center; min-width:0; box-shadow:0 2px 4px rgba(0,0,0,0.3); }
+.quick-sums .group .period-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.5px; color:#8b9bb5; font-weight:500; margin-bottom:4px; }
+.quick-sums .group .sums-row { display:flex; flex-direction:column; align-items:center; gap:2px; font-weight:600; font-size:1rem; }
+.quick-sums .group .sum.income { color:#4ade80; }
+.quick-sums .group .sum.expense { color:#f87171; }
 
-        /* --- БЫСТРЫЕ ИТОГИ --- */
-        .quick-sums {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin: 14px 0 12px 0;
-        }
-        .quick-sums .group {
-            background: #1a1f2a;
-            border-radius: 14px;
-            padding: 10px 8px;
-            border: 1px solid #4a5568;
-            text-align: center;
-            min-width: 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-        .quick-sums .group .period-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #8b9bb5;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-        .quick-sums .group .sums-row {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2px;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-        .quick-sums .group .sum.income { color:#4ade80; }
-        .quick-sums .group .sum.expense { color:#f87171; }
+/* Сворачиваемые блоки */
+.collapsible { margin-bottom:12px; border-radius:14px; border:1px solid #2a2a2a; overflow:hidden; background:#111; }
+.collapsible-header { display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding:8px 12px; background:#111; user-select:none; }
+.collapsible-header h3 { font-weight:500; font-size:0.85rem; color:#c8d0e0; }
+.collapsible-header .toggle { font-size:1.2rem; color:#8b9bb5; transition:transform 0.3s; }
+.collapsible-header .toggle.open { transform:rotate(180deg); }
+.collapsible-content { max-height:0; overflow:hidden; transition:max-height 0.3s ease-out; }
+.collapsible-content.open { max-height:3000px; transition:max-height 0.5s ease-in; }
+.collapsible-content .chart-box, .collapsible-content .transactions { background:#111; padding:12px 14px; }
+.collapsible.closed .collapsible-header { border-radius:14px; }
+.collapsible:not(.closed) .collapsible-header { border-radius:14px 14px 0 0; }
 
-        /* --- СВОРАЧИВАЕМЫЕ БЛОКИ --- */
-        .collapsible {
-            margin-bottom: 12px;
-            border-radius: 14px;
-            border: 1px solid #2a2a2a;
-            overflow: hidden;
-            background: #111;
-        }
-        .collapsible-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            padding: 8px 12px;
-            background: #111;
-            user-select: none;
-            border: none;
-        }
-        .collapsible-header h3 { font-weight:500; font-size:0.85rem; color:#c8d0e0; }
-        .collapsible-header .toggle {
-            font-size:1.2rem;
-            color:#8b9bb5;
-            transition:transform 0.3s;
-        }
-        .collapsible-header .toggle.open { transform:rotate(180deg); }
-        .collapsible-content {
-            max-height:0;
-            overflow:hidden;
-            transition:max-height 0.3s ease-out;
-            border-top:none;
-        }
-        .collapsible-content.open { max-height:2000px; transition:max-height 0.5s ease-in; }
-        .collapsible-content .chart-box,
-        .collapsible-content .transactions {
-            border:none;
-            border-radius:0;
-            background:#111;
-            padding:12px 14px;
-        }
-        .collapsible.closed .collapsible-header { border-radius:14px; }
-        .collapsible:not(.closed) .collapsible-header { border-radius:14px 14px 0 0; }
+/* Графики */
+.charts-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.chart-box { background:#111; border-radius:14px; padding:12px; border:1px solid #2a2a2a; }
+.chart-box h3 { font-weight:500; font-size:0.75rem; color:#c8d0e0; margin-bottom:8px; }
+.chart-box canvas { max-height:140px; max-width:100%; }
+.chart-box .category-list { margin-top:8px; font-size:0.65rem; color:#c8d0e0; line-height:1.4; max-height:100px; overflow-y:auto; }
+.chart-box .category-list .cat-item { display:flex; justify-content:space-between; padding:2px 0; border-bottom:1px solid #232b3b; }
+.chart-box .category-list .cat-item:last-child { border-bottom:none; }
+.chart-box .category-list .cat-item .value { color:#8b9bb5; }
+.full-width { grid-column:1 / -1; }
+.full-width canvas { max-height:180px; }
 
-        /* --- ГРАФИКИ: доходы слева, расходы справа --- */
-        .charts-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-        .chart-box {
-            background: #111;
-            border-radius: 14px;
-            padding: 12px 12px;
-            border: 1px solid #2a2a2a;
-        }
-        .chart-box h3 {
-            font-weight: 500;
-            font-size: 0.75rem;
-            color: #c8d0e0;
-            margin-bottom: 8px;
-            letter-spacing: 0.2px;
-        }
-        .chart-box canvas {
-            max-height: 140px;
-            max-width: 100%;
-        }
-        .chart-box .category-list {
-            margin-top: 8px;
-            font-size: 0.65rem;
-            color: #c8d0e0;
-            line-height: 1.4;
-            max-height: 80px;
-            overflow-y: auto;
-        }
-        .chart-box .category-list .cat-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 2px 0;
-            border-bottom: 1px solid #232b3b;
-        }
-        .chart-box .category-list .cat-item:last-child { border-bottom:none; }
-        .chart-box .category-list .cat-item .value {
-            color: #8b9bb5;
-        }
-        .full-width { grid-column: 1 / -1; }
-        .full-width canvas { max-height: 180px; }
+/* Курс */
+.rate-chart-box { background:#111; border-radius:14px; padding:12px; border:1px solid #2a2a2a; margin-bottom:12px; }
+.rate-chart-box h3 { font-weight:500; font-size:0.85rem; color:#c8d0e0; margin-bottom:8px; }
+.rate-chart-box .rate-chart-controls { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+.rate-chart-box .rate-chart-controls button { background:rgba(251,191,36,0.15); border:1px solid #fbbf24; color:#fbbf24; padding:2px 12px; border-radius:30px; font-size:0.7rem; cursor:pointer; }
+.rate-chart-box .rate-chart-controls button:hover { background:rgba(251,191,36,0.3); }
+#rateHistoryChart { height:200px !important; width:100% !important; }
 
-        /* --- ГРАФИК КУРСА --- */
-        .rate-chart-box {
-            background: #111;
-            border-radius: 14px;
-            padding: 12px 12px;
-            border: 1px solid #2a2a2a;
-            margin-bottom: 12px;
-        }
-        .rate-chart-box h3 {
-            font-weight: 500;
-            font-size: 0.85rem;
-            color: #c8d0e0;
-            margin-bottom: 8px;
-            letter-spacing: 0.2px;
-        }
-        .rate-chart-box .rate-chart-controls {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 8px;
-        }
-        .rate-chart-box .rate-chart-controls button {
-            background: rgba(251,191,36,0.15);
-            border: 1px solid #fbbf24;
-            color: #fbbf24;
-            padding: 2px 12px;
-            border-radius: 30px;
-            font-size: 0.7rem;
-            cursor: pointer;
-        }
-        .rate-chart-box .rate-chart-controls button:hover {
-            background: rgba(251,191,36,0.3);
-        }
-        #rateHistoryChart {
-            height: 200px !important;
-            width: 100% !important;
-        }
+/* История */
+.transactions { background:#111; border-radius:14px; padding:12px 14px; border:1px solid #2a2a2a; }
+.transactions h3 { font-weight:500; font-size:0.8rem; color:#c8d0e0; margin-bottom:8px; }
+.tx-list { max-height:340px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:#3b4a5e transparent; }
+.tx-list::-webkit-scrollbar { width:4px; }
+.tx-list::-webkit-scrollbar-thumb { background:#3b4a5e; border-radius:10px; }
+.tx-item { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #232b3b; font-size:0.7rem; gap:8px; }
+.tx-item:last-child { border-bottom:none; }
+.tx-item .left { display:flex; flex-direction:column; gap:1px; flex:1; min-width:0; }
+.tx-item .left .cat { font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tx-item .left .date { font-size:0.6rem; color:#8b9bb5; }
+.tx-item .left .note { font-size:0.6rem; color:#a0b0c0; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tx-item .right { font-weight:600; text-align:right; white-space:nowrap; }
+.tx-item .right.income { color:#4ade80; }
+.tx-item .right.expense { color:#f87171; }
+.tx-actions { display:flex; gap:4px; margin-left:6px; }
+.tx-actions button { background:transparent; border:1px solid #2a3344; color:#8b9bb5; width:26px; height:26px; border-radius:8px; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0; }
+.tx-actions button.edit:hover { border-color:#60a5fa; color:#60a5fa; background:rgba(96,165,250,0.1); }
+.tx-actions button.del:hover { border-color:#f87171; color:#f87171; background:rgba(248,113,113,0.1); }
 
-        /* --- ИСТОРИЯ ТРАНЗАКЦИЙ --- */
-        .transactions {
-            background: #111;
-            border-radius: 14px;
-            padding: 12px 14px;
-            border: 1px solid #2a2a2a;
-        }
-        .transactions h3 { font-weight:500; font-size:0.8rem; color:#c8d0e0; margin-bottom:8px; }
-        .tx-list {
-            max-height: 200px;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: #3b4a5e transparent;
-        }
-        .tx-list::-webkit-scrollbar { width:4px; }
-        .tx-list::-webkit-scrollbar-track { background:transparent; }
-        .tx-list::-webkit-scrollbar-thumb { background:#3b4a5e; border-radius:10px; }
-        .tx-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 4px 0;
-            border-bottom: 1px solid #232b3b;
-            font-size: 0.7rem;
-        }
-        .tx-item:last-child { border-bottom:none; }
-        .tx-item .left {
-            display: flex;
-            flex-direction: column;
-            gap: 1px;
-            flex: 1;
-            overflow: hidden;
-        }
-        .tx-item .left .cat { font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .tx-item .left .date { font-size:0.6rem; color:#8b9bb5; }
-        .tx-item .left .note { font-size:0.6rem; color:#a0b0c0; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .tx-item .right { font-weight:600; text-align:right; white-space:nowrap; margin-left:8px; }
-        .tx-item .right.income { color:#4ade80; }
-        .tx-item .right.expense { color:#f87171; }
+/* Панель курса */
+.rate-bar-new { background:#111; border-radius:12px; padding:10px 16px; border:1px solid #2a2a2a; margin-top:12px; display:flex; flex-direction:column; gap:6px; }
+.rate-bar-new .rate-row-1, .rate-bar-new .rate-row-2, .rate-bar-new .rate-row-3 { display:flex; align-items:center; width:100%; }
+.rate-bar-new .rate-row-1 { justify-content:flex-start; }
+.rate-bar-new .rate-row-1 .rate-label { color:#8b9bb5; font-size:0.8rem; font-weight:500; }
+.rate-bar-new .rate-row-2 { justify-content:space-between; flex-wrap:nowrap; }
+.rate-bar-new .rate-row-2 input { background:#1a1f2a; border:1px solid #2a3344; color:#e8edf5; padding:6px 12px; border-radius:8px; width:100px; font-size:0.9rem; flex-shrink:0; }
+.rate-bar-new .rate-row-2 input:focus { outline:none; border-color:#fbbf24; }
+.rate-bar-new .rate-row-2 .update-btn { background:#fbbf24; border:none; color:#0b0e14; padding:6px 24px; border-radius:30px; font-weight:600; font-size:0.85rem; cursor:pointer; white-space:nowrap; }
+.rate-bar-new .rate-row-2 .update-btn:hover { background:#fcd34d; }
+.rate-bar-new .rate-row-3 { justify-content:space-between; }
+.rate-bar-new .rate-row-3 .rate-info { color:#4ade80; font-weight:500; font-size:0.85rem; }
+.rate-bar-new .rate-row-3 .rate-change { color:#8b9bb5; font-size:0.8rem; }
 
-        .empty-state { text-align:center; color:#7a8aa3; padding:20px 0; font-size:0.9rem; }
-        .hidden { display:none !important; }
+.empty-state { text-align:center; color:#7a8aa3; padding:20px 0; font-size:0.9rem; }
+.hidden { display:none !important; }
 
-        /* --- НОВАЯ ПАНЕЛЬ КУРСА (три строки) --- */
-        .rate-bar-new {
-    background: #111;
-    border-radius: 12px;
-    padding: 10px 16px;
-    border: 1px solid #2a2a2a;
-    margin-top: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+/* Модальные окна */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:1000; justify-content:center; align-items:center; padding:16px; overflow-y:auto; }
+.modal-overlay.open { display:flex; }
+.modal { background:#111; border:1px solid #2a2a2a; border-radius:16px; width:100%; max-width:480px; max-height:90vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,0.6); }
+.modal-header { display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid #2a2a2a; }
+.modal-header h2 { font-size:1rem; font-weight:600; color:#e8edf5; }
+.modal-close { background:none; border:none; color:#8b9bb5; font-size:1.6rem; line-height:1; cursor:pointer; padding:0 6px; }
+.modal-body { padding:16px 18px; }
+.modal-footer { display:flex; gap:10px; padding:12px 18px; border-top:1px solid #2a2a2a; justify-content:flex-end; }
+.modal-btn { padding:8px 18px; border-radius:30px; font-size:0.85rem; font-weight:600; cursor:pointer; border:1px solid transparent; }
+.modal-btn.cancel { background:transparent; border-color:#2a3344; color:#8b9bb5; }
+.modal-btn.save { background:#fbbf24; color:#0b0e14; }
+.modal-btn.save:hover { background:#fcd34d; }
+.modal-btn.danger { background:#f87171; color:#0b0e14; }
+.modal-btn.danger:hover { background:#fca5a5; }
+.form-row { display:flex; flex-direction:column; gap:4px; margin-bottom:12px; }
+.form-row label { font-size:0.75rem; color:#8b9bb5; font-weight:500; }
+.form-row input, .form-row select { background:#1a1f2a; border:1px solid #2a3344; color:#e8edf5; padding:8px 12px; border-radius:10px; font-size:0.9rem; width:100%; }
+.form-row input:focus, .form-row select:focus { outline:none; border-color:#fbbf24; }
+.type-toggle { display:flex; gap:8px; }
+.type-btn { flex:1; padding:8px 12px; border-radius:10px; background:#1a1f2a; border:1px solid #2a3344; color:#8b9bb5; font-weight:600; font-size:0.85rem; cursor:pointer; transition:all 0.2s; }
+.type-btn.active[data-type="income"] { background:rgba(74,222,128,0.2); border-color:#4ade80; color:#4ade80; }
+.type-btn.active[data-type="expense"] { background:rgba(248,113,113,0.2); border-color:#f87171; color:#f87171; }
+
+@media (max-width:900px) {
+  .charts-row { grid-template-columns:1fr 1fr; }
+  .full-width { grid-column:1 / -1; }
+  .stats-grid { grid-template-columns:1fr 1fr; }
+  .stats-grid .stat-card:last-child { grid-column:span 2; }
 }
-.rate-bar-new .rate-row-1,
-.rate-bar-new .rate-row-2,
-.rate-bar-new .rate-row-3 {
-    display: flex;
-    align-items: center;
-    width: 100%;
+@media (max-width:600px) {
+  .stats-grid { grid-template-columns:1fr 1fr; }
+  .stats-grid .stat-card:last-child { grid-column:span 2; }
+  .charts-row { grid-template-columns:1fr; }
+  .stat-card .value { font-size:1.1rem; }
+  .stats-grid-extra { grid-template-columns:1fr 1fr; }
+  .quick-sums { grid-template-columns:repeat(3,1fr); gap:6px; }
+  .quick-sums .group { padding:6px 4px; }
+  .period-label { margin-left:0; width:100%; text-align:center; }
+  .balance-card .top { flex-direction:column; align-items:stretch; }
+  .balance-card .top .amount { font-size:1.6rem; }
+  .balance-card .bottom { flex-direction:column; align-items:stretch; gap:4px; }
+  .balance-card .bottom .month-change { justify-content:space-around; }
+  .full-width canvas { max-height:150px; }
+  #rateHistoryChart { height:150px !important; }
+  .top-bar .actions { justify-content:center; }
 }
-.rate-bar-new .rate-row-1 {
-    justify-content: flex-start;
-}
-.rate-bar-new .rate-row-1 .rate-label {
-    color: #8b9bb5;
-    font-size: 0.8rem;
-    font-weight: 500;
-}
-.rate-bar-new .rate-row-2 {
-    justify-content: space-between;
-    flex-wrap: nowrap; /* запрещаем перенос */
-}
-.rate-bar-new .rate-row-2 input {
-    background: #1a1f2a;
-    border: 1px solid #2a3344;
-    color: #e8edf5;
-    padding: 6px 12px;
-    border-radius: 8px;
-    width: 100px;
-    font-size: 0.9rem;
-    text-align: left;
-    flex-shrink: 0;
-}
-.rate-bar-new .rate-row-2 input:focus {
-    outline: none;
-    border-color: #fbbf24;
-}
-.rate-bar-new .rate-row-2 .update-btn {
-    background: #fbbf24;
-    border: none;
-    color: #0b0e14;
-    padding: 6px 24px;
-    border-radius: 30px;
-    font-weight: 600;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: background 0.2s;
-    white-space: nowrap;
-}
-.rate-bar-new .rate-row-2 .update-btn:hover {
-    background: #fcd34d;
-}
-.rate-bar-new .rate-row-3 {
-    justify-content: space-between;
-}
-.rate-bar-new .rate-row-3 .rate-info {
-    color: #4ade80;
-    font-weight: 500;
-    font-size: 0.85rem;
-}
-.rate-bar-new .rate-row-3 .rate-change {
-    color: #8b9bb5;
-    font-size: 0.8rem;
-}
-
-        @media (max-width:600px) {
-            .rate-bar-new .rate-row-2 {
-                flex-wrap: wrap;
-                gap: 8px;
-            }
-            .rate-bar-new .rate-row-2 input {
-                width: 100%;
-            }
-            .rate-bar-new .rate-row-2 .update-btn {
-                width: 100%;
-                text-align: center;
-            }
-            .rate-bar-new .rate-row-3 {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 2px;
-            }
-        }
-
-        /* --- АДАПТИВ ДЛЯ ВСЕХ БЛОКОВ --- */
-        @media (max-width:900px) {
-            .charts-row { grid-template-columns:1fr 1fr; }
-            .full-width { grid-column:1 / -1; }
-            .stats-grid { grid-template-columns:1fr 1fr; }
-            .stats-grid .stat-card:last-child { grid-column:span 2; }
-        }
-        @media (max-width:600px) {
-            .stats-grid { grid-template-columns:1fr 1fr; }
-            .stats-grid .stat-card:last-child { grid-column:span 2; }
-            .charts-row { grid-template-columns:1fr; }
-            .stat-card .value { font-size:1.1rem; }
-            .stats-grid-extra { grid-template-columns:1fr 1fr; }
-            .quick-sums { grid-template-columns:repeat(3,1fr); gap:6px; margin:10px 0 8px 0; }
-            .quick-sums .group { padding:6px 4px; border:1px solid #2a3344; border-radius:10px; }
-            .quick-sums .group .period-label { font-size:0.6rem; }
-            .quick-sums .group .sums-row { font-size:0.75rem; gap:1px; }
-            .filter-bar { justify-content:center; }
-            .period-label { margin-left:0; width:100%; text-align:center; }
-            .balance-card .top { flex-direction:column; align-items:stretch; }
-            .balance-card .top .amount { font-size:1.6rem; }
-            .balance-card .bottom { flex-direction:column; align-items:stretch; gap:4px; }
-            .balance-card .bottom .month-change { justify-content:space-around; }
-            .full-width canvas { max-height:150px; }
-            #rateHistoryChart { height: 150px !important; }
-            .top-bar .actions { justify-content:center; }
-        }
-        .footer {
-            margin-top:16px;
-            text-align:center;
-            font-size:0.65rem;
-            color:#5a6a80;
-            border-top:1px solid #232b3b;
-            padding-top:12px;
-        }
-    </style>
+.footer { margin-top:16px; text-align:center; font-size:0.65rem; color:#5a6a80; border-top:1px solid #232b3b; padding-top:12px; }
+</style>
 </head>
 <body>
-    <div class="container">
+<div class="container">
 
-        <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
-        <div class="top-bar" id="topBar">
-            <span class="status" id="fileStatus">📂 Загрузите файл</span>
-            <div class="actions">
-                <button id="refreshBtn">🔄 Обновить</button>
-                <button id="clearDataBtn" class="clear">🗑️ Очистить</button>
-                <button id="loadRateBtn" class="rate-upload-btn">📈 Загрузить rate.json</button>
-            </div>
-        </div>
-
-        <!-- БЛОК БАЛАНСА -->
-        <div class="balance-card" id="balanceCard">
-            <div class="top">
-                <span class="label">ЧИСТЫЙ БАЛАНС (на руках)</span>
-                <span class="amount" id="totalBalanceRubDisplay">0 ₽</span>
-            </div>
-            <div class="bottom">
-                <span class="period" id="periodDisplay">01.09.2026 — 30.09.2026</span>
-                <div class="month-change">
-                    <span class="income" id="monthIncomeDisplay">↑ 0</span>
-                    <span class="expense" id="monthExpenseDisplay">↓ 0</span>
-                </div>
-            </div>
-            <div class="usd-info">
-                <span>Баланс в USD: <strong id="totalBalanceUsdDisplay">0 $</strong></span>
-                <span>Курс: <strong id="rateInfoSmall">1 USD = 85.00 ₽</strong></span>
-            </div>
-        </div>
-
-        <!-- ФИЛЬТРЫ -->
-        <div class="filter-bar" id="filterBar">
-            <button class="filter-btn disabled" data-period="day">День</button>
-            <button class="filter-btn disabled" data-period="week">Неделя</button>
-            <button class="filter-btn disabled active" data-period="month">Месяц</button>
-            <span class="period-label" id="periodLabel">за последние 30 дней</span>
-        </div>
-
-        <!-- КАРТОЧКИ СТАТИСТИКИ -->
-        <div id="dashboard" class="hidden">
-            <div class="stats-grid">
-                <div class="stat-card income">
-                    <div class="label">💰 Доход (RUB)</div>
-                    <div class="value" id="totalIncomeRubOnly">0 ₽</div>
-                </div>
-                <div class="stat-card balance">
-                    <div class="label">📈 Чистый баланс (RUB)</div>
-                    <div class="value" id="netIncome">0 ₽</div>
-                </div>
-                <div class="stat-card expense">
-                    <div class="label">💸 Расход (RUB)</div>
-                    <div class="value" id="totalExpenseRubOnly">0 ₽</div>
-                </div>
-            </div>
-
-            <div class="stats-grid-extra">
-                <div class="stat-card usd">
-                    <div class="label">💰 Доход (USD)</div>
-                    <div class="value" id="totalIncomeUsd">0 $</div>
-                </div>
-                <div class="stat-card usd">
-                    <div class="label">💸 Расход (USD)</div>
-                    <div class="value" id="totalExpenseUsd">0 $</div>
-                </div>
-                <div class="stat-card balance">
-                    <div class="label">💵 Общий доход (RUB)</div>
-                    <div class="value" id="totalIncomeRubTotal">0 ₽</div>
-                </div>
-                <div class="stat-card balance">
-                    <div class="label">💵 Общий расход (RUB)</div>
-                    <div class="value" id="totalExpenseRubTotal">0 ₽</div>
-                </div>
-                <div class="stat-card rate-profit">
-                    <div class="label">📊 Курсовая разница</div>
-                    <div class="value" id="rateProfit">0 ₽</div>
-                </div>
-                <div class="stat-card count">
-                    <div class="label">📋 Записей</div>
-                    <div class="value" id="recordCount">0</div>
-                </div>
-            </div>
-
-            <!-- БЫСТРЫЕ ИТОГИ -->
-            <div class="quick-sums" id="quickSums">
-                <div class="group">
-                    <div class="period-label">День</div>
-                    <div class="sums-row">
-                        <span class="sum income" id="dayIncome">+0</span>
-                        <span class="sum expense" id="dayExpense">-0</span>
-                    </div>
-                </div>
-                <div class="group">
-                    <div class="period-label">7 дней</div>
-                    <div class="sums-row">
-                        <span class="sum income" id="weekIncome">+0</span>
-                        <span class="sum expense" id="weekExpense">-0</span>
-                    </div>
-                </div>
-                <div class="group">
-                    <div class="period-label">Месяц</div>
-                    <div class="sums-row">
-                        <span class="sum income" id="monthIncome">+0</span>
-                        <span class="sum expense" id="monthExpense">-0</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ГРАФИКИ: ДИНАМИКА (сверху), ЗАТЕМ ДВЕ КОЛОНКИ: ДОХОДЫ СЛЕВА, РАСХОДЫ СПРАВА -->
-            <div class="collapsible" id="chartsCollapsible">
-                <div class="collapsible-header" data-target="chartsContent">
-                    <h3>📊 Графики</h3>
-                    <span class="toggle">▼</span>
-                </div>
-                <div class="collapsible-content open" id="chartsContent">
-                    <div class="chart-box full-width" style="border-radius:0; border:none; margin-bottom:12px;">
-                        <h3>📈 Динамика доходов и расходов (RUB)</h3>
-                        <canvas id="dailyChart"></canvas>
-                    </div>
-                    <div class="charts-row">
-                        <div class="chart-box" style="border:none; border-radius:0;">
-                            <h3>🧩 Доходы по категориям</h3>
-                            <canvas id="incomePieChart"></canvas>
-                            <div class="category-list" id="incomeCategoryList"></div>
-                        </div>
-                        <div class="chart-box" style="border:none; border-radius:0;">
-                            <h3>🧩 Расходы по категориям</h3>
-                            <canvas id="expensePieChart"></canvas>
-                            <div class="category-list" id="expenseCategoryList"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ИСТОРИЯ ТРАНЗАКЦИЙ -->
-            <div class="collapsible" id="transactionsCollapsible">
-                <div class="collapsible-header" data-target="transactionsContent">
-                    <h3>📋 История транзакций</h3>
-                    <span class="toggle">▼</span>
-                </div>
-                <div class="collapsible-content open" id="transactionsContent">
-                    <div class="transactions" style="border-radius:0; border:none;">
-                        <div class="tx-list" id="transactionList"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- БЛОК КУРСА (ГРАФИК + НОВАЯ ПАНЕЛЬ) -->
-            <div class="rate-section">
-                <div class="rate-chart-box">
-                    <h3>📊 История курса USD/RUB</h3>
-                    <div class="rate-chart-controls">
-                        <button id="refreshRateChartBtn">🔄 Обновить график</button>
-                    </div>
-                    <canvas id="rateHistoryChart"></canvas>
-                </div>
-
-                <!-- НОВАЯ ПАНЕЛЬ УПРАВЛЕНИЯ КУРСОМ (три строки) -->
-                <div class="rate-bar-new">
-    <!-- Строка 1: название -->
-    <div class="rate-row-1">
-        <span class="rate-label">💵 Курс доллара</span>
+  <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
+  <div class="top-bar">
+    <span class="status" id="fileStatus">📂 Загрузите файл</span>
+    <div class="actions">
+      <button id="addTxBtn" style="background:#4ade80;border-color:#4ade80;color:#0b0e14;">➕ Добавить</button>
+      <button id="refreshBtn">🔄 Обновить</button>
+      <button id="syncBtn" style="background:#60a5fa;border-color:#60a5fa;color:#0b0e14;">☁️ Синхронизировать</button>
+      <button id="clearDataBtn" class="clear">🗑️ Очистить</button>
+      <button id="loadRateBtn" class="rate-upload-btn">📈 rate.json</button>
     </div>
-    <!-- Строка 2: поле ввода и кнопка строго в одну строку -->
-    <div class="rate-row-2">
+  </div>
+
+  <!-- БАЛАНС -->
+  <div class="balance-card">
+    <div class="top">
+      <span class="label">ЧИСТЫЙ БАЛАНС (на руках)</span>
+      <span class="amount" id="totalBalanceRubDisplay">0 ₽</span>
+    </div>
+    <div class="bottom">
+      <span class="period" id="periodDisplay">—</span>
+      <div class="month-change">
+        <span class="income" id="monthIncomeDisplay">↑ 0</span>
+        <span class="expense" id="monthExpenseDisplay">↓ 0</span>
+      </div>
+    </div>
+    <div class="usd-info">
+      <span>Баланс в USD: <strong id="totalBalanceUsdDisplay">0 $</strong></span>
+      <span>Курс: <strong id="rateInfoSmall">1 USD = — ₽</strong></span>
+    </div>
+  </div>
+
+  <!-- ФИЛЬТРЫ -->
+  <div class="filter-bar" id="filterBar">
+    <button class="filter-btn disabled" data-period="day">День</button>
+    <button class="filter-btn disabled" data-period="week">Неделя</button>
+    <button class="filter-btn disabled active" data-period="month">Месяц</button>
+    <button class="filter-btn disabled" data-period="all">Всё</button>
+    <span class="period-label" id="periodLabel">за последние 30 дней</span>
+  </div>
+
+  <div id="dashboard" class="hidden">
+    <!-- СТАТИСТИКА -->
+    <div class="stats-grid">
+      <div class="stat-card income"><div class="label">💰 Доход (RUB)</div><div class="value" id="totalIncomeRubOnly">0 ₽</div></div>
+      <div class="stat-card balance"><div class="label">📈 Чистый баланс (RUB)</div><div class="value" id="netIncome">0 ₽</div></div>
+      <div class="stat-card expense"><div class="label">💸 Расход (RUB)</div><div class="value" id="totalExpenseRubOnly">0 ₽</div></div>
+    </div>
+    <div class="stats-grid-extra">
+      <div class="stat-card usd"><div class="label">💰 Доход (USD)</div><div class="value" id="totalIncomeUsd">0 $</div></div>
+      <div class="stat-card usd"><div class="label">💸 Расход (USD)</div><div class="value" id="totalExpenseUsd">0 $</div></div>
+      <div class="stat-card balance"><div class="label">💵 Общий доход (RUB)</div><div class="value" id="totalIncomeRubTotal">0 ₽</div></div>
+      <div class="stat-card balance"><div class="label">💵 Общий расход (RUB)</div><div class="value" id="totalExpenseRubTotal">0 ₽</div></div>
+      <div class="stat-card rate-profit"><div class="label">📊 Курсовая разница</div><div class="value" id="rateProfit">0 ₽</div></div>
+      <div class="stat-card count"><div class="label">📋 Записей</div><div class="value" id="recordCount">0</div></div>
+    </div>
+
+    <!-- БЫСТРЫЕ ИТОГИ -->
+    <div class="quick-sums">
+      <div class="group"><div class="period-label">День</div><div class="sums-row"><span class="sum income" id="dayIncome">+0</span><span class="sum expense" id="dayExpense">-0</span></div></div>
+      <div class="group"><div class="period-label">7 дней</div><div class="sums-row"><span class="sum income" id="weekIncome">+0</span><span class="sum expense" id="weekExpense">-0</span></div></div>
+      <div class="group"><div class="period-label">Месяц</div><div class="sums-row"><span class="sum income" id="monthIncome">+0</span><span class="sum expense" id="monthExpense">-0</span></div></div>
+    </div>
+
+    <!-- ГРАФИКИ -->
+    <div class="collapsible">
+      <div class="collapsible-header" data-target="chartsContent"><h3>📊 Графики</h3><span class="toggle open">▼</span></div>
+      <div class="collapsible-content open" id="chartsContent">
+        <div class="chart-box full-width" style="border:none; margin-bottom:12px;">
+          <h3>📈 Динамика доходов и расходов (RUB)</h3>
+          <canvas id="dailyChart"></canvas>
+        </div>
+        <div class="charts-row">
+          <div class="chart-box" style="border:none;">
+            <h3>🧩 Доходы по категориям</h3>
+            <canvas id="incomePieChart"></canvas>
+            <div class="category-list" id="incomeCategoryList"></div>
+          </div>
+          <div class="chart-box" style="border:none;">
+            <h3>🧩 Расходы по категориям</h3>
+            <canvas id="expensePieChart"></canvas>
+            <div class="category-list" id="expenseCategoryList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ИСТОРИЯ ТРАНЗАКЦИЙ -->
+    <div class="collapsible">
+      <div class="collapsible-header" data-target="transactionsContent"><h3>📋 История транзакций</h3><span class="toggle open">▼</span></div>
+      <div class="collapsible-content open" id="transactionsContent">
+        <div class="transactions" style="border:none;">
+          <div class="tx-list" id="transactionList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- КУРС -->
+    <div class="rate-chart-box">
+      <h3>📊 История курса USD/RUB</h3>
+      <div class="rate-chart-controls"><button id="refreshRateChartBtn">🔄 Обновить график</button></div>
+      <canvas id="rateHistoryChart"></canvas>
+    </div>
+    <div class="rate-bar-new">
+      <div class="rate-row-1"><span class="rate-label">💵 Курс доллара</span></div>
+      <div class="rate-row-2">
         <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
         <button class="update-btn" id="updateRateBtn">Обновить</button>
-    </div>
-    <!-- Строка 3: курс и проценты в одну строку (слева курс, справа проценты) -->
-    <div class="rate-row-3">
-        <span class="rate-info" id="rateInfo">1 USD = 85.00 ₽</span>
+      </div>
+      <div class="rate-row-3">
+        <span class="rate-info" id="rateInfo">1 USD = — ₽</span>
         <span class="rate-change" id="rateChangeInfo">+0.00%</span>
+      </div>
     </div>
+  </div>
+
+  <div id="emptyState" class="empty-state">⏳ Загрузите JSON-файл для отображения аналитики</div>
+
+  <div class="footer">Данные из stats2.json • Синхронизация с GitHub • История курса из rate.json</div>
 </div>
-            </div>
 
-        </div>
-
-        <div id="emptyState" class="empty-state">
-            ⏳ Загрузите JSON-файл для отображения аналитики
-        </div>
-
-        <div class="footer">
-            Данные из stats2.json • Автообновление каждую минуту • История курса из rate.json
-        </div>
+<!-- МОДАЛЬНОЕ ОКНО: ТРАНЗАКЦИЯ -->
+<div class="modal-overlay" id="txModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="txModalTitle">➕ Новая транзакция</h2>
+      <button class="modal-close" id="closeTxModal">×</button>
     </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Тип</label>
+        <div class="type-toggle">
+          <button class="type-btn active" data-type="income">💰 Доход</button>
+          <button class="type-btn" data-type="expense">💸 Расход</button>
+        </div>
+      </div>
+      <div class="form-row"><label>Сумма в рублях</label><input type="number" id="txRub" placeholder="0" step="0.01"></div>
+      <div class="form-row"><label>Сумма в долларах (необязательно)</label><input type="number" id="txUsd" placeholder="0" step="0.01"></div>
+      <div class="form-row"><label>Категория</label><select id="txCategory"></select></div>
+      <div class="form-row"><label>Комментарий</label><input type="text" id="txNote" placeholder="Необязательно"></div>
+      <div class="form-row"><label>Дата и время</label><input type="datetime-local" id="txDateTime"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn cancel" id="cancelTxBtn">Отмена</button>
+      <button class="modal-btn save" id="saveTxBtn">Сохранить</button>
+    </div>
+  </div>
+</div>
 
-    <script>
-        (function() {
-            'use strict';
+<!-- МОДАЛЬНОЕ ОКНО: ТОКЕН -->
+<div class="modal-overlay" id="tokenModal">
+  <div class="modal">
+    <div class="modal-header"><h2>🔑 GitHub-токен</h2><button class="modal-close" id="closeTokenModal">×</button></div>
+    <div class="modal-body">
+      <p style="color:#8b9bb5;font-size:0.8rem;margin-bottom:10px;">Вставьте Personal Access Token (тот же, что в Shortcuts, права <b>repo</b>). Он сохранится в этом браузере и будет использоваться только для синхронизации stats2.json.</p>
+      <div class="form-row"><label>Токен</label><input type="text" id="githubTokenInput" placeholder="ghp_..." autocomplete="off"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn cancel" id="cancelTokenBtn">Отмена</button>
+      <button class="modal-btn save" id="saveTokenBtn">Сохранить</button>
+    </div>
+  </div>
+</div>
 
-            // --- DOM-элементы ---
-            const fileStatus = document.getElementById('fileStatus');
-            const clearDataBtn = document.getElementById('clearDataBtn');
-            const refreshBtn = document.getElementById('refreshBtn');
-            const loadRateBtn = document.getElementById('loadRateBtn');
-            const refreshRateChartBtn = document.getElementById('refreshRateChartBtn');
-            const filterBtns = document.querySelectorAll('.filter-btn');
-            const periodLabel = document.getElementById('periodLabel');
-            const dashboard = document.getElementById('dashboard');
-            const emptyState = document.getElementById('emptyState');
+<script>
+(function() {
+'use strict';
 
-            const usdRateInput = document.getElementById('usdRateInput');
-            const updateRateBtn = document.getElementById('updateRateBtn');
-            const rateInfo = document.getElementById('rateInfo');
-            const rateChangeInfo = document.getElementById('rateChangeInfo');
+// ============ DOM ============
+const fileStatus = document.getElementById('fileStatus');
+const clearDataBtn = document.getElementById('clearDataBtn');
+const refreshBtn = document.getElementById('refreshBtn');
+const loadRateBtn = document.getElementById('loadRateBtn');
+const refreshRateChartBtn = document.getElementById('refreshRateChartBtn');
+const addTxBtn = document.getElementById('addTxBtn');
+const syncBtn = document.getElementById('syncBtn');
+const filterBtns = document.querySelectorAll('.filter-btn');
+const periodLabel = document.getElementById('periodLabel');
+const dashboard = document.getElementById('dashboard');
+const emptyState = document.getElementById('emptyState');
+const usdRateInput = document.getElementById('usdRateInput');
+const updateRateBtn = document.getElementById('updateRateBtn');
+const rateInfo = document.getElementById('rateInfo');
+const rateChangeInfo = document.getElementById('rateChangeInfo');
 
-            const totalBalanceRubDisplay = document.getElementById('totalBalanceRubDisplay');
-            const totalBalanceUsdDisplay = document.getElementById('totalBalanceUsdDisplay');
-            const periodDisplay = document.getElementById('periodDisplay');
-            const monthIncomeDisplay = document.getElementById('monthIncomeDisplay');
-            const monthExpenseDisplay = document.getElementById('monthExpenseDisplay');
-            const rateInfoSmall = document.getElementById('rateInfoSmall');
+const STORAGE_KEY = 'financeDataTransactions';
+const RATE_STORAGE_KEY = 'usdRate';
+const RATE_HISTORY_KEY = 'rateHistory';
+const PENDING_KEY = 'financePendingOps';
+const TOKEN_KEY = 'githubPersonalToken';
 
-            const STORAGE_KEY = 'financeDataTransactions';
-            const RATE_STORAGE_KEY = 'usdRate';
-            const RATE_HISTORY_KEY = 'rateHistory';
+// ============ Категории ============
+const CATEGORIES_INCOME = ['💰 Зарплата','🗓 Продажа','🎁 Подарок','💵 Другое'];
+const CATEGORIES_EXPENSE = ['🚘 Автомобиль (Ремонт, заправки)','🍔 Еда (Доставки, супермаркет и т.п.)','🏚️ Ипотека','☕️ Кафе и рестораны','🎢 Развлечения (Кино, концерты, игры)','🛍 Покупки (Одежда, техника)','💊 Здоровье (Врачи, аптеки)','🏠 Коммунальные услуги','📱 Связь и интернет','📚 Образование','💸 Другое'];
 
-            let allTransactions = [];
-            let rateHistory = [];
-            let currentFilter = 'month';
-            let dataLoaded = false;
-            let currentUsdRate = 85.00;
-            let dailyChart = null,
-                expensePieChart = null,
-                incomePieChart = null;
-            let rateHistoryChart = null;
-            let autoUpdateTimer = null;
+// ============ STATE ============
+let allTransactions = [];
+let rateHistory = [];
+let currentFilter = 'month';
+let dataLoaded = false;
+let currentUsdRate = 85.00;
+let dailyChart = null, expensePieChart = null, incomePieChart = null, rateHistoryChart = null;
+let autoUpdateTimer = null;
+let editingIndex = -1;
 
-            // --- ПАРСИНГ ТРАНЗАКЦИЙ ---
-            function parseNumber(str) {
-                const cleaned = str.replace(/\s/g, '').replace(',', '.');
-                const match = cleaned.match(/(\d+\.?\d*)/);
-                return match ? parseFloat(match[1]) : 0;
-            }
+// ============ ПАРСИНГ ============
+function parseNumber(str) {
+  const m = String(str).replace(/\s/g,'').replace(',','.').match(/(\d+\.?\d*)/);
+  return m ? parseFloat(m[1]) : 0;
+}
+function parseLine(line) {
+  const p = line.split('|').map(s => s.trim());
+  if (p.length < 5) return null;
+  const typeP = p[0], dtP = p[1], amtP = p[2], catP = p[3], noteP = p[4] || '';
+  let type = '';
+  if (typeP.includes('ДОХОД')) type = 'income';
+  else if (typeP.includes('РАСХОД')) type = 'expense';
+  else return null;
+  const dm = dtP.match(/(\d{2})\.(\d{2})\.(\d{4}),\s*(\d{2}):(\d{2})/);
+  if (!dm) return null;
+  const dateObj = new Date(+dm[3], +dm[2]-1, +dm[1], +dm[4], +dm[5]);
+  const as = amtP.split('->').map(s => s.trim());
+  if (as.length !== 2) return null;
+  const usd = parseNumber(as[0]);
+  const rub = parseNumber(as[1]);
+  return {
+    type, date: dateObj,
+    dateStr: `${dm[3]}-${dm[2]}-${dm[1]}`,
+    usd, rub,
+    category: catP || 'Без категории',
+    note: noteP
+  };
+}
+function parseData(jsonText) {
+  let d;
+  try { d = JSON.parse(jsonText); } catch { return []; }
+  if (!d.text || typeof d.text !== 'string') return [];
+  const lines = d.text.split('\n').filter(l => l.trim() !== '');
+  const txs = [];
+  for (const l of lines) { const t = parseLine(l); if (t) txs.push(t); }
+  return txs;
+}
+function parseRateHistory(text) {
+  const lines = text.split('\n').filter(l => l.trim() !== '');
+  const h = [];
+  for (const line of lines) {
+    if (line.toLowerCase().includes('курс')) continue;
+    const p = line.split('|');
+    if (p.length < 2) continue;
+    const nm = p[1].trim().match(/(\d+[.,]\d+)/);
+    if (!nm) continue;
+    const rate = parseFloat(nm[1].replace(',','.'));
+    if (isNaN(rate) || rate <= 0) continue;
+    const dm = p[0].match(/(\d{2})\.(\d{2})\.(\d{4})/);
+    if (!dm) continue;
+    const tm = p[0].match(/(\d{2}):(\d{2})/);
+    h.push({ date: new Date(+dm[3], +dm[2]-1, +dm[1], tm?+tm[1]:0, tm?+tm[2]:0), rate });
+  }
+  h.sort((a,b) => a.date - b.date);
+  return h;
+}
 
-            function parseLine(line) {
-                const parts = line.split('|').map(s => s.trim());
-                if (parts.length < 5) return null;
-                const typePart = parts[0];
-                const dateTimePart = parts[1];
-                const amountPart = parts[2];
-                const categoryPart = parts[3];
-                const notePart = parts[4] || '';
-                let type = '';
-                if (typePart.includes('ДОХОД')) type = 'income';
-                else if (typePart.includes('РАСХОД')) type = 'expense';
-                else return null;
-                const dateTimeMatch = dateTimePart.match(/(\d{2})\.(\d{2})\.(\d{4}),\s*(\d{2}):(\d{2})/);
-                if (!dateTimeMatch) return null;
-                const day = parseInt(dateTimeMatch[1]);
-                const month = parseInt(dateTimeMatch[2]) - 1;
-                const year = parseInt(dateTimeMatch[3]);
-                const hour = parseInt(dateTimeMatch[4]);
-                const minute = parseInt(dateTimeMatch[5]);
-                const dateObj = new Date(year, month, day, hour, minute);
-                const amountSplit = amountPart.split('->').map(s => s.trim());
-                if (amountSplit.length !== 2) return null;
-                const left = amountSplit[0];
-                const right = amountSplit[1];
-                const usdValue = parseNumber(left);
-                const rubValue = parseNumber(right);
-                const category = categoryPart.trim() || 'Без категории';
-                return {
-                    type,
-                    date: dateObj,
-                    dateStr: `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`,
-                    usd: usdValue,
-                    rub: rubValue,
-                    category,
-                    note: notePart
-                };
-            }
+// ============ ФИЛЬТР/АГРЕГАЦИЯ ============
+function filterTransactions(txs, period) {
+  if (!txs.length) return [];
+  if (period === 'all') return txs;
+  const now = new Date(); const start = new Date(now);
+  if (period === 'day') start.setHours(0,0,0,0);
+  else if (period === 'week') { start.setDate(now.getDate()-7); start.setHours(0,0,0,0); }
+  else { start.setMonth(now.getMonth()-1); start.setHours(0,0,0,0); }
+  return txs.filter(tx => tx.date >= start);
+}
+function aggregateByDay(txs) {
+  const map = {};
+  for (const tx of txs) {
+    const k = tx.dateStr;
+    if (!map[k]) map[k] = { date:k, income:0, expense:0 };
+    if (tx.type === 'income') map[k].income += tx.rub; else map[k].expense += tx.rub;
+  }
+  return Object.keys(map).sort().map(k => map[k]);
+}
+function aggregateByCategory(txs, type) {
+  const map = {};
+  for (const tx of txs.filter(t => t.type === type)) {
+    const c = tx.category || 'Без категории';
+    map[c] = (map[c] || 0) + tx.rub;
+  }
+  return Object.entries(map).sort((a,b) => b[1]-a[1]).map(([label,value]) => ({label,value}));
+}
 
-            function parseData(jsonText) {
-                let data;
-                try { data = JSON.parse(jsonText); } catch { return []; }
-                if (!data.text || typeof data.text !== 'string') return [];
-                const lines = data.text.split('\n').filter(line => line.trim() !== '');
-                const transactions = [];
-                for (const line of lines) {
-                    const tx = parseLine(line);
-                    if (tx) transactions.push(tx);
-                }
-                return transactions;
-            }
+// ============ STORAGE ============
+function saveTransactions(t) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(t)); } catch(e){} }
+function loadTransactions() {
+  try { const s = localStorage.getItem(STORAGE_KEY); if (s) return JSON.parse(s).map(tx => ({...tx, date:new Date(tx.date)})); } catch(e){}
+  return null;
+}
+function saveRateHistory(h) { try { localStorage.setItem(RATE_HISTORY_KEY, JSON.stringify(h)); } catch(e){} }
+function loadRateHistory() {
+  try { const s = localStorage.getItem(RATE_HISTORY_KEY); if (s) return JSON.parse(s).map(i => ({...i, date:new Date(i.date)})); } catch(e){}
+  return null;
+}
+function saveRate(r) { try { localStorage.setItem(RATE_STORAGE_KEY, String(r)); } catch(e){} }
+function loadRate() {
+  try { const s = localStorage.getItem(RATE_STORAGE_KEY); if (s) { const r = parseFloat(s); if (!isNaN(r) && r > 0) return r; } } catch(e){}
+  return null;
+}
+function loadPending() { try { const s = localStorage.getItem(PENDING_KEY); return s ? JSON.parse(s) : []; } catch(e){ return []; } }
+function savePending(a) { try { localStorage.setItem(PENDING_KEY, JSON.stringify(a)); } catch(e){} }
+function getToken() { return localStorage.getItem(TOKEN_KEY) || ''; }
+function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
 
-            // --- ПАРСИНГ ИСТОРИИ КУРСА ---
-            function parseRateHistory(text) {
-                const lines = text.split('\n').filter(line => line.trim() !== '');
-                const history = [];
-                for (const line of lines) {
-                    if (line.toLowerCase().includes('курс')) continue;
-                    const parts = line.split('|');
-                    if (parts.length < 2) continue;
-                    const leftPart = parts[0].trim();
-                    const rightPart = parts[1].trim();
-                    const numMatch = rightPart.match(/(\d+[.,]\d+)/);
-                    if (!numMatch) continue;
-                    const rate = parseFloat(numMatch[1].replace(',', '.'));
-                    if (isNaN(rate) || rate <= 0) continue;
-                    const dateMatch = leftPart.match(/(\d{2})\.(\d{2})\.(\d{4})/);
-                    if (!dateMatch) continue;
-                    const day = parseInt(dateMatch[1]);
-                    const month = parseInt(dateMatch[2]) - 1;
-                    const year = parseInt(dateMatch[3]);
-                    const timeMatch = leftPart.match(/(\d{2}):(\d{2})/);
-                    let hour = 0,
-                        minute = 0;
-                    if (timeMatch) {
-                        hour = parseInt(timeMatch[1]);
-                        minute = parseInt(timeMatch[2]);
-                    }
-                    const dateObj = new Date(year, month, day, hour, minute);
-                    history.push({ date: dateObj, rate: rate });
-                }
-                history.sort((a, b) => a.date - b.date);
-                return history;
-            }
+// ============ РЕНДЕР ============
+function renderDashboard(txs, period) {
+  if (!txs.length) {
+    dashboard.classList.add('hidden');
+    emptyState.classList.remove('hidden');
+    return;
+  }
+  const rubIncome = txs.filter(t => t.type === 'income' && t.usd === 0).reduce((s,t) => s+t.rub, 0);
+  const rubExpense = txs.filter(t => t.type === 'expense' && t.usd === 0).reduce((s,t) => s+t.rub, 0);
+  const usdIncome = txs.filter(t => t.type === 'income' && t.usd > 0).reduce((s,t) => s+t.usd, 0);
+  const usdExpense = txs.filter(t => t.type === 'expense' && t.usd > 0).reduce((s,t) => s+t.usd, 0);
+  const totalIncomeRub = rubIncome + usdIncome * currentUsdRate;
+  const totalExpenseRub = rubExpense + usdExpense * currentUsdRate;
+  const netRub = totalIncomeRub - totalExpenseRub;
 
-            // --- ФИЛЬТРАЦИЯ И АГРЕГАЦИЯ ---
-            function filterTransactions(transactions, period) {
-                if (!transactions.length) return [];
-                const now = new Date();
-                let startDate = new Date(now);
-                if (period === 'day') {
-                    startDate.setHours(0, 0, 0, 0);
-                } else if (period === 'week') {
-                    startDate.setDate(now.getDate() - 7);
-                    startDate.setHours(0, 0, 0, 0);
-                } else {
-                    startDate.setMonth(now.getMonth() - 1);
-                    startDate.setHours(0, 0, 0, 0);
-                }
-                return transactions.filter(tx => tx.date >= startDate);
-            }
+  const now = new Date();
+  const dS = new Date(now); dS.setHours(0,0,0,0);
+  const wS = new Date(now); wS.setDate(now.getDate()-7); wS.setHours(0,0,0,0);
+  const mS = new Date(now); mS.setMonth(now.getMonth()-1); mS.setHours(0,0,0,0);
+  const calc = (start) => {
+    const f = txs.filter(t => t.date >= start);
+    const ri = f.filter(t => t.type === 'income' && t.usd === 0).reduce((s,t) => s+t.rub, 0);
+    const re = f.filter(t => t.type === 'expense' && t.usd === 0).reduce((s,t) => s+t.rub, 0);
+    const ui = f.filter(t => t.type === 'income' && t.usd > 0).reduce((s,t) => s+t.usd, 0);
+    const ue = f.filter(t => t.type === 'expense' && t.usd > 0).reduce((s,t) => s+t.usd, 0);
+    return { incRub: ri + ui * currentUsdRate, expRub: re + ue * currentUsdRate };
+  };
+  const d = calc(dS), w = calc(wS), m = calc(mS);
 
-            function aggregateByDay(transactions) {
-                const map = {};
-                for (const tx of transactions) {
-                    const key = tx.dateStr;
-                    if (!map[key]) map[key] = { date: key, income: 0, expense: 0 };
-                    if (tx.type === 'income') map[key].income += tx.rub;
-                    else map[key].expense += tx.rub;
-                }
-                const sortedKeys = Object.keys(map).sort();
-                return sortedKeys.map(key => ({ date: key, income: map[key].income, expense: map[key].expense }));
-            }
+  document.getElementById('totalIncomeRubOnly').textContent = rubIncome.toLocaleString('ru-RU') + ' ₽';
+  document.getElementById('totalExpenseRubOnly').textContent = rubExpense.toLocaleString('ru-RU') + ' ₽';
+  document.getElementById('totalIncomeUsd').textContent = usdIncome.toLocaleString('ru-RU') + ' $';
+  document.getElementById('totalExpenseUsd').textContent = usdExpense.toLocaleString('ru-RU') + ' $';
+  document.getElementById('totalIncomeRubTotal').textContent = totalIncomeRub.toLocaleString('ru-RU') + ' ₽';
+  document.getElementById('totalExpenseRubTotal').textContent = totalExpenseRub.toLocaleString('ru-RU') + ' ₽';
+  const netEl = document.getElementById('netIncome');
+  netEl.textContent = netRub.toLocaleString('ru-RU') + ' ₽';
+  netEl.style.color = netRub >= 0 ? '#4ade80' : '#f87171';
+  document.getElementById('recordCount').textContent = txs.length;
 
-            function aggregateByCategory(transactions, type) {
-                const map = {};
-                const filtered = transactions.filter(tx => tx.type === type);
-                for (const tx of filtered) {
-                    const cat = tx.category || 'Без категории';
-                    map[cat] = (map[cat] || 0) + tx.rub;
-                }
-                return Object.entries(map)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([label, value]) => ({ label, value }));
-            }
+  let rateDiff = 0;
+  for (const tx of txs) if (tx.usd > 0) rateDiff += tx.usd * currentUsdRate - tx.rub;
+  const rp = document.getElementById('rateProfit');
+  rp.textContent = (rateDiff >= 0 ? '+' : '') + rateDiff.toLocaleString('ru-RU') + ' ₽';
+  rp.style.color = rateDiff >= 0 ? '#4ade80' : '#f87171';
 
-            // --- ХРАНИЛИЩЕ ---
-            function saveTransactions(transactions) {
-                try { localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions)); } catch (e) { /* ignore */ }
-            }
-            function loadTransactions() {
-                try {
-                    const stored = localStorage.getItem(STORAGE_KEY);
-                    if (stored) {
-                        const parsed = JSON.parse(stored);
-                        return parsed.map(tx => ({ ...tx, date: new Date(tx.date) }));
-                    }
-                } catch (e) { /* ignore */ }
-                return null;
-            }
-            function saveRateHistory(history) {
-                try { localStorage.setItem(RATE_HISTORY_KEY, JSON.stringify(history)); } catch (e) { /* ignore */ }
-            }
-            function loadRateHistory() {
-                try {
-                    const stored = localStorage.getItem(RATE_HISTORY_KEY);
-                    if (stored) {
-                        const parsed = JSON.parse(stored);
-                        return parsed.map(item => ({ ...item, date: new Date(item.date) }));
-                    }
-                } catch (e) { /* ignore */ }
-                return null;
-            }
-            function clearStoredData() {
-                localStorage.removeItem(STORAGE_KEY);
-                localStorage.removeItem(RATE_STORAGE_KEY);
-                localStorage.removeItem(RATE_HISTORY_KEY);
-                fileStatus.textContent = '🗑️ Данные очищены';
-                allTransactions = [];
-                rateHistory = [];
-                dataLoaded = false;
-                dashboard.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-                filterBtns.forEach(btn => btn.classList.add('disabled'));
-                if (dailyChart) { dailyChart.destroy();
-                    dailyChart = null; }
-                if (expensePieChart) { expensePieChart.destroy();
-                    expensePieChart = null; }
-                if (incomePieChart) { incomePieChart.destroy();
-                    incomePieChart = null; }
-                if (rateHistoryChart) { rateHistoryChart.destroy();
-                    rateHistoryChart = null; }
-                if (autoUpdateTimer) {
-                    clearInterval(autoUpdateTimer);
-                    autoUpdateTimer = null;
-                }
-                updateRateDisplay();
-                updateBalanceBlock();
-            }
+  const fmt = n => n.toLocaleString('ru-RU');
+  document.getElementById('dayIncome').textContent = (d.incRub >= 0 ? '+' : '') + fmt(d.incRub);
+  document.getElementById('dayExpense').textContent = (d.expRub >= 0 ? '-' : '') + fmt(d.expRub);
+  document.getElementById('weekIncome').textContent = (w.incRub >= 0 ? '+' : '') + fmt(w.incRub);
+  document.getElementById('weekExpense').textContent = (w.expRub >= 0 ? '-' : '') + fmt(w.expRub);
+  document.getElementById('monthIncome').textContent = (m.incRub >= 0 ? '+' : '') + fmt(m.incRub);
+  document.getElementById('monthExpense').textContent = (m.expRub >= 0 ? '-' : '') + fmt(m.expRub);
 
-            // --- КУРС ---
-            function loadRate() {
-                try {
-                    const stored = localStorage.getItem(RATE_STORAGE_KEY);
-                    if (stored) {
-                        const rate = parseFloat(stored);
-                        if (!isNaN(rate) && rate > 0) {
-                            currentUsdRate = rate;
-                            usdRateInput.value = rate.toFixed(2);
-                        }
-                    }
-                } catch (e) { /* ignore */ }
-                updateRateDisplay();
-            }
-            function saveRate(rate) {
-                try { localStorage.setItem(RATE_STORAGE_KEY, String(rate)); } catch (e) { /* ignore */ }
-            }
-            function updateRateDisplay() {
-                rateInfo.textContent = `1 USD = ${currentUsdRate.toFixed(2)} ₽`;
-                rateInfoSmall.textContent = `1 USD = ${currentUsdRate.toFixed(2)} ₽`;
-                if (dataLoaded) {
-                    updateWithFilter(currentFilter);
-                }
-                updateBalanceBlock();
-            }
-            function setRate(rate) {
-                if (isNaN(rate) || rate <= 0) {
-                    alert('Введите корректный курс');
-                    return;
-                }
-                const oldRate = currentUsdRate;
-                currentUsdRate = rate;
-                saveRate(rate);
-                updateRateDisplay();
-                const diff = ((rate - oldRate) / oldRate * 100).toFixed(2);
-                rateChangeInfo.textContent = diff >= 0 ? `📈 +${diff}%` : `📉 ${diff}%`;
-                rateChangeInfo.style.color = diff >= 0 ? '#4ade80' : '#f87171';
-            }
+  // Графики
+  const daily = aggregateByDay(txs);
+  if (dailyChart) dailyChart.destroy();
+  if (expensePieChart) expensePieChart.destroy();
+  if (incomePieChart) incomePieChart.destroy();
 
-            // --- ОБНОВЛЕНИЕ БЛОКА БАЛАНСА ---
-            function updateBalanceBlock() {
-                if (!allTransactions.length) {
-                    totalBalanceRubDisplay.textContent = '0 ₽';
-                    totalBalanceUsdDisplay.textContent = '0 $';
-                    monthIncomeDisplay.textContent = '↑ 0';
-                    monthExpenseDisplay.textContent = '↓ 0';
-                    const now = new Date();
-                    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-                    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-                    const format = d => d.toLocaleDateString('ru-RU');
-                    periodDisplay.textContent = `${format(firstDay)} — ${format(lastDay)}`;
-                    return;
-                }
-                let totalUsdIncome = 0,
-                    totalUsdExpense = 0;
-                let totalRubIncome = 0,
-                    totalRubExpense = 0;
-                for (const tx of allTransactions) {
-                    if (tx.type === 'income') {
-                        if (tx.usd > 0) totalUsdIncome += tx.usd;
-                        else totalRubIncome += tx.rub;
-                    } else {
-                        if (tx.usd > 0) totalUsdExpense += tx.usd;
-                        else totalRubExpense += tx.rub;
-                    }
-                }
-                const netUsd = totalUsdIncome - totalUsdExpense;
-                const netRub = totalRubIncome - totalRubExpense;
-                const totalBalanceRub = netRub + netUsd * currentUsdRate;
+  dailyChart = new Chart(document.getElementById('dailyChart'), {
+    type: 'bar',
+    data: {
+      labels: daily.map(x => x.date),
+      datasets: [
+        { label:'Доход', data: daily.map(x => x.income), backgroundColor:'rgba(74,222,128,0.6)', borderColor:'rgba(74,222,128,1)', borderWidth:1, borderRadius:4 },
+        { label:'Расход', data: daily.map(x => x.expense), backgroundColor:'rgba(248,113,113,0.6)', borderColor:'rgba(248,113,113,1)', borderWidth:1, borderRadius:4 }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:true,
+      plugins: { legend:{labels:{color:'#c8d0e0'}}, tooltip:{callbacks:{label:c => c.dataset.label + ': ' + c.parsed.y.toLocaleString('ru-RU') + ' ₽'}} },
+      scales: { y:{beginAtZero:true,ticks:{color:'#8b9bb5',callback:v => v.toLocaleString('ru-RU') + ' ₽'}}, x:{ticks:{color:'#8b9bb5',maxRotation:45,autoSkip:true}} }
+    }
+  });
 
-                const now = new Date();
-                const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-                const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-                const monthTxs = allTransactions.filter(tx => tx.date >= monthStart && tx.date <= monthEnd);
-                let monthIncRub = 0,
-                    monthExpRub = 0;
-                for (const tx of monthTxs) {
-                    if (tx.type === 'income') {
-                        if (tx.usd > 0) monthIncRub += tx.usd * currentUsdRate;
-                        else monthIncRub += tx.rub;
-                    } else {
-                        if (tx.usd > 0) monthExpRub += tx.usd * currentUsdRate;
-                        else monthExpRub += tx.rub;
-                    }
-                }
-                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-                const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-                const format = d => d.toLocaleDateString('ru-RU');
-                periodDisplay.textContent = `${format(firstDay)} — ${format(lastDay)}`;
-                totalBalanceRubDisplay.textContent = totalBalanceRub.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ₽';
-                totalBalanceUsdDisplay.textContent = netUsd.toFixed(2) + ' $';
-                monthIncomeDisplay.textContent = `↑ ${monthIncRub.toLocaleString('ru-RU')}`;
-                monthExpenseDisplay.textContent = `↓ ${monthExpRub.toLocaleString('ru-RU')}`;
-            }
+  const incCat = aggregateByCategory(txs, 'income');
+  incomePieChart = new Chart(document.getElementById('incomePieChart'), {
+    type:'doughnut',
+    data: { labels: incCat.map(x => x.label), datasets: [{ data: incCat.map(x => x.value), backgroundColor:['#4ade80','#facc15','#60a5fa','#c084fc','#fb923c','#f472b6','#2dd4bf','#a3a3a3','#e879f9','#34d399'], borderColor:'#111', borderWidth:2 }] },
+    options: { responsive:true, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c => { const t = c.dataset.data.reduce((a,b)=>a+b,0); return c.label + ': ' + c.parsed.toLocaleString('ru-RU') + ' ₽ (' + ((c.parsed/t)*100).toFixed(1) + '%)'; }}}} }
+  });
+  const incList = document.getElementById('incomeCategoryList');
+  incList.innerHTML = '';
+  const incTotal = incCat.reduce((s,x) => s+x.value, 0);
+  incCat.forEach(x => {
+    const pct = incTotal ? ((x.value/incTotal)*100).toFixed(1) : 0;
+    const d = document.createElement('div'); d.className = 'cat-item';
+    d.innerHTML = `<span>${x.label}</span><span class="value">${x.value.toLocaleString('ru-RU')} ₽ (${pct}%)</span>`;
+    incList.appendChild(d);
+  });
 
-            // --- ЗАГРУЗКА stats2.json ---
-            async function loadData(showStatus = true) {
-                if (showStatus) fileStatus.textContent = '⏳ Загрузка...';
-                const stored = loadTransactions();
-                if (stored && stored.length) {
-                    initData(stored);
-                    if (showStatus) fileStatus.textContent = `📂 Загружено из кэша: ${stored.length} записей`;
-                    return true;
-                }
-                try {
-                    const url = 'stats2.json?t=' + Date.now();
-                    const response = await fetch(url, { cache: 'no-store' });
-                    if (!response.ok) throw new Error('Файл не найден');
-                    const content = await response.text();
-                    const transactions = parseData(content);
-                    if (transactions.length) {
-                        initData(transactions);
-                        if (showStatus) fileStatus.textContent = `✅ Загружено с GitHub: ${transactions.length} записей`;
-                        return true;
-                    }
-                } catch (e) {
-                    console.warn('Не удалось загрузить stats2.json:', e.message);
-                }
-                return false;
-            }
+  const expCat = aggregateByCategory(txs, 'expense');
+  expensePieChart = new Chart(document.getElementById('expensePieChart'), {
+    type:'doughnut',
+    data: { labels: expCat.map(x => x.label), datasets: [{ data: expCat.map(x => x.value), backgroundColor:['#f87171','#fbbf24','#34d399','#60a5fa','#a78bfa','#fb923c','#f472b6','#2dd4bf','#e879f9','#facc15'], borderColor:'#111', borderWidth:2 }] },
+    options: { responsive:true, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c => { const t = c.dataset.data.reduce((a,b)=>a+b,0); return c.label + ': ' + c.parsed.toLocaleString('ru-RU') + ' ₽ (' + ((c.parsed/t)*100).toFixed(1) + '%)'; }}}} }
+  });
+  const expList = document.getElementById('expenseCategoryList');
+  expList.innerHTML = '';
+  const expTotal = expCat.reduce((s,x) => s+x.value, 0);
+  expCat.forEach(x => {
+    const pct = expTotal ? ((x.value/expTotal)*100).toFixed(1) : 0;
+    const d = document.createElement('div'); d.className = 'cat-item';
+    d.innerHTML = `<span>${x.label}</span><span class="value">${x.value.toLocaleString('ru-RU')} ₽ (${pct}%)</span>`;
+    expList.appendChild(d);
+  });
 
-            // --- ЗАГРУЗКА rate.json ---
-            async function loadRateHistoryFromServer(showStatus = false) {
-                if (showStatus) fileStatus.textContent = '⏳ Загрузка rate.json...';
-                try {
-                    const url = 'https://raw.githubusercontent.com/arturskvortsov-boop/finance-dashboard/main/rate.json?t=' + Date.now();
-                    const response = await fetch(url, { cache: 'no-store' });
-                    if (!response.ok) throw new Error('rate.json не найден (HTTP ' + response.status + ')');
-                    const text = await response.text();
-                    let history = [];
-                    try {
-                        const json = JSON.parse(text);
-                        if (json.text) {
-                            history = parseRateHistory(json.text);
-                        } else {
-                            history = parseRateHistory(text);
-                        }
-                    } catch (e) {
-                        history = parseRateHistory(text);
-                    }
+  // История — сортировка по дате (сначала новые) и отображение с кнопками edit/delete
+  const indexed = txs.map((tx, i) => ({ tx, i }));
+  indexed.sort((a, b) => b.tx.date - a.tx.date);
+  const list = document.getElementById('transactionList');
+  list.innerHTML = '';
+  const slice = indexed.slice(0, 50);
+  for (const { tx, i } of slice) {
+    const div = document.createElement('div');
+    div.className = 'tx-item';
+    const left = document.createElement('div');
+    left.className = 'left';
+    left.innerHTML = `<span class="cat">${tx.category}</span><span class="date">${tx.date.toLocaleDateString('ru-RU')} ${tx.date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span>${tx.note && tx.note !== '-' ? `<span class="note">${tx.note}</span>` : ''}`;
+    const right = document.createElement('span');
+    right.className = 'right ' + (tx.type === 'income' ? 'income' : 'expense');
+    right.textContent = (tx.type === 'income' ? '+' : '-') + tx.rub.toLocaleString('ru-RU') + ' ₽' + (tx.usd > 0 ? ` (${tx.usd.toFixed(2)} $)` : '');
+    const actions = document.createElement('div');
+    actions.className = 'tx-actions';
+    const eBtn = document.createElement('button');
+    eBtn.className = 'edit'; eBtn.textContent = '✏️'; eBtn.title = 'Редактировать';
+    eBtn.addEventListener('click', () => editTransaction(i));
+    const dBtn = document.createElement('button');
+    dBtn.className = 'del'; dBtn.textContent = '🗑️'; dBtn.title = 'Удалить';
+    dBtn.addEventListener('click', () => deleteTransaction(i));
+    actions.appendChild(eBtn); actions.appendChild(dBtn);
+    div.appendChild(left); div.appendChild(right); div.appendChild(actions);
+    list.appendChild(div);
+  }
 
-                    if (history.length) {
-                        rateHistory = history;
-                        saveRateHistory(history);
-                        const last = history[history.length - 1];
-                        setRate(last.rate);
-                        if (showStatus) fileStatus.textContent = `✅ Загружено ${history.length} записей курса`;
-                        drawRateHistoryChart();
-                        console.log('📊 График курса обновлён, записей:', history.length);
-                        return true;
-                    } else {
-                        console.warn('❌ Нет записей курса');
-                        if (showStatus) fileStatus.textContent = '❌ Нет записей курса';
-                    }
-                } catch (e) {
-                    console.warn('❌ Не удалось загрузить rate.json:', e.message);
-                    if (showStatus) fileStatus.textContent = '❌ rate.json не найден';
-                }
-                const stored = loadRateHistory();
-                if (stored && stored.length) {
-                    rateHistory = stored;
-                    const last = stored[stored.length - 1];
-                    setRate(last.rate);
-                    drawRateHistoryChart();
-                    console.log('📊 График курса из кэша, записей:', stored.length);
-                    return true;
-                }
-                console.warn('📊 Нет данных для графика курса');
-                return false;
-            }
+  dashboard.classList.remove('hidden');
+  emptyState.classList.add('hidden');
+  updateBalanceBlock();
+}
 
-            // --- ОТРИСОВКА ГРАФИКА КУРСА ---
-            function drawRateHistoryChart() {
-                const canvas = document.getElementById('rateHistoryChart');
-                if (!canvas) {
-                    console.warn('Canvas rateHistoryChart не найден');
-                    return;
-                }
-                if (rateHistoryChart) {
-                    rateHistoryChart.destroy();
-                    rateHistoryChart = null;
-                }
-                const ctx = canvas.getContext('2d');
-                if (rateHistory.length < 2) {
-                    rateHistoryChart = new Chart(ctx, {
-                        type: 'line',
-                        data: {
-                            labels: [],
-                            datasets: [{
-                                label: 'Курс USD/RUB',
-                                data: [],
-                                borderColor: '#60a5fa',
-                                backgroundColor: 'rgba(96, 165, 250, 0.1)',
-                                borderWidth: 2,
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: true,
-                            plugins: {
-                                legend: { labels: { color: '#c8d0e0' } }
-                            }
-                        }
-                    });
-                    const originalDraw = rateHistoryChart.draw;
-                    rateHistoryChart.draw = function() {
-                        originalDraw.apply(this, arguments);
-                        const ctx2 = this.ctx;
-                        const chartArea = this.chartArea;
-                        if (this.data.datasets[0].data.length < 2) {
-                            ctx2.save();
-                            ctx2.fillStyle = '#7a8aa3';
-                            ctx2.font = '14px -apple-system, sans-serif';
-                            ctx2.textAlign = 'center';
-                            ctx2.textBaseline = 'middle';
-                            ctx2.fillText(
-                                rateHistory.length === 0 ? 'Нет данных курса' : 'Недостаточно точек (минимум 2)',
-                                (chartArea.left + chartArea.right) / 2,
-                                (chartArea.top + chartArea.bottom) / 2
-                            );
-                            ctx2.restore();
-                        }
-                    };
-                    rateHistoryChart.update();
-                    return;
-                }
-                const labels = rateHistory.map(item => {
-                    const d = item.date;
-                    return d.toLocaleDateString('ru-RU') + ' ' + d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-                });
-                const data = rateHistory.map(item => item.rate);
-                rateHistoryChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Курс USD/RUB',
-                            data: data,
-                            borderColor: '#60a5fa',
-                            backgroundColor: 'rgba(96, 165, 250, 0.1)',
-                            borderWidth: 2,
-                            pointBackgroundColor: '#60a5fa',
-                            pointRadius: 2,
-                            tension: 0.2,
-                            fill: true,
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: { labels: { color: '#c8d0e0' } },
-                            tooltip: {
-                                callbacks: {
-                                    label: ctx => ctx.parsed.y.toFixed(2) + ' ₽'
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                ticks: { color: '#8b9bb5', callback: v => v.toFixed(2) + ' ₽' }
-                            },
-                            x: {
-                                ticks: { color: '#8b9bb5', maxTicksLimit: 15, maxRotation: 30, autoSkip: true }
-                            }
-                        }
-                    }
-                });
-                console.log('✅ График курса отрисован');
-            }
+function updateBalanceBlock() {
+  if (!allTransactions.length) {
+    document.getElementById('totalBalanceRubDisplay').textContent = '0 ₽';
+    document.getElementById('totalBalanceUsdDisplay').textContent = '0 $';
+    document.getElementById('monthIncomeDisplay').textContent = '↑ 0';
+    document.getElementById('monthExpenseDisplay').textContent = '↓ 0';
+    const now = new Date();
+    const fD = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lD = new Date(now.getFullYear(), now.getMonth()+1, 0);
+    document.getElementById('periodDisplay').textContent = fD.toLocaleDateString('ru-RU') + ' — ' + lD.toLocaleDateString('ru-RU');
+    return;
+  }
+  let uI = 0, uE = 0, rI = 0, rE = 0;
+  for (const tx of allTransactions) {
+    if (tx.type === 'income') { if (tx.usd > 0) uI += tx.usd; else rI += tx.rub; }
+    else { if (tx.usd > 0) uE += tx.usd; else rE += tx.rub; }
+  }
+  const netUsd = uI - uE, netRub = rI - rE;
+  const total = netRub + netUsd * currentUsdRate;
+  const now = new Date();
+  const mS = new Date(now.getFullYear(), now.getMonth(), 1);
+  const mE = new Date(now.getFullYear(), now.getMonth()+1, 0);
+  const mTxs = allTransactions.filter(tx => tx.date >= mS && tx.date <= mE);
+  let mI = 0, mE2 = 0;
+  for (const tx of mTxs) {
+    if (tx.type === 'income') mI += tx.usd > 0 ? tx.usd * currentUsdRate : tx.rub;
+    else mE2 += tx.usd > 0 ? tx.usd * currentUsdRate : tx.rub;
+  }
+  document.getElementById('periodDisplay').textContent = mS.toLocaleDateString('ru-RU') + ' — ' + mE.toLocaleDateString('ru-RU');
+  document.getElementById('totalBalanceRubDisplay').textContent = total.toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2}) + ' ₽';
+  document.getElementById('totalBalanceUsdDisplay').textContent = netUsd.toFixed(2) + ' $';
+  document.getElementById('monthIncomeDisplay').textContent = '↑ ' + mI.toLocaleString('ru-RU');
+  document.getElementById('monthExpenseDisplay').textContent = '↓ ' + mE2.toLocaleString('ru-RU');
+}
 
-            // --- РЕНДЕРИНГ ---
-            function renderDashboard(transactions, period) {
-                if (!transactions.length) {
-                    dashboard.classList.add('hidden');
-                    emptyState.classList.remove('hidden');
-                    return;
-                }
+function updateWithFilter(period) {
+  if (!dataLoaded) return;
+  const f = filterTransactions(allTransactions, period);
+  renderDashboard(f, period);
+  const names = { day:'за сегодня', week:'за последние 7 дней', month:'за последние 30 дней', all:'за всё время' };
+  periodLabel.textContent = names[period] || '';
+}
 
-                const rubIncome = transactions.filter(t => t.type === 'income' && t.usd === 0).reduce((s, t) => s + t.rub, 0);
-                const rubExpense = transactions.filter(t => t.type === 'expense' && t.usd === 0).reduce((s, t) => s + t.rub, 0);
-                const usdIncome = transactions.filter(t => t.type === 'income' && t.usd > 0).reduce((s, t) => s + t.usd, 0);
-                const usdExpense = transactions.filter(t => t.type === 'expense' && t.usd > 0).reduce((s, t) => s + t.usd, 0);
+function initData(txs) {
+  allTransactions = txs;
+  dataLoaded = true;
+  saveTransactions(txs);
+  filterBtns.forEach(b => b.classList.remove('disabled'));
+  document.querySelector(`.filter-btn[data-period="${currentFilter}"]`)?.classList.add('active');
+  updateWithFilter(currentFilter);
+  if (!autoUpdateTimer) startAutoUpdate();
+}
 
-                const totalIncomeRub = rubIncome + usdIncome * currentUsdRate;
-                const totalExpenseRub = rubExpense + usdExpense * currentUsdRate;
-                const netRub = totalIncomeRub - totalExpenseRub;
+// ============ ГРАФИК КУРСА ============
+function drawRateHistoryChart() {
+  const c = document.getElementById('rateHistoryChart');
+  if (!c) return;
+  if (rateHistoryChart) { rateHistoryChart.destroy(); rateHistoryChart = null; }
+  const ctx = c.getContext('2d');
+  if (rateHistory.length < 2) {
+    rateHistoryChart = new Chart(ctx, { type:'line', data:{labels:[],datasets:[{label:'Курс',data:[],borderColor:'#60a5fa',borderWidth:2}]},
+      options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'#c8d0e0'}}}}});
+    const orig = rateHistoryChart.draw;
+    rateHistoryChart.draw = function() {
+      orig.apply(this, arguments);
+      const c2 = this.ctx, a = this.chartArea;
+      if (this.data.datasets[0].data.length < 2) {
+        c2.save(); c2.fillStyle = '#7a8aa3'; c2.font = '14px -apple-system,sans-serif';
+        c2.textAlign = 'center'; c2.textBaseline = 'middle';
+        c2.fillText('Нет данных курса', (a.left+a.right)/2, (a.top+a.bottom)/2);
+        c2.restore();
+      }
+    };
+    rateHistoryChart.update();
+    return;
+  }
+  rateHistoryChart = new Chart(ctx, {
+    type:'line',
+    data: { labels: rateHistory.map(x => x.date.toLocaleDateString('ru-RU') + ' ' + x.date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})),
+      datasets:[{ label:'Курс USD/RUB', data: rateHistory.map(x => x.rate), borderColor:'#60a5fa', backgroundColor:'rgba(96,165,250,0.1)', borderWidth:2, pointBackgroundColor:'#60a5fa', pointRadius:2, tension:0.2, fill:true }] },
+    options: { responsive:true, maintainAspectRatio:true,
+      plugins:{ legend:{labels:{color:'#c8d0e0'}}, tooltip:{callbacks:{label:c => c.parsed.y.toFixed(2) + ' ₽'}} },
+      scales:{ y:{ticks:{color:'#8b9bb5',callback:v => v.toFixed(2) + ' ₽'}}, x:{ticks:{color:'#8b9bb5',maxTicksLimit:15,maxRotation:30,autoSkip:true}} } }
+  });
+}
 
-                const now = new Date();
-                const dayStart = new Date(now);
-                dayStart.setHours(0, 0, 0, 0);
-                const weekStart = new Date(now);
-                weekStart.setDate(now.getDate() - 7);
-                weekStart.setHours(0, 0, 0, 0);
-                const monthStart = new Date(now);
-                monthStart.setMonth(now.getMonth() - 1);
-                monthStart.setHours(0, 0, 0, 0);
+// ============ КУРС ============
+function setRate(rate) {
+  if (isNaN(rate) || rate <= 0) { alert('Введите корректный курс'); return; }
+  const old = currentUsdRate;
+  currentUsdRate = rate;
+  saveRate(rate);
+  document.getElementById('rateInfo').textContent = `1 USD = ${rate.toFixed(2)} ₽`;
+  document.getElementById('rateInfoSmall').textContent = `1 USD = ${rate.toFixed(2)} ₽`;
+  const diff = ((rate - old) / old * 100).toFixed(2);
+  const rc = document.getElementById('rateChangeInfo');
+  rc.textContent = diff >= 0 ? `📈 +${diff}%` : `📉 ${diff}%`;
+  rc.style.color = diff >= 0 ? '#4ade80' : '#f87171';
+  updateWithFilter(currentFilter);
+  updateBalanceBlock();
+}
 
-                function calcPeriod(start) {
-                    const filtered = transactions.filter(t => t.date >= start);
-                    const rInc = filtered.filter(t => t.type === 'income' && t.usd === 0).reduce((s, t) => s + t.rub, 0);
-                    const rExp = filtered.filter(t => t.type === 'expense' && t.usd === 0).reduce((s, t) => s + t.rub, 0);
-                    const uInc = filtered.filter(t => t.type === 'income' && t.usd > 0).reduce((s, t) => s + t.usd, 0);
-                    const uExp = filtered.filter(t => t.type === 'expense' && t.usd > 0).reduce((s, t) => s + t.usd, 0);
-                    return { incRub: rInc + uInc * currentUsdRate, expRub: rExp + uExp * currentUsdRate };
-                }
+// ============ ЗАГРУЗКА ============
+async function loadData(showStatus = true) {
+  if (showStatus) fileStatus.textContent = '⏳ Загрузка...';
+  const stored = loadTransactions();
+  if (stored && stored.length) {
+    initData(stored);
+    if (showStatus) fileStatus.textContent = `📂 Загружено из кэша: ${stored.length}`;
+    return true;
+  }
+  try {
+    const r = await fetch('stats2.json?t=' + Date.now(), { cache:'no-store' });
+    if (!r.ok) throw new Error('Файл не найден');
+    const txt = await r.text();
+    const txs = parseData(txt);
+    if (txs.length) { initData(txs); if (showStatus) fileStatus.textContent = `✅ Загружено с GitHub: ${txs.length}`; return true; }
+  } catch(e) { console.warn(e.message); }
+  return false;
+}
 
-                const day = calcPeriod(dayStart);
-                const week = calcPeriod(weekStart);
-                const month = calcPeriod(monthStart);
+async function loadRateHistoryFromServer(showStatus = false) {
+  if (showStatus) fileStatus.textContent = '⏳ Загрузка rate.json...';
+  try {
+    const r = await fetch('https://raw.githubusercontent.com/arturskvortsov-boop/finance-dashboard/main/rate.json?t=' + Date.now(), { cache:'no-store' });
+    if (!r.ok) throw new Error('rate.json не найден');
+    const txt = await r.text();
+    let history = [];
+    try { const j = JSON.parse(txt); if (j.text) history = parseRateHistory(j.text); else history = parseRateHistory(txt); }
+    catch { history = parseRateHistory(txt); }
+    if (history.length) {
+      rateHistory = history;
+      saveRateHistory(history);
+      setRate(history[history.length-1].rate);
+      document.getElementById('usdRateInput').value = history[history.length-1].rate.toFixed(2);
+      if (showStatus) fileStatus.textContent = `✅ Курс: ${history.length} записей`;
+      drawRateHistoryChart();
+      return true;
+    }
+  } catch(e) { console.warn(e.message); if (showStatus) fileStatus.textContent = '❌ rate.json не найден'; }
+  const stored = loadRateHistory();
+  if (stored && stored.length) {
+    rateHistory = stored;
+    setRate(stored[stored.length-1].rate);
+    document.getElementById('usdRateInput').value = stored[stored.length-1].rate.toFixed(2);
+    drawRateHistoryChart();
+    return true;
+  }
+  return false;
+}
 
-                document.getElementById('totalIncomeRubOnly').textContent = rubIncome.toLocaleString('ru-RU') + ' ₽';
-                document.getElementById('totalExpenseRubOnly').textContent = rubExpense.toLocaleString('ru-RU') + ' ₽';
-                document.getElementById('totalIncomeUsd').textContent = usdIncome.toLocaleString('ru-RU') + ' $';
-                document.getElementById('totalExpenseUsd').textContent = usdExpense.toLocaleString('ru-RU') + ' $';
-                document.getElementById('totalIncomeRubTotal').textContent = totalIncomeRub.toLocaleString('ru-RU') + ' ₽';
-                document.getElementById('totalExpenseRubTotal').textContent = totalExpenseRub.toLocaleString('ru-RU') + ' ₽';
-                const netEl = document.getElementById('netIncome');
-                netEl.textContent = netRub.toLocaleString('ru-RU') + ' ₽';
-                netEl.style.color = netRub >= 0 ? '#4ade80' : '#f87171';
-                document.getElementById('recordCount').textContent = transactions.length;
+// ============ МОДАЛКА: ТРАНЗАКЦИЯ ============
+const txModal = document.getElementById('txModal');
+const tokenModal = document.getElementById('tokenModal');
+const txCategory = document.getElementById('txCategory');
+let currentTxType = 'income';
 
-                let totalRateDiff = 0;
-                for (const tx of transactions) {
-                    if (tx.usd > 0) {
-                        totalRateDiff += (tx.usd * currentUsdRate - tx.rub);
-                    }
-                }
-                document.getElementById('rateProfit').textContent = (totalRateDiff >= 0 ? '+' : '') + totalRateDiff
-                    .toLocaleString('ru-RU') + ' ₽';
-                document.getElementById('rateProfit').style.color = totalRateDiff >= 0 ? '#4ade80' : '#f87171';
+function fillCategories(type) {
+  const list = type === 'income' ? CATEGORIES_INCOME : CATEGORIES_EXPENSE;
+  txCategory.innerHTML = '';
+  for (const c of list) { const o = document.createElement('option'); o.value = c; o.textContent = c; txCategory.appendChild(o); }
+}
 
-                const formatNum = (num) => num.toLocaleString('ru-RU');
-                document.getElementById('dayIncome').textContent = (day.incRub >= 0 ? '+' : '') + formatNum(day.incRub);
-                document.getElementById('dayExpense').textContent = (day.expRub >= 0 ? '-' : '') + formatNum(day.expRub);
-                document.getElementById('weekIncome').textContent = (week.incRub >= 0 ? '+' : '') + formatNum(week.incRub);
-                document.getElementById('weekExpense').textContent = (week.expRub >= 0 ? '-' : '') + formatNum(week.expRub);
-                document.getElementById('monthIncome').textContent = (month.incRub >= 0 ? '+' : '') + formatNum(month.incRub);
-                document.getElementById('monthExpense').textContent = (month.expRub >= 0 ? '-' : '') + formatNum(month.expRub);
+function openTxModal(editIdx = -1) {
+  editingIndex = editIdx;
+  const title = document.getElementById('txModalTitle');
+  if (editIdx >= 0) {
+    const tx = allTransactions[editIdx];
+    title.textContent = '✏️ Редактировать';
+    currentTxType = tx.type;
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === tx.type));
+    fillCategories(tx.type);
+    document.getElementById('txRub').value = tx.rub || '';
+    document.getElementById('txUsd').value = tx.usd || '';
+    document.getElementById('txNote').value = (tx.note && tx.note !== '-') ? tx.note : '';
+    const d = tx.date;
+    const pad = n => String(n).padStart(2,'0');
+    document.getElementById('txDateTime').value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    // выбрать категорию, если есть
+    if (tx.category) {
+      // Добавим в список, если нет
+      const exists = Array.from(txCategory.options).some(o => o.value === tx.category);
+      if (!exists) { const o = document.createElement('option'); o.value = tx.category; o.textContent = tx.category; txCategory.appendChild(o); }
+      txCategory.value = tx.category;
+    }
+  } else {
+    title.textContent = '➕ Новая транзакция';
+    currentTxType = 'income';
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === 'income'));
+    fillCategories('income');
+    document.getElementById('txRub').value = '';
+    document.getElementById('txUsd').value = '';
+    document.getElementById('txNote').value = '';
+    const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    document.getElementById('txDateTime').value = now.toISOString().slice(0,16);
+  }
+  txModal.classList.add('open');
+}
+function closeTxModal() { txModal.classList.remove('open'); editingIndex = -1; }
 
-                // --- ГРАФИКИ ---
-                const dailyMap = {};
-                for (const tx of transactions) {
-                    const key = tx.dateStr;
-                    if (!dailyMap[key]) dailyMap[key] = { income: 0, expense: 0 };
-                    if (tx.type === 'income') {
-                        const rubVal = tx.usd > 0 ? tx.usd * currentUsdRate : tx.rub;
-                        dailyMap[key].income += rubVal;
-                    } else {
-                        const rubVal = tx.usd > 0 ? tx.usd * currentUsdRate : tx.rub;
-                        dailyMap[key].expense += rubVal;
-                    }
-                }
-                const sortedKeys = Object.keys(dailyMap).sort();
-                const labels = sortedKeys;
-                const incomeData = sortedKeys.map(k => dailyMap[k].income);
-                const expenseData = sortedKeys.map(k => dailyMap[k].expense);
+addTxBtn.addEventListener('click', () => openTxModal(-1));
+document.getElementById('closeTxModal').addEventListener('click', closeTxModal);
+document.getElementById('cancelTxBtn').addEventListener('click', closeTxModal);
 
-                if (dailyChart) dailyChart.destroy();
-                if (expensePieChart) expensePieChart.destroy();
-                if (incomePieChart) incomePieChart.destroy();
+document.querySelectorAll('.type-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    currentTxType = this.dataset.type;
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    fillCategories(currentTxType);
+  });
+});
 
-                const ctxDaily = document.getElementById('dailyChart').getContext('2d');
-                dailyChart = new Chart(ctxDaily, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Доход',
-                            data: incomeData,
-                            backgroundColor: 'rgba(74, 222, 128, 0.6)',
-                            borderColor: 'rgba(74, 222, 128, 1)',
-                            borderWidth: 1,
-                            borderRadius: 4,
-                        }, {
-                            label: 'Расход',
-                            data: expenseData,
-                            backgroundColor: 'rgba(248, 113, 113, 0.6)',
-                            borderColor: 'rgba(248, 113, 113, 1)',
-                            borderWidth: 1,
-                            borderRadius: 4,
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: { labels: { color: '#c8d0e0' } },
-                            tooltip: {
-                                callbacks: {
-                                    label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString('ru-RU') +
-                                        ' ₽'
-                                }
-                            }
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: { color: '#8b9bb5', callback: v => v.toLocaleString('ru-RU') + ' ₽' }
-                            },
-                            x: { ticks: { color: '#8b9bb5', maxRotation: 45, autoSkip: true } }
-                        }
-                    }
-                });
+// ============ СОХРАНЕНИЕ (добавление/редактирование) ============
+document.getElementById('saveTxBtn').addEventListener('click', function() {
+  const rub = parseFloat(document.getElementById('txRub').value) || 0;
+  const usd = parseFloat(document.getElementById('txUsd').value) || 0;
+  const category = txCategory.value;
+  const note = document.getElementById('txNote').value.trim() || '-';
+  const dtVal = document.getElementById('txDateTime').value;
+  if (rub <= 0 && usd <= 0) { alert('Введите хотя бы одну сумму'); return; }
+  if (!dtVal) { alert('Укажите дату и время'); return; }
+  const dt = new Date(dtVal);
+  const d = String(dt.getDate()).padStart(2,'0');
+  const mo = String(dt.getMonth()+1).padStart(2,'0');
+  const y = dt.getFullYear();
+  const h = String(dt.getHours()).padStart(2,'0');
+  const mi = String(dt.getMinutes()).padStart(2,'0');
+  const dateStr = `${d}.${mo}.${y}, ${h}:${mi}`;
+  const typeLabel = currentTxType === 'income' ? '🟢 ДОХОД' : '🔴 РАСХОД';
+  const usdLabel = usd > 0 ? `${usd} Долларов 🇺🇸` : `0 Долларов 🇺🇸`;
+  const rubLabel = `${rub} Рублей 🇷🇺`;
+  const line = `${typeLabel} | ${dateStr} | ${usdLabel}  -> ${rubLabel} | ${category} | ${note}`;
 
-                // Доходы по категориям (слева)
-                const incomeCat = aggregateByCategory(transactions, 'income');
-                const ctxIncome = document.getElementById('incomePieChart').getContext('2d');
-                incomePieChart = new Chart(ctxIncome, {
-                    type: 'doughnut',
-                    data: {
-                        labels: incomeCat.map(d => d.label),
-                        datasets: [{
-                            data: incomeCat.map(d => d.value),
-                            backgroundColor: [
-                                '#4ade80', '#facc15', '#60a5fa', '#c084fc', '#fb923c',
-                                '#f472b6', '#2dd4bf', '#a3a3a3', '#e879f9', '#34d399'
-                            ],
-                            borderColor: '#111',
-                            borderWidth: 2,
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: ctx => {
-                                        const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                                        const pct = ((ctx.parsed / total) * 100).toFixed(1);
-                                        return ctx.label + ': ' + ctx.parsed.toLocaleString('ru-RU') + ' ₽ (' +
-                                            pct + '%)';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
+  const newTx = parseLine(line);
+  if (!newTx) { alert('Ошибка при разборе строки'); return; }
 
-                // Расходы по категориям (справа)
-                const expenseCat = aggregateByCategory(transactions, 'expense');
-                const ctxExpense = document.getElementById('expensePieChart').getContext('2d');
-                expensePieChart = new Chart(ctxExpense, {
-                    type: 'doughnut',
-                    data: {
-                        labels: expenseCat.map(d => d.label),
-                        datasets: [{
-                            data: expenseCat.map(d => d.value),
-                            backgroundColor: [
-                                '#f87171', '#fbbf24', '#34d399', '#60a5fa', '#a78bfa',
-                                '#fb923c', '#f472b6', '#2dd4bf', '#e879f9', '#facc15'
-                            ],
-                            borderColor: '#111',
-                            borderWidth: 2,
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: ctx => {
-                                        const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
-                                        const pct = ((ctx.parsed / total) * 100).toFixed(1);
-                                        return ctx.label + ': ' + ctx.parsed.toLocaleString('ru-RU') + ' ₽ (' +
-                                            pct + '%)';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
+  if (editingIndex >= 0) {
+    // Редактирование
+    const oldTx = allTransactions[editingIndex];
+    allTransactions[editingIndex] = newTx;
+    // Добавляем операцию в очередь
+    const pending = loadPending();
+    pending.push({ op: 'edit', oldTs: oldTx.date.getTime(), newLine: line });
+    savePending(pending);
+    fileStatus.textContent = `✏️ Отредактировано (${pending.length} в очереди)`;
+  } else {
+    // Добавление
+    allTransactions.push(newTx);
+    const pending = loadPending();
+    pending.push({ op: 'add', newLine: line });
+    savePending(pending);
+    fileStatus.textContent = `➕ Добавлено (${pending.length} в очереди)`;
+  }
+  saveTransactions(allTransactions);
+  updateWithFilter(currentFilter);
+  closeTxModal();
+});
 
-                // --- СПИСКИ КАТЕГОРИЙ ПОД ДИАГРАММАМИ ---
-                const incomeList = document.getElementById('incomeCategoryList');
-                incomeList.innerHTML = '';
-                const totalIncome = incomeCat.reduce((s, item) => s + item.value, 0);
-                for (const item of incomeCat) {
-                    const pct = totalIncome ? ((item.value / totalIncome) * 100).toFixed(1) : 0;
-                    const div = document.createElement('div');
-                    div.className = 'cat-item';
-                    div.innerHTML = `<span>${item.label}</span><span class="value">${item.value.toLocaleString('ru-RU')} ₽ (${pct}%)</span>`;
-                    incomeList.appendChild(div);
-                }
+// ============ РЕДАКТИРОВАНИЕ ============
+function editTransaction(i) { openTxModal(i); }
 
-                const expenseList = document.getElementById('expenseCategoryList');
-                expenseList.innerHTML = '';
-                const totalExpense = expenseCat.reduce((s, item) => s + item.value, 0);
-                for (const item of expenseCat) {
-                    const pct = totalExpense ? ((item.value / totalExpense) * 100).toFixed(1) : 0;
-                    const div = document.createElement('div');
-                    div.className = 'cat-item';
-                    div.innerHTML = `<span>${item.label}</span><span class="value">${item.value.toLocaleString('ru-RU')} ₽ (${pct}%)</span>`;
-                    expenseList.appendChild(div);
-                }
+// ============ УДАЛЕНИЕ ============
+function deleteTransaction(i) {
+  const tx = allTransactions[i];
+  if (!confirm(`Удалить транзакцию?\n${tx.category}\n${tx.rub} ₽ от ${tx.date.toLocaleDateString('ru-RU')}`)) return;
+  const removed = allTransactions.splice(i, 1)[0];
+  const pending = loadPending();
+  pending.push({ op: 'delete', ts: removed.date.getTime(), line: null });
+  savePending(pending);
+  saveTransactions(allTransactions);
+  updateWithFilter(currentFilter);
+  fileStatus.textContent = `🗑️ Удалено (${pending.length} в очереди)`;
+}
 
-                // --- ИСТОРИЯ ТРАНЗАКЦИЙ ---
-                const sorted = [...transactions].sort((a, b) => b.date.getTime() - a.date.getTime());
-                const list = document.getElementById('transactionList');
-                list.innerHTML = '';
-                const slice = sorted.slice(0, 20);
-                for (const tx of slice) {
-                    const div = document.createElement('div');
-                    div.className = 'tx-item';
-                    const left = document.createElement('div');
-                    left.className = 'left';
-                    const cat = document.createElement('span');
-                    cat.className = 'cat';
-                    cat.textContent = tx.category;
-                    const date = document.createElement('span');
-                    date.className = 'date';
-                    date.textContent = tx.date.toLocaleDateString('ru-RU') + ' ' + tx.date.toLocaleTimeString('ru-RU', {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    });
-                    left.appendChild(cat);
-                    left.appendChild(date);
-                    if (tx.note) {
-                        const note = document.createElement('span');
-                        note.className = 'note';
-                        note.textContent = tx.note;
-                        left.appendChild(note);
-                    }
-                    const right = document.createElement('span');
-                    right.className = 'right ' + (tx.type === 'income' ? 'income' : 'expense');
-                    right.textContent = (tx.type === 'income' ? '+' : '-') + tx.rub.toLocaleString('ru-RU') + ' ₽' +
-                        (tx.usd > 0 ? ` (${tx.usd.toFixed(2)} $)` : '');
-                    div.appendChild(left);
-                    div.appendChild(right);
-                    list.appendChild(div);
-                }
+// ============ СИНХРОНИЗАЦИЯ С GITHUB ============
+syncBtn.addEventListener('click', async function() {
+  const pending = loadPending();
+  if (!pending.length && !allTransactions.length) {
+    fileStatus.textContent = 'ℹ️ Нет данных для синхронизации'; return;
+  }
+  const token = getToken();
+  if (!token) { tokenModal.classList.add('open'); return; }
+  fileStatus.textContent = '⏳ Синхронизация...';
+  try {
+    // Формируем итоговый текст из allTransactions
+    const lines = allTransactions.map(tx => {
+      const d = String(tx.date.getDate()).padStart(2,'0');
+      const mo = String(tx.date.getMonth()+1).padStart(2,'0');
+      const y = tx.date.getFullYear();
+      const h = String(tx.date.getHours()).padStart(2,'0');
+      const mi = String(tx.date.getMinutes()).padStart(2,'0');
+      const dateStr = `${d}.${mo}.${y}, ${h}:${mi}`;
+      const typeLabel = tx.type === 'income' ? '🟢 ДОХОД' : '🔴 РАСХОД';
+      const usdLabel = tx.usd > 0 ? `${tx.usd} Долларов 🇺🇸` : `0 Долларов 🇺🇸`;
+      const rubLabel = `${tx.rub} Рублей 🇷🇺`;
+      const note = tx.note || '-';
+      return `${typeLabel} | ${dateStr} | ${usdLabel}  -> ${rubLabel} | ${tx.category} | ${note}`;
+    });
+    const newText = lines.join('\n');
+    const updatedJson = JSON.stringify({ text: newText });
 
-                dashboard.classList.remove('hidden');
-                emptyState.classList.add('hidden');
-            }
+    // Получаем SHA
+    const getR = await fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/stats2.json', {
+      headers: { 'Authorization': 'token ' + token }, cache:'no-store'
+    });
+    if (!getR.ok) throw new Error('GET: HTTP ' + getR.status);
+    const meta = await getR.json();
+    const sha = meta.sha;
 
-            function updateWithFilter(period) {
-                if (!dataLoaded) return;
-                const filtered = filterTransactions(allTransactions, period);
-                renderDashboard(filtered, period);
-                const periodNames = { day: 'за сегодня', week: 'за последние 7 дней', month: 'за последние 30 дней' };
-                periodLabel.textContent = periodNames[period] || '';
-                updateBalanceBlock();
-            }
+    // PUT
+    const updatedB64 = btoa(unescape(encodeURIComponent(updatedJson)));
+    const putR = await fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/stats2.json', {
+      method:'PUT',
+      headers: { 'Authorization':'token ' + token, 'Content-Type':'application/json' },
+      body: JSON.stringify({ message: `Синхронизация из PWA (${allTransactions.length} записей)`, content: updatedB64, sha })
+    });
+    if (!putR.ok) { const e = await putR.json().catch(()=>({})); throw new Error('PUT: ' + (e.message || putR.status)); }
 
-            function initData(transactions) {
-                allTransactions = transactions;
-                dataLoaded = true;
-                saveTransactions(transactions);
-                filterBtns.forEach(btn => btn.classList.remove('disabled'));
-                document.querySelector(`.filter-btn[data-period="${currentFilter}"]`)?.classList.add('active');
-                updateWithFilter(currentFilter);
-                updateBalanceBlock();
-                if (!autoUpdateTimer) startAutoUpdate();
-            }
+    savePending([]);
+    fileStatus.textContent = `✅ Синхронизировано: ${allTransactions.length} записей`;
+    setTimeout(() => { if (dataLoaded) fileStatus.textContent = `✅ ${allTransactions.length} записей`; }, 3000);
+  } catch(e) {
+    console.error(e);
+    fileStatus.textContent = '❌ ' + e.message;
+  }
+});
 
-            function startAutoUpdate() {
-                if (autoUpdateTimer) clearInterval(autoUpdateTimer);
-                autoUpdateTimer = setInterval(async function() {
-                    if (!dataLoaded) return;
-                    fileStatus.textContent = '⏳ Проверка обновлений...';
-                    try {
-                        const url = 'stats2.json?t=' + Date.now();
-                        const response = await fetch(url, { cache: 'no-store' });
-                        if (!response.ok) throw new Error('Файл не найден');
-                        const content = await response.text();
-                        const transactions = parseData(content);
-                        if (transactions.length && transactions.length !== allTransactions.length) {
-                            initData(transactions);
-                            fileStatus.textContent = `✅ Обновлено: ${transactions.length} записей`;
-                        } else {
-                            fileStatus.textContent = `✅ Данные актуальны (${allTransactions.length} записей)`;
-                        }
-                    } catch (e) {
-                        console.warn('Автообновление не удалось:', e.message);
-                        fileStatus.textContent = `⚠️ Ошибка обновления: ${e.message}`;
-                    }
-                    setTimeout(() => {
-                        if (dataLoaded) {
-                            fileStatus.textContent = `✅ ${allTransactions.length} записей`;
-                        }
-                    }, 3000);
-                }, 60000);
-            }
+// ============ ТОКЕН ============
+document.getElementById('closeTokenModal').addEventListener('click', () => tokenModal.classList.remove('open'));
+document.getElementById('cancelTokenBtn').addEventListener('click', () => tokenModal.classList.remove('open'));
+document.getElementById('saveTokenBtn').addEventListener('click', function() {
+  const t = document.getElementById('githubTokenInput').value.trim();
+  if (!t) { alert('Введите токен'); return; }
+  setToken(t);
+  tokenModal.classList.remove('open');
+  fileStatus.textContent = '✅ Токен сохранён. Нажмите «Синхронизировать» ещё раз.';
+});
 
-            // --- СОБЫТИЯ ---
-            clearDataBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                if (confirm('Удалить все сохранённые данные?')) {
-                    clearStoredData();
-                }
-            });
+// ============ СОБЫТИЯ ============
+clearDataBtn.addEventListener('click', function(e) {
+  e.preventDefault();
+  if (confirm('Удалить все сохранённые данные?')) {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(RATE_STORAGE_KEY);
+    localStorage.removeItem(RATE_HISTORY_KEY);
+    localStorage.removeItem(PENDING_KEY);
+    allTransactions = [];
+    rateHistory = [];
+    dataLoaded = false;
+    dashboard.classList.add('hidden');
+    emptyState.classList.remove('hidden');
+    filterBtns.forEach(b => b.classList.add('disabled'));
+    if (dailyChart) { dailyChart.destroy(); dailyChart = null; }
+    if (expensePieChart) { expensePieChart.destroy(); expensePieChart = null; }
+    if (incomePieChart) { incomePieChart.destroy(); incomePieChart = null; }
+    if (rateHistoryChart) { rateHistoryChart.destroy(); rateHistoryChart = null; }
+    if (autoUpdateTimer) { clearInterval(autoUpdateTimer); autoUpdateTimer = null; }
+    fileStatus.textContent = '🗑️ Данные очищены';
+  }
+});
 
-            refreshBtn.addEventListener('click', async function(e) {
-                e.preventDefault();
-                fileStatus.textContent = '⏳ Обновление...';
-                const loaded = await loadData(true);
-                if (!loaded) {
-                    fileStatus.textContent = '❌ Не удалось загрузить данные';
-                }
-            });
+refreshBtn.addEventListener('click', async function(e) {
+  e.preventDefault();
+  fileStatus.textContent = '⏳ Обновление...';
+  // Сбросим локальные данные и загрузим заново
+  localStorage.removeItem(STORAGE_KEY);
+  const ok = await loadData(true);
+  if (!ok) fileStatus.textContent = '❌ Не удалось загрузить';
+});
 
-            loadRateBtn.addEventListener('click', async function(e) {
-                e.preventDefault();
-                await loadRateHistoryFromServer(true);
-            });
+loadRateBtn.addEventListener('click', async function(e) { e.preventDefault(); await loadRateHistoryFromServer(true); });
+refreshRateChartBtn.addEventListener('click', function(e) { e.preventDefault(); drawRateHistoryChart(); fileStatus.textContent = '🔄 График курса обновлён'; });
 
-            refreshRateChartBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                drawRateHistoryChart();
-                fileStatus.textContent = '🔄 График курса обновлён';
-                setTimeout(() => {
-                    if (dataLoaded) fileStatus.textContent = `✅ ${allTransactions.length} записей`;
-                }, 2000);
-            });
+usdRateInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') setRate(parseFloat(this.value)); });
+updateRateBtn.addEventListener('click', function() { setRate(parseFloat(usdRateInput.value)); });
 
-            usdRateInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    const val = parseFloat(this.value);
-                    setRate(val);
-                }
-            });
-            updateRateBtn.addEventListener('click', function() {
-                const val = parseFloat(usdRateInput.value);
-                setRate(val);
-            });
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', function() {
+    if (this.classList.contains('disabled')) return;
+    filterBtns.forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    currentFilter = this.dataset.period;
+    if (dataLoaded) updateWithFilter(currentFilter);
+  });
+});
 
-            filterBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    if (this.classList.contains('disabled')) return;
-                    filterBtns.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                    currentFilter = this.dataset.period;
-                    if (dataLoaded) updateWithFilter(currentFilter);
-                });
-            });
+document.querySelectorAll('.collapsible-header').forEach(h => {
+  h.addEventListener('click', function() {
+    const c = document.getElementById(this.dataset.target);
+    const t = this.querySelector('.toggle');
+    const p = this.closest('.collapsible');
+    if (c) { c.classList.toggle('open'); t.classList.toggle('open'); p.classList.toggle('closed'); }
+  });
+});
 
-            document.querySelectorAll('.collapsible-header').forEach(header => {
-                header.addEventListener('click', function() {
-                    const targetId = this.dataset.target;
-                    const content = document.getElementById(targetId);
-                    const toggle = this.querySelector('.toggle');
-                    const parent = this.closest('.collapsible');
-                    if (content) {
-                        const isOpen = content.classList.contains('open');
-                        if (isOpen) {
-                            content.classList.remove('open');
-                            toggle.classList.remove('open');
-                            parent.classList.add('closed');
-                        } else {
-                            content.classList.add('open');
-                            toggle.classList.add('open');
-                            parent.classList.remove('closed');
-                        }
-                    }
-                });
-            });
+// ============ АВТООБНОВЛЕНИЕ ============
+function startAutoUpdate() {
+  if (autoUpdateTimer) clearInterval(autoUpdateTimer);
+  autoUpdateTimer = setInterval(async function() {
+    if (!dataLoaded) return;
+    try {
+      const r = await fetch('stats2.json?t=' + Date.now(), { cache:'no-store' });
+      if (!r.ok) return;
+      const txt = await r.text();
+      const txs = parseData(txt);
+      if (txs.length && txs.length !== allTransactions.length) {
+        allTransactions = txs;
+        saveTransactions(txs);
+        updateWithFilter(currentFilter);
+        fileStatus.textContent = `✅ Обновлено: ${txs.length}`;
+        setTimeout(() => { if (dataLoaded) fileStatus.textContent = `✅ ${allTransactions.length} записей`; }, 3000);
+      }
+    } catch(e) {}
+  }, 60000);
+}
 
-            // --- ЗАПУСК ---
-            (async function start() {
-                loadRate();
-                const loaded = await loadData(true);
-                if (!loaded) {
-                    dashboard.classList.add('hidden');
-                    emptyState.classList.remove('hidden');
-                    fileStatus.textContent = '📂 Загрузите файл вручную или проверьте stats2.json на GitHub.';
-                }
-                await loadRateHistoryFromServer(false);
-                setTimeout(() => drawRateHistoryChart(), 500);
-            })();
+// ============ СТАРТ ============
+(async function start() {
+  const savedRate = loadRate();
+  if (savedRate) { currentUsdRate = savedRate; usdRateInput.value = savedRate.toFixed(2);
+    document.getElementById('rateInfo').textContent = `1 USD = ${savedRate.toFixed(2)} ₽`;
+    document.getElementById('rateInfoSmall').textContent = `1 USD = ${savedRate.toFixed(2)} ₽`; }
+  const loaded = await loadData(true);
+  if (!loaded) {
+    dashboard.classList.add('hidden');
+    emptyState.classList.remove('hidden');
+    fileStatus.textContent = '📂 Загрузите файл вручную или проверьте stats2.json на GitHub.';
+  }
+  await loadRateHistoryFromServer(false);
+  setTimeout(() => drawRateHistoryChart(), 500);
+  const pend = loadPending();
+  if (pend.length > 0) fileStatus.textContent = `⚠️ ${pend.length} операций ждут синхронизации`;
+})();
 
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js')
-                    .then(() => console.log('✅ Service Worker зарегистрирован'))
-                    .catch(err => console.log('❌ SW registration failed:', err));
-            }
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').then(() => console.log('✅ SW зарегистрирован')).catch(e => console.log('❌ SW:', e));
+}
 
-        })();
-    </script>
+})();
+</script>
 </body>
 </html>
