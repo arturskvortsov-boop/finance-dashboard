@@ -65,6 +65,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .quick-sums .group .sum.income { color:#4ade80; }
 .quick-sums .group .sum.expense { color:#f87171; }
 
+/* Сводка (инсайты) */
+.insights-block { background:#111; border-radius:14px; padding:14px 16px; border:1px solid #2a2a2a; margin-bottom:12px; }
+.insights-block h3 { font-weight:500; font-size:0.85rem; color:#c8d0e0; margin-bottom:10px; }
+.insight-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; }
+.insight-item { background:#1a1f2a; border-radius:12px; padding:10px 12px; border:1px solid #2a3344; }
+.insight-item .it-label { font-size:0.65rem; text-transform:uppercase; letter-spacing:0.3px; color:#8b9bb5; font-weight:500; margin-bottom:2px; }
+.insight-item .it-value { font-size:1rem; font-weight:600; color:#e8edf5; }
+.insight-item .it-sub { font-size:0.7rem; color:#8b9bb5; margin-top:2px; }
+.insight-item.income .it-value { color:#4ade80; }
+.insight-item.expense .it-value { color:#f87171; }
+.top-cat-list { margin-top:10px; }
+.top-cat-list .tc-item { display:flex; justify-content:space-between; padding:4px 0; font-size:0.75rem; border-bottom:1px solid #232b3b; }
+.top-cat-list .tc-item:last-child { border-bottom:none; }
+.top-cat-list .tc-item .tc-name { color:#c8d0e0; }
+.top-cat-list .tc-item .tc-value { color:#8b9bb5; font-weight:500; }
+
 /* Сворачиваемые блоки */
 .collapsible { margin-bottom:12px; border-radius:14px; border:1px solid #2a2a2a; overflow:hidden; background:#111; }
 .collapsible-header { display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding:8px 12px; background:#111; user-select:none; }
@@ -81,13 +97,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .charts-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 .chart-box { background:#111; border-radius:14px; padding:12px; border:1px solid #2a2a2a; }
 .chart-box h3 { font-weight:500; font-size:0.75rem; color:#c8d0e0; margin-bottom:8px; }
-.chart-box canvas { max-height:140px; max-width:100%; }
-.chart-box .category-list { margin-top:8px; font-size:0.65rem; color:#c8d0e0; line-height:1.4; max-height:100px; overflow-y:auto; }
+.chart-box canvas { max-height:160px; max-width:100%; }
+.chart-box .category-list { margin-top:8px; font-size:0.65rem; color:#c8d0e0; line-height:1.4; max-height:120px; overflow-y:auto; }
 .chart-box .category-list .cat-item { display:flex; justify-content:space-between; padding:2px 0; border-bottom:1px solid #232b3b; }
 .chart-box .category-list .cat-item:last-child { border-bottom:none; }
 .chart-box .category-list .cat-item .value { color:#8b9bb5; }
-.full-width { grid-column:1 / -1; }
-.full-width canvas { max-height:180px; }
 
 /* Курс */
 .rate-chart-box { background:#111; border-radius:14px; padding:12px; border:1px solid #2a2a2a; margin-bottom:12px; }
@@ -100,7 +114,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 /* История */
 .transactions { background:#111; border-radius:14px; padding:12px 14px; border:1px solid #2a2a2a; }
 .transactions h3 { font-weight:500; font-size:0.8rem; color:#c8d0e0; margin-bottom:8px; }
-.tx-list { max-height:340px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:#3b4a5e transparent; }
+.tx-list { max-height:400px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:#3b4a5e transparent; }
 .tx-list::-webkit-scrollbar { width:4px; }
 .tx-list::-webkit-scrollbar-thumb { background:#3b4a5e; border-radius:10px; }
 .tx-item { display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid #232b3b; font-size:0.7rem; gap:8px; }
@@ -147,11 +161,30 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .modal-btn.cancel { background:transparent; border-color:#2a3344; color:#8b9bb5; }
 .modal-btn.save { background:#fbbf24; color:#0b0e14; }
 .modal-btn.save:hover { background:#fcd34d; }
-.modal-btn.danger { background:#f87171; color:#0b0e14; }
-.modal-btn.danger:hover { background:#fca5a5; }
 .form-row { display:flex; flex-direction:column; gap:4px; margin-bottom:12px; }
 .form-row label { font-size:0.75rem; color:#8b9bb5; font-weight:500; }
-.form-row input, .form-row select { background:#1a1f2a; border:1px solid #2a3344; color:#e8edf5; padding:8px 12px; border-radius:10px; font-size:0.9rem; width:100%; }
+.form-row input,
+.form-row select {
+    background: #1a1f2a;
+    border: 1px solid #2a3344;
+    color: #e8edf5;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
+}
+.form-row input[type="datetime-local"] {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    font-size: 0.85rem;
+    padding: 8px 8px;
+}
 .form-row input:focus, .form-row select:focus { outline:none; border-color:#fbbf24; }
 .type-toggle { display:flex; gap:8px; }
 .type-btn { flex:1; padding:8px 12px; border-radius:10px; background:#1a1f2a; border:1px solid #2a3344; color:#8b9bb5; font-weight:600; font-size:0.85rem; cursor:pointer; transition:all 0.2s; }
@@ -160,7 +193,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 
 @media (max-width:900px) {
   .charts-row { grid-template-columns:1fr 1fr; }
-  .full-width { grid-column:1 / -1; }
   .stats-grid { grid-template-columns:1fr 1fr; }
   .stats-grid .stat-card:last-child { grid-column:span 2; }
 }
@@ -177,9 +209,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   .balance-card .top .amount { font-size:1.6rem; }
   .balance-card .bottom { flex-direction:column; align-items:stretch; gap:4px; }
   .balance-card .bottom .month-change { justify-content:space-around; }
-  .full-width canvas { max-height:150px; }
   #rateHistoryChart { height:150px !important; }
   .top-bar .actions { justify-content:center; }
+  .form-row input[type="datetime-local"] { font-size: 0.8rem; padding: 8px 6px; }
+  .modal-body { padding: 14px 12px; }
+  .modal { max-width: 100%; }
 }
 .footer { margin-top:16px; text-align:center; font-size:0.65rem; color:#5a6a80; border-top:1px solid #232b3b; padding-top:12px; }
 </style>
@@ -187,7 +221,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 <body>
 <div class="container">
 
-  <!-- ВЕРХНЯЯ ПАНЕЛЬ -->
   <div class="top-bar">
     <span class="status" id="fileStatus">📂 Загрузите файл</span>
     <div class="actions">
@@ -199,7 +232,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     </div>
   </div>
 
-  <!-- БАЛАНС -->
   <div class="balance-card">
     <div class="top">
       <span class="label">ЧИСТЫЙ БАЛАНС (на руках)</span>
@@ -218,7 +250,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     </div>
   </div>
 
-  <!-- ФИЛЬТРЫ -->
   <div class="filter-bar" id="filterBar">
     <button class="filter-btn disabled" data-period="day">День</button>
     <button class="filter-btn disabled" data-period="week">Неделя</button>
@@ -228,7 +259,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   </div>
 
   <div id="dashboard" class="hidden">
-    <!-- СТАТИСТИКА -->
     <div class="stats-grid">
       <div class="stat-card income"><div class="label">💰 Доход (RUB)</div><div class="value" id="totalIncomeRubOnly">0 ₽</div></div>
       <div class="stat-card balance"><div class="label">📈 Чистый баланс (RUB)</div><div class="value" id="netIncome">0 ₽</div></div>
@@ -243,21 +273,22 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <div class="stat-card count"><div class="label">📋 Записей</div><div class="value" id="recordCount">0</div></div>
     </div>
 
-    <!-- БЫСТРЫЕ ИТОГИ -->
     <div class="quick-sums">
       <div class="group"><div class="period-label">День</div><div class="sums-row"><span class="sum income" id="dayIncome">+0</span><span class="sum expense" id="dayExpense">-0</span></div></div>
       <div class="group"><div class="period-label">7 дней</div><div class="sums-row"><span class="sum income" id="weekIncome">+0</span><span class="sum expense" id="weekExpense">-0</span></div></div>
       <div class="group"><div class="period-label">Месяц</div><div class="sums-row"><span class="sum income" id="monthIncome">+0</span><span class="sum expense" id="monthExpense">-0</span></div></div>
     </div>
 
-    <!-- ГРАФИКИ -->
+    <!-- ИНСАЙТЫ (вместо графика динамики) -->
+    <div class="insights-block" id="insightsBlock">
+      <h3>💡 Сводка по периоду</h3>
+      <div class="insight-grid" id="insightGrid"></div>
+      <div class="top-cat-list" id="topCatList"></div>
+    </div>
+
     <div class="collapsible">
-      <div class="collapsible-header" data-target="chartsContent"><h3>📊 Графики</h3><span class="toggle open">▼</span></div>
+      <div class="collapsible-header" data-target="chartsContent"><h3>📊 Диаграммы по категориям</h3><span class="toggle open">▼</span></div>
       <div class="collapsible-content open" id="chartsContent">
-        <div class="chart-box full-width" style="border:none; margin-bottom:12px;">
-          <h3>📈 Динамика доходов и расходов (RUB)</h3>
-          <canvas id="dailyChart"></canvas>
-        </div>
         <div class="charts-row">
           <div class="chart-box" style="border:none;">
             <h3>🧩 Доходы по категориям</h3>
@@ -273,7 +304,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       </div>
     </div>
 
-    <!-- ИСТОРИЯ ТРАНЗАКЦИЙ -->
     <div class="collapsible">
       <div class="collapsible-header" data-target="transactionsContent"><h3>📋 История транзакций</h3><span class="toggle open">▼</span></div>
       <div class="collapsible-content open" id="transactionsContent">
@@ -283,7 +313,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       </div>
     </div>
 
-    <!-- КУРС -->
     <div class="rate-chart-box">
       <h3>📊 История курса USD/RUB</h3>
       <div class="rate-chart-controls"><button id="refreshRateChartBtn">🔄 Обновить график</button></div>
@@ -354,7 +383,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 (function() {
 'use strict';
 
-// ============ DOM ============
 const fileStatus = document.getElementById('fileStatus');
 const clearDataBtn = document.getElementById('clearDataBtn');
 const refreshBtn = document.getElementById('refreshBtn');
@@ -377,21 +405,18 @@ const RATE_HISTORY_KEY = 'rateHistory';
 const PENDING_KEY = 'financePendingOps';
 const TOKEN_KEY = 'githubPersonalToken';
 
-// ============ Категории ============
 const CATEGORIES_INCOME = ['💰 Зарплата','🗓 Продажа','🎁 Подарок','💵 Другое'];
 const CATEGORIES_EXPENSE = ['🚘 Автомобиль (Ремонт, заправки)','🍔 Еда (Доставки, супермаркет и т.п.)','🏚️ Ипотека','☕️ Кафе и рестораны','🎢 Развлечения (Кино, концерты, игры)','🛍 Покупки (Одежда, техника)','💊 Здоровье (Врачи, аптеки)','🏠 Коммунальные услуги','📱 Связь и интернет','📚 Образование','💸 Другое'];
 
-// ============ STATE ============
 let allTransactions = [];
 let rateHistory = [];
 let currentFilter = 'month';
 let dataLoaded = false;
 let currentUsdRate = 85.00;
-let dailyChart = null, expensePieChart = null, incomePieChart = null, rateHistoryChart = null;
+let expensePieChart = null, incomePieChart = null, rateHistoryChart = null;
 let autoUpdateTimer = null;
 let editingIndex = -1;
 
-// ============ ПАРСИНГ ============
 function parseNumber(str) {
   const m = String(str).replace(/\s/g,'').replace(',','.').match(/(\d+\.?\d*)/);
   return m ? parseFloat(m[1]) : 0;
@@ -411,13 +436,7 @@ function parseLine(line) {
   if (as.length !== 2) return null;
   const usd = parseNumber(as[0]);
   const rub = parseNumber(as[1]);
-  return {
-    type, date: dateObj,
-    dateStr: `${dm[3]}-${dm[2]}-${dm[1]}`,
-    usd, rub,
-    category: catP || 'Без категории',
-    note: noteP
-  };
+  return { type, date: dateObj, dateStr: `${dm[3]}-${dm[2]}-${dm[1]}`, usd, rub, category: catP || 'Без категории', note: noteP };
 }
 function parseData(jsonText) {
   let d;
@@ -447,8 +466,6 @@ function parseRateHistory(text) {
   h.sort((a,b) => a.date - b.date);
   return h;
 }
-
-// ============ ФИЛЬТР/АГРЕГАЦИЯ ============
 function filterTransactions(txs, period) {
   if (!txs.length) return [];
   if (period === 'all') return txs;
@@ -458,15 +475,6 @@ function filterTransactions(txs, period) {
   else { start.setMonth(now.getMonth()-1); start.setHours(0,0,0,0); }
   return txs.filter(tx => tx.date >= start);
 }
-function aggregateByDay(txs) {
-  const map = {};
-  for (const tx of txs) {
-    const k = tx.dateStr;
-    if (!map[k]) map[k] = { date:k, income:0, expense:0 };
-    if (tx.type === 'income') map[k].income += tx.rub; else map[k].expense += tx.rub;
-  }
-  return Object.keys(map).sort().map(k => map[k]);
-}
 function aggregateByCategory(txs, type) {
   const map = {};
   for (const tx of txs.filter(t => t.type === type)) {
@@ -475,8 +483,6 @@ function aggregateByCategory(txs, type) {
   }
   return Object.entries(map).sort((a,b) => b[1]-a[1]).map(([label,value]) => ({label,value}));
 }
-
-// ============ STORAGE ============
 function saveTransactions(t) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(t)); } catch(e){} }
 function loadTransactions() {
   try { const s = localStorage.getItem(STORAGE_KEY); if (s) return JSON.parse(s).map(tx => ({...tx, date:new Date(tx.date)})); } catch(e){}
@@ -497,7 +503,91 @@ function savePending(a) { try { localStorage.setItem(PENDING_KEY, JSON.stringify
 function getToken() { return localStorage.getItem(TOKEN_KEY) || ''; }
 function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
 
-// ============ РЕНДЕР ============
+function renderInsights(txs, period) {
+  const block = document.getElementById('insightsBlock');
+  const grid = document.getElementById('insightGrid');
+  const topList = document.getElementById('topCatList');
+
+  if (!txs.length) {
+    block.style.display = 'none';
+    return;
+  }
+  block.style.display = 'block';
+
+  const rubIncome = txs.filter(t => t.type === 'income' && t.usd === 0).reduce((s,t) => s+t.rub, 0);
+  const rubExpense = txs.filter(t => t.type === 'expense' && t.usd === 0).reduce((s,t) => s+t.rub, 0);
+  const usdIncome = txs.filter(t => t.type === 'income' && t.usd > 0).reduce((s,t) => s+t.usd, 0);
+  const usdExpense = txs.filter(t => t.type === 'expense' && t.usd > 0).reduce((s,t) => s+t.usd, 0);
+  const totalIncome = rubIncome + usdIncome * currentUsdRate;
+  const totalExpense = rubExpense + usdExpense * currentUsdRate;
+  const net = totalIncome - totalExpense;
+
+  // Средние значения по периоду (только для day/week/month)
+  let periodDays = 1;
+  if (period === 'week') periodDays = 7;
+  else if (period === 'month') periodDays = 30;
+  else if (period === 'all') {
+    if (txs.length) {
+      const minDate = Math.min(...txs.map(t => t.date.getTime()));
+      const maxDate = Math.max(...txs.map(t => t.date.getTime()));
+      periodDays = Math.max(1, Math.ceil((maxDate - minDate) / (1000*60*60*24)) + 1);
+    }
+  }
+  const avgIncome = totalIncome / periodDays;
+  const avgExpense = totalExpense / periodDays;
+  const avgNet = net / periodDays;
+
+  // Количество доходов и расходов
+  const cntIncome = txs.filter(t => t.type === 'income').length;
+  const cntExpense = txs.filter(t => t.type === 'expense').length;
+  const totalOps = txs.length;
+  const percentSaving = totalIncome > 0 ? Math.round((net / totalIncome) * 100) : 0;
+
+  grid.innerHTML = `
+    <div class="insight-item income">
+      <div class="it-label">📊 Средний доход / день</div>
+      <div class="it-value">${Math.round(avgIncome).toLocaleString('ru-RU')} ₽</div>
+      <div class="it-sub">Всего: ${totalIncome.toLocaleString('ru-RU')} ₽</div>
+    </div>
+    <div class="insight-item expense">
+      <div class="it-label">📉 Средний расход / день</div>
+      <div class="it-value">${Math.round(avgExpense).toLocaleString('ru-RU')} ₽</div>
+      <div class="it-sub">Всего: ${totalExpense.toLocaleString('ru-RU')} ₽</div>
+    </div>
+    <div class="insight-item">
+      <div class="it-label">💡 Чистый баланс / день</div>
+      <div class="it-value" style="color:${avgNet >= 0 ? '#4ade80' : '#f87171'}">${Math.round(avgNet).toLocaleString('ru-RU')} ₽</div>
+      <div class="it-sub">Всего: ${net.toLocaleString('ru-RU')} ₽</div>
+    </div>
+    <div class="insight-item">
+      <div class="it-label">📋 Операций</div>
+      <div class="it-value">${totalOps}</div>
+      <div class="it-sub">↑ ${cntIncome} доходов · ↓ ${cntExpense} расходов</div>
+    </div>
+    <div class="insight-item">
+      <div class="it-label">💾 Процент сбережений</div>
+      <div class="it-value" style="color:${percentSaving >= 20 ? '#4ade80' : percentSaving >= 0 ? '#fbbf24' : '#f87171'}">${percentSaving}%</div>
+      <div class="it-sub">${percentSaving >= 30 ? 'Отличный результат!' : percentSaving >= 15 ? 'Хорошо' : percentSaving >= 0 ? 'Можно лучше' : 'Расход > доход'}</div>
+    </div>
+  `;
+
+  // Топ-3 категории расходов
+  const expCat = aggregateByCategory(txs, 'expense');
+  const top3 = expCat.slice(0, 3);
+  const totalExp = expCat.reduce((s,x) => s+x.value, 0);
+
+  if (top3.length) {
+    topList.innerHTML = `<div style="font-size:0.7rem;color:#8b9bb5;margin-top:10px;margin-bottom:4px;">💸 Топ-3 категории расходов:</div>` +
+      top3.map((x, i) => {
+        const pct = totalExp ? ((x.value/totalExp)*100).toFixed(1) : 0;
+        const medal = ['🥇','🥈','🥉'][i];
+        return `<div class="tc-item"><span class="tc-name">${medal} ${x.label}</span><span class="tc-value">${x.value.toLocaleString('ru-RU')} ₽ (${pct}%)</span></div>`;
+      }).join('');
+  } else {
+    topList.innerHTML = '';
+  }
+}
+
 function renderDashboard(txs, period) {
   if (!txs.length) {
     dashboard.classList.add('hidden');
@@ -551,27 +641,9 @@ function renderDashboard(txs, period) {
   document.getElementById('monthIncome').textContent = (m.incRub >= 0 ? '+' : '') + fmt(m.incRub);
   document.getElementById('monthExpense').textContent = (m.expRub >= 0 ? '-' : '') + fmt(m.expRub);
 
-  // Графики
-  const daily = aggregateByDay(txs);
-  if (dailyChart) dailyChart.destroy();
+  // Круговые диаграммы
   if (expensePieChart) expensePieChart.destroy();
   if (incomePieChart) incomePieChart.destroy();
-
-  dailyChart = new Chart(document.getElementById('dailyChart'), {
-    type: 'bar',
-    data: {
-      labels: daily.map(x => x.date),
-      datasets: [
-        { label:'Доход', data: daily.map(x => x.income), backgroundColor:'rgba(74,222,128,0.6)', borderColor:'rgba(74,222,128,1)', borderWidth:1, borderRadius:4 },
-        { label:'Расход', data: daily.map(x => x.expense), backgroundColor:'rgba(248,113,113,0.6)', borderColor:'rgba(248,113,113,1)', borderWidth:1, borderRadius:4 }
-      ]
-    },
-    options: {
-      responsive:true, maintainAspectRatio:true,
-      plugins: { legend:{labels:{color:'#c8d0e0'}}, tooltip:{callbacks:{label:c => c.dataset.label + ': ' + c.parsed.y.toLocaleString('ru-RU') + ' ₽'}} },
-      scales: { y:{beginAtZero:true,ticks:{color:'#8b9bb5',callback:v => v.toLocaleString('ru-RU') + ' ₽'}}, x:{ticks:{color:'#8b9bb5',maxRotation:45,autoSkip:true}} }
-    }
-  });
 
   const incCat = aggregateByCategory(txs, 'income');
   incomePieChart = new Chart(document.getElementById('incomePieChart'), {
@@ -584,9 +656,9 @@ function renderDashboard(txs, period) {
   const incTotal = incCat.reduce((s,x) => s+x.value, 0);
   incCat.forEach(x => {
     const pct = incTotal ? ((x.value/incTotal)*100).toFixed(1) : 0;
-    const d = document.createElement('div'); d.className = 'cat-item';
-    d.innerHTML = `<span>${x.label}</span><span class="value">${x.value.toLocaleString('ru-RU')} ₽ (${pct}%)</span>`;
-    incList.appendChild(d);
+    const dd = document.createElement('div'); dd.className = 'cat-item';
+    dd.innerHTML = `<span>${x.label}</span><span class="value">${x.value.toLocaleString('ru-RU')} ₽ (${pct}%)</span>`;
+    incList.appendChild(dd);
   });
 
   const expCat = aggregateByCategory(txs, 'expense');
@@ -600,17 +672,17 @@ function renderDashboard(txs, period) {
   const expTotal = expCat.reduce((s,x) => s+x.value, 0);
   expCat.forEach(x => {
     const pct = expTotal ? ((x.value/expTotal)*100).toFixed(1) : 0;
-    const d = document.createElement('div'); d.className = 'cat-item';
-    d.innerHTML = `<span>${x.label}</span><span class="value">${x.value.toLocaleString('ru-RU')} ₽ (${pct}%)</span>`;
-    expList.appendChild(d);
+    const dd = document.createElement('div'); dd.className = 'cat-item';
+    dd.innerHTML = `<span>${x.label}</span><span class="value">${x.value.toLocaleString('ru-RU')} ₽ (${pct}%)</span>`;
+    expList.appendChild(dd);
   });
 
-  // История — сортировка по дате (сначала новые) и отображение с кнопками edit/delete
+  // История (сортировка по дате)
   const indexed = txs.map((tx, i) => ({ tx, i }));
   indexed.sort((a, b) => b.tx.date - a.tx.date);
   const list = document.getElementById('transactionList');
   list.innerHTML = '';
-  const slice = indexed.slice(0, 50);
+  const slice = indexed.slice(0, 100);
   for (const { tx, i } of slice) {
     const div = document.createElement('div');
     div.className = 'tx-item';
@@ -622,17 +694,16 @@ function renderDashboard(txs, period) {
     right.textContent = (tx.type === 'income' ? '+' : '-') + tx.rub.toLocaleString('ru-RU') + ' ₽' + (tx.usd > 0 ? ` (${tx.usd.toFixed(2)} $)` : '');
     const actions = document.createElement('div');
     actions.className = 'tx-actions';
-    const eBtn = document.createElement('button');
-    eBtn.className = 'edit'; eBtn.textContent = '✏️'; eBtn.title = 'Редактировать';
+    const eBtn = document.createElement('button'); eBtn.className = 'edit'; eBtn.textContent = '✏️';
     eBtn.addEventListener('click', () => editTransaction(i));
-    const dBtn = document.createElement('button');
-    dBtn.className = 'del'; dBtn.textContent = '🗑️'; dBtn.title = 'Удалить';
+    const dBtn = document.createElement('button'); dBtn.className = 'del'; dBtn.textContent = '🗑️';
     dBtn.addEventListener('click', () => deleteTransaction(i));
     actions.appendChild(eBtn); actions.appendChild(dBtn);
-    div.appendChild(left); div.appendChild(right); div.appendChild(actions);
+    div.appendChild(left); div.appendChild(right); actions && div.appendChild(actions);
     list.appendChild(div);
   }
 
+  renderInsights(txs, period);
   dashboard.classList.remove('hidden');
   emptyState.classList.add('hidden');
   updateBalanceBlock();
@@ -691,7 +762,6 @@ function initData(txs) {
   if (!autoUpdateTimer) startAutoUpdate();
 }
 
-// ============ ГРАФИК КУРСА ============
 function drawRateHistoryChart() {
   const c = document.getElementById('rateHistoryChart');
   if (!c) return;
@@ -724,7 +794,6 @@ function drawRateHistoryChart() {
   });
 }
 
-// ============ КУРС ============
 function setRate(rate) {
   if (isNaN(rate) || rate <= 0) { alert('Введите корректный курс'); return; }
   const old = currentUsdRate;
@@ -740,7 +809,6 @@ function setRate(rate) {
   updateBalanceBlock();
 }
 
-// ============ ЗАГРУЗКА ============
 async function loadData(showStatus = true) {
   if (showStatus) fileStatus.textContent = '⏳ Загрузка...';
   const stored = loadTransactions();
@@ -789,7 +857,6 @@ async function loadRateHistoryFromServer(showStatus = false) {
   return false;
 }
 
-// ============ МОДАЛКА: ТРАНЗАКЦИЯ ============
 const txModal = document.getElementById('txModal');
 const tokenModal = document.getElementById('tokenModal');
 const txCategory = document.getElementById('txCategory');
@@ -816,9 +883,7 @@ function openTxModal(editIdx = -1) {
     const d = tx.date;
     const pad = n => String(n).padStart(2,'0');
     document.getElementById('txDateTime').value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-    // выбрать категорию, если есть
     if (tx.category) {
-      // Добавим в список, если нет
       const exists = Array.from(txCategory.options).some(o => o.value === tx.category);
       if (!exists) { const o = document.createElement('option'); o.value = tx.category; o.textContent = tx.category; txCategory.appendChild(o); }
       txCategory.value = tx.category;
@@ -851,7 +916,6 @@ document.querySelectorAll('.type-btn').forEach(btn => {
   });
 });
 
-// ============ СОХРАНЕНИЕ (добавление/редактирование) ============
 document.getElementById('saveTxBtn').addEventListener('click', function() {
   const rub = parseFloat(document.getElementById('txRub').value) || 0;
   const usd = parseFloat(document.getElementById('txUsd').value) || 0;
@@ -876,71 +940,53 @@ document.getElementById('saveTxBtn').addEventListener('click', function() {
   if (!newTx) { alert('Ошибка при разборе строки'); return; }
 
   if (editingIndex >= 0) {
-    // Редактирование
-    const oldTx = allTransactions[editingIndex];
     allTransactions[editingIndex] = newTx;
-    // Добавляем операцию в очередь
-    const pending = loadPending();
-    pending.push({ op: 'edit', oldTs: oldTx.date.getTime(), newLine: line });
-    savePending(pending);
-    fileStatus.textContent = `✏️ Отредактировано (${pending.length} в очереди)`;
+    fileStatus.textContent = `✏️ Отредактировано`;
   } else {
-    // Добавление
     allTransactions.push(newTx);
-    const pending = loadPending();
-    pending.push({ op: 'add', newLine: line });
-    savePending(pending);
-    fileStatus.textContent = `➕ Добавлено (${pending.length} в очереди)`;
+    fileStatus.textContent = `➕ Добавлено`;
   }
   saveTransactions(allTransactions);
   updateWithFilter(currentFilter);
   closeTxModal();
 });
 
-// ============ РЕДАКТИРОВАНИЕ ============
 function editTransaction(i) { openTxModal(i); }
 
-// ============ УДАЛЕНИЕ ============
 function deleteTransaction(i) {
   const tx = allTransactions[i];
   if (!confirm(`Удалить транзакцию?\n${tx.category}\n${tx.rub} ₽ от ${tx.date.toLocaleDateString('ru-RU')}`)) return;
-  const removed = allTransactions.splice(i, 1)[0];
-  const pending = loadPending();
-  pending.push({ op: 'delete', ts: removed.date.getTime(), line: null });
-  savePending(pending);
+  allTransactions.splice(i, 1);
   saveTransactions(allTransactions);
   updateWithFilter(currentFilter);
-  fileStatus.textContent = `🗑️ Удалено (${pending.length} в очереди)`;
+  fileStatus.textContent = `🗑️ Удалено`;
 }
 
-// ============ СИНХРОНИЗАЦИЯ С GITHUB ============
 syncBtn.addEventListener('click', async function() {
-  const pending = loadPending();
-  if (!pending.length && !allTransactions.length) {
-    fileStatus.textContent = 'ℹ️ Нет данных для синхронизации'; return;
-  }
+  if (!allTransactions.length) { fileStatus.textContent = 'ℹ️ Нет данных для синхронизации'; return; }
   const token = getToken();
   if (!token) { tokenModal.classList.add('open'); return; }
   fileStatus.textContent = '⏳ Синхронизация...';
   try {
-    // Формируем итоговый текст из allTransactions
-    const lines = allTransactions.map(tx => {
-      const d = String(tx.date.getDate()).padStart(2,'0');
-      const mo = String(tx.date.getMonth()+1).padStart(2,'0');
-      const y = tx.date.getFullYear();
-      const h = String(tx.date.getHours()).padStart(2,'0');
-      const mi = String(tx.date.getMinutes()).padStart(2,'0');
-      const dateStr = `${d}.${mo}.${y}, ${h}:${mi}`;
-      const typeLabel = tx.type === 'income' ? '🟢 ДОХОД' : '🔴 РАСХОД';
-      const usdLabel = tx.usd > 0 ? `${tx.usd} Долларов 🇺🇸` : `0 Долларов 🇺🇸`;
-      const rubLabel = `${tx.rub} Рублей 🇷🇺`;
-      const note = tx.note || '-';
-      return `${typeLabel} | ${dateStr} | ${usdLabel}  -> ${rubLabel} | ${tx.category} | ${note}`;
-    });
+    const lines = allTransactions
+      .slice()
+      .sort((a,b) => a.date - b.date)
+      .map(tx => {
+        const d = String(tx.date.getDate()).padStart(2,'0');
+        const mo = String(tx.date.getMonth()+1).padStart(2,'0');
+        const y = tx.date.getFullYear();
+        const h = String(tx.date.getHours()).padStart(2,'0');
+        const mi = String(tx.date.getMinutes()).padStart(2,'0');
+        const dateStr = `${d}.${mo}.${y}, ${h}:${mi}`;
+        const typeLabel = tx.type === 'income' ? '🟢 ДОХОД' : '🔴 РАСХОД';
+        const usdLabel = tx.usd > 0 ? `${tx.usd} Долларов 🇺🇸` : `0 Долларов 🇺🇸`;
+        const rubLabel = `${tx.rub} Рублей 🇷🇺`;
+        return `${typeLabel} | ${dateStr} | ${usdLabel}  -> ${rubLabel} | ${tx.category} | ${tx.note || '-'}`;
+      });
     const newText = lines.join('\n');
     const updatedJson = JSON.stringify({ text: newText });
+    const updatedB64 = btoa(unescape(encodeURIComponent(updatedJson)));
 
-    // Получаем SHA
     const getR = await fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/stats2.json', {
       headers: { 'Authorization': 'token ' + token }, cache:'no-store'
     });
@@ -948,17 +994,14 @@ syncBtn.addEventListener('click', async function() {
     const meta = await getR.json();
     const sha = meta.sha;
 
-    // PUT
-    const updatedB64 = btoa(unescape(encodeURIComponent(updatedJson)));
     const putR = await fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/stats2.json', {
       method:'PUT',
       headers: { 'Authorization':'token ' + token, 'Content-Type':'application/json' },
-      body: JSON.stringify({ message: `Синхронизация из PWA (${allTransactions.length} записей)`, content: updatedB64, sha })
+      body: JSON.stringify({ message: `Синхронизация PWA (${allTransactions.length} записей)`, content: updatedB64, sha })
     });
     if (!putR.ok) { const e = await putR.json().catch(()=>({})); throw new Error('PUT: ' + (e.message || putR.status)); }
 
-    savePending([]);
-    fileStatus.textContent = `✅ Синхронизировано: ${allTransactions.length} записей`;
+    fileStatus.textContent = `✅ Синхронизировано: ${allTransactions.length}`;
     setTimeout(() => { if (dataLoaded) fileStatus.textContent = `✅ ${allTransactions.length} записей`; }, 3000);
   } catch(e) {
     console.error(e);
@@ -966,7 +1009,6 @@ syncBtn.addEventListener('click', async function() {
   }
 });
 
-// ============ ТОКЕН ============
 document.getElementById('closeTokenModal').addEventListener('click', () => tokenModal.classList.remove('open'));
 document.getElementById('cancelTokenBtn').addEventListener('click', () => tokenModal.classList.remove('open'));
 document.getElementById('saveTokenBtn').addEventListener('click', function() {
@@ -974,10 +1016,9 @@ document.getElementById('saveTokenBtn').addEventListener('click', function() {
   if (!t) { alert('Введите токен'); return; }
   setToken(t);
   tokenModal.classList.remove('open');
-  fileStatus.textContent = '✅ Токен сохранён. Нажмите «Синхронизировать» ещё раз.';
+  fileStatus.textContent = '✅ Токен сохранён';
 });
 
-// ============ СОБЫТИЯ ============
 clearDataBtn.addEventListener('click', function(e) {
   e.preventDefault();
   if (confirm('Удалить все сохранённые данные?')) {
@@ -991,7 +1032,6 @@ clearDataBtn.addEventListener('click', function(e) {
     dashboard.classList.add('hidden');
     emptyState.classList.remove('hidden');
     filterBtns.forEach(b => b.classList.add('disabled'));
-    if (dailyChart) { dailyChart.destroy(); dailyChart = null; }
     if (expensePieChart) { expensePieChart.destroy(); expensePieChart = null; }
     if (incomePieChart) { incomePieChart.destroy(); incomePieChart = null; }
     if (rateHistoryChart) { rateHistoryChart.destroy(); rateHistoryChart = null; }
@@ -1003,7 +1043,6 @@ clearDataBtn.addEventListener('click', function(e) {
 refreshBtn.addEventListener('click', async function(e) {
   e.preventDefault();
   fileStatus.textContent = '⏳ Обновление...';
-  // Сбросим локальные данные и загрузим заново
   localStorage.removeItem(STORAGE_KEY);
   const ok = await loadData(true);
   if (!ok) fileStatus.textContent = '❌ Не удалось загрузить';
@@ -1034,7 +1073,6 @@ document.querySelectorAll('.collapsible-header').forEach(h => {
   });
 });
 
-// ============ АВТООБНОВЛЕНИЕ ============
 function startAutoUpdate() {
   if (autoUpdateTimer) clearInterval(autoUpdateTimer);
   autoUpdateTimer = setInterval(async function() {
@@ -1048,14 +1086,11 @@ function startAutoUpdate() {
         allTransactions = txs;
         saveTransactions(txs);
         updateWithFilter(currentFilter);
-        fileStatus.textContent = `✅ Обновлено: ${txs.length}`;
-        setTimeout(() => { if (dataLoaded) fileStatus.textContent = `✅ ${allTransactions.length} записей`; }, 3000);
       }
     } catch(e) {}
   }, 60000);
 }
 
-// ============ СТАРТ ============
 (async function start() {
   const savedRate = loadRate();
   if (savedRate) { currentUsdRate = savedRate; usdRateInput.value = savedRate.toFixed(2);
@@ -1069,12 +1104,10 @@ function startAutoUpdate() {
   }
   await loadRateHistoryFromServer(false);
   setTimeout(() => drawRateHistoryChart(), 500);
-  const pend = loadPending();
-  if (pend.length > 0) fileStatus.textContent = `⚠️ ${pend.length} операций ждут синхронизации`;
 })();
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').then(() => console.log('✅ SW зарегистрирован')).catch(e => console.log('❌ SW:', e));
+  navigator.serviceWorker.register('sw.js').then(() => console.log('✅ SW')).catch(e => console.log('❌ SW:', e));
 }
 
 })();
