@@ -13,7 +13,6 @@
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background:#000; color:#e8edf5; padding:10px 12px; min-height:100vh; display:flex; justify-content:center; align-items:flex-start; }
 .container { max-width:1200px; width:100%; margin:0 auto; }
 
-/* Топ-бар */
 .top-bar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:12px; background:#111; padding:8px 14px; border-radius:16px; border:1px solid #2a2a2a; }
 .top-bar .status { color:#60a5fa; font-size:0.8rem; flex:1; min-width:120px; }
 .top-bar .actions { display:flex; gap:6px; flex-wrap:wrap; }
@@ -24,7 +23,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .top-bar .actions .rate-upload-btn { background:rgba(96,165,250,0.15); border-color:#60a5fa; color:#60a5fa; }
 .top-bar .actions .rate-upload-btn:hover { background:rgba(96,165,250,0.3); }
 
-/* Баланс */
 .balance-card { background:#111; border-radius:14px; padding:16px 20px; border:1px solid #2a2a2a; margin-bottom:12px; display:flex; flex-direction:column; gap:6px; }
 .balance-card .top { display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px; }
 .balance-card .top .label { color:#8b9bb5; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; font-weight:500; }
@@ -36,13 +34,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .balance-card .bottom .month-change .expense { color:#f87171; }
 .balance-card .usd-info { color:#60a5fa; font-size:0.85rem; margin-top:4px; border-top:1px solid #2a2a2a; padding-top:6px; display:flex; justify-content:space-between; flex-wrap:wrap; }
 
-/* Фильтры */
 .filter-bar { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
 .filter-btn { background:rgba(255,255,255,0.05); border:1px solid #2a2a2a; color:#8b9bb5; padding:4px 14px; border-radius:30px; font-size:0.75rem; font-weight:500; cursor:pointer; transition:all 0.2s; }
 .filter-btn.active { background:rgba(251,191,36,0.15); border-color:#fbbf24; color:#fbbf24; }
 .period-label { margin-left:auto; color:#7a8aa3; font-size:0.75rem; }
 
-/* Статистика */
 .stats-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:12px; }
 .stat-card { background:#111; border-radius:14px; padding:12px; border:1px solid #2a2a2a; text-align:center; }
 .stat-card .label { font-size:0.6rem; text-transform:uppercase; letter-spacing:0.3px; color:#8b9bb5; font-weight:500; }
@@ -57,7 +53,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .stats-grid-extra .stat-card { padding:8px 10px; }
 .stats-grid-extra .stat-card .value { font-size:1.1rem; }
 
-/* Быстрые итоги */
 .quick-sums { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:14px 0 12px 0; }
 .quick-sums .group { background:#1a1f2a; border-radius:14px; padding:10px 8px; border:1px solid #4a5568; text-align:center; min-width:0; box-shadow:0 2px 4px rgba(0,0,0,0.3); }
 .quick-sums .group .period-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.5px; color:#8b9bb5; font-weight:500; margin-bottom:4px; }
@@ -65,7 +60,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .quick-sums .group .sum.income { color:#4ade80; }
 .quick-sums .group .sum.expense { color:#f87171; }
 
-/* Сводка */
 .insights-block { background:#111; border-radius:14px; padding:14px 16px; border:1px solid #2a2a2a; margin-bottom:12px; }
 .insights-block h3 { font-weight:500; font-size:0.85rem; color:#c8d0e0; margin-bottom:10px; }
 .insight-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; }
@@ -81,7 +75,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .top-cat-list .tc-item .tc-name { color:#c8d0e0; }
 .top-cat-list .tc-item .tc-value { color:#8b9bb5; font-weight:500; }
 
-/* Сворачиваемые блоки */
 .collapsible { margin-bottom:12px; border-radius:14px; border:1px solid #2a2a2a; overflow:hidden; background:#111; }
 .collapsible-header { display:flex; justify-content:space-between; align-items:center; cursor:pointer; padding:8px 12px; background:#111; user-select:none; }
 .collapsible-header h3 { font-weight:500; font-size:0.85rem; color:#c8d0e0; }
@@ -93,50 +86,15 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .collapsible.closed .collapsible-header { border-radius:14px; }
 .collapsible:not(.closed) .collapsible-header { border-radius:14px 14px 0 0; }
 
-/* Графики — маленькие, в одну строку */
-.charts-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-.chart-box {
-    background: #111;
-    border-radius: 12px;
-    padding: 10px 10px;
-    border: 1px solid #2a2a2a;
-    text-align: center;
-}
-.chart-box h3 {
-    font-weight: 500;
-    font-size: 0.7rem;
-    color: #c8d0e0;
-    margin-bottom: 6px;
-    letter-spacing: 0.2px;
-}
-.chart-box canvas {
-    max-height: 100px;
-    max-width: 100%;
-    margin: 0 auto;
-}
-.chart-box .category-list {
-    margin-top: 8px;
-    font-size: 0.65rem;
-    color: #c8d0e0;
-    line-height: 1.4;
-    max-height: 100px;
-    overflow-y: auto;
-    text-align: left;
-}
-.chart-box .category-list .cat-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 2px 0;
-    border-bottom: 1px solid #232b3b;
-}
-.chart-box .category-list .cat-item:last-child { border-bottom: none; }
-.chart-box .category-list .cat-item .value { color: #8b9bb5; }
+.charts-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.chart-box { background:#111; border-radius:12px; padding:10px 10px; border:1px solid #2a2a2a; text-align:center; }
+.chart-box h3 { font-weight:500; font-size:0.7rem; color:#c8d0e0; margin-bottom:6px; letter-spacing:0.2px; }
+.chart-box canvas { max-height:100px; max-width:100%; margin:0 auto; }
+.chart-box .category-list { margin-top:8px; font-size:0.65rem; color:#c8d0e0; line-height:1.4; max-height:100px; overflow-y:auto; text-align:left; }
+.chart-box .category-list .cat-item { display:flex; justify-content:space-between; padding:2px 0; border-bottom:1px solid #232b3b; }
+.chart-box .category-list .cat-item:last-child { border-bottom:none; }
+.chart-box .category-list .cat-item .value { color:#8b9bb5; }
 
-/* Курс */
 .rate-chart-box { background:#111; border-radius:14px; padding:12px; border:1px solid #2a2a2a; margin-bottom:12px; }
 .rate-chart-box h3 { font-weight:500; font-size:0.85rem; color:#c8d0e0; margin-bottom:8px; }
 .rate-chart-box .rate-chart-controls { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
@@ -144,7 +102,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .rate-chart-box .rate-chart-controls button:hover { background:rgba(251,191,36,0.3); }
 #rateHistoryChart { height:200px !important; width:100% !important; }
 
-/* История */
 .transactions { background:#111; border-radius:14px; padding:12px 14px; border:1px solid #2a2a2a; }
 .transactions h3 { font-weight:500; font-size:0.8rem; color:#c8d0e0; margin-bottom:8px; }
 .tx-list { max-height:400px; overflow-y:auto; scrollbar-width:thin; scrollbar-color:#3b4a5e transparent; }
@@ -164,7 +121,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .tx-actions button.edit:hover { border-color:#60a5fa; color:#60a5fa; background:rgba(96,165,250,0.1); }
 .tx-actions button.del:hover { border-color:#f87171; color:#f87171; background:rgba(248,113,113,0.1); }
 
-/* Панель курса */
 .rate-bar-new { background:#111; border-radius:12px; padding:10px 16px; border:1px solid #2a2a2a; margin-top:12px; display:flex; flex-direction:column; gap:6px; }
 .rate-bar-new .rate-row-1, .rate-bar-new .rate-row-2, .rate-bar-new .rate-row-3 { display:flex; align-items:center; width:100%; }
 .rate-bar-new .rate-row-1 { justify-content:flex-start; }
@@ -181,7 +137,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .empty-state { text-align:center; color:#7a8aa3; padding:20px 0; font-size:0.9rem; }
 .hidden { display:none !important; }
 
-/* Модальные окна */
 .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:1000; justify-content:center; align-items:center; padding:16px; overflow-y:auto; }
 .modal-overlay.open { display:flex; }
 .modal { background:#111; border:1px solid #2a2a2a; border-radius:16px; width:100%; max-width:480px; max-height:90vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,0.6); }
@@ -245,10 +200,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   .form-row input[type="datetime-local"] { font-size: 0.8rem; padding: 8px 6px; }
   .modal-body { padding: 14px 12px; }
   .modal { max-width: 100%; }
-  .charts-row {
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-  }
+  .charts-row { grid-template-columns: 1fr 1fr; gap: 8px; }
   .chart-box { padding: 8px 6px; }
   .chart-box h3 { font-size: 0.65rem; }
   .chart-box canvas { max-height: 90px; }
@@ -518,9 +470,15 @@ function aggregateByCategory(txs, type) {
   }
   return Object.entries(map).sort((a,b) => b[1]-a[1]).map(([label,value]) => ({label,value}));
 }
-function saveTransactions(t) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(t)); } catch(e){} }
+
+function saveTransactions(t) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(t)); } catch(e){ console.warn('save error', e); }
+}
 function loadTransactions() {
-  try { const s = localStorage.getItem(STORAGE_KEY); if (s) return JSON.parse(s).map(tx => ({...tx, date:new Date(tx.date)})); } catch(e){}
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    if (s) return JSON.parse(s).map(tx => ({...tx, date: new Date(tx.date)}));
+  } catch(e){}
   return null;
 }
 function saveRateHistory(h) { try { localStorage.setItem(RATE_HISTORY_KEY, JSON.stringify(h)); } catch(e){} }
@@ -831,21 +789,29 @@ function setRate(rate) {
   updateBalanceBlock();
 }
 
+// === ЗАГРУЗКА: сначала с GitHub, если недоступно — из кэша ===
 async function loadData(showStatus = true) {
   if (showStatus) fileStatus.textContent = '⏳ Загрузка...';
+  // Пробуем GitHub
+  try {
+    const r = await fetch('stats2.json?t=' + Date.now(), { cache:'no-store' });
+    if (r.ok) {
+      const txt = await r.text();
+      const txs = parseData(txt);
+      if (txs.length) {
+        initData(txs);
+        if (showStatus) fileStatus.textContent = `✅ Загружено с GitHub: ${txs.length}`;
+        return true;
+      }
+    }
+  } catch(e) { console.warn('GitHub недоступен:', e.message); }
+  // Пробуем кэш
   const stored = loadTransactions();
   if (stored && stored.length) {
     initData(stored);
     if (showStatus) fileStatus.textContent = `📂 Загружено из кэша: ${stored.length}`;
     return true;
   }
-  try {
-    const r = await fetch('stats2.json?t=' + Date.now(), { cache:'no-store' });
-    if (!r.ok) throw new Error('Файл не найден');
-    const txt = await r.text();
-    const txs = parseData(txt);
-    if (txs.length) { initData(txs); if (showStatus) fileStatus.textContent = `✅ Загружено с GitHub: ${txs.length}`; return true; }
-  } catch(e) { console.warn(e.message); }
   return false;
 }
 
@@ -963,12 +929,13 @@ document.getElementById('saveTxBtn').addEventListener('click', function() {
 
   if (editingIndex >= 0) {
     allTransactions[editingIndex] = newTx;
+    saveTransactions(allTransactions);
     fileStatus.textContent = `✏️ Отредактировано`;
   } else {
     allTransactions.push(newTx);
+    saveTransactions(allTransactions);
     fileStatus.textContent = `➕ Добавлено`;
   }
-  saveTransactions(allTransactions);
   updateWithFilter(currentFilter);
   closeTxModal();
 });
@@ -1061,10 +1028,10 @@ clearDataBtn.addEventListener('click', function(e) {
   }
 });
 
+// === ОБНОВИТЬ: не удаляем кэш, просто перезагружаем с GitHub или из кэша ===
 refreshBtn.addEventListener('click', async function(e) {
   e.preventDefault();
   fileStatus.textContent = '⏳ Обновление...';
-  localStorage.removeItem(STORAGE_KEY);
   const ok = await loadData(true);
   if (!ok) fileStatus.textContent = '❌ Не удалось загрузить';
 });
