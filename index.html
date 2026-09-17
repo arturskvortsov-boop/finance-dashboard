@@ -2,44 +2,38 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Финансовый дашборд</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="manifest.json">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#000;color:#e8edf5;padding:10px 12px;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
 .container{max-width:1200px;width:100%;margin:0 auto}
-
 .top-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;background:#111;padding:8px 14px;border-radius:16px;border:1px solid #2a2a2a}
-.top-bar .status{color:#60a5fa;font-size:0.8rem;flex:1;min-width:120px}
+.top-bar .status{color:#60a5fa;font-size:.8rem;flex:1;min-width:120px;word-break:break-word}
 .top-bar .actions{display:flex;gap:6px;flex-wrap:wrap}
-.top-bar .actions button{background:rgba(251,191,36,0.15);border:1px solid #fbbf24;color:#fbbf24;padding:4px 14px;border-radius:30px;font-size:0.7rem;font-weight:500;cursor:pointer;transition:all .2s}
-.top-bar .actions button:hover{background:rgba(251,191,36,0.3)}
-.top-bar .actions button.clear{color:#f87171;border-color:#f87171;background:rgba(248,113,113,0.1)}
-.top-bar .actions button.rate-upload-btn{background:rgba(96,165,250,0.15);border-color:#60a5fa;color:#60a5fa}
-
+.top-bar .actions button{background:rgba(251,191,36,.15);border:1px solid #fbbf24;color:#fbbf24;padding:4px 14px;border-radius:30px;font-size:.7rem;font-weight:500;cursor:pointer}
+.top-bar .actions button.clear{color:#f87171;border-color:#f87171;background:rgba(248,113,113,.1)}
+.top-bar .actions button.rate-upload-btn{background:rgba(96,165,250,.15);border-color:#60a5fa;color:#60a5fa}
 .balance-card{background:#111;border-radius:14px;padding:16px 20px;border:1px solid #2a2a2a;margin-bottom:12px;display:flex;flex-direction:column;gap:6px}
 .balance-card .top{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
-.balance-card .top .label{color:#8b9bb5;font-size:0.8rem;text-transform:uppercase;letter-spacing:.5px;font-weight:500}
+.balance-card .top .label{color:#8b9bb5;font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;font-weight:500}
 .balance-card .top .amount{font-size:1.8rem;font-weight:700;color:#fbbf24}
 .balance-card .bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;border-top:1px solid #2a2a2a;padding-top:8px}
-.balance-card .bottom .period{color:#8b9bb5;font-size:0.75rem}
-.balance-card .bottom .month-change{display:flex;gap:16px;font-size:0.9rem;font-weight:500}
+.balance-card .bottom .period{color:#8b9bb5;font-size:.75rem}
+.balance-card .bottom .month-change{display:flex;gap:16px;font-size:.9rem;font-weight:500}
 .balance-card .bottom .month-change .income{color:#4ade80}
 .balance-card .bottom .month-change .expense{color:#f87171}
-.balance-card .usd-info{color:#60a5fa;font-size:0.85rem;margin-top:4px;border-top:1px solid #2a2a2a;padding-top:6px;display:flex;justify-content:space-between;flex-wrap:wrap}
-
+.balance-card .usd-info{color:#60a5fa;font-size:.85rem;margin-top:4px;border-top:1px solid #2a2a2a;padding-top:6px;display:flex;justify-content:space-between;flex-wrap:wrap}
 .filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
-.filter-btn{background:rgba(255,255,255,0.05);border:1px solid #2a2a2a;color:#8b9bb5;padding:4px 14px;border-radius:30px;font-size:0.75rem;font-weight:500;cursor:pointer;transition:all .2s}
-.filter-btn.active{background:rgba(251,191,36,0.15);border-color:#fbbf24;color:#fbbf24}
-.period-label{margin-left:auto;color:#7a8aa3;font-size:0.75rem}
-
+.filter-btn{background:rgba(255,255,255,.05);border:1px solid #2a2a2a;color:#8b9bb5;padding:4px 14px;border-radius:30px;font-size:.75rem;font-weight:500;cursor:pointer}
+.filter-btn.active{background:rgba(251,191,36,.15);border-color:#fbbf24;color:#fbbf24}
+.filter-btn.disabled{opacity:.3;pointer-events:none}
+.period-label{margin-left:auto;color:#7a8aa3;font-size:.75rem}
 .stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
 .stat-card{background:#111;border-radius:14px;padding:12px;border:1px solid #2a2a2a;text-align:center}
-.stat-card .label{font-size:0.6rem;text-transform:uppercase;letter-spacing:.3px;color:#8b9bb5;font-weight:500}
+.stat-card .label{font-size:.6rem;text-transform:uppercase;letter-spacing:.3px;color:#8b9bb5;font-weight:500}
 .stat-card .value{font-size:1.3rem;font-weight:700;margin-top:2px;line-height:1.2}
 .stat-card.income .value{color:#4ade80}
 .stat-card.expense .value{color:#f87171}
@@ -50,91 +44,74 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .stats-grid-extra{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:12px}
 .stats-grid-extra .stat-card{padding:8px 10px}
 .stats-grid-extra .stat-card .value{font-size:1.1rem}
-
 .quick-sums{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 12px}
 .quick-sums .group{background:#1a1f2a;border-radius:14px;padding:10px 8px;border:1px solid #4a5568;text-align:center;min-width:0}
-.quick-sums .group .period-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:.5px;color:#8b9bb5;font-weight:500;margin-bottom:4px}
+.quick-sums .group .period-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:#8b9bb5;font-weight:500;margin-bottom:4px}
 .quick-sums .group .sums-row{display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:600;font-size:1rem}
 .quick-sums .group .sum.income{color:#4ade80}
 .quick-sums .group .sum.expense{color:#f87171}
-
 .insights-block{background:#111;border-radius:14px;padding:14px 16px;border:1px solid #2a2a2a;margin-bottom:12px}
-.insights-block h3{font-weight:500;font-size:0.85rem;color:#c8d0e0;margin-bottom:10px}
+.insights-block h3{font-weight:500;font-size:.85rem;color:#c8d0e0;margin-bottom:10px}
 .insight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
 .insight-item{background:#1a1f2a;border-radius:12px;padding:10px 12px;border:1px solid #2a3344}
-.insight-item .it-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:.3px;color:#8b9bb5;font-weight:500;margin-bottom:2px}
+.insight-item .it-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.3px;color:#8b9bb5;font-weight:500;margin-bottom:2px}
 .insight-item .it-value{font-size:1rem;font-weight:600;color:#e8edf5}
-.insight-item .it-sub{font-size:0.7rem;color:#8b9bb5;margin-top:2px}
+.insight-item .it-sub{font-size:.7rem;color:#8b9bb5;margin-top:2px}
 .insight-item.income .it-value{color:#4ade80}
 .insight-item.expense .it-value{color:#f87171}
 .top-cat-list{margin-top:10px}
-.top-cat-list .tc-item{display:flex;justify-content:space-between;padding:4px 0;font-size:0.75rem;border-bottom:1px solid #232b3b}
+.top-cat-list .tc-item{display:flex;justify-content:space-between;padding:4px 0;font-size:.75rem;border-bottom:1px solid #232b3b}
 .top-cat-list .tc-item:last-child{border-bottom:none}
 .top-cat-list .tc-item .tc-name{color:#c8d0e0}
 .top-cat-list .tc-item .tc-value{color:#8b9bb5;font-weight:500}
-
 .collapsible{margin-bottom:12px;border-radius:14px;border:1px solid #2a2a2a;overflow:hidden;background:#111}
 .collapsible-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:8px 12px;background:#111;user-select:none}
-.collapsible-header h3{font-weight:500;font-size:0.85rem;color:#c8d0e0}
+.collapsible-header h3{font-weight:500;font-size:.85rem;color:#c8d0e0}
 .collapsible-header .toggle{font-size:1.2rem;color:#8b9bb5;transition:transform .3s}
 .collapsible-header .toggle.open{transform:rotate(180deg)}
 .collapsible-content{max-height:0;overflow:hidden;transition:max-height .3s ease-out}
 .collapsible-content.open{max-height:3000px;transition:max-height .5s ease-in}
 .collapsible-content .chart-box,.collapsible-content .transactions{background:#111;padding:12px 14px}
-.collapsible.closed .collapsible-header{border-radius:14px}
-.collapsible:not(.closed) .collapsible-header{border-radius:14px 14px 0 0}
-
 .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.chart-box{background:#111;border-radius:12px;padding:10px;border:1px solid #2a2a2a;text-align:center;cursor:pointer;transition:border-color .2s}
-.chart-box:active{border-color:#4a5568}
-.chart-box h3{font-weight:500;font-size:0.7rem;color:#c8d0e0;margin-bottom:6px}
+.chart-box{background:#111;border-radius:12px;padding:10px;border:1px solid #2a2a2a;text-align:center;cursor:pointer}
+.chart-box h3{font-weight:500;font-size:.7rem;color:#c8d0e0;margin-bottom:6px}
 .chart-box canvas{max-height:100px;max-width:100%;margin:0 auto}
-.chart-box .category-list{margin-top:8px;font-size:0.65rem;color:#c8d0e0;line-height:1.4;max-height:100px;overflow-y:auto;text-align:left}
+.chart-box .category-list{margin-top:8px;font-size:.65rem;color:#c8d0e0;line-height:1.4;max-height:100px;overflow-y:auto;text-align:left}
 .chart-box .category-list .cat-item{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid #232b3b}
 .chart-box .category-list .cat-item:last-child{border-bottom:none}
 .chart-box .category-list .cat-item .value{color:#8b9bb5}
-
 .rate-chart-box{background:#111;border-radius:14px;padding:12px;border:1px solid #2a2a2a;margin-bottom:12px}
-.rate-chart-box h3{font-weight:500;font-size:0.85rem;color:#c8d0e0;margin-bottom:8px}
+.rate-chart-box h3{font-weight:500;font-size:.85rem;color:#c8d0e0;margin-bottom:8px}
 .rate-chart-box .rate-chart-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-.rate-chart-box .rate-chart-controls button{background:rgba(251,191,36,0.15);border:1px solid #fbbf24;color:#fbbf24;padding:2px 12px;border-radius:30px;font-size:0.7rem;cursor:pointer}
+.rate-chart-box .rate-chart-controls button{background:rgba(251,191,36,.15);border:1px solid #fbbf24;color:#fbbf24;padding:2px 12px;border-radius:30px;font-size:.7rem;cursor:pointer}
 #rateHistoryChart{height:200px!important;width:100%!important}
-
 .transactions{background:#111;border-radius:14px;padding:12px 14px;border:1px solid #2a2a2a}
-.transactions h3{font-weight:500;font-size:0.8rem;color:#c8d0e0;margin-bottom:8px}
-.tx-list{max-height:400px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#3b4a5e transparent}
-.tx-list::-webkit-scrollbar{width:4px}
-.tx-list::-webkit-scrollbar-thumb{background:#3b4a5e;border-radius:10px}
-.tx-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #232b3b;font-size:0.7rem;gap:8px}
+.transactions h3{font-weight:500;font-size:.8rem;color:#c8d0e0;margin-bottom:8px}
+.tx-list{max-height:400px;overflow-y:auto}
+.tx-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #232b3b;font-size:.7rem;gap:8px}
 .tx-item:last-child{border-bottom:none}
 .tx-item .left{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
 .tx-item .left .cat{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tx-item .left .date{font-size:0.6rem;color:#8b9bb5}
-.tx-item .left .note{font-size:0.6rem;color:#a0b0c0;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-item .left .date{font-size:.6rem;color:#8b9bb5}
+.tx-item .left .note{font-size:.6rem;color:#a0b0c0;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tx-item .right{font-weight:600;text-align:right;white-space:nowrap}
 .tx-item .right.income{color:#4ade80}
 .tx-item .right.expense{color:#f87171}
 .tx-actions{display:flex;gap:4px;margin-left:6px}
-.tx-actions button{background:transparent;border:1px solid #2a3344;color:#8b9bb5;width:26px;height:26px;border-radius:8px;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
-.tx-actions button.edit:active{border-color:#60a5fa;color:#60a5fa}
-.tx-actions button.del:active{border-color:#f87171;color:#f87171}
-
+.tx-actions button{background:transparent;border:1px solid #2a3344;color:#8b9bb5;width:26px;height:26px;border-radius:8px;font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
 .rate-bar-new{background:#111;border-radius:12px;padding:10px 16px;border:1px solid #2a2a2a;margin-top:12px;display:flex;flex-direction:column;gap:6px}
 .rate-bar-new .rate-row-1,.rate-bar-new .rate-row-2,.rate-bar-new .rate-row-3{display:flex;align-items:center;width:100%}
 .rate-bar-new .rate-row-1{justify-content:flex-start}
-.rate-bar-new .rate-row-1 .rate-label{color:#8b9bb5;font-size:0.8rem;font-weight:500}
+.rate-bar-new .rate-row-1 .rate-label{color:#8b9bb5;font-size:.8rem;font-weight:500}
 .rate-bar-new .rate-row-2{justify-content:space-between;flex-wrap:nowrap}
-.rate-bar-new .rate-row-2 input{background:#1a1f2a;border:1px solid #2a3344;color:#e8edf5;padding:6px 12px;border-radius:8px;width:100px;font-size:0.9rem;flex-shrink:0}
-.rate-bar-new .rate-row-2 input:focus{outline:none;border-color:#fbbf24}
-.rate-bar-new .rate-row-2 .update-btn{background:#fbbf24;border:none;color:#0b0e14;padding:6px 24px;border-radius:30px;font-weight:600;font-size:0.85rem;cursor:pointer;white-space:nowrap}
+.rate-bar-new .rate-row-2 input{background:#1a1f2a;border:1px solid #2a3344;color:#e8edf5;padding:6px 12px;border-radius:8px;width:100px;font-size:.9rem;flex-shrink:0}
+.rate-bar-new .rate-row-2 .update-btn{background:#fbbf24;border:none;color:#0b0e14;padding:6px 24px;border-radius:30px;font-weight:600;font-size:.85rem;cursor:pointer;white-space:nowrap}
 .rate-bar-new .rate-row-3{justify-content:space-between}
-.rate-bar-new .rate-row-3 .rate-info{color:#4ade80;font-weight:500;font-size:0.85rem}
-.rate-bar-new .rate-row-3 .rate-change{color:#8b9bb5;font-size:0.8rem}
-
-.empty-state{text-align:center;color:#7a8aa3;padding:20px 0;font-size:0.9rem}
+.rate-bar-new .rate-row-3 .rate-info{color:#4ade80;font-weight:500;font-size:.85rem}
+.rate-bar-new .rate-row-3 .rate-change{color:#8b9bb5;font-size:.8rem}
+.empty-state{text-align:center;color:#7a8aa3;padding:20px 0;font-size:.9rem}
 .hidden{display:none!important}
-
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:1000;justify-content:center;align-items:center;padding:16px;overflow-y:auto}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;justify-content:center;align-items:center;padding:16px;overflow-y:auto}
 .modal-overlay.open{display:flex}
 .modal{background:#111;border:1px solid #2a2a2a;border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
 .modal-header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #2a2a2a}
@@ -142,69 +119,45 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .modal-close{background:none;border:none;color:#8b9bb5;font-size:1.6rem;line-height:1;cursor:pointer;padding:0 6px}
 .modal-body{padding:16px 18px}
 .modal-footer{display:flex;gap:10px;padding:12px 18px;border-top:1px solid #2a2a2a;justify-content:flex-end}
-.modal-btn{padding:8px 18px;border-radius:30px;font-size:0.85rem;font-weight:600;cursor:pointer;border:1px solid transparent}
+.modal-btn{padding:8px 18px;border-radius:30px;font-size:.85rem;font-weight:600;cursor:pointer;border:1px solid transparent}
 .modal-btn.cancel{background:transparent;border-color:#2a3344;color:#8b9bb5}
 .modal-btn.save{background:#fbbf24;color:#0b0e14}
 .form-row{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
-.form-row label{font-size:0.75rem;color:#8b9bb5;font-weight:500}
-.form-row input,.form-row select{background:#1a1f2a;border:1px solid #2a3344;color:#e8edf5;padding:8px 12px;border-radius:10px;font-size:0.9rem;width:100%;max-width:100%;min-width:0;box-sizing:border-box;-webkit-appearance:none;appearance:none}
-.form-row input[type="datetime-local"]{font-size:0.85rem;padding:8px 8px}
-.form-row input:focus,.form-row select:focus{outline:none;border-color:#fbbf24}
+.form-row label{font-size:.75rem;color:#8b9bb5;font-weight:500}
+.form-row input,.form-row select{background:#1a1f2a;border:1px solid #2a3344;color:#e8edf5;padding:8px 12px;border-radius:10px;font-size:.9rem;width:100%;max-width:100%;min-width:0;-webkit-appearance:none;appearance:none}
+.form-row input[type="datetime-local"]{font-size:.85rem}
 .type-toggle{display:flex;gap:8px}
-.type-btn{flex:1;padding:8px 12px;border-radius:10px;background:#1a1f2a;border:1px solid #2a3344;color:#8b9bb5;font-weight:600;font-size:0.85rem;cursor:pointer}
-.type-btn.active[data-type="income"]{background:rgba(74,222,128,0.2);border-color:#4ade80;color:#4ade80}
-.type-btn.active[data-type="expense"]{background:rgba(248,113,113,0.2);border-color:#f87171;color:#f87171}
-
+.type-btn{flex:1;padding:8px 12px;border-radius:10px;background:#1a1f2a;border:1px solid #2a3344;color:#8b9bb5;font-weight:600;font-size:.85rem;cursor:pointer}
+.type-btn.active[data-type="income"]{background:rgba(74,222,128,.2);border-color:#4ade80;color:#4ade80}
+.type-btn.active[data-type="expense"]{background:rgba(248,113,113,.2);border-color:#f87171;color:#f87171}
 .cat-detail-modal{max-width:520px;background:#0b0e14}
 .cat-detail-modal .modal-header{padding:18px 20px 10px;border-bottom:none}
-.cat-detail-modal .modal-header h2{font-size:1.15rem}
-.cat-detail-modal .modal-close{background:rgba(255,255,255,0.05);border-radius:10px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.cat-detail-modal .modal-close{background:rgba(255,255,255,.05);border-radius:10px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
 .cat-detail-modal .modal-body{padding:0 20px 20px}
 .cat-detail-top{display:flex;align-items:center;gap:18px;background:#141820;border-radius:16px;padding:18px 16px;margin-bottom:18px;border:1px solid #1f2530}
 .cat-donut-wrap{position:relative;width:130px;height:130px;flex-shrink:0}
 .cat-donut-wrap canvas{max-height:130px!important;max-width:130px!important}
 .cat-donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
 .cat-donut-center .cdc-amount{font-size:1.05rem;font-weight:700;color:#e8edf5;line-height:1.1;text-align:center}
-.cat-donut-center .cdc-label{font-size:0.6rem;color:#8b9bb5;margin-top:2px;text-align:center}
+.cat-donut-center .cdc-label{font-size:.6rem;color:#8b9bb5;margin-top:2px;text-align:center}
 .cat-detail-top-info{flex:1;min-width:0}
-.cat-detail-top-info .cdt-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:.5px;color:#8b9bb5;font-weight:500;margin-bottom:6px}
+.cat-detail-top-info .cdt-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.5px;color:#8b9bb5;font-weight:500;margin-bottom:6px}
 .cat-detail-top-info .cdt-category{font-size:1.1rem;font-weight:700;color:#e8edf5;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cat-detail-top-info .cdt-desc{font-size:0.75rem;color:#8b9bb5;line-height:1.4}
+.cat-detail-top-info .cdt-desc{font-size:.75rem;color:#8b9bb5;line-height:1.4}
 .cat-detail-list{display:flex;flex-direction:column;gap:12px}
 .cdl-item{display:flex;flex-direction:column;gap:6px}
-.cdl-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:0.85rem}
+.cdl-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.85rem}
 .cdl-left{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
 .cdl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .cdl-name{font-weight:600;color:#e8edf5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cdl-right{display:flex;align-items:baseline;gap:10px;flex-shrink:0}
 .cdl-amount{font-weight:700;color:#e8edf5}
-.cdl-percent{font-weight:600;color:#8b9bb5;font-size:0.8rem;min-width:42px;text-align:right}
+.cdl-percent{font-weight:600;color:#8b9bb5;font-size:.8rem;min-width:42px;text-align:right}
 .cdl-bar{height:6px;background:#1a1f2a;border-radius:10px;overflow:hidden}
 .cdl-bar-fill{height:100%;border-radius:10px}
-
-@media (max-width:900px){
-    .stats-grid{grid-template-columns:1fr 1fr}
-    .stats-grid .stat-card:last-child{grid-column:span 2}
-}
-@media (max-width:600px){
-    .stat-card .value{font-size:1.1rem}
-    .quick-sums{grid-template-columns:repeat(3,1fr);gap:6px}
-    .quick-sums .group{padding:6px 4px}
-    .period-label{margin-left:0;width:100%;text-align:center}
-    .balance-card .top{flex-direction:column;align-items:stretch}
-    .balance-card .top .amount{font-size:1.6rem}
-    .balance-card .bottom{flex-direction:column;align-items:stretch;gap:4px}
-    .balance-card .bottom .month-change{justify-content:space-around}
-    #rateHistoryChart{height:150px!important}
-    .top-bar .actions{justify-content:center}
-    .charts-row{grid-template-columns:1fr 1fr;gap:8px}
-    .chart-box{padding:8px 6px}
-    .chart-box canvas{max-height:90px}
-    .chart-box .category-list{font-size:0.6rem;max-height:90px}
-    .cat-detail-top{flex-direction:column;text-align:center;gap:12px;padding:16px 12px}
-    .cat-detail-top-info{text-align:center}
-}
-.footer{margin-top:16px;text-align:center;font-size:0.65rem;color:#5a6a80;border-top:1px solid #232b3b;padding-top:12px}
+@media (max-width:900px){.stats-grid{grid-template-columns:1fr 1fr}.stats-grid .stat-card:last-child{grid-column:span 2}}
+@media (max-width:600px){.stat-card .value{font-size:1.1rem}.quick-sums{grid-template-columns:repeat(3,1fr);gap:6px}.period-label{margin-left:0;width:100%;text-align:center}.balance-card .top{flex-direction:column;align-items:stretch}.balance-card .top .amount{font-size:1.6rem}.balance-card .bottom{flex-direction:column;align-items:stretch;gap:4px}#rateHistoryChart{height:150px!important}.top-bar .actions{justify-content:center}.charts-row{grid-template-columns:1fr 1fr;gap:8px}.chart-box{padding:8px 6px}.chart-box canvas{max-height:90px}.cat-detail-top{flex-direction:column;text-align:center;gap:12px}}
+.footer{margin-top:16px;text-align:center;font-size:.65rem;color:#5a6a80;border-top:1px solid #232b3b;padding-top:12px}
 </style>
 </head>
 <body>
@@ -261,37 +214,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
         <div class="stat-card rate-profit"><div class="label">📊 Курсовая разница</div><div class="value" id="rateProfit">0 ₽</div></div>
         <div class="stat-card count"><div class="label">📋 Записей</div><div class="value" id="recordCount">0</div></div>
     </div>
-
     <div class="quick-sums">
         <div class="group"><div class="period-label">День</div><div class="sums-row"><span class="sum income" id="dayIncome">+0</span><span class="sum expense" id="dayExpense">-0</span></div></div>
         <div class="group"><div class="period-label">7 дней</div><div class="sums-row"><span class="sum income" id="weekIncome">+0</span><span class="sum expense" id="weekExpense">-0</span></div></div>
         <div class="group"><div class="period-label">Месяц</div><div class="sums-row"><span class="sum income" id="monthIncome">+0</span><span class="sum expense" id="monthExpense">-0</span></div></div>
     </div>
-
     <div class="insights-block" id="insightsBlock">
         <h3>💡 Сводка по периоду</h3>
         <div class="insight-grid" id="insightGrid"></div>
         <div class="top-cat-list" id="topCatList"></div>
     </div>
-
     <div class="collapsible">
         <div class="collapsible-header" data-target="chartsContent"><h3>📊 Диаграммы по категориям</h3><span class="toggle open">▼</span></div>
         <div class="collapsible-content open" id="chartsContent">
             <div class="charts-row">
                 <div class="chart-box" id="incomeChartBox">
-                    <h3>🧩 Доходы по категориям</h3>
+                    <h3>🧩 Доходы</h3>
                     <canvas id="incomePieChart"></canvas>
                     <div class="category-list" id="incomeCategoryList"></div>
                 </div>
                 <div class="chart-box" id="expenseChartBox">
-                    <h3>🧩 Расходы по категориям</h3>
+                    <h3>🧩 Расходы</h3>
                     <canvas id="expensePieChart"></canvas>
                     <div class="category-list" id="expenseCategoryList"></div>
                 </div>
             </div>
         </div>
     </div>
-
     <div class="collapsible">
         <div class="collapsible-header" data-target="transactionsContent"><h3>📋 История транзакций</h3><span class="toggle open">▼</span></div>
         <div class="collapsible-content open" id="transactionsContent">
@@ -300,7 +249,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
             </div>
         </div>
     </div>
-
     <div class="rate-chart-box">
         <h3>📊 История курса USD/RUB</h3>
         <div class="rate-chart-controls"><button id="refreshRateChartBtn">🔄 Обновить график</button></div>
@@ -324,64 +272,39 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="footer">Данные из stats2.json • Синхронизация с GitHub • История курса из rate.json</div>
 </div>
 
-<!-- МОДАЛКА: ТРАНЗАКЦИЯ -->
 <div class="modal-overlay" id="txModal">
 <div class="modal">
-    <div class="modal-header">
-        <h2 id="txModalTitle">➕ Новая транзакция</h2>
-        <button class="modal-close" id="closeTxModal">×</button>
-    </div>
+    <div class="modal-header"><h2 id="txModalTitle">➕ Новая транзакция</h2><button class="modal-close" id="closeTxModal">×</button></div>
     <div class="modal-body">
-        <div class="form-row">
-            <label>Тип</label>
-            <div class="type-toggle">
-                <button class="type-btn active" data-type="income">💰 Доход</button>
-                <button class="type-btn" data-type="expense">💸 Расход</button>
-            </div>
-        </div>
+        <div class="form-row"><label>Тип</label><div class="type-toggle"><button class="type-btn active" data-type="income">💰 Доход</button><button class="type-btn" data-type="expense">💸 Расход</button></div></div>
         <div class="form-row"><label>Сумма в рублях</label><input type="number" id="txRub" placeholder="0" step="0.01"></div>
         <div class="form-row"><label>Сумма в долларах (необязательно)</label><input type="number" id="txUsd" placeholder="0" step="0.01"></div>
         <div class="form-row"><label>Категория</label><select id="txCategory"></select></div>
         <div class="form-row"><label>Комментарий</label><input type="text" id="txNote" placeholder="Необязательно"></div>
         <div class="form-row"><label>Дата и время</label><input type="datetime-local" id="txDateTime"></div>
     </div>
-    <div class="modal-footer">
-        <button class="modal-btn cancel" id="cancelTxBtn">Отмена</button>
-        <button class="modal-btn save" id="saveTxBtn">Сохранить</button>
-    </div>
+    <div class="modal-footer"><button class="modal-btn cancel" id="cancelTxBtn">Отмена</button><button class="modal-btn save" id="saveTxBtn">Сохранить</button></div>
 </div>
 </div>
 
-<!-- МОДАЛКА: ТОКЕН -->
 <div class="modal-overlay" id="tokenModal">
 <div class="modal">
     <div class="modal-header"><h2>🔑 GitHub-токен</h2><button class="modal-close" id="closeTokenModal">×</button></div>
     <div class="modal-body">
-        <p style="color:#8b9bb5;font-size:0.8rem;margin-bottom:10px;">Вставьте Personal Access Token (тот же, что в Shortcuts, права <b>repo</b>).</p>
+        <p style="color:#8b9bb5;font-size:.8rem;margin-bottom:10px;">Вставьте Personal Access Token (права repo).</p>
         <div class="form-row"><label>Токен</label><input type="text" id="githubTokenInput" placeholder="ghp_..." autocomplete="off"></div>
     </div>
-    <div class="modal-footer">
-        <button class="modal-btn cancel" id="cancelTokenBtn">Отмена</button>
-        <button class="modal-btn save" id="saveTokenBtn">Сохранить</button>
-    </div>
+    <div class="modal-footer"><button class="modal-btn cancel" id="cancelTokenBtn">Отмена</button><button class="modal-btn save" id="saveTokenBtn">Сохранить</button></div>
 </div>
 </div>
 
-<!-- МОДАЛКА: ДЕТАЛИЗАЦИЯ -->
 <div class="modal-overlay" id="catDetailModal">
 <div class="modal cat-detail-modal">
-    <div class="modal-header">
-        <h2 id="catDetailTitle">Расходы за месяц</h2>
-        <button class="modal-close" id="closeCatDetailModal">×</button>
-    </div>
+    <div class="modal-header"><h2 id="catDetailTitle">Расходы</h2><button class="modal-close" id="closeCatDetailModal">×</button></div>
     <div class="modal-body">
         <div class="cat-detail-top">
-            <div class="cat-donut-wrap">
-                <canvas id="catDetailDonut"></canvas>
-                <div class="cat-donut-center">
-                    <div class="cdc-amount" id="catDetailTotal">0 ₽</div>
-                    <div class="cdc-label" id="catDetailTotalLabel">всего</div>
-                </div>
+            <div class="cat-donut-wrap"><canvas id="catDetailDonut"></canvas>
+                <div class="cat-donut-center"><div class="cdc-amount" id="catDetailTotal">0 ₽</div><div class="cdc-label" id="catDetailTotalLabel">всего</div></div>
             </div>
             <div class="cat-detail-top-info">
                 <div class="cdt-label">БОЛЬШЕ ВСЕГО</div>
@@ -394,11 +317,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
+// Показываем любые ошибки в верхней строке
+window.onerror=function(msg,url,line){var el=document.getElementById('fileStatus');if(el)el.textContent='❌ '+msg+' | стр.'+line;return false;};
+
 (function(){
 'use strict';
 
-var $ = function(id){ return document.getElementById(id); };
+// === СРОЧНО: снимаем все старые Service Worker и чистим кэш ===
+if('serviceWorker' in navigator){
+    navigator.serviceWorker.getRegistrations().then(function(regs){
+        for(var i=0;i<regs.length;i++)regs[i].unregister();
+    }).catch(function(){});
+}
+if(window.caches&&caches.keys){
+    caches.keys().then(function(keys){
+        for(var i=0;i<keys.length;i++)caches.delete(keys[i]);
+    }).catch(function(){});
+}
+
+function $(id){return document.getElementById(id);}
 
 var STORAGE_KEY='financeDataTransactions';
 var RATE_STORAGE_KEY='usdRate';
@@ -406,7 +345,7 @@ var RATE_HISTORY_KEY='rateHistory';
 var TOKEN_KEY='githubPersonalToken';
 
 var CATEGORIES_INCOME=['💰 Зарплата','🗓 Продажа','🎁 Подарок','💵 Другое'];
-var CATEGORIES_EXPENSE=['🚘 Автомобиль (Ремонт, заправки)','🍔 Еда (Доставки, супермаркет и т.п.)','🏚️ Ипотека','☕️ Кафе и рестораны','🎢 Развлечения (Кино, концерты, игры)','🛍 Покупки (Одежда, техника)','💊 Здоровье (Врачи, аптеки)','🏠 Коммунальные услуги','📱 Связь и интернет','📚 Образование','💸 Другое'];
+var CATEGORIES_EXPENSE=['🚘 Автомобиль','🍔 Еда','🏚️ Ипотека','☕️ Кафе и рестораны','🎢 Развлечения','🛍 Покупки','💊 Здоровье','🏠 Коммуналка','📱 Связь и интернет','📚 Образование','💸 Другое'];
 var COLORS=['#f87171','#fbbf24','#34d399','#60a5fa','#a78bfa','#fb923c','#f472b6','#2dd4bf','#e879f9','#facc15','#22c55e','#3b82f6','#ec4899','#8b5cf6','#06b6d4'];
 
 var allTransactions=[];
@@ -414,43 +353,61 @@ var rateHistory=[];
 var currentFilter='month';
 var dataLoaded=false;
 var currentUsdRate=85.00;
-var expensePieChart=null, incomePieChart=null, rateHistoryChart=null, catDetailDonut=null;
+var expensePieChart=null,incomePieChart=null,rateHistoryChart=null,catDetailDonut=null;
 var autoUpdateTimer=null;
 var editingIndex=-1;
 var currentTxType='income';
 
-function parseNumber(str){var m=String(str).replace(/\s/g,'').replace(',','.').match(/(\d+\.?\d*)/);return m?parseFloat(m[1]):0;}
+function parseNumber(s){var m=String(s).replace(/\s/g,'').replace(',','.').match(/(\d+\.?\d*)/);return m?parseFloat(m[1]):0;}
 
 function parseLine(line){
-    var p=line.split('|').map(function(s){return s.trim();});
-    if(p.length<5)return null;
-    var typeP=p[0],dtP=p[1],amtP=p[2],catP=p[3],noteP=p[4]||'';
-    var type='';
-    if(typeP.indexOf('ДОХОД')!==-1)type='income';
-    else if(typeP.indexOf('РАСХОД')!==-1)type='expense';
-    else return null;
-    var dm=dtP.match(/(\d{2})\.(\d{2})\.(\d{4}),\s*(\d{2}):(\d{2})/);
-    if(!dm)return null;
-    var dateObj=new Date(+dm[3],+dm[2]-1,+dm[1],+dm[4],+dm[5]);
-    var as=amtP.split('->').map(function(s){return s.trim();});
-    if(as.length!==2)return null;
-    return {type:type,date:dateObj,dateStr:dm[3]+'-'+dm[2]+'-'+dm[1],usd:parseNumber(as[0]),rub:parseNumber(as[1]),category:catP||'Без категории',note:noteP};
+    try{
+        var p=line.split('|');
+        if(p.length<5)return null;
+        for(var i=0;i<p.length;i++)p[i]=p[i].trim();
+        var typeP=p[0],dtP=p[1],amtP=p[2],catP=p[3],noteP=p[4]||'';
+        var type='';
+        if(typeP.indexOf('ДОХОД')!==-1)type='income';
+        else if(typeP.indexOf('РАСХОД')!==-1)type='expense';
+        else return null;
+        var dm=dtP.match(/(\d{2})\.(\d{2})\.(\d{4}),\s*(\d{2}):(\d{2})/);
+        if(!dm)return null;
+        var dateObj=new Date(+dm[3],+dm[2]-1,+dm[1],+dm[4],+dm[5]);
+        var as=amtP.split('->');
+        if(as.length!==2)return null;
+        return {
+            type:type,
+            date:dateObj,
+            dateStr:dm[3]+'-'+dm[2]+'-'+dm[1],
+            usd:parseNumber(as[0]),
+            rub:parseNumber(as[1]),
+            category:catP||'Без категории',
+            note:noteP
+        };
+    }catch(e){return null;}
 }
 
 function parseData(jsonText){
-    var d;try{d=JSON.parse(jsonText);}catch(e){return [];}
-    if(!d.text||typeof d.text!=='string')return [];
-    var lines=d.text.split('\n').filter(function(l){return l.trim()!=='';});
-    var txs=[];
-    for(var i=0;i<lines.length;i++){var t=parseLine(lines[i]);if(t)txs.push(t);}
-    return txs;
+    try{
+        var d=JSON.parse(jsonText);
+        if(!d.text||typeof d.text!=='string')return [];
+        var lines=d.text.split('\n');
+        var txs=[];
+        for(var i=0;i<lines.length;i++){
+            if(!lines[i].trim())continue;
+            var t=parseLine(lines[i]);
+            if(t)txs.push(t);
+        }
+        return txs;
+    }catch(e){return [];}
 }
 
 function parseRateHistory(text){
-    var lines=text.split('\n').filter(function(l){return l.trim()!=='';});
+    var lines=text.split('\n');
     var h=[];
     for(var i=0;i<lines.length;i++){
         var line=lines[i];
+        if(!line.trim())continue;
         if(line.toLowerCase().indexOf('курс')!==-1)continue;
         var p=line.split('|');
         if(p.length<2)continue;
@@ -458,10 +415,10 @@ function parseRateHistory(text){
         if(!nm)continue;
         var rate=parseFloat(nm[1].replace(',','.'));
         if(isNaN(rate)||rate<=0)continue;
-       {2}):(\d{2})/);
-        h.push({date:new Date(+dm[3], var dm=p[0].match(/(\d{2})\.(\d{2})\.(\d{4})/);
+        var dm=p[0].match(/(\d{2})\.(\d{2})\.(\d{4})/);
         if(!dm)continue;
-        var tm=p[0].match(/(\d+dm[2]-1,+dm[1],tm?+tm[1]:0,tm?+tm[2]:0),rate:rate});
+        var tm=p[0].match(/(\d{2}):(\d{2})/);
+        h.push({date:new Date(+dm[3],+dm[2]-1,+dm[1],tm?+tm[1]:0,tm?+tm[2]:0),rate:rate});
     }
     h.sort(function(a,b){return a.date-b.date;});
     return h;
@@ -470,7 +427,8 @@ function parseRateHistory(text){
 function filterTransactions(txs,period){
     if(!txs.length)return [];
     if(period==='all')return txs;
-    var now=new Date();var start=new Date(now);
+    var now=new Date();
+    var start=new Date(now);
     if(period==='day')start.setHours(0,0,0,0);
     else if(period==='week'){start.setDate(now.getDate()-7);start.setHours(0,0,0,0);}
     else{start.setMonth(now.getMonth()-1);start.setHours(0,0,0,0);}
@@ -479,11 +437,16 @@ function filterTransactions(txs,period){
 
 function aggregateByCategory(txs,type){
     var map={};
-    txs.filter(function(t){return t.type===type;}).forEach(function(tx){
+    for(var i=0;i<txs.length;i++){
+        var tx=txs[i];
+        if(tx.type!==type)continue;
         var c=tx.category||'Без категории';
         map[c]=(map[c]||0)+tx.rub;
-    });
-    return Object.keys(map).map(function(k){return {label:k,value:map[k]};}).sort(function(a,b){return b.value-a.value;});
+    }
+    var arr=[];
+    for(var k in map)if(map.hasOwnProperty(k))arr.push({label:k,value:map[k]});
+    arr.sort(function(a,b){return b.value-a.value;});
+    return arr;
 }
 
 function saveTransactions(t){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(t));}catch(e){}}
@@ -496,14 +459,17 @@ function getToken(){return localStorage.getItem(TOKEN_KEY)||'';}
 function setToken(t){localStorage.setItem(TOKEN_KEY,t);}
 
 function renderInsights(txs,period){
-    var block=$('insightsBlock');var grid=$('insightGrid');var topList=$('topCatList');
+    var block=$('insightsBlock'),grid=$('insightGrid'),topList=$('topCatList');
+    if(!block)return;
     if(!txs.length){block.style.display='none';return;}
     block.style.display='block';
 
-    var rubIncome=txs.filter(function(t){return t.type==='income'&&t.usd===0;}).reduce(function(s,t){return s+t.rub;},0);
-    var rubExpense=txs.filter(function(t){return t.type==='expense'&&t.usd===0;}).reduce(function(s,t){return s+t.rub;},0);
-    var usdIncome=txs.filter(function(t){return t.type==='income'&&t.usd>0;}).reduce(function(s,t){return s+t.usd;},0);
-    var usdExpense=txs.filter(function(t){return t.type==='expense'&&t.usd>0;}).reduce(function(s,t){return s+t.usd;},0);
+    var rubIncome=0,rubExpense=0,usdIncome=0,usdExpense=0;
+    for(var i=0;i<txs.length;i++){
+        var t=txs[i];
+        if(t.type==='income'){if(t.usd===0)rubIncome+=t.rub;else usdIncome+=t.usd;}
+        else{if(t.usd===0)rubExpense+=t.rub;else usdExpense+=t.usd;}
+    }
     var totalIncome=rubIncome+usdIncome*currentUsdRate;
     var totalExpense=rubExpense+usdExpense*currentUsdRate;
     var net=totalIncome-totalExpense;
@@ -512,45 +478,51 @@ function renderInsights(txs,period){
     if(period==='week')periodDays=7;
     else if(period==='month')periodDays=30;
     else if(period==='all'&&txs.length){
-        var minD=Math.min.apply(null,txs.map(function(t){return t.date.getTime();}));
-        var maxD=Math.max.apply(null,txs.map(function(t){return t.date.getTime();}));
+        var minD=txs[0].date.getTime(),maxD=txs[0].date.getTime();
+        for(var i=1;i<txs.length;i++){var tm=txs[i].date.getTime();if(tm<minD)minD=tm;if(tm>maxD)maxD=tm;}
         periodDays=Math.max(1,Math.ceil((maxD-minD)/(1000*60*60*24))+1);
     }
     var avgIncome=totalIncome/periodDays;
     var avgExpense=totalExpense/periodDays;
     var avgNet=net/periodDays;
-    var cntIncome=txs.filter(function(t){return t.type==='income';}).length;
-    var cntExpense=txs.filter(function(t){return t.type==='expense';}).length;
+    var cntIncome=0,cntExpense=0;
+    for(var i=0;i<txs.length;i++){if(txs[i].type==='income')cntIncome++;else cntExpense++;}
     var percentSaving=totalIncome>0?Math.round((net/totalIncome)*100):0;
 
     grid.innerHTML=
         '<div class="insight-item income"><div class="it-label">📊 Средний доход / день</div><div class="it-value">'+Math.round(avgIncome).toLocaleString('ru-RU')+' ₽</div><div class="it-sub">Всего: '+totalIncome.toLocaleString('ru-RU')+' ₽</div></div>'+
         '<div class="insight-item expense"><div class="it-label">📉 Средний расход / день</div><div class="it-value">'+Math.round(avgExpense).toLocaleString('ru-RU')+' ₽</div><div class="it-sub">Всего: '+totalExpense.toLocaleString('ru-RU')+' ₽</div></div>'+
         '<div class="insight-item"><div class="it-label">💡 Чистый баланс / день</div><div class="it-value" style="color:'+(avgNet>=0?'#4ade80':'#f87171')+'">'+Math.round(avgNet).toLocaleString('ru-RU')+' ₽</div><div class="it-sub">Всего: '+net.toLocaleString('ru-RU')+' ₽</div></div>'+
-        '<div class="insight-item"><div class="it-label">📋 Операций</div><div class="it-value">'+txs.length+'</div><div class="it-sub">↑ '+cntIncome+' доходов · ↓ '+cntExpense+' расходов</div></div>'+
+        '<div class="insight-item"><div class="it-label">📋 Операций</div><div class="it-value">'+txs.length+'</div><div class="it-sub">↑ '+cntIncome+' · ↓ '+cntExpense+'</div></div>'+
         '<div class="insight-item"><div class="it-label">💾 Процент сбережений</div><div class="it-value" style="color:'+(percentSaving>=20?'#4ade80':percentSaving>=0?'#fbbf24':'#f87171')+'">'+percentSaving+'%</div><div class="it-sub">'+(percentSaving>=30?'Отличный результат!':percentSaving>=15?'Хорошо':percentSaving>=0?'Можно лучше':'Расход > доход')+'</div></div>';
 
     var expCat=aggregateByCategory(txs,'expense');
     var top3=expCat.slice(0,3);
-    var totalExp=expCat.reduce(function(s,x){return s+x.value;},0);
+    var totalExp=0;
+    for(var i=0;i<expCat.length;i++)totalExp+=expCat[i].value;
     if(top3.length){
-        topList.innerHTML='<div style="font-size:0.7rem;color:#8b9bb5;margin-top:10px;margin-bottom:4px;">💸 Топ-3 категории расходов:</div>'+
-            top3.map(function(x,i){
-                var pct=totalExp?((x.value/totalExp)*100).toFixed(1):0;
-                var medal=['🥇','🥈','🥉'][i];
-                return '<div class="tc-item"><span class="tc-name">'+medal+' '+x.label+'</span><span class="tc-value">'+x.value.toLocaleString('ru-RU')+' ₽ ('+pct+'%)</span></div>';
-            }).join('');
-    } else {
-        topList.innerHTML='';
-    }
+        var html='<div style="font-size:.7rem;color:#8b9bb5;margin-top:10px;margin-bottom:4px;">💸 Топ-3 расходов:</div>';
+        for(var i=0;i<top3.length;i++){
+            var pct=totalExp?((top3[i].value/totalExp)*100).toFixed(1):0;
+            var medal=['🥇','🥈','🥉'][i];
+            html+='<div class="tc-item"><span class="tc-name">'+medal+' '+top3[i].label+'</span><span class="tc-value">'+top3[i].value.toLocaleString('ru-RU')+' ₽ ('+pct+'%)</span></div>';
+        }
+        topList.innerHTML=html;
+    } else topList.innerHTML='';
 }
 
 function renderDashboard(txs,period){
-    if(!txs.length){$('dashboard').classList.add('hidden');$('emptyState').classList.remove('hidden');return;}
-    var rubIncome=txs.filter(function(t){return t.type==='income'&&t.usd===0;}).reduce(function(s,t){return s+t.rub;},0);
-    var rubExpense=txs.filter(function(t){return t.type==='expense'&&t.usd===0;}).reduce(function(s,t){return s+t.rub;},0);
-    var usdIncome=txs.filter(function(t){return t.type==='income'&&t.usd>0;}).reduce(function(s,t){return s+t.usd;},0);
-    var usdExpense=txs.filter(function(t){return t.type==='expense'&&t.usd>0;}).reduce(function(s,t){return s+t.usd;},0);
+    if(!txs.length){
+        $('dashboard').classList.add('hidden');
+        $('emptyState').classList.remove('hidden');
+        return;
+    }
+    var rubIncome=0,rubExpense=0,usdIncome=0,usdExpense=0;
+    for(var i=0;i<txs.length;i++){
+        var t=txs[i];
+        if(t.type==='income'){if(t.usd===0)rubIncome+=t.rub;else usdIncome+=t.usd;}
+        else{if(t.usd===0)rubExpense+=t.rub;else usdExpense+=t.usd;}
+    }
     var totalIncomeRub=rubIncome+usdIncome*currentUsdRate;
     var totalExpenseRub=rubExpense+usdExpense*currentUsdRate;
     var netRub=totalIncomeRub-totalExpenseRub;
@@ -561,11 +533,13 @@ function renderDashboard(txs,period){
     var mS=new Date(now);mS.setMonth(now.getMonth()-1);mS.setHours(0,0,0,0);
 
     function calc(start){
-        var f=txs.filter(function(t){return t.date>=start;});
-        var ri=f.filter(function(t){return t.type==='income'&&t.usd===0;}).reduce(function(s,t){return s+t.rub;},0);
-        var re=f.filter(function(t){return t.type==='expense'&&t.usd===0;}).reduce(function(s,t){return s+t.rub;},0);
-        var ui=f.filter(function(t){return t.type==='income'&&t.usd>0;}).reduce(function(s,t){return s+t.usd;},0);
-        var ue=f.filter(function(t){return t.type==='expense'&&t.usd>0;}).reduce(function(s,t){return s+t.usd;},0);
+        var ri=0,re=0,ui=0,ue=0;
+        for(var i=0;i<txs.length;i++){
+            var t=txs[i];
+            if(t.date<start)continue;
+            if(t.type==='income'){if(t.usd===0)ri+=t.rub;else ui+=t.usd;}
+            else{if(t.usd===0)re+=t.rub;else ue+=t.usd;}
+        }
         return {incRub:ri+ui*currentUsdRate,expRub:re+ue*currentUsdRate};
     }
     var d=calc(dS),w=calc(wS),m=calc(mS);
@@ -582,7 +556,7 @@ function renderDashboard(txs,period){
     $('recordCount').textContent=txs.length;
 
     var rateDiff=0;
-    txs.forEach(function(tx){if(tx.usd>0)rateDiff+=tx.usd*currentUsdRate-tx.rub;});
+    for(var i=0;i<txs.length;i++){if(txs[i].usd>0)rateDiff+=txs[i].usd*currentUsdRate-txs[i].rub;}
     var rp=$('rateProfit');
     rp.textContent=(rateDiff>=0?'+':'')+rateDiff.toLocaleString('ru-RU')+' ₽';
     rp.style.color=rateDiff>=0?'#4ade80':'#f87171';
@@ -602,37 +576,41 @@ function renderDashboard(txs,period){
     incomePieChart=new Chart($('incomePieChart'),{
         type:'doughnut',
         data:{labels:incCat.map(function(x){return x.label;}),datasets:[{data:incCat.map(function(x){return x.value;}),backgroundColor:COLORS.slice(0,incCat.length),borderColor:'#111',borderWidth:2}]},
-        options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var t=c.dataset.data.reduce(function(a,b){return a+b;},0);return c.label+': '+c.parsed.toLocaleString('ru-RU')+' ₽ ('+((c.parsed/t)*100).toFixed(1)+'%)';}}}}}
+        options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var t=0;for(var i=0;i<c.dataset.data.length;i++)t+=c.dataset.data[i];return c.label+': '+c.parsed.toLocaleString('ru-RU')+' ₽ ('+((c.parsed/t)*100).toFixed(1)+'%)';}}}}}
     });
     var incList=$('incomeCategoryList');incList.innerHTML='';
-    var incTotal=incCat.reduce(function(s,x){return s+x.value;},0);
-    incCat.forEach(function(x){
-        var pct=incTotal?((x.value/incTotal)*100).toFixed(1):0;
+    var incTotal=0;
+    for(var i=0;i<incCat.length;i++)incTotal+=incCat[i].value;
+    for(var i=0;i<incCat.length;i++){
+        var pct=incTotal?((incCat[i].value/incTotal)*100).toFixed(1):0;
         var dd=document.createElement('div');dd.className='cat-item';
-        dd.innerHTML='<span>'+x.label+'</span><span class="value">'+x.value.toLocaleString('ru-RU')+' ₽ ('+pct+'%)</span>';
+        dd.innerHTML='<span>'+incCat[i].label+'</span><span class="value">'+incCat[i].value.toLocaleString('ru-RU')+' ₽ ('+pct+'%)</span>';
         incList.appendChild(dd);
-    });
+    }
 
     var expCat=aggregateByCategory(txs,'expense');
     expensePieChart=new Chart($('expensePieChart'),{
         type:'doughnut',
         data:{labels:expCat.map(function(x){return x.label;}),datasets:[{data:expCat.map(function(x){return x.value;}),backgroundColor:COLORS.slice(0,expCat.length),borderColor:'#111',borderWidth:2}]},
-        options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var t=c.dataset.data.reduce(function(a,b){return a+b;},0);return c.label+': '+c.parsed.toLocaleString('ru-RU')+' ₽ ('+((c.parsed/t)*100).toFixed(1)+'%)';}}}}}
+        options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var t=0;for(var i=0;i<c.dataset.data.length;i++)t+=c.dataset.data[i];return c.label+': '+c.parsed.toLocaleString('ru-RU')+' ₽ ('+((c.parsed/t)*100).toFixed(1)+'%)';}}}}}
     });
     var expList=$('expenseCategoryList');expList.innerHTML='';
-    var expTotal=expCat.reduce(function(s,x){return s+x.value;},0);
-    expCat.forEach(function(x){
-        var pct=expTotal?((x.value/expTotal)*100).toFixed(1):0;
+    var expTotal=0;
+    for(var i=0;i<expCat.length;i++)expTotal+=expCat[i].value;
+    for(var i=0;i<expCat.length;i++){
+        var pct=expTotal?((expCat[i].value/expTotal)*100).toFixed(1):0;
         var dd=document.createElement('div');dd.className='cat-item';
-        dd.innerHTML='<span>'+x.label+'</span><span class="value">'+x.value.toLocaleString('ru-RU')+' ₽ ('+pct+'%)</span>';
+        dd.innerHTML='<span>'+expCat[i].label+'</span><span class="value">'+expCat[i].value.toLocaleString('ru-RU')+' ₽ ('+pct+'%)</span>';
         expList.appendChild(dd);
-    });
+    }
 
-    var indexed=txs.map(function(tx,i){return {tx:tx,i:i};});
+    var indexed=[];
+    for(var i=0;i<txs.length;i++)indexed.push({tx:txs[i],i:i});
     indexed.sort(function(a,b){return b.tx.date-a.tx.date;});
     var list=$('transactionList');list.innerHTML='';
-    indexed.slice(0,100).forEach(function(item){
-        var tx=item.tx;
+    var slice=indexed.slice(0,100);
+    for(var k=0;k<slice.length;k++){
+        var tx=slice[k].tx;
         var div=document.createElement('div');div.className='tx-item';
         var left=document.createElement('div');left.className='left';
         left.innerHTML='<span class="cat">'+tx.category+'</span><span class="date">'+tx.date.toLocaleDateString('ru-RU')+' '+tx.date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+'</span>'+(tx.note&&tx.note!=='-'?'<span class="note">'+tx.note+'</span>':'');
@@ -641,13 +619,13 @@ function renderDashboard(txs,period){
         right.textContent=(tx.type==='income'?'+':'-')+tx.rub.toLocaleString('ru-RU')+' ₽'+(tx.usd>0?' ('+tx.usd.toFixed(2)+' $)':'');
         var actions=document.createElement('div');actions.className='tx-actions';
         var eBtn=document.createElement('button');eBtn.className='edit';eBtn.textContent='✏️';
-        eBtn.addEventListener('click',function(){editTransaction(item.i);});
+        (function(idx){eBtn.addEventListener('click',function(){editTransaction(idx);});})(slice[k].i);
         var dBtn=document.createElement('button');dBtn.className='del';dBtn.textContent='🗑️';
-        dBtn.addEventListener('click',function(){deleteTransaction(item.i);});
+        (function(idx){dBtn.addEventListener('click',function(){deleteTransaction(idx);});})(slice[k].i);
         actions.appendChild(eBtn);actions.appendChild(dBtn);
         div.appendChild(left);div.appendChild(right);div.appendChild(actions);
         list.appendChild(div);
-    });
+    }
 
     renderInsights(txs,period);
     $('dashboard').classList.remove('hidden');
@@ -668,21 +646,23 @@ function updateBalanceBlock(){
         return;
     }
     var uI=0,uE=0,rI=0,rE=0;
-    allTransactions.forEach(function(tx){
-        if(tx.type==='income'){if(tx.usd>0)uI+=tx.usd;else rI+=tx.rub;}
-        else{if(tx.usd>0)uE+=tx.usd;else rE+=tx.rub;}
-    });
+    for(var i=0;i<allTransactions.length;i++){
+        var t=allTransactions[i];
+        if(t.type==='income'){if(t.usd>0)uI+=t.usd;else rI+=t.rub;}
+        else{if(t.usd>0)uE+=t.usd;else rE+=t.rub;}
+    }
     var netUsd=uI-uE,netRub=rI-rE;
     var total=netRub+netUsd*currentUsdRate;
     var now=new Date();
     var mS=new Date(now.getFullYear(),now.getMonth(),1);
     var mE=new Date(now.getFullYear(),now.getMonth()+1,0);
-    var mTxs=allTransactions.filter(function(tx){return tx.date>=mS&&tx.date<=mE;});
     var mI=0,mE2=0;
-    mTxs.forEach(function(tx){
-        if(tx.type==='income')mI+=tx.usd>0?tx.usd*currentUsdRate:tx.rub;
-        else mE2+=tx.usd>0?tx.usd*currentUsdRate:tx.rub;
-    });
+    for(var i=0;i<allTransactions.length;i++){
+        var t=allTransactions[i];
+        if(t.date<mS||t.date>mE)continue;
+        if(t.type==='income')mI+=t.usd>0?t.usd*currentUsdRate:t.rub;
+        else mE2+=t.usd>0?t.usd*currentUsdRate:t.rub;
+    }
     $('periodDisplay').textContent=mS.toLocaleDateString('ru-RU')+' — '+mE.toLocaleDateString('ru-RU');
     $('totalBalanceRubDisplay').textContent=total.toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₽';
     $('totalBalanceUsdDisplay').textContent=netUsd.toFixed(2)+' $';
@@ -702,7 +682,8 @@ function initData(txs){
     allTransactions=txs;
     dataLoaded=true;
     saveTransactions(txs);
-    filterBtns.forEach(function(b){b.classList.remove('disabled');});
+    var fb=document.querySelectorAll('.filter-btn');
+    for(var i=0;i<fb.length;i++)fb[i].classList.remove('disabled');
     var active=document.querySelector('.filter-btn[data-period="'+currentFilter+'"]');
     if(active)active.classList.add('active');
     updateWithFilter(currentFilter);
@@ -710,27 +691,20 @@ function initData(txs){
 }
 
 function drawRateHistoryChart(){
-    var c=$('rateHistoryChart');if(!c)return;
+    var c=$('rateHistoryChart');
+    if(!c)return;
     if(rateHistoryChart){rateHistoryChart.destroy();rateHistoryChart=null;}
     var ctx=c.getContext('2d');
     if(rateHistory.length<2){
         rateHistoryChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'Курс',data:[],borderColor:'#60a5fa',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'#c8d0e0'}}}}});
-        var orig=rateHistoryChart.draw;
-        rateHistoryChart.draw=function(){
-            orig.apply(this,arguments);
-            var c2=this.ctx,a=this.chartArea;
-            if(this.data.datasets[0].data.length<2){
-                c2.save();c2.fillStyle='#7a8aa3';c2.font='14px -apple-system,sans-serif';c2.textAlign='center';c2.textBaseline='middle';
-                c2.fillText('Нет данных курса',(a.left+a.right)/2,(a.top+a.bottom)/2);
-                c2.restore();
-            }
-        };
-        rateHistoryChart.update();
         return;
     }
     rateHistoryChart=new Chart(ctx,{
         type:'line',
-        data:{labels:rateHistory.map(function(x){return x.date.toLocaleDateString('ru-RU')+' '+x.date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});}),datasets:[{label:'Курс USD/RUB',data:rateHistory.map(function(x){return x.rate;}),borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,0.1)',borderWidth:2,pointBackgroundColor:'#60a5fa',pointRadius:2,tension:0.2,fill:true}]},
+        data:{
+            labels:rateHistory.map(function(x){return x.date.toLocaleDateString('ru-RU')+' '+x.date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});}),
+            datasets:[{label:'Курс USD/RUB',data:rateHistory.map(function(x){return x.rate;}),borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,0.1)',borderWidth:2,pointBackgroundColor:'#60a5fa',pointRadius:2,tension:0.2,fill:true}]
+        },
         options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'#c8d0e0'}},tooltip:{callbacks:{label:function(c){return c.parsed.y.toFixed(2)+' ₽';}}}},scales:{y:{ticks:{color:'#8b9bb5',callback:function(v){return v.toFixed(2)+' ₽';}}},x:{ticks:{color:'#8b9bb5',maxTicksLimit:15,maxRotation:30,autoSkip:true}}}}
     });
 }
@@ -756,12 +730,20 @@ function loadData(showStatus){
         .then(function(r){if(!r.ok)throw new Error('not found');return r.text();})
         .then(function(txt){
             var txs=parseData(txt);
-            if(txs.length){initData(txs);if(showStatus)$('fileStatus').textContent='✅ Загружено с GitHub: '+txs.length;return true;}
+            if(txs.length){
+                initData(txs);
+                if(showStatus)$('fileStatus').textContent='✅ Загружено с GitHub: '+txs.length;
+                return true;
+            }
             throw new Error('empty');
         })
-        .catch(function(e){
+        .catch(function(){
             var stored=loadTransactions();
-            if(stored&&stored.length){initData(stored);if(showStatus)$('fileStatus').textContent='📂 Загружено из кэша: '+stored.length;return true;}
+            if(stored&&stored.length){
+                initData(stored);
+                if(showStatus)$('fileStatus').textContent='📂 Из кэша: '+stored.length;
+                return true;
+            }
             return false;
         });
 }
@@ -785,7 +767,7 @@ function loadRateHistoryFromServer(showStatus){
             }
             throw new Error('empty');
         })
-        .catch(function(e){
+        .catch(function(){
             var stored=loadRateHistory();
             if(stored&&stored.length){
                 rateHistory=stored;
@@ -801,8 +783,12 @@ function loadRateHistoryFromServer(showStatus){
 function fillCategories(type){
     var list=type==='income'?CATEGORIES_INCOME:CATEGORIES_EXPENSE;
     var sel=$('txCategory');sel.innerHTML='';
-    list.forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;sel.appendChild(o);});
+    for(var i=0;i<list.length;i++){
+        var o=document.createElement('option');o.value=list[i];o.textContent=list[i];sel.appendChild(o);
+    }
 }
+
+function pad(n){return n<10?'0'+n:''+n;}
 
 function openTxModal(editIdx){
     editingIndex=(typeof editIdx==='number')?editIdx:-1;
@@ -811,25 +797,30 @@ function openTxModal(editIdx){
         var tx=allTransactions[editingIndex];
         title.textContent='✏️ Редактировать';
         currentTxType=tx.type;
-        document.querySelectorAll('.type-btn').forEach(function(b){b.classList.toggle('active',b.dataset.type===tx.type);});
+        var btns=document.querySelectorAll('.type-btn');
+        for(var i=0;i<btns.length;i++)btns[i].classList.toggle('active',btns[i].dataset.type===tx.type);
         fillCategories(tx.type);
         $('txRub').value=tx.rub||'';
         $('txUsd').value=tx.usd||'';
         $('txNote').value=(tx.note&&tx.note!=='-')?tx.note:'';
-        var d=tx.date;function pad(n){return String(n).padStart(2,'0');}
+        var d=tx.date;
         $('txDateTime').value=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
         if(tx.category){
-            var exists=Array.from($('txCategory').options).some(function(o){return o.value===tx.category;});
+            var exists=false;
+            var opts=$('txCategory').options;
+            for(var i=0;i<opts.length;i++)if(opts[i].value===tx.category){exists=true;break;}
             if(!exists){var o=document.createElement('option');o.value=tx.category;o.textContent=tx.category;$('txCategory').appendChild(o);}
             $('txCategory').value=tx.category;
         }
     } else {
         title.textContent='➕ Новая транзакция';
         currentTxType='income';
-        document.querySelectorAll('.type-btn').forEach(function(b){b.classList.toggle('active',b.dataset.type==='income');});
+        var btns=document.querySelectorAll('.type-btn');
+        for(var i=0;i<btns.length;i++)btns[i].classList.toggle('active',btns[i].dataset.type==='income');
         fillCategories('income');
         $('txRub').value='';$('txUsd').value='';$('txNote').value='';
-        var now=new Date();now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
+        var now=new Date();
+        now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
         $('txDateTime').value=now.toISOString().slice(0,16);
     }
     $('txModal').classList.add('open');
@@ -841,7 +832,8 @@ function editTransaction(i){openTxModal(i);}
 
 function deleteTransaction(i){
     var tx=allTransactions[i];
-    if(!confirm('Удалить транзакцию?\n'+tx.category+'\n'+tx.rub+' ₽ от '+tx.date.toLocaleDateString('ru-RU')))return;
+    if(!tx)return;
+    if(!confirm('Удалить транзакцию?\n'+tx.category+'\n'+tx.rub+' ₽'))return;
     allTransactions.splice(i,1);
     saveTransactions(allTransactions);
     updateWithFilter(currentFilter);
@@ -852,7 +844,8 @@ function openCategoryDetail(type){
     var filtered=filterTransactions(allTransactions,currentFilter);
     var catList=aggregateByCategory(filtered,type);
     if(!catList.length){alert('Нет данных за выбранный период');return;}
-    var total=catList.reduce(function(s,x){return s+x.value;},0);
+    var total=0;
+    for(var i=0;i<catList.length;i++)total+=catList[i].value;
     var periodNames={day:'Сегодня',week:'За 7 дней',month:'За месяц',all:'За всё время'};
     var typeName=type==='expense'?'Расходы':'Доходы';
 
@@ -874,13 +867,13 @@ function openCategoryDetail(type){
     });
 
     var listEl=$('catDetailList');listEl.innerHTML='';
-    catList.forEach(function(x,i){
+    for(var i=0;i<catList.length;i++){
+        var x=catList[i];
         var pct=(x.value/total)*100;
         var item=document.createElement('div');item.className='cdl-item';
         item.innerHTML='<div class="cdl-row"><div class="cdl-left"><span class="cdl-dot" style="background:'+colors[i]+'"></span><span class="cdl-name">'+x.label+'</span></div><div class="cdl-right"><span class="cdl-amount">'+x.value.toLocaleString('ru-RU')+' ₽</span><span class="cdl-percent">'+pct.toFixed(1)+'%</span></div></div><div class="cdl-bar"><div class="cdl-bar-fill" style="width:'+pct+'%;background:'+colors[i]+'"></div></div>';
         listEl.appendChild(item);
-    });
-
+    }
     $('catDetailModal').classList.add('open');
 }
 
@@ -907,40 +900,47 @@ function startAutoUpdate(){
     },60000);
 }
 
-// === СОБЫТИЯ ===
+// ============ СОБЫТИЯ ============
 var filterBtns=document.querySelectorAll('.filter-btn');
+for(var i=0;i<filterBtns.length;i++){
+    (function(btn){
+        btn.addEventListener('click',function(){
+            if(this.classList.contains('disabled'))return;
+            for(var j=0;j<filterBtns.length;j++)filterBtns[j].classList.remove('active');
+            this.classList.add('active');
+            currentFilter=this.dataset.period;
+            if(dataLoaded)updateWithFilter(currentFilter);
+        });
+    })(filterBtns[i]);
+}
 
-filterBtns.forEach(function(btn){
-    btn.addEventListener('click',function(){
-        if(this.classList.contains('disabled'))return;
-        filterBtns.forEach(function(b){b.classList.remove('active');});
-        this.classList.add('active');
-        currentFilter=this.dataset.period;
-        if(dataLoaded)updateWithFilter(currentFilter);
-    });
-});
-
-document.querySelectorAll('.collapsible-header').forEach(function(h){
-    h.addEventListener('click',function(){
-        var c=$(this.dataset.target);
-        var t=this.querySelector('.toggle');
-        var p=this.closest('.collapsible');
-        if(c){c.classList.toggle('open');t.classList.toggle('open');p.classList.toggle('closed');}
-    });
-});
+var collapsibleHeaders=document.querySelectorAll('.collapsible-header');
+for(var i=0;i<collapsibleHeaders.length;i++){
+    (function(h){
+        h.addEventListener('click',function(){
+            var c=$(this.dataset.target);
+            var t=this.querySelector('.toggle');
+            var p=this.closest('.collapsible');
+            if(c){c.classList.toggle('open');t.classList.toggle('open');if(p)p.classList.toggle('closed');}
+        });
+    })(collapsibleHeaders[i]);
+}
 
 $('addTxBtn').addEventListener('click',function(){openTxModal(-1);});
 $('closeTxModal').addEventListener('click',closeTxModal);
 $('cancelTxBtn').addEventListener('click',closeTxModal);
 
-document.querySelectorAll('.type-btn').forEach(function(btn){
-    btn.addEventListener('click',function(){
-        currentTxType=this.dataset.type;
-        document.querySelectorAll('.type-btn').forEach(function(b){b.classList.remove('active');});
-        this.classList.add('active');
-        fillCategories(currentTxType);
-    });
-});
+var typeBtns=document.querySelectorAll('.type-btn');
+for(var i=0;i<typeBtns.length;i++){
+    (function(btn){
+        btn.addEventListener('click',function(){
+            currentTxType=this.dataset.type;
+            for(var j=0;j<typeBtns.length;j++)typeBtns[j].classList.remove('active');
+            this.classList.add('active');
+            fillCategories(currentTxType);
+        });
+    })(typeBtns[i]);
+}
 
 $('saveTxBtn').addEventListener('click',function(){
     var rub=parseFloat($('txRub').value)||0;
@@ -951,19 +951,14 @@ $('saveTxBtn').addEventListener('click',function(){
     if(rub<=0&&usd<=0){alert('Введите хотя бы одну сумму');return;}
     if(!dtVal){alert('Укажите дату и время');return;}
     var dt=new Date(dtVal);
-    var d=String(dt.getDate()).padStart(2,'0');
-    var mo=String(dt.getMonth()+1).padStart(2,'0');
-    var y=dt.getFullYear();
-    var h=String(dt.getHours()).padStart(2,'0');
-    var mi=String(dt.getMinutes()).padStart(2,'0');
+    var d=pad(dt.getDate()),mo=pad(dt.getMonth()+1),y=dt.getFullYear(),h=pad(dt.getHours()),mi=pad(dt.getMinutes());
     var dateStr=d+'.'+mo+'.'+y+', '+h+':'+mi;
     var typeLabel=currentTxType==='income'?'🟢 ДОХОД':'🔴 РАСХОД';
     var usdLabel=usd>0?usd+' Долларов 🇺🇸':'0 Долларов 🇺🇸';
     var rubLabel=rub+' Рублей 🇷🇺';
     var line=typeLabel+' | '+dateStr+' | '+usdLabel+'  -> '+rubLabel+' | '+category+' | '+note;
     var newTx=parseLine(line);
-    if(!newTx){alert('Ошибка при разборе строки');return;}
-
+    if(!newTx){alert('Ошибка при разборе');return;}
     if(editingIndex>=0){
         allTransactions[editingIndex]=newTx;
         $('fileStatus').textContent='✏️ Отредактировано';
@@ -977,22 +972,21 @@ $('saveTxBtn').addEventListener('click',function(){
 });
 
 $('syncBtn').addEventListener('click',function(){
-    if(!allTransactions.length){$('fileStatus').textContent='ℹ️ Нет данных для синхронизации';return;}
+    if(!allTransactions.length){$('fileStatus').textContent='ℹ️ Нет данных';return;}
     var token=getToken();
     if(!token){$('tokenModal').classList.add('open');return;}
     $('fileStatus').textContent='⏳ Синхронизация...';
-    var lines=allTransactions.slice().sort(function(a,b){return a.date-b.date;}).map(function(tx){
-        var d=String(tx.date.getDate()).padStart(2,'0');
-        var mo=String(tx.date.getMonth()+1).padStart(2,'0');
-        var y=tx.date.getFullYear();
-        var h=String(tx.date.getHours()).padStart(2,'0');
-        var mi=String(tx.date.getMinutes()).padStart(2,'0');
+    var sorted=allTransactions.slice().sort(function(a,b){return a.date-b.date;});
+    var lines=[];
+    for(var i=0;i<sorted.length;i++){
+        var tx=sorted[i];
+        var d=pad(tx.date.getDate()),mo=pad(tx.date.getMonth()+1),y=tx.date.getFullYear(),h=pad(tx.date.getHours()),mi=pad(tx.date.getMinutes());
         var dateStr=d+'.'+mo+'.'+y+', '+h+':'+mi;
         var typeLabel=tx.type==='income'?'🟢 ДОХОД':'🔴 РАСХОД';
         var usdLabel=tx.usd>0?tx.usd+' Долларов 🇺🇸':'0 Долларов 🇺🇸';
         var rubLabel=tx.rub+' Рублей 🇷🇺';
-        return typeLabel+' | '+dateStr+' | '+usdLabel+'  -> '+rubLabel+' | '+tx.category+' | '+(tx.note||'-');
-    });
+        lines.push(typeLabel+' | '+dateStr+' | '+usdLabel+'  -> '+rubLabel+' | '+tx.category+' | '+(tx.note||'-'));
+    }
     var newText=lines.join('\n');
     var updatedJson=JSON.stringify({text:newText});
     var updatedB64=btoa(unescape(encodeURIComponent(updatedJson)));
@@ -1003,14 +997,11 @@ $('syncBtn').addEventListener('click',function(){
             return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/stats2.json',{
                 method:'PUT',
                 headers:{'Authorization':'token '+token,'Content-Type':'application/json'},
-                body:JSON.stringify({message:'Синхронизация PWA ('+allTransactions.length+' записей)',content:updatedB64,sha:meta.sha})
+                body:JSON.stringify({message:'Синхронизация PWA ('+allTransactions.length+')',content:updatedB64,sha:meta.sha})
             });
         })
         .then(function(r){if(!r.ok)throw new Error('PUT: '+r.status);return r.json();})
-        .then(function(){
-            $('fileStatus').textContent='✅ Синхронизировано: '+allTransactions.length;
-            setTimeout(function(){if(dataLoaded)$('fileStatus').textContent='✅ '+allTransactions.length+' записей';},3000);
-        })
+        .then(function(){$('fileStatus').textContent='✅ Синхронизировано: '+allTransactions.length;})
         .catch(function(e){$('fileStatus').textContent='❌ '+e.message;});
 });
 
@@ -1033,24 +1024,23 @@ $('clearDataBtn').addEventListener('click',function(e){
         allTransactions=[];rateHistory=[];dataLoaded=false;
         $('dashboard').classList.add('hidden');
         $('emptyState').classList.remove('hidden');
-        filterBtns.forEach(function(b){b.classList.add('disabled');});
+        for(var i=0;i<filterBtns.length;i++)filterBtns[i].classList.add('disabled');
         if(expensePieChart){expensePieChart.destroy();expensePieChart=null;}
         if(incomePieChart){incomePieChart.destroy();incomePieChart=null;}
         if(rateHistoryChart){rateHistoryChart.destroy();rateHistoryChart=null;}
         if(autoUpdateTimer){clearInterval(autoUpdateTimer);autoUpdateTimer=null;}
-        $('fileStatus').textContent='🗑️ Данные очищены';
+        $('fileStatus').textContent='🗑️ Очищено';
     }
 });
 
 $('refreshBtn').addEventListener('click',function(e){
     e.preventDefault();
     $('fileStatus').textContent='⏳ Обновление...';
-    loadData(true).then(function(ok){if(!ok)$('fileStatus').textContent='❌ Не удалось загрузить';});
+    loadData(true).then(function(ok){if(!ok)$('fileStatus').textContent='❌ Не удалось';});
 });
 
 $('loadRateBtn').addEventListener('click',function(e){e.preventDefault();loadRateHistoryFromServer(true);});
-$('refreshRateChartBtn').addEventListener('click',function(e){e.preventDefault();drawRateHistoryChart();$('fileStatus').textContent='🔄 График курса обновлён';});
-
+$('refreshRateChartBtn').addEventListener('click',function(e){e.preventDefault();drawRateHistoryChart();$('fileStatus').textContent='🔄 График обновлён';});
 $('usdRateInput').addEventListener('keydown',function(e){if(e.key==='Enter')setRate(parseFloat(this.value));});
 $('updateRateBtn').addEventListener('click',function(){setRate(parseFloat($('usdRateInput').value));});
 
@@ -1059,7 +1049,7 @@ $('expenseChartBox').addEventListener('click',function(){openCategoryDetail('exp
 $('closeCatDetailModal').addEventListener('click',closeCatDetail);
 $('catDetailModal').addEventListener('click',function(e){if(e.target===this)closeCatDetail();});
 
-// === СТАРТ ===
+// ============ СТАРТ ============
 var savedRate=loadRate();
 if(savedRate){
     currentUsdRate=savedRate;
@@ -1072,19 +1062,12 @@ loadData(true).then(function(loaded){
     if(!loaded){
         $('dashboard').classList.add('hidden');
         $('emptyState').classList.remove('hidden');
-        $('fileStatus').textContent='📂 Загрузите файл вручную или проверьте stats2.json на GitHub.';
+        $('fileStatus').textContent='📂 Загрузите JSON или проверьте GitHub';
     }
     return loadRateHistoryFromServer(false);
 }).then(function(){
     setTimeout(drawRateHistoryChart,500);
 });
-
-if('serviceWorker' in navigator){
-    navigator.serviceWorker.getRegistrations().then(function(regs){
-        regs.forEach(function(r){r.update();});
-    });
-    navigator.serviceWorker.register('sw.js').then(function(){console.log('SW registered');}).catch(function(e){console.log('SW:',e);});
-}
 
 })();
 </script>
