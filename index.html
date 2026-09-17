@@ -8,190 +8,253 @@
 <link rel="manifest" href="manifest.json">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#000;color:#e8edf5;padding:10px 12px;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0b0e14;color:#e8edf5;padding:10px 12px;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
 .container{max-width:1200px;width:100%;margin:0 auto}
-.top-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;background:#111;padding:8px 14px;border-radius:16px;border:1px solid #2a2a2a}
-.top-bar .status{color:#60a5fa;font-size:.8rem;flex:1;min-width:120px;word-break:break-word}
-.top-bar .actions{display:flex;gap:6px;flex-wrap:wrap}
-.top-bar .actions button{background:rgba(251,191,36,.15);border:1px solid #fbbf24;color:#fbbf24;padding:4px 14px;border-radius:30px;font-size:.7rem;font-weight:500;cursor:pointer}
-.top-bar .actions button.clear{color:#f87171;border-color:#f87171;background:rgba(248,113,113,.1)}
-.top-bar .actions button.rate-upload-btn{background:rgba(96,165,250,.15);border-color:#60a5fa;color:#60a5fa}
-.balance-card{background:#111;border-radius:14px;padding:16px 20px;border:1px solid #2a2a2a;margin-bottom:12px;display:flex;flex-direction:column;gap:6px}
-.balance-card .top{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
-.balance-card .top .label{color:#8b9bb5;font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;font-weight:500}
-.balance-card .top .amount{font-size:1.8rem;font-weight:700;color:#fbbf24}
-.balance-card .bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;border-top:1px solid #2a2a2a;padding-top:8px}
-.balance-card .bottom .period{color:#8b9bb5;font-size:.75rem}
-.balance-card .bottom .month-change{display:flex;gap:16px;font-size:.9rem;font-weight:500}
-.balance-card .bottom .month-change .income{color:#4ade80}
-.balance-card .bottom .month-change .expense{color:#f87171}
-.balance-card .usd-info{color:#60a5fa;font-size:.85rem;margin-top:4px;border-top:1px solid #2a2a2a;padding-top:6px;display:flex;justify-content:space-between;flex-wrap:wrap}
-.filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
-.filter-btn{background:rgba(255,255,255,.05);border:1px solid #2a2a2a;color:#8b9bb5;padding:4px 14px;border-radius:30px;font-size:.75rem;font-weight:500;cursor:pointer}
-.filter-btn.active{background:rgba(251,191,36,.15);border-color:#fbbf24;color:#fbbf24}
+
+/* ВЕРХНЯЯ ПАНЕЛЬ */
+.top-bar{background:#141820;border:1px solid #232a36;border-radius:14px;padding:10px 12px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px}
+.top-bar .status{color:#8b9bb5;font-size:0.78rem;min-height:1.1em;word-break:break-word}
+.top-bar .actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.top-bar .actions button{padding:6px 12px;border-radius:10px;font-size:0.72rem;font-weight:500;cursor:pointer;border:1px solid;background:transparent;transition:all .15s;white-space:nowrap;font-family:inherit}
+.btn-green{border-color:rgba(134,239,172,0.35);color:#86efac;background:rgba(134,239,172,0.06)}
+.btn-green:hover{background:rgba(134,239,172,0.14)}
+.btn-neutral{border-color:#2a3344;color:#c8d0e0}
+.btn-neutral:hover{background:#1a1f2a}
+.btn-blue{border-color:rgba(147,197,253,0.35);color:#93c5fd;background:rgba(147,197,253,0.06)}
+.btn-blue:hover{background:rgba(147,197,253,0.14)}
+.btn-red{border-color:rgba(252,165,165,0.35);color:#fca5a5;background:rgba(252,165,165,0.06)}
+.btn-red:hover{background:rgba(252,165,165,0.14)}
+.btn-purple{border-color:rgba(196,181,253,0.35);color:#c4b5fd;background:rgba(196,181,253,0.06)}
+.btn-purple:hover{background:rgba(196,181,253,0.14)}
+
+/* БАЛАНС */
+.balance-card{background:#141820;border:1px solid #232a36;border-radius:14px;padding:14px 18px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px}
+.balance-card .bc-row-1{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.balance-card .bc-label{color:#8b9bb5;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;font-weight:500}
+.balance-card .bc-amount{font-size:1.7rem;font-weight:700;color:#e8edf5;line-height:1.1}
+.balance-card .bc-row-2{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;border-top:1px solid #232a36;padding-top:8px;font-size:0.85rem}
+.balance-card .bc-row-2 .bc-period{color:#8b9bb5;font-size:0.72rem}
+.balance-card .bc-row-2 .bc-change{display:flex;gap:14px;font-weight:500}
+.balance-card .bc-row-2 .bc-change .income{color:#86efac}
+.balance-card .bc-row-2 .bc-change .expense{color:#fca5a5}
+.balance-card .bc-row-3{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;border-top:1px solid #232a36;padding-top:8px;font-size:0.78rem;color:#8b9bb5}
+.balance-card .bc-row-3 strong{color:#93c5fd;font-weight:600}
+.balance-card .bc-row-3 .usd-details{color:#6b7689;font-size:0.72rem}
+
+/* ДИАГРАММЫ (сверху, компактные) */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.chart-box{background:#141820;border:1px solid #232a36;border-radius:14px;padding:8px;text-align:center;cursor:pointer;transition:border-color .15s}
+.chart-box:active{border-color:#3d4a5e}
+.chart-box h3{font-weight:500;font-size:0.65rem;color:#8b9bb5;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.4px}
+.chart-box canvas{max-height:80px;max-width:100%;margin:0 auto;display:block}
+.chart-box .category-list{margin-top:6px;font-size:0.62rem;color:#c8d0e0;line-height:1.35;max-height:74px;overflow-y:auto;text-align:left}
+.chart-box .category-list .cat-item{display:flex;justify-content:space-between;padding:1px 0;border-bottom:1px solid #232a36;gap:6px}
+.chart-box .category-list .cat-item:last-child{border-bottom:none}
+.chart-box .category-list .cat-item span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chart-box .category-list .cat-item .value{color:#8b9bb5;white-space:nowrap;font-size:0.6rem}
+
+/* ФИЛЬТРЫ */
+.filter-bar{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.filter-btn{background:transparent;border:1px solid #232a36;color:#8b9bb5;padding:4px 12px;border-radius:20px;font-size:0.72rem;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit}
+.filter-btn.active{background:rgba(147,197,253,0.12);border-color:rgba(147,197,253,0.5);color:#93c5fd}
 .filter-btn.disabled{opacity:.3;pointer-events:none}
-.period-label{margin-left:auto;color:#7a8aa3;font-size:.75rem}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
-.stat-card{background:#111;border-radius:14px;padding:12px;border:1px solid #2a2a2a;text-align:center}
-.stat-card .label{font-size:.6rem;text-transform:uppercase;letter-spacing:.3px;color:#8b9bb5;font-weight:500}
-.stat-card .value{font-size:1.3rem;font-weight:700;margin-top:2px;line-height:1.2}
-.stat-card.income .value{color:#4ade80}
-.stat-card.expense .value{color:#f87171}
-.stat-card.balance .value{color:#fbbf24}
-.stat-card.usd .value{color:#60a5fa}
-.stat-card.rate-profit .value{color:#c084fc}
-.stat-card.count .value{color:#93c5fd}
-.stats-grid-extra{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:12px}
-.stats-grid-extra .stat-card{padding:8px 10px}
-.stats-grid-extra .stat-card .value{font-size:1.1rem}
-.quick-sums{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 12px}
-.quick-sums .group{background:#1a1f2a;border-radius:14px;padding:10px 8px;border:1px solid #4a5568;text-align:center;min-width:0}
-.quick-sums .group .period-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:#8b9bb5;font-weight:500;margin-bottom:4px}
-.quick-sums .group .sums-row{display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:600;font-size:1rem}
-.quick-sums .group .sum.income{color:#4ade80}
-.quick-sums .group .sum.expense{color:#f87171}
-.insights-block{background:#111;border-radius:14px;padding:14px 16px;border:1px solid #2a2a2a;margin-bottom:12px}
-.insights-block h3{font-weight:500;font-size:.85rem;color:#c8d0e0;margin-bottom:10px}
-.insight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
-.insight-item{background:#1a1f2a;border-radius:12px;padding:10px 12px;border:1px solid #2a3344}
-.insight-item .it-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.3px;color:#8b9bb5;font-weight:500;margin-bottom:2px}
-.insight-item .it-value{font-size:1rem;font-weight:600;color:#e8edf5}
-.insight-item .it-sub{font-size:.7rem;color:#8b9bb5;margin-top:2px}
-.insight-item.income .it-value{color:#4ade80}
-.insight-item.expense .it-value{color:#f87171}
-.top-cat-list{margin-top:10px}
-.top-cat-list .tc-item{display:flex;justify-content:space-between;padding:4px 0;font-size:.75rem;border-bottom:1px solid #232b3b}
+.period-label{margin-left:auto;color:#6b7689;font-size:0.7rem}
+
+/* СТАТИСТИКА — компактнее */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
+.stat-card{background:#141820;border:1px solid #232a36;border-radius:12px;padding:9px 10px;text-align:center}
+.stat-card .label{font-size:0.56rem;text-transform:uppercase;letter-spacing:0.4px;color:#8b9bb5;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat-card .value{font-size:1.05rem;font-weight:700;margin-top:2px;line-height:1.2;color:#e8edf5}
+.stat-card.income .value{color:#86efac}
+.stat-card.expense .value{color:#fca5a5}
+.stats-grid-extra{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:8px}
+.stats-grid-extra .stat-card{padding:7px 8px}
+.stats-grid-extra .stat-card .value{font-size:0.92rem}
+
+/* БЫСТРЫЕ ИТОГИ */
+.quick-sums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
+.quick-sums .group{background:#1a1f2a;border-radius:12px;padding:8px 6px;border:1px solid #232a36;text-align:center}
+.quick-sums .group .period-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.4px;color:#8b9bb5;font-weight:500;margin-bottom:3px}
+.quick-sums .group .sums-row{display:flex;flex-direction:column;gap:1px;font-weight:600;font-size:0.85rem}
+.quick-sums .group .sum.income{color:#86efac}
+.quick-sums .group .sum.expense{color:#fca5a5}
+
+/* СВОДКА */
+.insights-block{background:#141820;border:1px solid #232a36;border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.insights-block h3{font-weight:500;font-size:0.78rem;color:#8b9bb5;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px}
+.insight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.insight-item{background:#1a1f2a;border:1px solid #232a36;border-radius:10px;padding:8px 10px}
+.insight-item .it-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.3px;color:#8b9bb5;font-weight:500;margin-bottom:2px}
+.insight-item .it-value{font-size:0.9rem;font-weight:600;color:#e8edf5}
+.insight-item .it-sub{font-size:0.65rem;color:#6b7689;margin-top:1px}
+.insight-item.income .it-value{color:#86efac}
+.insight-item.expense .it-value{color:#fca5a5}
+.top-cat-list{margin-top:8px}
+.top-cat-list .tc-item{display:flex;justify-content:space-between;padding:3px 0;font-size:0.72rem;border-bottom:1px solid #232a36}
 .top-cat-list .tc-item:last-child{border-bottom:none}
 .top-cat-list .tc-item .tc-name{color:#c8d0e0}
 .top-cat-list .tc-item .tc-value{color:#8b9bb5;font-weight:500}
-.collapsible{margin-bottom:12px;border-radius:14px;border:1px solid #2a2a2a;overflow:hidden;background:#111}
-.collapsible-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:8px 12px;background:#111;user-select:none}
-.collapsible-header h3{font-weight:500;font-size:.85rem;color:#c8d0e0}
-.collapsible-header .toggle{font-size:1.2rem;color:#8b9bb5;transition:transform .3s}
+
+/* СВОРАЧИВАЕМЫЕ */
+.collapsible{margin-bottom:10px;border-radius:14px;border:1px solid #232a36;overflow:hidden;background:#141820}
+.collapsible-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:8px 12px;user-select:none}
+.collapsible-header h3{font-weight:500;font-size:0.78rem;color:#8b9bb5;text-transform:uppercase;letter-spacing:0.4px}
+.collapsible-header .toggle{font-size:1rem;color:#8b9bb5;transition:transform .3s}
 .collapsible-header .toggle.open{transform:rotate(180deg)}
 .collapsible-content{max-height:0;overflow:hidden;transition:max-height .3s ease-out}
 .collapsible-content.open{max-height:3000px;transition:max-height .5s ease-in}
-.collapsible-content .chart-box,.collapsible-content .transactions{background:#111;padding:12px 14px}
-.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.chart-box{background:#111;border-radius:12px;padding:10px;border:1px solid #2a2a2a;text-align:center;cursor:pointer}
-.chart-box h3{font-weight:500;font-size:.7rem;color:#c8d0e0;margin-bottom:6px}
-.chart-box canvas{max-height:100px;max-width:100%;margin:0 auto}
-.chart-box .category-list{margin-top:8px;font-size:.65rem;color:#c8d0e0;line-height:1.4;max-height:100px;overflow-y:auto;text-align:left}
-.chart-box .category-list .cat-item{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid #232b3b}
-.chart-box .category-list .cat-item:last-child{border-bottom:none}
-.chart-box .category-list .cat-item .value{color:#8b9bb5}
-.rate-chart-box{background:#111;border-radius:14px;padding:12px;border:1px solid #2a2a2a;margin-bottom:12px}
-.rate-chart-box h3{font-weight:500;font-size:.85rem;color:#c8d0e0;margin-bottom:8px}
-.rate-chart-box .rate-chart-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-.rate-chart-box .rate-chart-controls button{background:rgba(251,191,36,.15);border:1px solid #fbbf24;color:#fbbf24;padding:2px 12px;border-radius:30px;font-size:.7rem;cursor:pointer}
-#rateHistoryChart{height:200px!important;width:100%!important}
-.transactions{background:#111;border-radius:14px;padding:12px 14px;border:1px solid #2a2a2a}
-.transactions h3{font-weight:500;font-size:.8rem;color:#c8d0e0;margin-bottom:8px}
+.collapsible-content .transactions{padding:10px 12px}
+
+/* ТРАНЗАКЦИИ */
+.transactions h3{font-weight:500;font-size:0.78rem;color:#8b9bb5;margin-bottom:6px}
 .tx-list{max-height:400px;overflow-y:auto}
-.tx-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #232b3b;font-size:.7rem;gap:8px}
+.tx-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #232a36;font-size:0.72rem;gap:8px}
 .tx-item:last-child{border-bottom:none}
 .tx-item .left{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
-.tx-item .left .cat{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tx-item .left .date{font-size:.6rem;color:#8b9bb5}
-.tx-item .left .note{font-size:.6rem;color:#a0b0c0;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tx-item .right{font-weight:600;text-align:right;white-space:nowrap}
-.tx-item .right.income{color:#4ade80}
-.tx-item .right.expense{color:#f87171}
+.tx-item .left .cat{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#e8edf5}
+.tx-item .left .date{font-size:0.6rem;color:#6b7689}
+.tx-item .left .note{font-size:0.6rem;color:#8b9bb5;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-item .right{font-weight:600;text-align:right;white-space:nowrap;color:#e8edf5}
+.tx-item .right.income{color:#86efac}
+.tx-item .right.expense{color:#fca5a5}
 .tx-actions{display:flex;gap:4px;margin-left:6px}
-.tx-actions button{background:transparent;border:1px solid #2a3344;color:#8b9bb5;width:26px;height:26px;border-radius:8px;font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
-.rate-bar-new{background:#111;border-radius:12px;padding:10px 16px;border:1px solid #2a2a2a;margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.tx-actions button{background:transparent;border:1px solid #232a36;color:#8b9bb5;width:24px;height:24px;border-radius:7px;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;font-family:inherit}
+.tx-actions button.edit:active{border-color:#93c5fd;color:#93c5fd}
+.tx-actions button.del:active{border-color:#fca5a5;color:#fca5a5}
+
+/* КУРС */
+.rate-chart-box{background:#141820;border:1px solid #232a36;border-radius:14px;padding:12px;margin-bottom:10px}
+.rate-chart-box h3{font-weight:500;font-size:0.78rem;color:#8b9bb5;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px}
+.rate-chart-box .rate-chart-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.rate-chart-box .rate-chart-controls button{background:transparent;border:1px solid #232a36;color:#8b9bb5;padding:3px 12px;border-radius:20px;font-size:0.68rem;cursor:pointer;font-family:inherit}
+#rateHistoryChart{height:180px!important;width:100%!important}
+.rate-bar-new{background:#141820;border:1px solid #232a36;border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:6px}
 .rate-bar-new .rate-row-1,.rate-bar-new .rate-row-2,.rate-bar-new .rate-row-3{display:flex;align-items:center;width:100%}
-.rate-bar-new .rate-row-1{justify-content:flex-start}
-.rate-bar-new .rate-row-1 .rate-label{color:#8b9bb5;font-size:.8rem;font-weight:500}
-.rate-bar-new .rate-row-2{justify-content:space-between;flex-wrap:nowrap}
-.rate-bar-new .rate-row-2 input{background:#1a1f2a;border:1px solid #2a3344;color:#e8edf5;padding:6px 12px;border-radius:8px;width:100px;font-size:.9rem;flex-shrink:0}
-.rate-bar-new .rate-row-2 .update-btn{background:#fbbf24;border:none;color:#0b0e14;padding:6px 24px;border-radius:30px;font-weight:600;font-size:.85rem;cursor:pointer;white-space:nowrap}
-.rate-bar-new .rate-row-3{justify-content:space-between}
-.rate-bar-new .rate-row-3 .rate-info{color:#4ade80;font-weight:500;font-size:.85rem}
-.rate-bar-new .rate-row-3 .rate-change{color:#8b9bb5;font-size:.8rem}
-.empty-state{text-align:center;color:#7a8aa3;padding:20px 0;font-size:.9rem}
+.rate-bar-new .rate-row-1 .rate-label{color:#8b9bb5;font-size:0.75rem;font-weight:500;text-transform:uppercase;letter-spacing:0.3px}
+.rate-bar-new .rate-row-2{justify-content:space-between;gap:8px}
+.rate-bar-new .rate-row-2 input{background:#1a1f2a;border:1px solid #232a36;color:#e8edf5;padding:6px 10px;border-radius:8px;width:100px;font-size:0.88rem;font-family:inherit}
+.rate-bar-new .rate-row-2 input:focus{outline:none;border-color:#93c5fd}
+.rate-bar-new .rate-row-2 .update-btn{background:#fcd34d;border:none;color:#0b0e14;padding:6px 20px;border-radius:20px;font-weight:600;font-size:0.78rem;cursor:pointer;white-space:nowrap;font-family:inherit}
+.rate-bar-new .rate-row-3{justify-content:space-between;gap:8px}
+.rate-bar-new .rate-row-3 .rate-info{color:#86efac;font-weight:500;font-size:0.8rem}
+.rate-bar-new .rate-row-3 .rate-change{color:#8b9bb5;font-size:0.75rem}
+
+/* УТИЛИТЫ */
+.empty-state{text-align:center;color:#6b7689;padding:20px 0;font-size:0.88rem}
 .hidden{display:none!important}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;justify-content:center;align-items:center;padding:16px;overflow-y:auto}
+.footer{margin-top:14px;text-align:center;font-size:0.62rem;color:#4a5568;border-top:1px solid #232a36;padding-top:10px}
+
+/* МОДАЛКИ */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:1000;justify-content:center;align-items:center;padding:16px;overflow-y:auto}
 .modal-overlay.open{display:flex}
-.modal{background:#111;border:1px solid #2a2a2a;border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
-.modal-header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #2a2a2a}
-.modal-header h2{font-size:1rem;font-weight:600;color:#e8edf5}
-.modal-close{background:none;border:none;color:#8b9bb5;font-size:1.6rem;line-height:1;cursor:pointer;padding:0 6px}
-.modal-body{padding:16px 18px}
-.modal-footer{display:flex;gap:10px;padding:12px 18px;border-top:1px solid #2a2a2a;justify-content:flex-end}
-.modal-btn{padding:8px 18px;border-radius:30px;font-size:.85rem;font-weight:600;cursor:pointer;border:1px solid transparent}
-.modal-btn.cancel{background:transparent;border-color:#2a3344;color:#8b9bb5}
-.modal-btn.save{background:#fbbf24;color:#0b0e14}
-.form-row{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
-.form-row label{font-size:.75rem;color:#8b9bb5;font-weight:500}
-.form-row input,.form-row select{background:#1a1f2a;border:1px solid #2a3344;color:#e8edf5;padding:8px 12px;border-radius:10px;font-size:.9rem;width:100%;max-width:100%;min-width:0;-webkit-appearance:none;appearance:none}
-.form-row input[type="datetime-local"]{font-size:.85rem}
-.type-toggle{display:flex;gap:8px}
-.type-btn{flex:1;padding:8px 12px;border-radius:10px;background:#1a1f2a;border:1px solid #2a3344;color:#8b9bb5;font-weight:600;font-size:.85rem;cursor:pointer}
-.type-btn.active[data-type="income"]{background:rgba(74,222,128,.2);border-color:#4ade80;color:#4ade80}
-.type-btn.active[data-type="expense"]{background:rgba(248,113,113,.2);border-color:#f87171;color:#f87171}
-.cat-detail-modal{max-width:520px;background:#0b0e14}
-.cat-detail-modal .modal-header{padding:18px 20px 10px;border-bottom:none}
-.cat-detail-modal .modal-close{background:rgba(255,255,255,.05);border-radius:10px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.modal{background:#141820;border:1px solid #232a36;border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #232a36}
+.modal-header h2{font-size:0.95rem;font-weight:600;color:#e8edf5}
+.modal-close{background:none;border:none;color:#8b9bb5;font-size:1.5rem;line-height:1;cursor:pointer;padding:0 4px;font-family:inherit}
+.modal-body{padding:14px 18px}
+.modal-footer{display:flex;gap:8px;padding:12px 18px;border-top:1px solid #232a36;justify-content:flex-end}
+.modal-btn{padding:8px 18px;border-radius:20px;font-size:0.82rem;font-weight:600;cursor:pointer;border:1px solid transparent;font-family:inherit}
+.modal-btn.cancel{background:transparent;border-color:#232a36;color:#8b9bb5}
+.modal-btn.save{background:#fcd34d;color:#0b0e14}
+.form-row{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.form-row label{font-size:0.72rem;color:#8b9bb5;font-weight:500}
+.form-row input,.form-row select{background:#1a1f2a;border:1px solid #232a36;color:#e8edf5;padding:8px 10px;border-radius:10px;font-size:0.88rem;width:100%;max-width:100%;min-width:0;-webkit-appearance:none;appearance:none;font-family:inherit}
+.form-row input[type="datetime-local"]{font-size:0.82rem}
+.form-row input:focus,.form-row select:focus{outline:none;border-color:#93c5fd}
+.type-toggle{display:flex;gap:6px}
+.type-btn{flex:1;padding:8px 10px;border-radius:10px;background:#1a1f2a;border:1px solid #232a36;color:#8b9bb5;font-weight:600;font-size:0.82rem;cursor:pointer;font-family:inherit}
+.type-btn.active[data-type="income"]{background:rgba(134,239,172,.15);border-color:#86efac;color:#86efac}
+.type-btn.active[data-type="expense"]{background:rgba(252,165,165,.15);border-color:#fca5a5;color:#fca5a5}
+
+/* ДЕТАЛИЗАЦИЯ КАТЕГОРИЙ */
+.cat-detail-modal{max-width:500px;background:#0b0e14}
+.cat-detail-modal .modal-header{padding:16px 20px 10px;border-bottom:none}
+.cat-detail-modal .modal-header h2{font-size:1.05rem}
+.cat-detail-modal .modal-close{background:rgba(255,255,255,.05);border-radius:10px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
 .cat-detail-modal .modal-body{padding:0 20px 20px}
-.cat-detail-top{display:flex;align-items:center;gap:18px;background:#141820;border-radius:16px;padding:18px 16px;margin-bottom:18px;border:1px solid #1f2530}
-.cat-donut-wrap{position:relative;width:130px;height:130px;flex-shrink:0}
-.cat-donut-wrap canvas{max-height:130px!important;max-width:130px!important}
+.cat-detail-top{display:flex;align-items:center;gap:18px;background:#141820;border-radius:16px;padding:16px;margin-bottom:16px;border:1px solid #232a36}
+.cat-donut-wrap{position:relative;width:120px;height:120px;flex-shrink:0}
+.cat-donut-wrap canvas{max-height:120px!important;max-width:120px!important}
 .cat-donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
-.cat-donut-center .cdc-amount{font-size:1.05rem;font-weight:700;color:#e8edf5;line-height:1.1;text-align:center}
-.cat-donut-center .cdc-label{font-size:.6rem;color:#8b9bb5;margin-top:2px;text-align:center}
+.cat-donut-center .cdc-amount{font-size:1rem;font-weight:700;color:#e8edf5;line-height:1.1;text-align:center}
+.cat-donut-center .cdc-label{font-size:0.58rem;color:#8b9bb5;margin-top:2px;text-align:center}
 .cat-detail-top-info{flex:1;min-width:0}
-.cat-detail-top-info .cdt-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.5px;color:#8b9bb5;font-weight:500;margin-bottom:6px}
-.cat-detail-top-info .cdt-category{font-size:1.1rem;font-weight:700;color:#e8edf5;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cat-detail-top-info .cdt-desc{font-size:.75rem;color:#8b9bb5;line-height:1.4}
-.cat-detail-list{display:flex;flex-direction:column;gap:12px}
-.cdl-item{display:flex;flex-direction:column;gap:6px}
-.cdl-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.85rem}
+.cat-detail-top-info .cdt-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.5px;color:#8b9bb5;font-weight:500;margin-bottom:5px}
+.cat-detail-top-info .cdt-category{font-size:1rem;font-weight:700;color:#e8edf5;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat-detail-top-info .cdt-desc{font-size:0.72rem;color:#8b9bb5;line-height:1.35}
+.cat-detail-list{display:flex;flex-direction:column;gap:10px}
+.cdl-item{display:flex;flex-direction:column;gap:5px}
+.cdl-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:0.8rem}
 .cdl-left{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
-.cdl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.cdl-name{font-weight:600;color:#e8edf5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cdl-right{display:flex;align-items:baseline;gap:10px;flex-shrink:0}
+.cdl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.cdl-name{font-weight:500;color:#e8edf5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cdl-right{display:flex;align-items:baseline;gap:8px;flex-shrink:0}
 .cdl-amount{font-weight:700;color:#e8edf5}
-.cdl-percent{font-weight:600;color:#8b9bb5;font-size:.8rem;min-width:42px;text-align:right}
-.cdl-bar{height:6px;background:#1a1f2a;border-radius:10px;overflow:hidden}
+.cdl-percent{font-weight:500;color:#8b9bb5;font-size:0.75rem;min-width:40px;text-align:right}
+.cdl-bar{height:5px;background:#1a1f2a;border-radius:10px;overflow:hidden}
 .cdl-bar-fill{height:100%;border-radius:10px}
-@media (max-width:900px){.stats-grid{grid-template-columns:1fr 1fr}.stats-grid .stat-card:last-child{grid-column:span 2}}
-@media (max-width:600px){.stat-card .value{font-size:1.1rem}.quick-sums{grid-template-columns:repeat(3,1fr);gap:6px}.period-label{margin-left:0;width:100%;text-align:center}.balance-card .top{flex-direction:column;align-items:stretch}.balance-card .top .amount{font-size:1.6rem}.balance-card .bottom{flex-direction:column;align-items:stretch;gap:4px}#rateHistoryChart{height:150px!important}.top-bar .actions{justify-content:center}.charts-row{grid-template-columns:1fr 1fr;gap:8px}.chart-box{padding:8px 6px}.chart-box canvas{max-height:90px}.cat-detail-top{flex-direction:column;text-align:center;gap:12px}}
-.footer{margin-top:16px;text-align:center;font-size:.65rem;color:#5a6a80;border-top:1px solid #232b3b;padding-top:12px}
+
+@media (max-width:900px){
+    .stats-grid{grid-template-columns:1fr 1fr}
+    .stats-grid .stat-card:last-child{grid-column:span 2}
+}
+@media (max-width:600px){
+    .period-label{margin-left:0;width:100%;text-align:center}
+    .top-bar .actions{justify-content:center}
+    .cat-detail-top{flex-direction:column;text-align:center;gap:12px}
+    .cat-detail-top-info{text-align:center}
+}
 </style>
 </head>
 <body>
 <div class="container">
 
+<!-- ВЕРХНЯЯ ПАНЕЛЬ -->
 <div class="top-bar">
-    <span class="status" id="fileStatus">📂 Загрузите файл</span>
+    <div class="status" id="fileStatus">📂 Загрузите файл</div>
     <div class="actions">
-        <button id="addTxBtn" style="background:#4ade80;border-color:#4ade80;color:#0b0e14;">➕ Добавить</button>
-        <button id="refreshBtn">🔄 Обновить</button>
-        <button id="syncBtn" style="background:#60a5fa;border-color:#60a5fa;color:#0b0e14;">☁️ Синхронизировать</button>
-        <button id="clearDataBtn" class="clear">🗑️ Очистить</button>
-        <button id="loadRateBtn" class="rate-upload-btn">📈 rate.json</button>
+        <button id="addTxBtn" class="btn-green">➕ Добавить</button>
+        <button id="refreshBtn" class="btn-neutral">🔄 Обновить</button>
+        <button id="syncBtn" class="btn-blue">☁️ Синхронизировать</button>
+        <button id="clearDataBtn" class="btn-red">🗑️ Очистить</button>
+        <button id="loadRateBtn" class="btn-purple">📈 rate.json</button>
     </div>
 </div>
 
+<!-- БАЛАНС -->
 <div class="balance-card">
-    <div class="top">
-        <span class="label">ЧИСТЫЙ БАЛАНС (на руках)</span>
-        <span class="amount" id="totalBalanceRubDisplay">0 ₽</span>
+    <div class="bc-row-1">
+        <span class="bc-label">Чистый баланс (RUB)</span>
+        <span class="bc-amount" id="totalBalanceRubDisplay">0 ₽</span>
     </div>
-    <div class="bottom">
-        <span class="period" id="periodDisplay">—</span>
-        <div class="month-change">
+    <div class="bc-row-2">
+        <span class="bc-period" id="periodDisplay">—</span>
+        <div class="bc-change">
             <span class="income" id="monthIncomeDisplay">↑ 0</span>
             <span class="expense" id="monthExpenseDisplay">↓ 0</span>
         </div>
     </div>
-    <div class="usd-info">
-        <span>Баланс в USD: <strong id="totalBalanceUsdDisplay">0 $</strong></span>
+    <div class="bc-row-3">
+        <span>💵 USD: <strong id="totalBalanceUsdDisplay">0 $</strong> <span class="usd-details" id="usdDetails">(↑ 0 / ↓ 0)</span></span>
         <span>Курс: <strong id="rateInfoSmall">1 USD = — ₽</strong></span>
     </div>
 </div>
 
+<!-- ДИАГРАММЫ -->
+<div class="charts-row">
+    <div class="chart-box" id="incomeChartBox">
+        <h3>🧩 Доходы</h3>
+        <canvas id="incomePieChart"></canvas>
+        <div class="category-list" id="incomeCategoryList"></div>
+    </div>
+    <div class="chart-box" id="expenseChartBox">
+        <h3>🧩 Расходы</h3>
+        <canvas id="expensePieChart"></canvas>
+        <div class="category-list" id="expenseCategoryList"></div>
+    </div>
+</div>
+
+<!-- ФИЛЬТРЫ -->
 <div class="filter-bar" id="filterBar">
     <button class="filter-btn disabled" data-period="day">День</button>
     <button class="filter-btn disabled" data-period="week">Неделя</button>
@@ -201,57 +264,52 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 
 <div id="dashboard" class="hidden">
+
+    <!-- БАЗОВАЯ СТАТИСТИКА -->
     <div class="stats-grid">
-        <div class="stat-card income"><div class="label">💰 Доход (RUB)</div><div class="value" id="totalIncomeRubOnly">0 ₽</div></div>
-        <div class="stat-card balance"><div class="label">📈 Чистый баланс (RUB)</div><div class="value" id="netIncome">0 ₽</div></div>
-        <div class="stat-card expense"><div class="label">💸 Расход (RUB)</div><div class="value" id="totalExpenseRubOnly">0 ₽</div></div>
+        <div class="stat-card income"><div class="label">💰 Доход RUB</div><div class="value" id="totalIncomeRubOnly">0 ₽</div></div>
+        <div class="stat-card"><div class="label">📈 Баланс RUB</div><div class="value" id="netIncome">0 ₽</div></div>
+        <div class="stat-card expense"><div class="label">💸 Расход RUB</div><div class="value" id="totalExpenseRubOnly">0 ₽</div></div>
     </div>
+
+    <!-- ДОП. СТАТИСТИКА -->
     <div class="stats-grid-extra">
-        <div class="stat-card usd"><div class="label">💰 Доход (USD)</div><div class="value" id="totalIncomeUsd">0 $</div></div>
-        <div class="stat-card usd"><div class="label">💸 Расход (USD)</div><div class="value" id="totalExpenseUsd">0 $</div></div>
-        <div class="stat-card balance"><div class="label">💵 Общий доход (RUB)</div><div class="value" id="totalIncomeRubTotal">0 ₽</div></div>
-        <div class="stat-card balance"><div class="label">💵 Общий расход (RUB)</div><div class="value" id="totalExpenseRubTotal">0 ₽</div></div>
-        <div class="stat-card rate-profit"><div class="label">📊 Курсовая разница</div><div class="value" id="rateProfit">0 ₽</div></div>
-        <div class="stat-card count"><div class="label">📋 Записей</div><div class="value" id="recordCount">0</div></div>
+        <div class="stat-card"><div class="label">💰 Доход USD</div><div class="value" id="totalIncomeUsd">0 $</div></div>
+        <div class="stat-card"><div class="label">💸 Расход USD</div><div class="value" id="totalExpenseUsd">0 $</div></div>
+        <div class="stat-card"><div class="label">💵 Общий доход RUB</div><div class="value" id="totalIncomeRubTotal">0 ₽</div></div>
+        <div class="stat-card"><div class="label">💵 Общий расход RUB</div><div class="value" id="totalExpenseRubTotal">0 ₽</div></div>
+        <div class="stat-card"><div class="label">📊 Курс. разница</div><div class="value" id="rateProfit">0 ₽</div></div>
+        <div class="stat-card"><div class="label">📋 Записей</div><div class="value" id="recordCount">0</div></div>
     </div>
+
+    <!-- БЫСТРЫЕ ИТОГИ -->
     <div class="quick-sums">
         <div class="group"><div class="period-label">День</div><div class="sums-row"><span class="sum income" id="dayIncome">+0</span><span class="sum expense" id="dayExpense">-0</span></div></div>
         <div class="group"><div class="period-label">7 дней</div><div class="sums-row"><span class="sum income" id="weekIncome">+0</span><span class="sum expense" id="weekExpense">-0</span></div></div>
         <div class="group"><div class="period-label">Месяц</div><div class="sums-row"><span class="sum income" id="monthIncome">+0</span><span class="sum expense" id="monthExpense">-0</span></div></div>
     </div>
+
+    <!-- СВОДКА -->
     <div class="insights-block" id="insightsBlock">
         <h3>💡 Сводка по периоду</h3>
         <div class="insight-grid" id="insightGrid"></div>
         <div class="top-cat-list" id="topCatList"></div>
     </div>
-    <div class="collapsible">
-        <div class="collapsible-header" data-target="chartsContent"><h3>📊 Диаграммы по категориям</h3><span class="toggle open">▼</span></div>
-        <div class="collapsible-content open" id="chartsContent">
-            <div class="charts-row">
-                <div class="chart-box" id="incomeChartBox">
-                    <h3>🧩 Доходы</h3>
-                    <canvas id="incomePieChart"></canvas>
-                    <div class="category-list" id="incomeCategoryList"></div>
-                </div>
-                <div class="chart-box" id="expenseChartBox">
-                    <h3>🧩 Расходы</h3>
-                    <canvas id="expensePieChart"></canvas>
-                    <div class="category-list" id="expenseCategoryList"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+
+    <!-- ТРАНЗАКЦИИ -->
     <div class="collapsible">
         <div class="collapsible-header" data-target="transactionsContent"><h3>📋 История транзакций</h3><span class="toggle open">▼</span></div>
         <div class="collapsible-content open" id="transactionsContent">
-            <div class="transactions" style="border:none;">
+            <div class="transactions">
                 <div class="tx-list" id="transactionList"></div>
             </div>
         </div>
     </div>
+
+    <!-- КУРС -->
     <div class="rate-chart-box">
         <h3>📊 История курса USD/RUB</h3>
-        <div class="rate-chart-controls"><button id="refreshRateChartBtn">🔄 Обновить график</button></div>
+        <div class="rate-chart-controls"><button id="refreshRateChartBtn">🔄 Обновить</button></div>
         <canvas id="rateHistoryChart"></canvas>
     </div>
     <div class="rate-bar-new">
@@ -269,9 +327,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 <div id="emptyState" class="empty-state">⏳ Загрузите JSON-файл для отображения аналитики</div>
 
-<div class="footer">Данные из stats2.json • Синхронизация с GitHub • История курса из rate.json</div>
+<div class="footer">Данные из stats2.json · Синхронизация с GitHub · Курс из rate.json</div>
 </div>
 
+<!-- МОДАЛКА: ТРАНЗАКЦИЯ -->
 <div class="modal-overlay" id="txModal">
 <div class="modal">
     <div class="modal-header"><h2 id="txModalTitle">➕ Новая транзакция</h2><button class="modal-close" id="closeTxModal">×</button></div>
@@ -287,17 +346,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 </div>
 </div>
 
+<!-- МОДАЛКА: ТОКЕН -->
 <div class="modal-overlay" id="tokenModal">
 <div class="modal">
     <div class="modal-header"><h2>🔑 GitHub-токен</h2><button class="modal-close" id="closeTokenModal">×</button></div>
     <div class="modal-body">
-        <p style="color:#8b9bb5;font-size:.8rem;margin-bottom:10px;">Вставьте Personal Access Token (права repo).</p>
+        <p style="color:#8b9bb5;font-size:0.78rem;margin-bottom:10px;">Вставьте Personal Access Token (права repo). Сохранится в этом браузере.</p>
         <div class="form-row"><label>Токен</label><input type="text" id="githubTokenInput" placeholder="ghp_..." autocomplete="off"></div>
     </div>
     <div class="modal-footer"><button class="modal-btn cancel" id="cancelTokenBtn">Отмена</button><button class="modal-btn save" id="saveTokenBtn">Сохранить</button></div>
 </div>
 </div>
 
+<!-- МОДАЛКА: ДЕТАЛИЗАЦИЯ -->
 <div class="modal-overlay" id="catDetailModal">
 <div class="modal cat-detail-modal">
     <div class="modal-header"><h2 id="catDetailTitle">Расходы</h2><button class="modal-close" id="closeCatDetailModal">×</button></div>
@@ -319,13 +380,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-// Показываем любые ошибки в верхней строке
 window.onerror=function(msg,url,line){var el=document.getElementById('fileStatus');if(el)el.textContent='❌ '+msg+' | стр.'+line;return false;};
 
 (function(){
 'use strict';
 
-// === СРОЧНО: снимаем все старые Service Worker и чистим кэш ===
 if('serviceWorker' in navigator){
     navigator.serviceWorker.getRegistrations().then(function(regs){
         for(var i=0;i<regs.length;i++)regs[i].unregister();
@@ -345,8 +404,23 @@ var RATE_HISTORY_KEY='rateHistory';
 var TOKEN_KEY='githubPersonalToken';
 
 var CATEGORIES_INCOME=['💰 Зарплата','🗓 Продажа','🎁 Подарок','💵 Другое'];
-var CATEGORIES_EXPENSE=['🚘 Автомобиль','🍔 Еда','🏚️ Ипотека','☕️ Кафе и рестораны','🎢 Развлечения','🛍 Покупки','💊 Здоровье','🏠 Коммуналка','📱 Связь и интернет','📚 Образование','💸 Другое'];
-var COLORS=['#f87171','#fbbf24','#34d399','#60a5fa','#a78bfa','#fb923c','#f472b6','#2dd4bf','#e879f9','#facc15','#22c55e','#3b82f6','#ec4899','#8b5cf6','#06b6d4'];
+var CATEGORIES_EXPENSE=['🚘 Автомобиль','🍔 Еда','🏚️ Ипотека','☕️ Кафе','🎢 Развлечения','🛍 Покупки','💊 Здоровье','🏠 Коммуналка','📱 Связь','📚 Образование','💸 Другое'];
+
+// Мягкая пастельная палитра для диаграмм
+var COLORS=[
+    '#93c5fd', // soft blue
+    '#a5b4fc', // soft indigo
+    '#c4b5fd', // soft violet
+    '#f9a8d4', // soft pink
+    '#fbcfe8', // soft rose
+    '#fcd34d', // soft amber
+    '#86efac', // soft green
+    '#5eead4', // soft teal
+    '#fdba74', // soft orange
+    '#d8b4fe', // light purple
+    '#a7f3d0', // pale mint
+    '#fca5a5'  // soft red
+];
 
 var allTransactions=[];
 var rateHistory=[];
@@ -376,13 +450,10 @@ function parseLine(line){
         var as=amtP.split('->');
         if(as.length!==2)return null;
         return {
-            type:type,
-            date:dateObj,
+            type:type,date:dateObj,
             dateStr:dm[3]+'-'+dm[2]+'-'+dm[1],
-            usd:parseNumber(as[0]),
-            rub:parseNumber(as[1]),
-            category:catP||'Без категории',
-            note:noteP
+            usd:parseNumber(as[0]),rub:parseNumber(as[1]),
+            category:catP||'Без категории',note:noteP
         };
     }catch(e){return null;}
 }
@@ -458,22 +529,33 @@ function loadRate(){try{var s=localStorage.getItem(RATE_STORAGE_KEY);if(s){var r
 function getToken(){return localStorage.getItem(TOKEN_KEY)||'';}
 function setToken(t){localStorage.setItem(TOKEN_KEY,t);}
 
-function renderInsights(txs,period){
-    var block=$('insightsBlock'),grid=$('insightGrid'),topList=$('topCatList');
-    if(!block)return;
-    if(!txs.length){block.style.display='none';return;}
-    block.style.display='block';
+function pad(n){return n<10?'0'+n:''+n;}
 
+function computeStats(txs){
     var rubIncome=0,rubExpense=0,usdIncome=0,usdExpense=0;
     for(var i=0;i<txs.length;i++){
         var t=txs[i];
         if(t.type==='income'){if(t.usd===0)rubIncome+=t.rub;else usdIncome+=t.usd;}
         else{if(t.usd===0)rubExpense+=t.rub;else usdExpense+=t.usd;}
     }
-    var totalIncome=rubIncome+usdIncome*currentUsdRate;
-    var totalExpense=rubExpense+usdExpense*currentUsdRate;
-    var net=totalIncome-totalExpense;
+    var totalIncomeRub=rubIncome+usdIncome*currentUsdRate;
+    var totalExpenseRub=rubExpense+usdExpense*currentUsdRate;
+    return {
+        rubIncome:rubIncome,rubExpense:rubExpense,
+        usdIncome:usdIncome,usdExpense:usdExpense,
+        totalIncomeRub:totalIncomeRub,totalExpenseRub:totalExpenseRub,
+        netRub:totalIncomeRub-totalExpenseRub,
+        netUsd:usdIncome-usdExpense
+    };
+}
 
+function renderInsights(txs,period){
+    var block=$('insightsBlock'),grid=$('insightGrid'),topList=$('topCatList');
+    if(!block)return;
+    if(!txs.length){block.style.display='none';return;}
+    block.style.display='block';
+
+    var s=computeStats(txs);
     var periodDays=1;
     if(period==='week')periodDays=7;
     else if(period==='month')periodDays=30;
@@ -482,26 +564,26 @@ function renderInsights(txs,period){
         for(var i=1;i<txs.length;i++){var tm=txs[i].date.getTime();if(tm<minD)minD=tm;if(tm>maxD)maxD=tm;}
         periodDays=Math.max(1,Math.ceil((maxD-minD)/(1000*60*60*24))+1);
     }
-    var avgIncome=totalIncome/periodDays;
-    var avgExpense=totalExpense/periodDays;
-    var avgNet=net/periodDays;
+    var avgIncome=s.totalIncomeRub/periodDays;
+    var avgExpense=s.totalExpenseRub/periodDays;
+    var avgNet=s.netRub/periodDays;
     var cntIncome=0,cntExpense=0;
     for(var i=0;i<txs.length;i++){if(txs[i].type==='income')cntIncome++;else cntExpense++;}
-    var percentSaving=totalIncome>0?Math.round((net/totalIncome)*100):0;
+    var pctSave=s.totalIncomeRub>0?Math.round((s.netRub/s.totalIncomeRub)*100):0;
 
     grid.innerHTML=
-        '<div class="insight-item income"><div class="it-label">📊 Средний доход / день</div><div class="it-value">'+Math.round(avgIncome).toLocaleString('ru-RU')+' ₽</div><div class="it-sub">Всего: '+totalIncome.toLocaleString('ru-RU')+' ₽</div></div>'+
-        '<div class="insight-item expense"><div class="it-label">📉 Средний расход / день</div><div class="it-value">'+Math.round(avgExpense).toLocaleString('ru-RU')+' ₽</div><div class="it-sub">Всего: '+totalExpense.toLocaleString('ru-RU')+' ₽</div></div>'+
-        '<div class="insight-item"><div class="it-label">💡 Чистый баланс / день</div><div class="it-value" style="color:'+(avgNet>=0?'#4ade80':'#f87171')+'">'+Math.round(avgNet).toLocaleString('ru-RU')+' ₽</div><div class="it-sub">Всего: '+net.toLocaleString('ru-RU')+' ₽</div></div>'+
+        '<div class="insight-item income"><div class="it-label">📊 Доход / день</div><div class="it-value">'+Math.round(avgIncome).toLocaleString('ru-RU')+' ₽</div><div class="it-sub">Всего: '+s.totalIncomeRub.toLocaleString('ru-RU')+' ₽</div></div>'+
+        '<div class="insight-item expense"><div class="it-label">📉 Расход / день</div><div class="it-value">'+Math.round(avgExpense).toLocaleString('ru-RU')+' ₽</div><div class="it-sub">Всего: '+s.totalExpenseRub.toLocaleString('ru-RU')+' ₽</div></div>'+
+        '<div class="insight-item"><div class="it-label">💡 Баланс / день</div><div class="it-value">'+Math.round(avgNet).toLocaleString('ru-RU')+' ₽</div><div class="it-sub">Всего: '+s.netRub.toLocaleString('ru-RU')+' ₽</div></div>'+
         '<div class="insight-item"><div class="it-label">📋 Операций</div><div class="it-value">'+txs.length+'</div><div class="it-sub">↑ '+cntIncome+' · ↓ '+cntExpense+'</div></div>'+
-        '<div class="insight-item"><div class="it-label">💾 Процент сбережений</div><div class="it-value" style="color:'+(percentSaving>=20?'#4ade80':percentSaving>=0?'#fbbf24':'#f87171')+'">'+percentSaving+'%</div><div class="it-sub">'+(percentSaving>=30?'Отличный результат!':percentSaving>=15?'Хорошо':percentSaving>=0?'Можно лучше':'Расход > доход')+'</div></div>';
+        '<div class="insight-item"><div class="it-label">💾 Сбережения</div><div class="it-value">'+pctSave+'%</div><div class="it-sub">'+(pctSave>=30?'Отлично!':pctSave>=15?'Хорошо':pctSave>=0?'Можно лучше':'Расход > доход')+'</div></div>';
 
     var expCat=aggregateByCategory(txs,'expense');
     var top3=expCat.slice(0,3);
     var totalExp=0;
     for(var i=0;i<expCat.length;i++)totalExp+=expCat[i].value;
     if(top3.length){
-        var html='<div style="font-size:.7rem;color:#8b9bb5;margin-top:10px;margin-bottom:4px;">💸 Топ-3 расходов:</div>';
+        var html='<div style="font-size:0.68rem;color:#8b9bb5;margin-top:10px;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.3px;">💸 Топ-3 расходов</div>';
         for(var i=0;i<top3.length;i++){
             var pct=totalExp?((top3[i].value/totalExp)*100).toFixed(1):0;
             var medal=['🥇','🥈','🥉'][i];
@@ -517,66 +599,65 @@ function renderDashboard(txs,period){
         $('emptyState').classList.remove('hidden');
         return;
     }
-    var rubIncome=0,rubExpense=0,usdIncome=0,usdExpense=0;
-    for(var i=0;i<txs.length;i++){
-        var t=txs[i];
-        if(t.type==='income'){if(t.usd===0)rubIncome+=t.rub;else usdIncome+=t.usd;}
-        else{if(t.usd===0)rubExpense+=t.rub;else usdExpense+=t.usd;}
-    }
-    var totalIncomeRub=rubIncome+usdIncome*currentUsdRate;
-    var totalExpenseRub=rubExpense+usdExpense*currentUsdRate;
-    var netRub=totalIncomeRub-totalExpenseRub;
 
+    var s=computeStats(txs);
     var now=new Date();
     var dS=new Date(now);dS.setHours(0,0,0,0);
     var wS=new Date(now);wS.setDate(now.getDate()-7);wS.setHours(0,0,0,0);
     var mS=new Date(now);mS.setMonth(now.getMonth()-1);mS.setHours(0,0,0,0);
 
     function calc(start){
-        var ri=0,re=0,ui=0,ue=0;
-        for(var i=0;i<txs.length;i++){
-            var t=txs[i];
-            if(t.date<start)continue;
-            if(t.type==='income'){if(t.usd===0)ri+=t.rub;else ui+=t.usd;}
-            else{if(t.usd===0)re+=t.rub;else ue+=t.usd;}
-        }
-        return {incRub:ri+ui*currentUsdRate,expRub:re+ue*currentUsdRate};
+        var arr=txs.filter(function(t){return t.date>=start;});
+        return computeStats(arr);
     }
     var d=calc(dS),w=calc(wS),m=calc(mS);
 
-    $('totalIncomeRubOnly').textContent=rubIncome.toLocaleString('ru-RU')+' ₽';
-    $('totalExpenseRubOnly').textContent=rubExpense.toLocaleString('ru-RU')+' ₽';
-    $('totalIncomeUsd').textContent=usdIncome.toLocaleString('ru-RU')+' $';
-    $('totalExpenseUsd').textContent=usdExpense.toLocaleString('ru-RU')+' $';
-    $('totalIncomeRubTotal').textContent=totalIncomeRub.toLocaleString('ru-RU')+' ₽';
-    $('totalExpenseRubTotal').textContent=totalExpenseRub.toLocaleString('ru-RU')+' ₽';
-    var netEl=$('netIncome');
-    netEl.textContent=netRub.toLocaleString('ru-RU')+' ₽';
-    netEl.style.color=netRub>=0?'#4ade80':'#f87171';
+    // Баланс
+    $('totalBalanceRubDisplay').textContent=s.netRub.toLocaleString('ru-RU')+' ₽';
+    $('totalBalanceUsdDisplay').textContent=s.netUsd.toFixed(2)+' $';
+    $('usdDetails').textContent='(↑ '+s.usdIncome.toFixed(2)+' / ↓ '+s.usdExpense.toFixed(2)+')';
+    $('rateInfoSmall').textContent='1 USD = '+currentUsdRate.toFixed(2)+' ₽';
+
+    // Статистика
+    $('totalIncomeRubOnly').textContent=s.rubIncome.toLocaleString('ru-RU')+' ₽';
+    $('totalExpenseRubOnly').textContent=s.rubExpense.toLocaleString('ru-RU')+' ₽';
+    $('totalIncomeUsd').textContent=s.usdIncome.toLocaleString('ru-RU')+' $';
+    $('totalExpenseUsd').textContent=s.usdExpense.toLocaleString('ru-RU')+' $';
+    $('totalIncomeRubTotal').textContent=s.totalIncomeRub.toLocaleString('ru-RU')+' ₽';
+    $('totalExpenseRubTotal').textContent=s.totalExpenseRub.toLocaleString('ru-RU')+' ₽';
+    $('netIncome').textContent=s.netRub.toLocaleString('ru-RU')+' ₽';
     $('recordCount').textContent=txs.length;
 
     var rateDiff=0;
     for(var i=0;i<txs.length;i++){if(txs[i].usd>0)rateDiff+=txs[i].usd*currentUsdRate-txs[i].rub;}
-    var rp=$('rateProfit');
-    rp.textContent=(rateDiff>=0?'+':'')+rateDiff.toLocaleString('ru-RU')+' ₽';
-    rp.style.color=rateDiff>=0?'#4ade80':'#f87171';
+    $('rateProfit').textContent=(rateDiff>=0?'+':'')+rateDiff.toLocaleString('ru-RU')+' ₽';
 
     function fmt(n){return n.toLocaleString('ru-RU');}
-    $('dayIncome').textContent=(d.incRub>=0?'+':'')+fmt(d.incRub);
-    $('dayExpense').textContent=(d.expRub>=0?'-':'')+fmt(d.expRub);
-    $('weekIncome').textContent=(w.incRub>=0?'+':'')+fmt(w.incRub);
-    $('weekExpense').textContent=(w.expRub>=0?'-':'')+fmt(w.expRub);
-    $('monthIncome').textContent=(m.incRub>=0?'+':'')+fmt(m.incRub);
-    $('monthExpense').textContent=(m.expRub>=0?'-':'')+fmt(m.expRub);
+    $('dayIncome').textContent=(d.totalIncomeRub>=0?'+':'')+fmt(d.totalIncomeRub);
+    $('dayExpense').textContent=(d.totalExpenseRub>=0?'-':'')+fmt(d.totalExpenseRub);
+    $('weekIncome').textContent=(w.totalIncomeRub>=0?'+':'')+fmt(w.totalIncomeRub);
+    $('weekExpense').textContent=(w.totalExpenseRub>=0?'-':'')+fmt(w.totalExpenseRub);
+    $('monthIncome').textContent=(m.totalIncomeRub>=0?'+':'')+fmt(m.totalIncomeRub);
+    $('monthExpense').textContent=(m.totalExpenseRub>=0?'-':'')+fmt(m.totalExpenseRub);
 
+    // Период месяца
+    var monthStart=new Date(now.getFullYear(),now.getMonth(),1);
+    var monthEnd=new Date(now.getFullYear(),now.getMonth()+1,0);
+    var monthTxs=allTransactions.filter(function(tx){return tx.date>=monthStart&&tx.date<=monthEnd;});
+    var ms=computeStats(monthTxs);
+    $('periodDisplay').textContent=monthStart.toLocaleDateString('ru-RU')+' — '+monthEnd.toLocaleDateString('ru-RU');
+    $('monthIncomeDisplay').textContent='↑ '+ms.totalIncomeRub.toLocaleString('ru-RU');
+    $('monthExpenseDisplay').textContent='↓ '+ms.totalExpenseRub.toLocaleString('ru-RU');
+
+    // Диаграммы
     if(expensePieChart){expensePieChart.destroy();expensePieChart=null;}
     if(incomePieChart){incomePieChart.destroy();incomePieChart=null;}
 
     var incCat=aggregateByCategory(txs,'income');
     incomePieChart=new Chart($('incomePieChart'),{
         type:'doughnut',
-        data:{labels:incCat.map(function(x){return x.label;}),datasets:[{data:incCat.map(function(x){return x.value;}),backgroundColor:COLORS.slice(0,incCat.length),borderColor:'#111',borderWidth:2}]},
-        options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var t=0;for(var i=0;i<c.dataset.data.length;i++)t+=c.dataset.data[i];return c.label+': '+c.parsed.toLocaleString('ru-RU')+' ₽ ('+((c.parsed/t)*100).toFixed(1)+'%)';}}}}}
+        data:{labels:incCat.map(function(x){return x.label;}),datasets:[{data:incCat.map(function(x){return x.value;}),backgroundColor:COLORS.slice(0,incCat.length),borderColor:'#141820',borderWidth:2}]},
+        options:{responsive:true,maintainAspectRatio:true,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var t=0;for(var i=0;i<c.dataset.data.length;i++)t+=c.dataset.data[i];return c.label+': '+c.parsed.toLocaleString('ru-RU')+' ₽ ('+((c.parsed/t)*100).toFixed(1)+'%)';}}}}}
     });
     var incList=$('incomeCategoryList');incList.innerHTML='';
     var incTotal=0;
@@ -584,15 +665,15 @@ function renderDashboard(txs,period){
     for(var i=0;i<incCat.length;i++){
         var pct=incTotal?((incCat[i].value/incTotal)*100).toFixed(1):0;
         var dd=document.createElement('div');dd.className='cat-item';
-        dd.innerHTML='<span>'+incCat[i].label+'</span><span class="value">'+incCat[i].value.toLocaleString('ru-RU')+' ₽ ('+pct+'%)</span>';
+        dd.innerHTML='<span>'+incCat[i].label+'</span><span class="value">'+incCat[i].value.toLocaleString('ru-RU')+' ₽ · '+pct+'%</span>';
         incList.appendChild(dd);
     }
 
     var expCat=aggregateByCategory(txs,'expense');
     expensePieChart=new Chart($('expensePieChart'),{
         type:'doughnut',
-        data:{labels:expCat.map(function(x){return x.label;}),datasets:[{data:expCat.map(function(x){return x.value;}),backgroundColor:COLORS.slice(0,expCat.length),borderColor:'#111',borderWidth:2}]},
-        options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var t=0;for(var i=0;i<c.dataset.data.length;i++)t+=c.dataset.data[i];return c.label+': '+c.parsed.toLocaleString('ru-RU')+' ₽ ('+((c.parsed/t)*100).toFixed(1)+'%)';}}}}}
+        data:{labels:expCat.map(function(x){return x.label;}),datasets:[{data:expCat.map(function(x){return x.value;}),backgroundColor:COLORS.slice(0,expCat.length),borderColor:'#141820',borderWidth:2}]},
+        options:{responsive:true,maintainAspectRatio:true,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var t=0;for(var i=0;i<c.dataset.data.length;i++)t+=c.dataset.data[i];return c.label+': '+c.parsed.toLocaleString('ru-RU')+' ₽ ('+((c.parsed/t)*100).toFixed(1)+'%)';}}}}}
     });
     var expList=$('expenseCategoryList');expList.innerHTML='';
     var expTotal=0;
@@ -600,10 +681,11 @@ function renderDashboard(txs,period){
     for(var i=0;i<expCat.length;i++){
         var pct=expTotal?((expCat[i].value/expTotal)*100).toFixed(1):0;
         var dd=document.createElement('div');dd.className='cat-item';
-        dd.innerHTML='<span>'+expCat[i].label+'</span><span class="value">'+expCat[i].value.toLocaleString('ru-RU')+' ₽ ('+pct+'%)</span>';
+        dd.innerHTML='<span>'+expCat[i].label+'</span><span class="value">'+expCat[i].value.toLocaleString('ru-RU')+' ₽ · '+pct+'%</span>';
         expList.appendChild(dd);
     }
 
+    // Транзакции
     var indexed=[];
     for(var i=0;i<txs.length;i++)indexed.push({tx:txs[i],i:i});
     indexed.sort(function(a,b){return b.tx.date-a.tx.date;});
@@ -630,44 +712,6 @@ function renderDashboard(txs,period){
     renderInsights(txs,period);
     $('dashboard').classList.remove('hidden');
     $('emptyState').classList.add('hidden');
-    updateBalanceBlock();
-}
-
-function updateBalanceBlock(){
-    if(!allTransactions.length){
-        $('totalBalanceRubDisplay').textContent='0 ₽';
-        $('totalBalanceUsdDisplay').textContent='0 $';
-        $('monthIncomeDisplay').textContent='↑ 0';
-        $('monthExpenseDisplay').textContent='↓ 0';
-        var now=new Date();
-        var fD=new Date(now.getFullYear(),now.getMonth(),1);
-        var lD=new Date(now.getFullYear(),now.getMonth()+1,0);
-        $('periodDisplay').textContent=fD.toLocaleDateString('ru-RU')+' — '+lD.toLocaleDateString('ru-RU');
-        return;
-    }
-    var uI=0,uE=0,rI=0,rE=0;
-    for(var i=0;i<allTransactions.length;i++){
-        var t=allTransactions[i];
-        if(t.type==='income'){if(t.usd>0)uI+=t.usd;else rI+=t.rub;}
-        else{if(t.usd>0)uE+=t.usd;else rE+=t.rub;}
-    }
-    var netUsd=uI-uE,netRub=rI-rE;
-    var total=netRub+netUsd*currentUsdRate;
-    var now=new Date();
-    var mS=new Date(now.getFullYear(),now.getMonth(),1);
-    var mE=new Date(now.getFullYear(),now.getMonth()+1,0);
-    var mI=0,mE2=0;
-    for(var i=0;i<allTransactions.length;i++){
-        var t=allTransactions[i];
-        if(t.date<mS||t.date>mE)continue;
-        if(t.type==='income')mI+=t.usd>0?t.usd*currentUsdRate:t.rub;
-        else mE2+=t.usd>0?t.usd*currentUsdRate:t.rub;
-    }
-    $('periodDisplay').textContent=mS.toLocaleDateString('ru-RU')+' — '+mE.toLocaleDateString('ru-RU');
-    $('totalBalanceRubDisplay').textContent=total.toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₽';
-    $('totalBalanceUsdDisplay').textContent=netUsd.toFixed(2)+' $';
-    $('monthIncomeDisplay').textContent='↑ '+mI.toLocaleString('ru-RU');
-    $('monthExpenseDisplay').textContent='↓ '+mE2.toLocaleString('ru-RU');
 }
 
 function updateWithFilter(period){
@@ -696,16 +740,16 @@ function drawRateHistoryChart(){
     if(rateHistoryChart){rateHistoryChart.destroy();rateHistoryChart=null;}
     var ctx=c.getContext('2d');
     if(rateHistory.length<2){
-        rateHistoryChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'Курс',data:[],borderColor:'#60a5fa',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'#c8d0e0'}}}}});
+        rateHistoryChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'Курс',data:[],borderColor:'#93c5fd',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'#8b9bb5'}}}}});
         return;
     }
     rateHistoryChart=new Chart(ctx,{
         type:'line',
         data:{
             labels:rateHistory.map(function(x){return x.date.toLocaleDateString('ru-RU')+' '+x.date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});}),
-            datasets:[{label:'Курс USD/RUB',data:rateHistory.map(function(x){return x.rate;}),borderColor:'#60a5fa',backgroundColor:'rgba(96,165,250,0.1)',borderWidth:2,pointBackgroundColor:'#60a5fa',pointRadius:2,tension:0.2,fill:true}]
+            datasets:[{label:'Курс USD/RUB',data:rateHistory.map(function(x){return x.rate;}),borderColor:'#93c5fd',backgroundColor:'rgba(147,197,253,0.1)',borderWidth:2,pointBackgroundColor:'#93c5fd',pointRadius:2,tension:0.2,fill:true}]
         },
-        options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'#c8d0e0'}},tooltip:{callbacks:{label:function(c){return c.parsed.y.toFixed(2)+' ₽';}}}},scales:{y:{ticks:{color:'#8b9bb5',callback:function(v){return v.toFixed(2)+' ₽';}}},x:{ticks:{color:'#8b9bb5',maxTicksLimit:15,maxRotation:30,autoSkip:true}}}}
+        options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'#8b9bb5'}},tooltip:{callbacks:{label:function(c){return c.parsed.y.toFixed(2)+' ₽';}}}},scales:{y:{ticks:{color:'#8b9bb5',callback:function(v){return v.toFixed(2)+' ₽';}}},x:{ticks:{color:'#8b9bb5',maxTicksLimit:15,maxRotation:30,autoSkip:true}}}}
     });
 }
 
@@ -719,9 +763,8 @@ function setRate(rate){
     var diff=((rate-old)/old*100).toFixed(2);
     var rc=$('rateChangeInfo');
     rc.textContent=diff>=0?'📈 +'+diff+'%':'📉 '+diff+'%';
-    rc.style.color=diff>=0?'#4ade80':'#f87171';
+    rc.style.color=diff>=0?'#86efac':'#fca5a5';
     updateWithFilter(currentFilter);
-    updateBalanceBlock();
 }
 
 function loadData(showStatus){
@@ -788,8 +831,6 @@ function fillCategories(type){
     }
 }
 
-function pad(n){return n<10?'0'+n:''+n;}
-
 function openTxModal(editIdx){
     editingIndex=(typeof editIdx==='number')?editIdx:-1;
     var title=$('txModalTitle');
@@ -827,7 +868,6 @@ function openTxModal(editIdx){
 }
 
 function closeTxModal(){$('txModal').classList.remove('open');editingIndex=-1;}
-
 function editTransaction(i){openTxModal(i);}
 
 function deleteTransaction(i){
