@@ -87,7 +87,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .collapsible:not(.closed) .collapsible-header { border-radius:14px 14px 0 0; }
 
 .charts-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.chart-box { background:#111; border-radius:12px; padding:10px 10px; border:1px solid #2a2a2a; text-align:center; }
+.chart-box { background:#111; border-radius:12px; padding:10px 10px; border:1px solid #2a2a2a; text-align:center; cursor:pointer; transition: border-color 0.2s; }
+.chart-box:hover { border-color:#4a5568; }
 .chart-box h3 { font-weight:500; font-size:0.7rem; color:#c8d0e0; margin-bottom:6px; letter-spacing:0.2px; }
 .chart-box canvas { max-height:100px; max-width:100%; margin:0 auto; }
 .chart-box .category-list { margin-top:8px; font-size:0.65rem; color:#c8d0e0; line-height:1.4; max-height:100px; overflow-y:auto; text-align:left; }
@@ -179,6 +180,148 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
 .type-btn.active[data-type="income"] { background:rgba(74,222,128,0.2); border-color:#4ade80; color:#4ade80; }
 .type-btn.active[data-type="expense"] { background:rgba(248,113,113,0.2); border-color:#f87171; color:#f87171; }
 
+/* === МОДАЛКА ДЕТАЛИЗАЦИИ КАТЕГОРИЙ === */
+.cat-detail-modal { max-width: 520px; background:#0b0e14; }
+.cat-detail-modal .modal-header { padding: 18px 20px 10px; border-bottom: none; }
+.cat-detail-modal .modal-header h2 { font-size: 1.15rem; }
+.cat-detail-modal .modal-close { background: rgba(255,255,255,0.05); border-radius: 10px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+.cat-detail-modal .modal-body { padding: 0 20px 20px; }
+
+.cat-detail-top {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    background: #141820;
+    border-radius: 16px;
+    padding: 18px 16px;
+    margin-bottom: 18px;
+    border: 1px solid #1f2530;
+}
+.cat-donut-wrap {
+    position: relative;
+    width: 130px;
+    height: 130px;
+    flex-shrink: 0;
+}
+.cat-donut-wrap canvas {
+    max-height: 130px !important;
+    max-width: 130px !important;
+}
+.cat-donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+.cat-donut-center .cdc-amount {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #e8edf5;
+    line-height: 1.1;
+    text-align: center;
+}
+.cat-donut-center .cdc-label {
+    font-size: 0.6rem;
+    color: #8b9bb5;
+    margin-top: 2px;
+    text-align: center;
+}
+.cat-detail-top-info {
+    flex: 1;
+    min-width: 0;
+}
+.cat-detail-top-info .cdt-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #8b9bb5;
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+.cat-detail-top-info .cdt-category {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #e8edf5;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.cat-detail-top-info .cdt-desc {
+    font-size: 0.75rem;
+    color: #8b9bb5;
+    line-height: 1.4;
+}
+
+.cat-detail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.cdl-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.cdl-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.85rem;
+}
+.cdl-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
+}
+.cdl-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.cdl-name {
+    font-weight: 600;
+    color: #e8edf5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.cdl-right {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-shrink: 0;
+}
+.cdl-amount {
+    font-weight: 700;
+    color: #e8edf5;
+}
+.cdl-percent {
+    font-weight: 600;
+    color: #8b9bb5;
+    font-size: 0.8rem;
+    min-width: 42px;
+    text-align: right;
+}
+.cdl-bar {
+    height: 6px;
+    background: #1a1f2a;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.cdl-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+}
+
 @media (max-width:900px) {
   .stats-grid { grid-template-columns:1fr 1fr; }
   .stats-grid .stat-card:last-child { grid-column:span 2; }
@@ -194,17 +337,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
   .balance-card .top { flex-direction:column; align-items:stretch; }
   .balance-card .top .amount { font-size:1.6rem; }
   .balance-card .bottom { flex-direction:column; align-items:stretch; gap:4px; }
-  .balance-card .bottom .month-change { justify-content:space-around; }
+  .balance"-card .bottom .month-change { justify-content:space-around; }
   #rateHistoryChart { height:150px !important; }
   .top-bar .actions { justify-content:center; }
-  .form-row input[type="datetime-local"] { font-size: 0.8rem; padding: 8px 6px; }
-  .modal-body { padding: 14px 12px; }
+  . idform-row input[type="datetime-local"] { font-size: 0.8rem; padding: 8px 6px; }
+  .modal-body { padding: 14px 12px="; }
   .modal { max-width: 100%; }
   .charts-row { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .chart-box { padding: 8px 6px; }
-  .chart-box h3 { font-size: 0.65rem; }
+  .chart-box { padding: 8px total6px; }
+  .chartExp-box h3 { font-size:ense 0.65rem; }
   .chart-box canvas { max-height: 90px; }
   .chart-box .category-list { font-size: 0.6rem; max-height: 90px; }
+  .cat-detail-top { flex-direction: column; text-align: center; gap: 12px; padding: 16px 12px; }
+  .cat-detail-top-info { text-align: center; }
 }
 .footer { margin-top:16px; text-align:center; font-size:0.65rem; color:#5a6a80; border-top:1px solid #232b3b; padding-top:12px; }
 </style>
@@ -259,7 +404,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <div class="stat-card usd"><div class="label">💰 Доход (USD)</div><div class="value" id="totalIncomeUsd">0 $</div></div>
       <div class="stat-card usd"><div class="label">💸 Расход (USD)</div><div class="value" id="totalExpenseUsd">0 $</div></div>
       <div class="stat-card balance"><div class="label">💵 Общий доход (RUB)</div><div class="value" id="totalIncomeRubTotal">0 ₽</div></div>
-      <div class="stat-card balance"><div class="label">💵 Общий расход (RUB)</div><div class="value" id="totalExpenseRubTotal">0 ₽</div></div>
+      <div class="stat-card balance"><div class="label">💵 Общий расход (RUB)</div><div class="valueRubTotal">0 ₽</div></div>
       <div class="stat-card rate-profit"><div class="label">📊 Курсовая разница</div><div class="value" id="rateProfit">0 ₽</div></div>
       <div class="stat-card count"><div class="label">📋 Записей</div><div class="value" id="recordCount">0</div></div>
     </div>
@@ -280,12 +425,12 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
       <div class="collapsible-header" data-target="chartsContent"><h3>📊 Диаграммы по категориям</h3><span class="toggle open">▼</span></div>
       <div class="collapsible-content open" id="chartsContent">
         <div class="charts-row">
-          <div class="chart-box">
+          <div class="chart-box" id="incomeChartBox">
             <h3>🧩 Доходы по категориям</h3>
             <canvas id="incomePieChart"></canvas>
             <div class="category-list" id="incomeCategoryList"></div>
           </div>
-          <div class="chart-box">
+          <div class="chart-box" id="expenseChartBox">
             <h3>🧩 Расходы по категориям</h3>
             <canvas id="expensePieChart"></canvas>
             <div class="category-list" id="expenseCategoryList"></div>
@@ -348,10 +493,10 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     </div>
     <div class="modal-footer">
       <button class="modal-btn cancel" id="cancelTxBtn">Отмена</button>
-      <button class="modal-btn save" id="saveTxBtn">Сохранить</button>
+>
+      <button class="modal-btn save" id="saveTx</Btn">Сохранить</buttondiv>
     </div>
   </div>
-</div>
 
 <div class="modal-overlay" id="tokenModal">
   <div class="modal">
@@ -363,6 +508,33 @@ body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-
     <div class="modal-footer">
       <button class="modal-btn cancel" id="cancelTokenBtn">Отмена</button>
       <button class="modal-btn save" id="saveTokenBtn">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- === МОДАЛКА ДЕТАЛИЗАЦИИ КАТЕГОРИЙ === -->
+<div class="modal-overlay" id="catDetailModal">
+  <div class="modal cat-detail-modal">
+    <div class="modal-header">
+      <h2 id="catDetailTitle">Расходы за месяц</h2>
+      <button class="modal-close" id="closeCatDetailModal">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="cat-detail-top">
+        <div class="cat-donut-wrap">
+          <canvas id="catDetailDonut"></canvas>
+          <div class="cat-donut-center">
+            <div class="cdc-amount" id="catDetailTotal">0 ₽</div>
+            <div class="cdc-label" id="catDetailTotalLabel">всего расходов</div>
+          </div>
+        </div>
+        <div class="cat-detail-top-info">
+          <div class="cdt-label">БОЛЬШЕ ВСЕГО</div>
+          <div class="cdt-category" id="catDetailTopCat">—</div>
+          <div class="cdt-desc" id="catDetailTopDesc">—</div>
+        </div>
+      </div>
+      <div class="cat-detail-list" id="catDetailList"></div>
     </div>
   </div>
 </div>
@@ -395,12 +567,14 @@ const TOKEN_KEY = 'githubPersonalToken';
 const CATEGORIES_INCOME = ['💰 Зарплата','🗓 Продажа','🎁 Подарок','💵 Другое'];
 const CATEGORIES_EXPENSE = ['🚘 Автомобиль (Ремонт, заправки)','🍔 Еда (Доставки, супермаркет и т.п.)','🏚️ Ипотека','☕️ Кафе и рестораны','🎢 Развлечения (Кино, концерты, игры)','🛍 Покупки (Одежда, техника)','💊 Здоровье (Врачи, аптеки)','🏠 Коммунальные услуги','📱 Связь и интернет','📚 Образование','💸 Другое'];
 
+const CHART_COLORS = ['#f87171','#fbbf24','#34d399','#60a5fa','#a78bfa','#fb923c','#f472b6','#2dd4bf','#e879f9','#facc15','#22c55e','#3b82f6','#ec4899','#8b5cf6','#06b6d4'];
+
 let allTransactions = [];
 let rateHistory = [];
 let currentFilter = 'month';
 let dataLoaded = false;
 let currentUsdRate = 85.00;
-let expensePieChart = null, incomePieChart = null, rateHistoryChart = null;
+let expensePieChart = null, incomePieChart = null, rateHistoryChart = null, catDetailDonut = null;
 let autoUpdateTimer = null;
 let editingIndex = -1;
 
@@ -629,7 +803,7 @@ function renderDashboard(txs, period) {
   const incCat = aggregateByCategory(txs, 'income');
   incomePieChart = new Chart(document.getElementById('incomePieChart'), {
     type:'doughnut',
-    data: { labels: incCat.map(x => x.label), datasets: [{ data: incCat.map(x => x.value), backgroundColor:['#4ade80','#facc15','#60a5fa','#c084fc','#fb923c','#f472b6','#2dd4bf','#a3a3a3','#e879f9','#34d399'], borderColor:'#111', borderWidth:2 }] },
+    data: { labels: incCat.map(x => x.label), datasets: [{ data: incCat.map(x => x.value), backgroundColor: CHART_COLORS.slice(0, incCat.length), borderColor:'#111', borderWidth:2 }] },
     options: { responsive:true, maintainAspectRatio:true, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c => { const t = c.dataset.data.reduce((a,b)=>a+b,0); return c.label + ': ' + c.parsed.toLocaleString('ru-RU') + ' ₽ (' + ((c.parsed/t)*100).toFixed(1) + '%)'; }}}} }
   });
   const incList = document.getElementById('incomeCategoryList');
@@ -645,7 +819,7 @@ function renderDashboard(txs, period) {
   const expCat = aggregateByCategory(txs, 'expense');
   expensePieChart = new Chart(document.getElementById('expensePieChart'), {
     type:'doughnut',
-    data: { labels: expCat.map(x => x.label), datasets: [{ data: expCat.map(x => x.value), backgroundColor:['#f87171','#fbbf24','#34d399','#60a5fa','#a78bfa','#fb923c','#f472b6','#2dd4bf','#e879f9','#facc15'], borderColor:'#111', borderWidth:2 }] },
+    data: { labels: expCat.map(x => x.label), datasets: [{ data: expCat.map(x => x.value), backgroundColor: CHART_COLORS.slice(0, expCat.length), borderColor:'#111', borderWidth:2 }] },
     options: { responsive:true, maintainAspectRatio:true, plugins:{ legend:{display:false}, tooltip:{callbacks:{label:c => { const t = c.dataset.data.reduce((a,b)=>a+b,0); return c.label + ': ' + c.parsed.toLocaleString('ru-RU') + ' ₽ (' + ((c.parsed/t)*100).toFixed(1) + '%)'; }}}} }
   });
   const expList = document.getElementById('expenseCategoryList');
@@ -789,10 +963,8 @@ function setRate(rate) {
   updateBalanceBlock();
 }
 
-// === ЗАГРУЗКА: сначала с GitHub, если недоступно — из кэша ===
 async function loadData(showStatus = true) {
   if (showStatus) fileStatus.textContent = '⏳ Загрузка...';
-  // Пробуем GitHub
   try {
     const r = await fetch('stats2.json?t=' + Date.now(), { cache:'no-store' });
     if (r.ok) {
@@ -805,7 +977,6 @@ async function loadData(showStatus = true) {
       }
     }
   } catch(e) { console.warn('GitHub недоступен:', e.message); }
-  // Пробуем кэш
   const stored = loadTransactions();
   if (stored && stored.length) {
     initData(stored);
@@ -847,6 +1018,7 @@ async function loadRateHistoryFromServer(showStatus = false) {
 
 const txModal = document.getElementById('txModal');
 const tokenModal = document.getElementById('tokenModal');
+const catDetailModal = document.getElementById('catDetailModal');
 const txCategory = document.getElementById('txCategory');
 let currentTxType = 'income';
 
@@ -1028,7 +1200,6 @@ clearDataBtn.addEventListener('click', function(e) {
   }
 });
 
-// === ОБНОВИТЬ: не удаляем кэш, просто перезагружаем с GitHub или из кэша ===
 refreshBtn.addEventListener('click', async function(e) {
   e.preventDefault();
   fileStatus.textContent = '⏳ Обновление...';
@@ -1059,6 +1230,90 @@ document.querySelectorAll('.collapsible-header').forEach(h => {
     const p = this.closest('.collapsible');
     if (c) { c.classList.toggle('open'); t.classList.toggle('open'); p.classList.toggle('closed'); }
   });
+});
+
+// ============ ДЕТАЛИЗАЦИЯ КАТЕГОРИЙ (МОДАЛКА) ============
+function openCategoryDetail(type) {
+  const filtered = filterTransactions(allTransactions, currentFilter);
+  const catList = aggregateByCategory(filtered, type);
+  if (!catList.length) {
+    alert('Нет данных за выбранный период');
+    return;
+  }
+  const total = catList.reduce((s, x) => s + x.value, 0);
+  const periodNames = { day:'Сегодня', week:'За 7 дней', month:'За месяц', all:'За всё время' };
+  const typeName = type === 'expense' ? 'Расходы' : 'Доходы';
+
+  document.getElementById('catDetailTitle').textContent = `${typeName} ${periodNames[currentFilter].toLowerCase()}`;
+  document.getElementById('catDetailTotal').textContent = total.toLocaleString('ru-RU') + ' ₽';
+  document.getElementById('catDetailTotalLabel').textContent = type === 'expense' ? 'всего расходов' : 'всего доходов';
+
+  const top = catList[0];
+  const topPct = ((top.value / total) * 100).toFixed(1);
+  document.getElementById('catDetailTopCat').textContent = top.label;
+  document.getElementById('catDetailTopDesc').textContent = `${top.value.toLocaleString('ru-RU')} ₽ · ${topPct}% всех ${type === 'expense' ? 'расходов' : 'доходов'} ${periodNames[currentFilter].toLowerCase()}`;
+
+  // Круговая диаграмма
+  if (catDetailDonut) { catDetailDonut.destroy(); catDetailDonut = null; }
+  const colors = catList.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]);
+  catDetailDonut = new Chart(document.getElementById('catDetailDonut'), {
+    type: 'doughnut',
+    data: {
+      labels: catList.map(x => x.label),
+      datasets: [{
+        data: catList.map(x => x.value),
+        backgroundColor: colors,
+        borderColor: '#0b0e14',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      cutout: '65%',
+      plugins: { legend: { display: false }, tooltip: { enabled: false } }
+    }
+  });
+
+  // Список
+  const listEl = document.getElementById('catDetailList');
+  listEl.innerHTML = '';
+  catList.forEach((x, i) => {
+    const pct = (x.value / total) * 100;
+    const item = document.createElement('div');
+    item.className = 'cdl-item';
+    item.innerHTML = `
+      <div class="cdl-row">
+        <div class="cdl-left">
+          <span class="cdl-dot" style="background:${colors[i]}"></span>
+          <span class="cdl-name">${x.label}</span>
+        </div>
+        <div class="cdl-right">
+          <span class="cdl-amount">${x.value.toLocaleString('ru-RU')} ₽</span>
+          <span class="cdl-percent">${pct.toFixed(1)}%</span>
+        </div>
+      </div>
+      <div class="cdl-bar">
+        <div class="cdl-bar-fill" style="width:${pct}%; background:${colors[i]}"></div>
+      </div>
+    `;
+    listEl.appendChild(item);
+  });
+
+  catDetailModal.classList.add('open');
+}
+
+document.getElementById('incomeChartBox').addEventListener('click', () => openCategoryDetail('income'));
+document.getElementById('expenseChartBox').addEventListener('click', () => openCategoryDetail('expense'));
+document.getElementById('closeCatDetailModal').addEventListener('click', () => {
+  catDetailModal.classList.remove('open');
+  if (catDetailDonut) { catDetailDonut.destroy(); catDetailDonut = null; }
+});
+catDetailModal.addEventListener('click', function(e) {
+  if (e.target === catDetailModal) {
+    catDetailModal.classList.remove('open');
+    if (catDetailDonut) { catDetailDonut.destroy(); catDetailDonut = null; }
+  }
 });
 
 function startAutoUpdate() {
