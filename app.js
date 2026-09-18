@@ -1204,7 +1204,7 @@ function saveBudget(){
         budgets.push({category:category,limit:limit});
         $('fileStatus').textContent='➕ Бюджет добавлен';
     }
-    saveBudgets4();
+    saveBudgets();
     renderBudgets();
     renderSettingsBudgetsList();
     closeBudgetEditModal();
@@ -1321,12 +1321,11 @@ function renderSettingsGoalsList(){
         var pct=g.target>0?Math.min((g.saved/g.target)*100,100):0;
         var item=document.createElement('div');
         item.className='goal-manage-item';
-        var info=document,
-.createElement('div');
-               info.className='g exportedmi-info';
-        var nameEl=document.createElement('Atdiv');
+        var info=document.createElement('div');
+        info.className='gmi-info';
+        var nameEl=document.createElement('div');
         nameEl.className='gmi-name';
-        name:El.textContent=(g.icon||'🎯')+' '+g.name;
+        nameEl.textContent=(g.icon||'🎯')+' '+g.name;
         var metaEl=document.createElement('div');
         metaEl.className='gmi-meta';
         metaEl.textContent=Math.round(g.saved).toLocaleString('ru-RU')+' / '+Math.round(g.target).toLocaleString('ru-RU')+' ₽ · '+Math.round(pct)+'%';
@@ -1511,7 +1510,8 @@ function exportAllDataCSV(){
 function exportAllData(){
     if(!allTransactions.length&&!rateHistory.length&&!templates.length&&!budgets.length&&!goals.length){alert('Нет данных для экспорта');return;}
     var data={
-        version:new Date().toISOString(),
+        version:4,
+        exportedAt:new Date().toISOString(),
         currentUsdRate:currentUsdRate,
         transactions:allTransactions.map(function(tx){
             return {type:tx.type,date:tx.date.toISOString(),usd:tx.usd,rub:tx.rub,category:tx.category,note:tx.note};
