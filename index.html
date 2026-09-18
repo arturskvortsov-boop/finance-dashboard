@@ -20,6 +20,7 @@
     </div>
     <div class="actions">
         <button id="addTxBtn" class="btn-green">➕ Добавить</button>
+        <button id="quickAddBtn" class="btn-purple">⚡ Быстрое</button>
         <button id="refreshBtn" class="btn-neutral">🔄 Обновить</button>
         <button id="syncBtn" class="btn-blue">☁️ Синхронизировать</button>
     </div>
@@ -88,7 +89,7 @@
         <div class="group"><div class="period-label">Месяц</div><div class="sums-row"><span class="sum income" id="monthIncome">+0</span><span class="sum expense" id="monthExpense">-0</span></div></div>
     </div>
 
-<div class="insights-block" id="insightsBlock">
+    <div class="insights-block" id="insightsBlock">
         <h3>💡 Сводка по периоду</h3>
         <div class="insight-grid" id="insightGrid"></div>
         <div class="top-cat-list" id="topCatList"></div>
@@ -145,7 +146,7 @@
         <div class="crc-freshness" id="rateFreshness"></div>
     </div>
 
-  <div class="currency-stats-grid">
+    <div class="currency-stats-grid">
         <div class="stat-card income"><div class="label">💰 Доход (USD экв.)</div><div class="value" id="totalIncomeUsd">0 $</div></div>
         <div class="stat-card expense"><div class="label">💸 Расход (USD экв.)</div><div class="value" id="totalExpenseUsd">0 $</div></div>
         <div class="stat-card"><div class="label">⚖️ Баланс USD</div><div class="value" id="balanceUsd">0 $</div></div>
@@ -175,13 +176,22 @@
             <span class="label">Последняя синхронизация</span>
             <span class="value" id="settingsLastSync">—</span>
         </div>
-       <div class="settings-actions">
+        <div class="settings-actions">
             <button class="settings-btn success" id="settingsExportBtn">💾 Экспорт JSON</button>
             <button class="settings-btn success" id="settingsExportCsvBtn">📊 Экспорт CSV</button>
             <button class="settings-btn primary" id="settingsImportBtn">📥 Импорт JSON</button>
         </div>
         <input type="file" id="settingsImportInput" accept="application/json,.json" style="display:none">
-        <div class="settings-hint">Экспорт сохраняет все транзакции и историю курса в один файл — пригодится для бэкапа или переноса на другое устройство.</div>
+        <div class="settings-hint">Экспорт сохраняет все транзакции, историю курса и шаблоны в один файл.</div>
+    </div>
+
+    <div class="settings-section">
+        <h3>🔁 Регулярные платежи</h3>
+        <div class="templates-list" id="settingsTemplatesList"></div>
+        <div class="settings-actions">
+            <button class="settings-btn primary" id="settingsNewTemplateBtn">➕ Создать шаблон</button>
+        </div>
+        <div class="settings-hint">Шаблоны для быстрого добавления повторяющихся транзакций (ипотека, зарплата, коммуналка). Хранятся локально на этом устройстве.</div>
     </div>
 
     <div class="settings-section">
@@ -197,7 +207,7 @@
         <div class="settings-hint">Токен хранится только в этом браузере и используется для записи данных в репозиторий GitHub.</div>
     </div>
 
-<div class="settings-section">
+    <div class="settings-section">
         <h3>🎨 Оформление</h3>
         <div class="theme-toggle">
             <button class="theme-btn" data-theme="auto">🌗 Авто</button>
@@ -207,10 +217,9 @@
         <div class="settings-hint">Режим «Авто» подстраивается под системную тему устройства.</div>
     </div>
 
-
     <div class="settings-section">
         <h3>⚠️ Опасная зона</h3>
-        <div class="settings-danger-text">Все данные (транзакции, история курса, токен, кэш) будут удалены. Это действие нельзя отменить. Рекомендуем сначала сделать экспорт.</div>
+        <div class="settings-danger-text">Все данные (транзакции, история курса, шаблоны, токен, кэш) будут удалены. Это действие нельзя отменить.</div>
         <div class="settings-actions">
             <button class="settings-btn danger" id="settingsClearBtn">🗑️ Очистить все данные</button>
         </div>
@@ -231,8 +240,42 @@
         <div class="form-row"><label>Категория</label><select id="txCategory"></select></div>
         <div class="form-row"><label>Комментарий</label><input type="text" id="txNote" placeholder="Необязательно"></div>
         <div class="form-row"><label>Дата и время</label><input type="datetime-local" id="txDateTime"></div>
+        <div class="form-row hidden" id="saveAsTemplateRow">
+            <label class="checkbox-row"><input type="checkbox" id="saveAsTemplate"><span>🔁 Сохранить как шаблон</span></label>
+        </div>
+        <div class="form-row hidden" id="templateNameRow"><label>Название шаблона</label><input type="text" id="txTemplateName" placeholder="Например: Ипотека"></div>
+        <div class="form-row hidden" id="templateDayRow"><label>День месяца (1-31, необязательно)</label><input type="number" id="txTemplateDay" placeholder="Например: 5" min="1" max="31"></div>
     </div>
     <div class="modal-footer"><button class="modal-btn cancel" id="cancelTxBtn">Отмена</button><button class="modal-btn save" id="saveTxBtn">Сохранить</button></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="quickAddModal">
+<div class="modal">
+    <div class="modal-header"><h2>⚡ Быстрое добавление</h2><button class="modal-close" id="closeQuickAddModal">×</button></div>
+    <div class="modal-body">
+        <div class="templates-list" id="quickAddTemplatesList"></div>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-btn cancel" id="cancelQuickAddBtn">Закрыть</button>
+        <button class="modal-btn save" id="newTemplateFromQuickBtn">➕ Новый шаблон</button>
+    </div>
+</div>
+</div>
+
+<div class="modal-overlay" id="templateEditModal">
+<div class="modal">
+    <div class="modal-header"><h2 id="templateEditTitle">🔁 Новый шаблон</h2><button class="modal-close" id="closeTemplateEditModal">×</button></div>
+    <div class="modal-body">
+        <div class="form-row"><label>Тип</label><div class="type-toggle"><button class="type-btn active" data-type="income">💰 Доход</button><button class="type-btn" data-type="expense">💸 Расход</button></div></div>
+        <div class="form-row"><label>Название шаблона</label><input type="text" id="tplName" placeholder="Например: Ипотека"></div>
+        <div class="form-row"><label>Сумма в рублях</label><input type="number" id="tplRub" placeholder="0" step="0.01"></div>
+        <div class="form-row"><label>Сумма в долларах (необязательно)</label><input type="number" id="tplUsd" placeholder="0" step="0.01"></div>
+        <div class="form-row"><label>Категория</label><select id="tplCategory"></select></div>
+        <div class="form-row"><label>Комментарий</label><input type="text" id="tplNote" placeholder="Необязательно"></div>
+        <div class="form-row"><label>День месяца (1-31, необязательно)</label><input type="number" id="tplDay" placeholder="Например: 5" min="1" max="31"></div>
+    </div>
+    <div class="modal-footer"><button class="modal-btn cancel" id="cancelTemplateEditBtn">Отмена</button><button class="modal-btn save" id="saveTemplateBtn">Сохранить</button></div>
 </div>
 </div>
 
@@ -240,7 +283,7 @@
 <div class="modal">
     <div class="modal-header"><h2>🔑 GitHub-токен</h2><button class="modal-close" id="closeTokenModal">×</button></div>
     <div class="modal-body">
-        <p style="color:#8b9bb5;font-size:0.78rem;margin-bottom:10px;">Вставьте Personal Access Token (права repo).</p>
+        <p style="color:var(--text-muted);font-size:0.78rem;margin-bottom:10px;">Вставьте Personal Access Token (права repo).</p>
         <div class="form-row"><label>Токен</label><input type="text" id="githubTokenInput" placeholder="ghp_..." autocomplete="off"></div>
     </div>
     <div class="modal-footer"><button class="modal-btn cancel" id="cancelTokenBtn">Отмена</button><button class="modal-btn save" id="saveTokenBtn">Сохранить</button></div>
