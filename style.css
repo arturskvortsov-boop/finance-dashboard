@@ -271,3 +271,23 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 
 @media (max-width:900px){.stats-grid{grid-template-columns:1fr 1fr}.stats-grid .stat-card:last-child{grid-column:span 2}}
 @media (max-width:600px){.period-label{margin-left:0;width:100%;text-align:center}.top-bar .actions{justify-content:center}.cat-detail-top{flex-direction:column;text-align:center;gap:12px}.cat-detail-top-info{text-align:center}}
+/* ===== TEMPLATES ===== */
+.templates-list{display:flex;flex-direction:column;gap:8px}
+.template-item{background:var(--card-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color .15s,background .15s}
+.template-item:hover{border-color:var(--accent)}
+.template-item .tpl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.template-item .tpl-dot.income{background:var(--green)}
+.template-item .tpl-dot.expense{background:var(--red)}
+.template-item .tpl-info{flex:1;min-width:0}
+.template-item .tpl-name{font-weight:600;font-size:0.85rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.template-item .tpl-meta{font-size:0.68rem;color:var(--text-muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.template-item .tpl-amount{font-weight:700;font-size:0.85rem;color:var(--text);flex-shrink:0;text-align:right}
+.template-item .tpl-amount.income{color:var(--green)}
+.template-item .tpl-amount.expense{color:var(--red)}
+.template-item .tpl-actions{display:flex;gap:4px;flex-shrink:0;margin-left:4px}
+.template-item .tpl-actions button{background:transparent;border:1px solid var(--border);color:var(--text-muted);width:26px;height:26px;border-radius:8px;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;font-family:inherit}
+.template-item .tpl-actions button:hover{border-color:var(--accent);color:var(--accent)}
+.template-empty{text-align:center;color:var(--text-dim);font-size:0.78rem;padding:20px 8px;line-height:1.5}
+
+.checkbox-row{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.82rem;color:var(--text);padding:4px 0;user-select:none}
+.checkbox-row input[type="checkbox"]{width:16px!important;height:16px!important;max-width:16px!important;accent-color:var(--accent);flex-shrink:0;margin:0;cursor:pointer;padding:0!important;border-radius:4px}
