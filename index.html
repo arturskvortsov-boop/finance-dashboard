@@ -87,10 +87,16 @@
         <div class="group"><div class="period-label">Месяц</div><div class="sums-row"><span class="sum income" id="monthIncome">+0</span><span class="sum expense" id="monthExpense">-0</span></div></div>
     </div>
 
-    <div class="insights-block" id="insightsBlock">
+<div class="insights-block" id="insightsBlock">
         <h3>💡 Сводка по периоду</h3>
         <div class="insight-grid" id="insightGrid"></div>
         <div class="top-cat-list" id="topCatList"></div>
+    </div>
+
+    <div class="balance-chart-box">
+        <h3>📈 Динамика баланса</h3>
+        <canvas id="balanceHistoryChart"></canvas>
+        <div class="balance-chart-empty" id="balanceChartEmpty" style="display:none">нет данных за период</div>
     </div>
 
     <div class="collapsible">
