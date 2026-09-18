@@ -23,14 +23,17 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 
 .page{display:none}
 .page.active{display:block}
-.page.active .currency-hero,
-.page.active .currency-rate-card,
-.page.active .currency-stats-grid,
-.page.active .rate-chart-box{animation:slideUpFade .55s cubic-bezier(.2,.7,.3,1) both}
-.page.active .currency-rate-card{animation-delay:.06s}
-.page.active .currency-stats-grid{animation-delay:.12s}
-.page.active .rate-chart-box{animation-delay:.18s}
-@keyframes slideUpFade{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.page.page-enter-right{animation:pageInRight .38s cubic-bezier(.22,.7,.3,1) both}
+.page.page-enter-left{animation:pageInLeft .38s cubic-bezier(.22,.7,.3,1) both}
+@keyframes pageInRight{
+    from{opacity:0;transform:translateX(60px)}
+    to{opacity:1;transform:translateX(0)}
+}
+@keyframes pageInLeft{
+    from{opacity:0;transform:translateX(-60px)}
+    to{opacity:1;transform:translateX(0)}
+}
+.page{will-change:transform,opacity}
 
 .filter-bar{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center;justify-content:center}
 .filter-btn{background:transparent;border:1px solid #232a36;color:#8b9bb5;padding:4px 12px;border-radius:20px;font-size:0.72rem;font-weight:500;cursor:pointer;font-family:inherit}
