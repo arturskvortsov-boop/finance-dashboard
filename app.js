@@ -32,7 +32,7 @@ var rateHistory=[];
 var currentFilter='month';
 var dataLoaded=false;
 var currentUsdRate=85.00;
-var expensePieChart=null,incomePieChart=null,rateHistoryChart=null,catDetailDonut=null;
+var expensePieChart=null,incomePieChart=null,rateHistoryChart=null,catDetailDonut=null,balanceHistoryChart=null;
 var autoUpdateTimer=null, freshnessTimer=null;
 var editingIndex=-1;
 var currentTxType='income';
@@ -382,6 +382,7 @@ function renderDashboard(txs,period){
     }
 
     renderInsights(txs,period);
+    drawBalanceHistoryChart(txs);
     $('dashboard').classList.remove('hidden');
     $('emptyState').classList.add('hidden');
 }
@@ -404,6 +405,82 @@ function initData(txs){
     if(active)active.classList.add('active');
     updateWithFilter(currentFilter);
     if(!autoUpdateTimer)startAutoUpdate();
+}
+
+function drawBalanceHistoryChart(txs){
+    var c=$('balanceHistoryChart');
+    if(!c)return;
+    var emptyEl=$('balanceChartEmpty');
+
+    if(balanceHistoryChart){balanceHistoryChart.destroy();balanceHistoryChart=null;}
+
+    if(!txs.length){
+        if(emptyEl)emptyEl.style.display='flex';
+        c.style.display='none';
+        return;
+    }
+    if(emptyEl)emptyEl.style.display='none';
+    c.style.display='block';
+
+    var sorted=txs.slice().sort(function(a,b){return a.date-b.date;});
+    var byDay={};
+    for(var i=0;i<sorted.length;i++){
+        var tx=sorted[i];
+        var key=tx.date.getFullYear()+'-'+pad(tx.date.getMonth()+1)+'-'+pad(tx.date.getDate());
+        if(!byDay[key])byDay[key]=0;
+        var rub=tx.rub;
+        if(tx.usd>0)rub=tx.usd*currentUsdRate;
+        byDay[key]+=(tx.type==='income'?rub:-rub);
+    }
+
+    var keys=Object.keys(byDay).sort();
+    var labels=[];
+    var values=[];
+    var running=0;
+    for(var i=0;i<keys.length;i++){
+        running+=byDay[keys[i]];
+        var parts=keys[i].split('-');
+        labels.push(parts[2]+'.'+parts[1]);
+        values.push(running);
+    }
+    if(values.length===1){
+        labels.unshift('');
+        values.unshift(0);
+    }
+
+    balanceHistoryChart=new Chart(c.getContext('2d'),{
+        type:'line',
+        data:{
+            labels:labels,
+            datasets:[{
+                label:'Баланс, ₽',
+                data:values,
+                borderColor:'#86efac',
+                backgroundColor:'rgba(134,239,172,0.1)',
+                borderWidth:2,
+                pointBackgroundColor:'#86efac',
+                pointRadius:2,
+                tension:0.25,
+                fill:true
+            }]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{
+                legend:{display:false},
+                tooltip:{callbacks:{label:function(ctx){return ctx.parsed.y.toLocaleString('ru-RU')+' ₽';}}}
+            },
+            scales:{
+                y:{ticks:{color:'#8b9bb5',callback:function(v){
+                    if(Math.abs(v)>=1000000)return (v/1000000).toFixed(1)+'M';
+                    if(Math.abs(v)>=1000)return (v/1000).toFixed(0)+'k';
+                    return v;
+                }}},
+                x:{ticks:{color:'#8b9bb5',maxTicksLimit:10,maxRotation:30,autoSkip:true}}
+            }
+        }
+    });
 }
 
 function drawRateHistoryChart(){
@@ -730,6 +807,36 @@ function renderSettingsStats(){
     }
 }
 
+function exportAllDataCSV(){
+    if(!allTransactions.length){alert('Нет транзакций для экспорта');return;}
+    var sorted=allTransactions.slice().sort(function(a,b){return a.date-b.date;});
+    var rows=['Дата;Время;Тип;Категория;USD;RUB;Комментарий'];
+    for(var i=0;i<sorted.length;i++){
+        var tx=sorted[i];
+        var d=pad(tx.date.getDate())+'.'+pad(tx.date.getMonth()+1)+'.'+tx.date.getFullYear();
+        var t=pad(tx.date.getHours())+':'+pad(tx.date.getMinutes());
+        var type=tx.type==='income'?'ДОХОД':'РАСХОД';
+        var usd=tx.usd?tx.usd.toFixed(2):'0';
+        var rub=tx.rub?tx.rub.toFixed(2):'0';
+        var cat=(tx.category||'').replace(/;/g,',');
+        var note=(tx.note||'').replace(/;/g,',').replace(/\n/g,' ');
+        rows.push([d,t,type,cat,usd,rub,note].join(';'));
+    }
+    var csv='\ufeff'+rows.join('\n');
+    var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    var dd=new Date();
+    var ds=dd.getFullYear()+'-'+pad(dd.getMonth()+1)+'-'+pad(dd.getDate());
+    a.href=url;
+    a.download='finance-export-'+ds+'.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    $('fileStatus').textContent='📊 CSV: '+sorted.length+' транзакций';
+}
+
 function exportAllData(){
     if(!allTransactions.length&&!rateHistory.length){alert('Нет данных для экспорта');return;}
     var data={
@@ -817,6 +924,7 @@ function clearAllDataConfirm(){
     if(expensePieChart){expensePieChart.destroy();expensePieChart=null;}
     if(incomePieChart){incomePieChart.destroy();incomePieChart=null;}
     if(rateHistoryChart){rateHistoryChart.destroy();rateHistoryChart=null;}
+    if(balanceHistoryChart){balanceHistoryChart.destroy();balanceHistoryChart=null;}
     if(autoUpdateTimer){clearInterval(autoUpdateTimer);autoUpdateTimer=null;}
     renderSettingsStats();
     updateFreshness();
@@ -974,6 +1082,7 @@ $('settingsClearTokenBtn').addEventListener('click',function(){
     $('fileStatus').textContent='🔑 Токен удалён';
 });
 $('settingsExportBtn').addEventListener('click',function(){exportAllData();});
+$('settingsExportCsvBtn').addEventListener('click',function(){exportAllDataCSV();});
 $('settingsImportBtn').addEventListener('click',function(){$('settingsImportInput').click();});
 $('settingsImportInput').addEventListener('change',function(e){
     if(e.target.files&&e.target.files[0]){importAllData(e.target.files[0]);e.target.value='';}
@@ -1048,6 +1157,7 @@ function switchPage(page, direction){
         setTimeout(function(){
             if(incomePieChart){try{incomePieChart.resize();}catch(e){}}
             if(expensePieChart){try{expensePieChart.resize();}catch(e){}}
+            if(balanceHistoryChart){try{balanceHistoryChart.resize();}catch(e){}}
         },80);
     }
 }
