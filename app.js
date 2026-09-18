@@ -269,8 +269,9 @@ function renderDashboard(txs,period){
 
     $('totalIncomeRubOnly').textContent=s.rubIncome.toLocaleString('ru-RU')+' ₽';
     $('totalExpenseRubOnly').textContent=s.rubExpense.toLocaleString('ru-RU')+' ₽';
-    $('totalIncomeUsd').textContent=s.usdIncome.toLocaleString('ru-RU')+' $';
-    $('totalExpenseUsd').textContent=s.usdExpense.toLocaleString('ru-RU')+' $';
+$('totalIncomeUsd').textContent=Math.round(s.totalIncomeUsdEq).toLocaleString('ru-RU')+' $';
+    $('totalExpenseUsd').textContent=Math.round(s.totalExpenseUsdEq).toLocaleString('ru-RU')+' $';
+    if($('balanceUsd'))$('balanceUsd').textContent=s.netUsd.toFixed(2)+' $';
     $('netIncome').textContent=s.netRub.toLocaleString('ru-RU')+' ₽';
     $('recordCount').textContent=txs.length;
 
