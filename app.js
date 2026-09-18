@@ -36,6 +36,8 @@ var expensePieChart=null,incomePieChart=null,rateHistoryChart=null,catDetailDonu
 var autoUpdateTimer=null, freshnessTimer=null;
 var editingIndex=-1;
 var currentTxType='income';
+var currentTxSearch='';
+var currentTxTypeFilter='all';
 var scrollY=0;
 
 function lockBackground(){
@@ -335,7 +337,31 @@ $('totalIncomeUsd').textContent=Math.round(s.totalIncomeUsdEq).toLocaleString('r
     var indexed=[];
     for(var i=0;i<txs.length;i++)indexed.push({tx:txs[i],i:i});
     indexed.sort(function(a,b){return b.tx.date-a.tx.date;});
+
+    var searchQ=(currentTxSearch||'').toLowerCase().trim();
+    var typeF=currentTxTypeFilter||'all';
+    if(searchQ||typeF!=='all'){
+        indexed=indexed.filter(function(item){
+            var tx=item.tx;
+            if(typeF!=='all'&&tx.type!==typeF)return false;
+            if(searchQ){
+                var hay=(tx.category+' '+(tx.note||'')).toLowerCase();
+                if(hay.indexOf(searchQ)===-1)return false;
+            }
+            return true;
+        });
+    }
+
     var list=$('transactionList');list.innerHTML='';
+    if(!indexed.length){
+        var empty=document.createElement('div');
+        empty.className='tx-empty';
+        empty.textContent=(searchQ||typeF!=='all')?'Ничего не найдено':'Нет транзакций за период';
+        list.appendChild(empty);
+    }
+    if($('txCount')){
+        $('txCount').textContent=indexed.length?('Показано '+Math.min(indexed.length,100)+' из '+indexed.length):'';
+    }
     var slice=indexed.slice(0,100);
     for(var k=0;k<slice.length;k++){
         var tx=slice[k].tx;
@@ -983,7 +1009,53 @@ for(var i=0;i<navTabs.length;i++){
 }
 var usdQuick=$('bcUsdQuick');
 if(usdQuick)usdQuick.addEventListener('click',function(){switchPage('currency');});
+/* ===== TX SEARCH & FILTER ===== */
+var txSearchInput=$('txSearch');
+if(txSearchInput){
+    txSearchInput.addEventListener('input',function(){
+        currentTxSearch=this.value;
+        if(dataLoaded)updateWithFilter(currentFilter);
+    });
+}
+var txTypeBtns=document.querySelectorAll('.tx-type-btn');
+for(var i=0;i<txTypeBtns.length;i++){
+    (function(b){
+        b.addEventListener('click',function(){
+            for(var j=0;j<txTypeBtns.length;j++)txTypeBtns[j].classList.remove('active');
+            this.classList.add('active');
+            currentTxTypeFilter=this.dataset.txtype;
+            if(dataLoaded)updateWithFilter(currentFilter);
+        });
+    })(txTypeBtns[i]);
+}
 
+/* ===== SWIPE NAVIGATION ===== */
+var pageOrder=['dashboard','currency','settings'];
+var swipeStartX=0,swipeStartY=0,swipeActive=false;
+document.addEventListener('touchstart',function(e){
+    if(e.touches.length!==1){swipeActive=false;return;}
+    if(document.querySelector('.modal-overlay.open')){swipeActive=false;return;}
+    swipeStartX=e.touches[0].clientX;
+    swipeStartY=e.touches[0].clientY;
+    swipeActive=true;
+},{passive:true});
+document.addEventListener('touchend',function(e){
+    if(!swipeActive)return;
+    swipeActive=false;
+    if(e.changedTouches.length===0)return;
+    var dx=e.changedTouches[0].clientX-swipeStartX;
+    var dy=e.changedTouches[0].clientY-swipeStartY;
+    if(Math.abs(dx)<70)return;
+    if(Math.abs(dy)>Math.abs(dx))return;
+    var tgt=e.target;
+    if(tgt&&(tgt.tagName==='INPUT'||tgt.tagName==='TEXTAREA'||tgt.tagName==='SELECT'||tgt.tagName==='CANVAS'))return;
+    var cur='dashboard';
+    for(var i=0;i<navTabs.length;i++)if(navTabs[i].classList.contains('active'))cur=navTabs[i].dataset.page;
+    var idx=pageOrder.indexOf(cur);
+    if(idx<0)return;
+    if(dx<0&&idx<pageOrder.length-1)switchPage(pageOrder[idx+1]);
+    else if(dx>0&&idx>0)switchPage(pageOrder[idx-1]);
+},{passive:true});
 function animateValue(el,target,suffix,decimals,prefixPositive){
     if(!el)return;
     suffix=suffix||'';decimals=decimals||0;
