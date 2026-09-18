@@ -229,3 +229,9 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .tx-type-btn.active[data-txtype="expense"]{background:rgba(252,165,165,0.12);border-color:rgba(252,165,165,0.5);color:#fca5a5}
 .tx-empty{text-align:center;color:#6b7689;font-size:0.75rem;padding:14px 0}
 .tx-count{color:#6b7689;font-size:0.68rem;margin-top:6px;text-align:center}
+
+/* ===== BALANCE HISTORY CHART ===== */
+.balance-chart-box{background:#141820;border:1px solid #232a36;border-radius:14px;padding:12px;margin-bottom:10px;min-width:0;position:relative}
+.balance-chart-box h3{font-weight:500;font-size:0.78rem;color:#8b9bb5;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px}
+#balanceHistoryChart{height:180px!important;width:100%!important}
+.balance-chart-empty{height:180px;display:flex;align-items:center;justify-content:center;color:#6b7689;font-size:0.75rem}
