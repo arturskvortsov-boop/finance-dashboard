@@ -541,6 +541,65 @@ function setRate(rate){
     updateWithFilter(currentFilter);
 }
 
+/* ===== CBR RATE ===== */
+function fetchCbrRate(){
+    // Публичный прокси к данным ЦБ РФ, без токена, поддерживает CORS
+    return fetch('https://www.cbr-xml-daily.ru/daily_json.js', { cache: 'no-store' })
+        .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+        .then(function(data){
+            if(!data || !data.Valute || !data.Valute.USD) throw new Error('Invalid CBR response');
+            var usd = data.Valute.USD;
+            return {
+                rate: parseFloat(usd.Value),
+                previous: parseFloat(usd.Previous),
+                date: data.Date || ''
+            };
+        });
+}
+
+function renderCbrRate(){
+    var card = $('cbrRateCard');
+    if(!card) return;
+    var valEl = $('cbrRateValue');
+    var diffEl = $('cbrRateDiff');
+    var marketEl = $('cbrMarketValue');
+    var updEl = $('cbrUpdated');
+    if(!valEl || !diffEl) return;
+
+    valEl.textContent = '—';
+    diffEl.textContent = '⏳ Загрузка...';
+    diffEl.className = 'cbr-diff';
+    if(marketEl) marketEl.textContent = currentUsdRate.toFixed(2) + ' ₽';
+    if(updEl) updEl.textContent = '';
+
+    fetchCbrRate()
+        .then(function(res){
+            valEl.textContent = res.rate.toFixed(4) + ' ₽';
+            if(marketEl) marketEl.textContent = currentUsdRate.toFixed(2) + ' ₽';
+
+            var diff = currentUsdRate - res.rate;
+            var pct = res.rate > 0 ? (diff / res.rate) * 100 : 0;
+            var sign = diff >= 0 ? '+' : '';
+            diffEl.textContent = sign + diff.toFixed(2) + ' ₽ (' + sign + pct.toFixed(2) + '%)';
+            diffEl.className = 'cbr-diff' + (diff < 0 ? ' negative' : '');
+
+            if(updEl && res.date){
+                try{
+                    var d = new Date(res.date);
+                    updEl.textContent = 'Курс на ' + d.toLocaleDateString('ru-RU');
+                }catch(e){ updEl.textContent = ''; }
+            }
+        })
+        .catch(function(e){
+            valEl.textContent = '—';
+            diffEl.textContent = 'Ошибка загрузки';
+            diffEl.className = 'cbr-diff negative';
+            if(updEl) updEl.textContent = '';
+        });
+}
+
+
+
 function fetchLiveRate(){
     return fetch('https://open.er-api.com/v6/latest/USD', { cache: 'no-store' })
         .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
