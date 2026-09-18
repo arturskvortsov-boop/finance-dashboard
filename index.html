@@ -27,6 +27,7 @@
 <div class="app-nav">
     <button class="nav-tab active" data-page="dashboard">📊 Дашборд</button>
     <button class="nav-tab" data-page="currency">💵 Валюта</button>
+    <button class="nav-tab" data-page="settings">⚙️ Настройки</button>
 </div>
 
 <div class="page active" id="pageDashboard">
@@ -125,6 +126,7 @@
             <button class="update-btn" id="updateRateBtn">Обновить</button>
             <button class="fetch-btn" id="fetchRateBtn">🔄 Онлайн</button>
         </div>
+        <div class="crc-freshness" id="rateFreshness"></div>
     </div>
 
     <div class="currency-stats-grid">
@@ -138,6 +140,53 @@
         <div class="rate-chart-controls"><button id="refreshRateChartBtn">🔄 Обновить</button></div>
         <canvas id="rateHistoryChart"></canvas>
     </div>
+</div>
+
+<div class="page" id="pageSettings">
+
+    <div class="settings-section">
+        <h3>📊 Данные</h3>
+        <div class="settings-row">
+            <span class="label">Транзакций</span>
+            <span class="value" id="settingsTxCount">0</span>
+        </div>
+        <div class="settings-row">
+            <span class="label">Записей курса</span>
+            <span class="value" id="settingsRateCount">0</span>
+        </div>
+        <div class="settings-row">
+            <span class="label">Последняя синхронизация</span>
+            <span class="value" id="settingsLastSync">—</span>
+        </div>
+        <div class="settings-actions">
+            <button class="settings-btn success" id="settingsExportBtn">💾 Экспорт JSON</button>
+            <button class="settings-btn primary" id="settingsImportBtn">📥 Импорт JSON</button>
+        </div>
+        <input type="file" id="settingsImportInput" accept="application/json,.json" style="display:none">
+        <div class="settings-hint">Экспорт сохраняет все транзакции и историю курса в один файл — пригодится для бэкапа или переноса на другое устройство.</div>
+    </div>
+
+    <div class="settings-section">
+        <h3>🔑 GitHub-токен</h3>
+        <div class="settings-row">
+            <span class="label">Статус</span>
+            <span class="value" id="tokenStatus">—</span>
+        </div>
+        <div class="settings-actions">
+            <button class="settings-btn primary" id="settingsTokenBtn">🔑 Ввести / изменить</button>
+            <button class="settings-btn neutral" id="settingsClearTokenBtn">🗑️ Удалить</button>
+        </div>
+        <div class="settings-hint">Токен хранится только в этом браузере и используется для записи данных в репозиторий GitHub.</div>
+    </div>
+
+    <div class="settings-section">
+        <h3>⚠️ Опасная зона</h3>
+        <div class="settings-danger-text">Все данные (транзакции, история курса, токен, кэш) будут удалены. Это действие нельзя отменить. Рекомендуем сначала сделать экспорт.</div>
+        <div class="settings-actions">
+            <button class="settings-btn danger" id="settingsClearBtn">🗑️ Очистить все данные</button>
+        </div>
+    </div>
+
 </div>
 
 <div class="footer">Данные из stats2.json · Синхронизация с GitHub · Курс из rate.json</div>
