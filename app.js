@@ -1983,6 +1983,7 @@ function switchPage(page,direction){
             if(rateHistoryChart){try{rateHistoryChart.resize();}catch(e){}}
             animateCurrencyNumbers();
             renderRateFreshness();
+            renderCbrRate();
         },80);
     } else if(page==='settings'){
         updateTokenStatus();
