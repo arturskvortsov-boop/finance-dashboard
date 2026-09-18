@@ -551,7 +551,7 @@ function updateRateFromAPI(){
         .then(function(res) {
             setRate(res.rate);
             $('usdRateInput').value = res.rate.toFixed(2);
-            $('fileStatus').textContent = '✅ Курс: 1 USD =show ' + res.rate.toFixed(2) + ' ₽';
+            $('fileStatus').textContent = '✅ Курс: 1 USD = ' + res.rate.toFixed(2) + ' ₽';
             var now = new Date();
             var alreadyToday = rateHistory.some(function(h) {
                 return h.date.toDateString() === now.toDateString() && Math.abs(h.rate - res.rate) < 0.001;
@@ -574,10 +574,9 @@ function updateRateFromAPI(){
 }
 
 function pushRateToGitHub(){
-    var token =Status getToken();
+    var token = getToken();
     if (!token) {
-        $('fileStatus').){
-text   Content = '⚠️ Курс if обновлён локально. Для синхронизации нужен токен(.';
+        $('fileStatus').textContent = '⚠️ Курс обновлён локально. Для синхронизации нужен токен.';
         return Promise.resolve(false);
     }
     var lines = rateHistory.map(function(h) {
@@ -618,7 +617,8 @@ text   Content = '⚠️ Курс if обновлён локально. Для �
     .catch(function(e) { $('fileStatus').textContent = '❌ rate.json: ' + e.message; return false; });
 }
 
-function loadData(showStatus)$('fileStatus').textContent='⏳ Загрузка...';
+function loadData(showStatus){
+    if(showStatus)$('fileStatus').textContent='⏳ Загрузка...';
     return fetch('stats2.json?t='+Date.now(),{cache:'no-store'})
         .then(function(r){if(!r.ok)throw new Error('not found');return r.text();})
         .then(function(txt){
