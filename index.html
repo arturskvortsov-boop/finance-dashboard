@@ -35,17 +35,17 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .balance-card .bc-row-2 .bc-change .expense{color:#fca5a5}
 .balance-card .bc-row-3{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;border-top:1px solid #232a36;padding-top:8px;font-size:0.78rem;color:#8b9bb5}
 .balance-card .bc-row-3 strong{color:#93c5fd;font-weight:600}
-.balance-card .bc-row-3 .usd-details{color:#6b7689;font-size:0.72rem}
 .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;min-width:0}
 .chart-box{background:#141820;border:1px solid #232a36;border-radius:14px;padding:8px;text-align:center;cursor:pointer;min-width:0;overflow:hidden}
 .chart-box h3{font-weight:500;font-size:0.65rem;color:#8b9bb5;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.4px}
-.chart-box canvas{max-height:80px;max-width:100%;margin:0 auto;display:block}
+.chart-canvas-wrap{position:relative;height:110px;width:100%;margin:0 auto}
+.chart-canvas-wrap canvas{display:block;width:100%!important;height:100%!important}
 .chart-box .category-list{margin-top:6px;font-size:0.62rem;color:#c8d0e0;line-height:1.35;max-height:74px;overflow-y:auto;text-align:left}
 .chart-box .category-list .cat-item{display:flex;justify-content:space-between;padding:1px 0;border-bottom:1px solid #232a36;gap:6px;min-width:0}
 .chart-box .category-list .cat-item:last-child{border-bottom:none}
 .chart-box .category-list .cat-item span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
 .chart-box .category-list .cat-item .value{color:#8b9bb5;white-space:nowrap;font-size:0.6rem;flex-shrink:0}
-.filter-bar{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.filter-bar{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center;justify-content:center}
 .filter-btn{background:transparent;border:1px solid #232a36;color:#8b9bb5;padding:4px 12px;border-radius:20px;font-size:0.72rem;font-weight:500;cursor:pointer;font-family:inherit}
 .filter-btn.active{background:rgba(147,197,253,0.12);border-color:rgba(147,197,253,0.5);color:#93c5fd}
 .filter-btn.disabled{opacity:.3;pointer-events:none}
@@ -105,18 +105,47 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .rate-chart-box .rate-chart-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .rate-chart-box .rate-chart-controls button{background:transparent;border:1px solid #232a36;color:#8b9bb5;padding:3px 12px;border-radius:20px;font-size:0.68rem;cursor:pointer;font-family:inherit}
 #rateHistoryChart{height:180px!important;width:100%!important}
-.rate-bar-new{background:#141820;border:1px solid #232a36;border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:6px}
-.rate-bar-new .rate-row-1,.rate-bar-new .rate-row-2,.rate-bar-new .rate-row-3{display:flex;align-items:center;width:100%;gap:8px}
-.rate-bar-new .rate-row-1 .rate-label{color:#8b9bb5;font-size:0.75rem;font-weight:500;text-transform:uppercase;letter-spacing:0.3px}
-.rate-bar-new .rate-row-2{justify-content:space-between}
-.rate-bar-new .rate-row-2 input{background:#1a1f2a;border:1px solid #232a36;color:#e8edf5;padding:6px 10px;border-radius:8px;width:100px;font-size:0.88rem;font-family:inherit;flex-shrink:0}
-.rate-bar-new .rate-row-2 .update-btn{background:#fcd34d;border:none;color:#0b0e14;padding:6px 20px;border-radius:20px;font-weight:600;font-size:0.78rem;cursor:pointer;white-space:nowrap;font-family:inherit}
-.rate-bar-new .rate-row-3{justify-content:space-between}
-.rate-bar-new .rate-row-3 .rate-info{color:#86efac;font-weight:500;font-size:0.8rem}
-.rate-bar-new .rate-row-3 .rate-change{color:#8b9bb5;font-size:0.75rem}
 .empty-state{text-align:center;color:#6b7689;padding:20px 0;font-size:0.88rem}
 .hidden{display:none!important}
 .footer{margin-top:14px;text-align:center;font-size:0.62rem;color:#4a5568;border-top:1px solid #232a36;padding-top:10px;word-break:break-word}
+
+/* ===== NAV TABS ===== */
+.app-nav{display:flex;gap:4px;background:#141820;border:1px solid #232a36;border-radius:14px;padding:4px;margin-bottom:10px}
+.nav-tab{flex:1;padding:9px 12px;border-radius:10px;background:transparent;border:none;color:#8b9bb5;font-family:inherit;font-size:0.8rem;font-weight:600;cursor:pointer;transition:all .35s cubic-bezier(.2,.7,.3,1)}
+.nav-tab.active{background:linear-gradient(135deg,#93c5fd,#c4b5fd);color:#0b0e14;box-shadow:0 2px 12px rgba(147,197,253,.2)}
+
+/* ===== PAGES + STAGGER ===== */
+.page{display:none}
+.page.active{display:block}
+.page.active .currency-hero,
+.page.active .currency-rate-card,
+.page.active .currency-stats-grid,
+.page.active .rate-chart-box{animation:slideUpFade .55s cubic-bezier(.2,.7,.3,1) both}
+.page.active .currency-rate-card{animation-delay:.06s}
+.page.active .currency-stats-grid{animation-delay:.12s}
+.page.active .rate-chart-box{animation-delay:.18s}
+@keyframes slideUpFade{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== CURRENCY PAGE ===== */
+.currency-hero{background:linear-gradient(135deg,#141820 0%,#1a1f2a 100%);border:1px solid #232a36;border-radius:16px;padding:22px 18px;margin-bottom:10px;text-align:center;position:relative;overflow:hidden}
+.currency-hero::before{content:'';position:absolute;top:-60%;right:-30%;width:240px;height:240px;background:radial-gradient(circle,rgba(147,197,253,.18),transparent 70%);pointer-events:none}
+.currency-hero .ch-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.6px;color:#8b9bb5;font-weight:500;margin-bottom:8px;position:relative}
+.currency-hero .ch-amount{font-size:2.4rem;font-weight:800;background:linear-gradient(135deg,#93c5fd,#c4b5fd);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1;word-break:break-all;position:relative}
+.currency-hero .ch-details{margin-top:8px;font-size:0.82rem;color:#8b9bb5;position:relative}
+
+.currency-rate-card{background:#141820;border:1px solid #232a36;border-radius:14px;padding:14px 16px;margin-bottom:10px}
+.currency-rate-card .crc-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.currency-rate-card .crc-label{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.4px;color:#8b9bb5;font-weight:500;margin-bottom:3px}
+.currency-rate-card .crc-value{font-size:1.15rem;font-weight:700;color:#e8edf5}
+.currency-rate-card .crc-change{font-size:0.85rem;font-weight:600;padding:4px 10px;border-radius:20px;background:rgba(134,239,172,.1);color:#86efac;transition:all .3s}
+.currency-rate-card .crc-input-row{display:flex;gap:8px;align-items:center}
+.currency-rate-card .crc-input-row input{background:#1a1f2a;border:1px solid #232a36;color:#e8edf5;padding:8px 12px;border-radius:10px;font-size:0.9rem;font-family:inherit;flex:1;min-width:0;-webkit-appearance:none;appearance:none}
+.currency-rate-card .crc-input-row .update-btn{background:#fcd34d;border:none;color:#0b0e14;padding:8px 20px;border-radius:20px;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:inherit;white-space:nowrap}
+
+.currency-stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:10px}
+
+.bc-usd-quick{display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:#93c5fd;font-size:0.78rem;font-weight:500;padding:2px 0;transition:opacity .2s}
+.bc-usd-quick:hover{opacity:.75}
 
 /* МОДАЛКИ */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:1000;justify-content:center;align-items:center;padding:16px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
@@ -181,6 +210,13 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
     </div>
 </div>
 
+<div class="app-nav">
+    <button class="nav-tab active" data-page="dashboard">📊 Дашборд</button>
+    <button class="nav-tab" data-page="currency">💵 Валюта</button>
+</div>
+
+<div class="page active" id="pageDashboard">
+
 <div class="balance-card">
     <div class="bc-row-1">
         <span class="bc-label">Чистый баланс (RUB)</span>
@@ -193,21 +229,20 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
             <span class="expense" id="monthExpenseDisplay">↓ 0</span>
         </div>
     </div>
-    <div class="bc-row-3">
-        <span>💵 Эквивалент в USD: <strong id="totalBalanceUsdDisplay">0 $</strong> <span class="usd-details" id="usdDetails">(↑ $0 / ↓ $0)</span></span>
-        <span>Курс: <strong id="rateInfoSmall">1 USD = — ₽</strong></span>
+    <div class="bc-row-3" style="justify-content:center">
+        <span class="bc-usd-quick" id="bcUsdQuick">💵 Эквивалент: <strong id="totalBalanceUsdDisplay">0 $</strong> · 1 USD = <strong id="rateInfoSmall">— ₽</strong> →</span>
     </div>
 </div>
 
 <div class="charts-row">
     <div class="chart-box" id="incomeChartBox">
         <h3>🧩 Доходы</h3>
-        <canvas id="incomePieChart"></canvas>
+        <div class="chart-canvas-wrap"><canvas id="incomePieChart"></canvas></div>
         <div class="category-list" id="incomeCategoryList"></div>
     </div>
     <div class="chart-box" id="expenseChartBox">
         <h3>🧩 Расходы</h3>
-        <canvas id="expensePieChart"></canvas>
+        <div class="chart-canvas-wrap"><canvas id="expensePieChart"></canvas></div>
         <div class="category-list" id="expenseCategoryList"></div>
     </div>
 </div>
@@ -228,11 +263,8 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
     </div>
 
     <div class="stats-grid-extra">
-        <div class="stat-card"><div class="label">💰 Доход USD</div><div class="value" id="totalIncomeUsd">0 $</div></div>
-        <div class="stat-card"><div class="label">💸 Расход USD</div><div class="value" id="totalExpenseUsd">0 $</div></div>
         <div class="stat-card"><div class="label">💵 Общий доход RUB</div><div class="value" id="totalIncomeRubTotal">0 ₽</div></div>
         <div class="stat-card"><div class="label">💵 Общий расход RUB</div><div class="value" id="totalExpenseRubTotal">0 ₽</div></div>
-        <div class="stat-card"><div class="label">📊 Курс. разница</div><div class="value" id="rateProfit">0 ₽</div></div>
         <div class="stat-card"><div class="label">📋 Записей</div><div class="value" id="recordCount">0</div></div>
     </div>
 
@@ -256,26 +288,44 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
             </div>
         </div>
     </div>
+</div>
+
+<div id="emptyState" class="empty-state">⏳ Загрузите JSON-файл для отображения аналитики</div>
+</div>
+
+<div class="page" id="pageCurrency">
+    <div class="currency-hero">
+        <div class="ch-label">💵 Эквивалент баланса в USD</div>
+        <div class="ch-amount" id="currencyHeroUsd">0 $</div>
+        <div class="ch-details" id="usdDetails">↑ $0 · ↓ $0</div>
+    </div>
+
+    <div class="currency-rate-card">
+        <div class="crc-top">
+            <div>
+                <div class="crc-label">Текущий курс</div>
+                <div class="crc-value" id="rateInfo">1 USD = — ₽</div>
+            </div>
+            <div class="crc-change" id="rateChangeInfo">+0.00%</div>
+        </div>
+        <div class="crc-input-row">
+            <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
+            <button class="update-btn" id="updateRateBtn">Обновить</button>
+        </div>
+    </div>
+
+    <div class="currency-stats-grid">
+        <div class="stat-card"><div class="label">💰 Доход USD</div><div class="value" id="totalIncomeUsd">0 $</div></div>
+        <div class="stat-card"><div class="label">💸 Расход USD</div><div class="value" id="totalExpenseUsd">0 $</div></div>
+        <div class="stat-card"><div class="label">📈 Курс. разница</div><div class="value" id="rateProfit">0 ₽</div></div>
+    </div>
 
     <div class="rate-chart-box">
         <h3>📊 История курса USD/RUB</h3>
         <div class="rate-chart-controls"><button id="refreshRateChartBtn">🔄 Обновить</button></div>
         <canvas id="rateHistoryChart"></canvas>
     </div>
-    <div class="rate-bar-new">
-        <div class="rate-row-1"><span class="rate-label">💵 Курс доллара</span></div>
-        <div class="rate-row-2">
-            <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
-            <button class="update-btn" id="updateRateBtn">Обновить</button>
-        </div>
-        <div class="rate-row-3">
-            <span class="rate-info" id="rateInfo">1 USD = — ₽</span>
-            <span class="rate-change" id="rateChangeInfo">+0.00%</span>
-        </div>
-    </div>
 </div>
-
-<div id="emptyState" class="empty-state">⏳ Загрузите JSON-файл для отображения аналитики</div>
 
 <div class="footer">Данные из stats2.json · Синхронизация с GitHub · Курс из rate.json</div>
 </div>
@@ -366,7 +416,6 @@ var editingIndex=-1;
 var currentTxType='income';
 var scrollY=0;
 
-// ★ Блокировка фона
 function lockBackground(){
     scrollY=window.scrollY||window.pageYOffset||0;
     document.body.classList.add('modal-locked');
@@ -558,7 +607,8 @@ function renderDashboard(txs,period){
 
     $('totalBalanceRubDisplay').textContent=s.netRub.toLocaleString('ru-RU')+' ₽';
     $('totalBalanceUsdDisplay').textContent=s.netUsd.toFixed(2)+' $';
-    $('usdDetails').textContent='(↑ $'+s.totalIncomeUsdEq.toFixed(0)+' / ↓ $'+s.totalExpenseUsdEq.toFixed(0)+')';
+    $('usdDetails').textContent='↑ $'+s.totalIncomeUsdEq.toFixed(0)+' · ↓ $'+s.totalExpenseUsdEq.toFixed(0);
+    if($('currencyHeroUsd'))$('currencyHeroUsd').textContent=s.netUsd.toFixed(2)+' $';
     $('rateInfoSmall').textContent='1 USD = '+currentUsdRate.toFixed(2)+' ₽';
 
     $('totalIncomeRubOnly').textContent=s.rubIncome.toLocaleString('ru-RU')+' ₽';
@@ -597,7 +647,7 @@ function renderDashboard(txs,period){
     incomePieChart=new Chart($('incomePieChart'),{
         type:'doughnut',
         data:{labels:incCat.map(function(x){return x.label;}),datasets:[{data:incCat.map(function(x){return x.value;}),backgroundColor:COLORS.slice(0,incCat.length),borderColor:'#141820',borderWidth:2}]},
-        options:{responsive:true,maintainAspectRatio:true,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var t=0;for(var i=0;i<c.dataset.data.length;i++)t+=c.dataset.data[i];return c.label+': '+c.parsed.toLocaleString('ru-RU')+' ₽ ('+((c.parsed/t)*100).toFixed(1)+'%)';}}}}}
+        options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var t=0;for(var i=0;i<c.dataset.data.length;i++)t+=c.dataset.data[i];return c.label+': '+c.parsed.toLocaleString('ru-RU')+' ₽ ('+((c.parsed/t)*100).toFixed(1)+'%)';}}}}}
     });
     var incList=$('incomeCategoryList');incList.innerHTML='';
     var incTotal=0;
@@ -613,7 +663,7 @@ function renderDashboard(txs,period){
     expensePieChart=new Chart($('expensePieChart'),{
         type:'doughnut',
         data:{labels:expCat.map(function(x){return x.label;}),datasets:[{data:expCat.map(function(x){return x.value;}),backgroundColor:COLORS.slice(0,expCat.length),borderColor:'#141820',borderWidth:2}]},
-        options:{responsive:true,maintainAspectRatio:true,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var t=0;for(var i=0;i<c.dataset.data.length;i++)t+=c.dataset.data[i];return c.label+': '+c.parsed.toLocaleString('ru-RU')+' ₽ ('+((c.parsed/t)*100).toFixed(1)+'%)';}}}}}
+        options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var t=0;for(var i=0;i<c.dataset.data.length;i++)t+=c.dataset.data[i];return c.label+': '+c.parsed.toLocaleString('ru-RU')+' ₽ ('+((c.parsed/t)*100).toFixed(1)+'%)';}}}}}
     });
     var expList=$('expenseCategoryList');expList.innerHTML='';
     var expTotal=0;
@@ -679,13 +729,13 @@ function drawRateHistoryChart(){
     if(rateHistoryChart){rateHistoryChart.destroy();rateHistoryChart=null;}
     var ctx=c.getContext('2d');
     if(rateHistory.length<2){
-        rateHistoryChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'Курс',data:[],borderColor:'#93c5fd',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'#8b9bb5'}}}}});
+        rateHistoryChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'Курс',data:[],borderColor:'#93c5fd',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b9bb5'}}}}});
         return;
     }
     rateHistoryChart=new Chart(ctx,{
         type:'line',
         data:{labels:rateHistory.map(function(x){return x.date.toLocaleDateString('ru-RU')+' '+x.date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});}),datasets:[{label:'Курс USD/RUB',data:rateHistory.map(function(x){return x.rate;}),borderColor:'#93c5fd',backgroundColor:'rgba(147,197,253,0.1)',borderWidth:2,pointBackgroundColor:'#93c5fd',pointRadius:2,tension:0.2,fill:true}]},
-        options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{labels:{color:'#8b9bb5'}},tooltip:{callbacks:{label:function(c){return c.parsed.y.toFixed(2)+' ₽';}}}},scales:{y:{ticks:{color:'#8b9bb5',callback:function(v){return v.toFixed(2)+' ₽';}}},x:{ticks:{color:'#8b9bb5',maxTicksLimit:15,maxRotation:30,autoSkip:true}}}}
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b9bb5'}},tooltip:{callbacks:{label:function(c){return c.parsed.y.toFixed(2)+' ₽';}}}},scales:{y:{ticks:{color:'#8b9bb5',callback:function(v){return v.toFixed(2)+' ₽';}}},x:{ticks:{color:'#8b9bb5',maxTicksLimit:15,maxRotation:30,autoSkip:true}}}}
     });
 }
 
@@ -1028,6 +1078,61 @@ $('incomeChartBox').addEventListener('click',function(){openCategoryDetail('inco
 $('expenseChartBox').addEventListener('click',function(){openCategoryDetail('expense');});
 $('closeCatDetailModal').addEventListener('click',closeCatDetail);
 $('catDetailModal').addEventListener('click',function(e){if(e.target===this)closeCatDetail();});
+
+// ===== НАВИГАЦИЯ МЕЖДУ СТРАНИЦАМИ =====
+var navTabs=document.querySelectorAll('.nav-tab');
+function switchPage(page){
+    for(var i=0;i<navTabs.length;i++)navTabs[i].classList.toggle('active',navTabs[i].dataset.page===page);
+    var pgDash=$('pageDashboard'),pgCur=$('pageCurrency');
+    if(pgDash)pgDash.classList.toggle('active',page==='dashboard');
+    if(pgCur)pgCur.classList.toggle('active',page==='currency');
+    if(page==='currency'){
+        setTimeout(function(){
+            if(rateHistoryChart){try{rateHistoryChart.resize();}catch(e){}}
+            animateCurrencyNumbers();
+        },80);
+    } else {
+        setTimeout(function(){
+            if(incomePieChart){try{incomePieChart.resize();}catch(e){}}
+            if(expensePieChart){try{expensePieChart.resize();}catch(e){}}
+        },80);
+    }
+}
+for(var i=0;i<navTabs.length;i++){
+    (function(t){t.addEventListener('click',function(){switchPage(this.dataset.page);});})(navTabs[i]);
+}
+var usdQuick=$('bcUsdQuick');
+if(usdQuick)usdQuick.addEventListener('click',function(){switchPage('currency');});
+
+function animateValue(el,target,suffix,decimals,prefixPositive){
+    if(!el)return;
+    suffix=suffix||'';decimals=decimals||0;
+    var t0=null,dur=800;
+    function fmt(v){
+        var s=v.toLocaleString('ru-RU',{minimumFractionDigits:decimals,maximumFractionDigits:decimals});
+        if(prefixPositive&&v>0)s='+'+s;
+        return s+suffix;
+    }
+    function step(ts){
+        if(!t0)t0=ts;
+        var p=Math.min(1,(ts-t0)/dur);
+        var e=1-Math.pow(1-p,3);
+        el.textContent=fmt(target*e);
+        if(p<1)requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+}
+
+function animateCurrencyNumbers(){
+    if(!dataLoaded||!allTransactions.length)return;
+    var s=computeStats(filterTransactions(allTransactions,currentFilter));
+    animateValue($('currencyHeroUsd'),s.netUsd,' $',2);
+    animateValue($('totalIncomeUsd'),s.usdIncome,' $',0);
+    animateValue($('totalExpenseUsd'),s.usdExpense,' $',0);
+    var rateDiff=0;
+    for(var i=0;i<allTransactions.length;i++){var t=allTransactions[i];if(t.usd>0)rateDiff+=t.usd*currentUsdRate-t.rub;}
+    animateValue($('rateProfit'),rateDiff,' ₽',0,true);
+}
 
 // СТАРТ
 var savedRate=loadRate();
