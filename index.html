@@ -7,9 +7,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0b0e14;color:#e8edf5;padding:10px 12px;min-height:100vh;display:flex;justify-content:center;align-items:flex-start}
-.container{max-width:1200px;width:100%;margin:0 auto}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{max-width:100%;overflow-x:hidden}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0b0e14;color:#e8edf5;padding:10px 12px;min-height:100vh;display:flex;justify-content:center;align-items:flex-start;position:relative}
+
+/* Блокировка фона при открытом модальном окне */
+body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
+
+.container{max-width:1200px;width:100%;margin:0 auto;min-width:0}
 .top-bar{background:#141820;border:1px solid #232a36;border-radius:14px;padding:10px 12px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px}
 .top-bar .status{color:#8b9bb5;font-size:0.78rem;min-height:1.1em;word-break:break-word}
 .top-bar .actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
@@ -19,62 +24,62 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .btn-blue{border-color:rgba(147,197,253,0.35);color:#93c5fd;background:rgba(147,197,253,0.06)}
 .btn-red{border-color:rgba(252,165,165,0.35);color:#fca5a5;background:rgba(252,165,165,0.06)}
 .btn-purple{border-color:rgba(196,181,253,0.35);color:#c4b5fd;background:rgba(196,181,253,0.06)}
-.balance-card{background:#141820;border:1px solid #232a36;border-radius:14px;padding:14px 18px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px}
-.balance-card .bc-row-1{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.balance-card{background:#141820;border:1px solid #232a36;border-radius:14px;padding:14px 18px;margin-bottom:10px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.balance-card .bc-row-1{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;min-width:0}
 .balance-card .bc-label{color:#8b9bb5;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;font-weight:500}
-.balance-card .bc-amount{font-size:1.7rem;font-weight:700;color:#e8edf5;line-height:1.1}
+.balance-card .bc-amount{font-size:1.7rem;font-weight:700;color:#e8edf5;line-height:1.1;word-break:break-all}
 .balance-card .bc-row-2{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;border-top:1px solid #232a36;padding-top:8px;font-size:0.85rem}
 .balance-card .bc-row-2 .bc-period{color:#8b9bb5;font-size:0.72rem}
-.balance-card .bc-row-2 .bc-change{display:flex;gap:14px;font-weight:500}
+.balance-card .bc-row-2 .bc-change{display:flex;gap:14px;font-weight:500;flex-wrap:wrap}
 .balance-card .bc-row-2 .bc-change .income{color:#86efac}
 .balance-card .bc-row-2 .bc-change .expense{color:#fca5a5}
 .balance-card .bc-row-3{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;border-top:1px solid #232a36;padding-top:8px;font-size:0.78rem;color:#8b9bb5}
 .balance-card .bc-row-3 strong{color:#93c5fd;font-weight:600}
 .balance-card .bc-row-3 .usd-details{color:#6b7689;font-size:0.72rem}
-.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.chart-box{background:#141820;border:1px solid #232a36;border-radius:14px;padding:8px;text-align:center;cursor:pointer}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;min-width:0}
+.chart-box{background:#141820;border:1px solid #232a36;border-radius:14px;padding:8px;text-align:center;cursor:pointer;min-width:0;overflow:hidden}
 .chart-box h3{font-weight:500;font-size:0.65rem;color:#8b9bb5;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.4px}
 .chart-box canvas{max-height:80px;max-width:100%;margin:0 auto;display:block}
 .chart-box .category-list{margin-top:6px;font-size:0.62rem;color:#c8d0e0;line-height:1.35;max-height:74px;overflow-y:auto;text-align:left}
-.chart-box .category-list .cat-item{display:flex;justify-content:space-between;padding:1px 0;border-bottom:1px solid #232a36;gap:6px}
+.chart-box .category-list .cat-item{display:flex;justify-content:space-between;padding:1px 0;border-bottom:1px solid #232a36;gap:6px;min-width:0}
 .chart-box .category-list .cat-item:last-child{border-bottom:none}
-.chart-box .category-list .cat-item span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.chart-box .category-list .cat-item .value{color:#8b9bb5;white-space:nowrap;font-size:0.6rem}
+.chart-box .category-list .cat-item span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.chart-box .category-list .cat-item .value{color:#8b9bb5;white-space:nowrap;font-size:0.6rem;flex-shrink:0}
 .filter-bar{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
 .filter-btn{background:transparent;border:1px solid #232a36;color:#8b9bb5;padding:4px 12px;border-radius:20px;font-size:0.72rem;font-weight:500;cursor:pointer;font-family:inherit}
 .filter-btn.active{background:rgba(147,197,253,0.12);border-color:rgba(147,197,253,0.5);color:#93c5fd}
 .filter-btn.disabled{opacity:.3;pointer-events:none}
 .period-label{margin-left:auto;color:#6b7689;font-size:0.7rem}
-.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px}
-.stat-card{background:#141820;border:1px solid #232a36;border-radius:12px;padding:9px 10px;text-align:center}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;min-width:0}
+.stat-card{background:#141820;border:1px solid #232a36;border-radius:12px;padding:9px 10px;text-align:center;min-width:0}
 .stat-card .label{font-size:0.56rem;text-transform:uppercase;letter-spacing:0.4px;color:#8b9bb5;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.stat-card .value{font-size:1.05rem;font-weight:700;margin-top:2px;line-height:1.2;color:#e8edf5}
+.stat-card .value{font-size:1.05rem;font-weight:700;margin-top:2px;line-height:1.2;color:#e8edf5;word-break:break-all}
 .stat-card.income .value{color:#86efac}
 .stat-card.expense .value{color:#fca5a5}
-.stats-grid-extra{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:8px}
+.stats-grid-extra{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:8px;min-width:0}
 .stats-grid-extra .stat-card{padding:7px 8px}
 .stats-grid-extra .stat-card .value{font-size:0.92rem}
-.quick-sums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
-.quick-sums .group{background:#1a1f2a;border-radius:12px;padding:8px 6px;border:1px solid #232a36;text-align:center}
+.quick-sums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0;min-width:0}
+.quick-sums .group{background:#1a1f2a;border-radius:12px;padding:8px 6px;border:1px solid #232a36;text-align:center;min-width:0}
 .quick-sums .group .period-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.4px;color:#8b9bb5;font-weight:500;margin-bottom:3px}
 .quick-sums .group .sums-row{display:flex;flex-direction:column;gap:1px;font-weight:600;font-size:0.85rem}
-.quick-sums .group .sum.income{color:#86efac}
-.quick-sums .group .sum.expense{color:#fca5a5}
-.insights-block{background:#141820;border:1px solid #232a36;border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.quick-sums .group .sum.income{color:#86efac;word-break:break-all}
+.quick-sums .group .sum.expense{color:#fca5a5;word-break:break-all}
+.insights-block{background:#141820;border:1px solid #232a36;border-radius:14px;padding:12px 14px;margin-bottom:10px;min-width:0}
 .insights-block h3{font-weight:500;font-size:0.78rem;color:#8b9bb5;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px}
-.insight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
-.insight-item{background:#1a1f2a;border:1px solid #232a36;border-radius:10px;padding:8px 10px}
+.insight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;min-width:0}
+.insight-item{background:#1a1f2a;border:1px solid #232a36;border-radius:10px;padding:8px 10px;min-width:0}
 .insight-item .it-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.3px;color:#8b9bb5;font-weight:500;margin-bottom:2px}
-.insight-item .it-value{font-size:0.9rem;font-weight:600;color:#e8edf5}
-.insight-item .it-sub{font-size:0.65rem;color:#6b7689;margin-top:1px}
+.insight-item .it-value{font-size:0.9rem;font-weight:600;color:#e8edf5;word-break:break-all}
+.insight-item .it-sub{font-size:0.65rem;color:#6b7689;margin-top:1px;word-break:break-word}
 .insight-item.income .it-value{color:#86efac}
 .insight-item.expense .it-value{color:#fca5a5}
 .top-cat-list{margin-top:8px}
-.top-cat-list .tc-item{display:flex;justify-content:space-between;padding:3px 0;font-size:0.72rem;border-bottom:1px solid #232a36}
+.top-cat-list .tc-item{display:flex;justify-content:space-between;padding:3px 0;font-size:0.72rem;border-bottom:1px solid #232a36;gap:6px;min-width:0}
 .top-cat-list .tc-item:last-child{border-bottom:none}
-.top-cat-list .tc-item .tc-name{color:#c8d0e0}
-.top-cat-list .tc-item .tc-value{color:#8b9bb5;font-weight:500}
-.collapsible{margin-bottom:10px;border-radius:14px;border:1px solid #232a36;overflow:hidden;background:#141820}
+.top-cat-list .tc-item .tc-name{color:#c8d0e0;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top-cat-list .tc-item .tc-value{color:#8b9bb5;font-weight:500;flex-shrink:0}
+.collapsible{margin-bottom:10px;border-radius:14px;border:1px solid #232a36;overflow:hidden;background:#141820;min-width:0}
 .collapsible-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:8px 12px;user-select:none}
 .collapsible-header h3{font-weight:500;font-size:0.78rem;color:#8b9bb5;text-transform:uppercase;letter-spacing:0.4px}
 .collapsible-header .toggle{font-size:1rem;color:#8b9bb5;transition:transform .3s}
@@ -84,39 +89,39 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .collapsible-content .transactions{padding:10px 12px}
 .transactions h3{font-weight:500;font-size:0.78rem;color:#8b9bb5;margin-bottom:6px}
 .tx-list{max-height:400px;overflow-y:auto}
-.tx-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #232a36;font-size:0.72rem;gap:8px}
+.tx-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #232a36;font-size:0.72rem;gap:8px;min-width:0}
 .tx-item:last-child{border-bottom:none}
-.tx-item .left{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
+.tx-item .left{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0;overflow:hidden}
 .tx-item .left .cat{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#e8edf5}
 .tx-item .left .date{font-size:0.6rem;color:#6b7689}
 .tx-item .left .note{font-size:0.6rem;color:#8b9bb5;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tx-item .right{font-weight:600;text-align:right;white-space:nowrap;color:#e8edf5}
+.tx-item .right{font-weight:600;text-align:right;white-space:nowrap;color:#e8edf5;flex-shrink:0}
 .tx-item .right.income{color:#86efac}
 .tx-item .right.expense{color:#fca5a5}
-.tx-actions{display:flex;gap:4px;margin-left:6px}
+.tx-actions{display:flex;gap:4px;margin-left:6px;flex-shrink:0}
 .tx-actions button{background:transparent;border:1px solid #232a36;color:#8b9bb5;width:24px;height:24px;border-radius:7px;font-size:0.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;font-family:inherit}
-.tx-actions button.edit:active{border-color:#93c5fd;color:#93c5fd}
-.tx-actions button.del:active{border-color:#fca5a5;color:#fca5a5}
-.rate-chart-box{background:#141820;border:1px solid #232a36;border-radius:14px;padding:12px;margin-bottom:10px}
+.rate-chart-box{background:#141820;border:1px solid #232a36;border-radius:14px;padding:12px;margin-bottom:10px;min-width:0}
 .rate-chart-box h3{font-weight:500;font-size:0.78rem;color:#8b9bb5;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px}
 .rate-chart-box .rate-chart-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .rate-chart-box .rate-chart-controls button{background:transparent;border:1px solid #232a36;color:#8b9bb5;padding:3px 12px;border-radius:20px;font-size:0.68rem;cursor:pointer;font-family:inherit}
 #rateHistoryChart{height:180px!important;width:100%!important}
 .rate-bar-new{background:#141820;border:1px solid #232a36;border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:6px}
-.rate-bar-new .rate-row-1,.rate-bar-new .rate-row-2,.rate-bar-new .rate-row-3{display:flex;align-items:center;width:100%}
+.rate-bar-new .rate-row-1,.rate-bar-new .rate-row-2,.rate-bar-new .rate-row-3{display:flex;align-items:center;width:100%;gap:8px}
 .rate-bar-new .rate-row-1 .rate-label{color:#8b9bb5;font-size:0.75rem;font-weight:500;text-transform:uppercase;letter-spacing:0.3px}
-.rate-bar-new .rate-row-2{justify-content:space-between;gap:8px}
-.rate-bar-new .rate-row-2 input{background:#1a1f2a;border:1px solid #232a36;color:#e8edf5;padding:6px 10px;border-radius:8px;width:100px;font-size:0.88rem;font-family:inherit}
+.rate-bar-new .rate-row-2{justify-content:space-between}
+.rate-bar-new .rate-row-2 input{background:#1a1f2a;border:1px solid #232a36;color:#e8edf5;padding:6px 10px;border-radius:8px;width:100px;font-size:0.88rem;font-family:inherit;flex-shrink:0}
 .rate-bar-new .rate-row-2 .update-btn{background:#fcd34d;border:none;color:#0b0e14;padding:6px 20px;border-radius:20px;font-weight:600;font-size:0.78rem;cursor:pointer;white-space:nowrap;font-family:inherit}
-.rate-bar-new .rate-row-3{justify-content:space-between;gap:8px}
+.rate-bar-new .rate-row-3{justify-content:space-between}
 .rate-bar-new .rate-row-3 .rate-info{color:#86efac;font-weight:500;font-size:0.8rem}
 .rate-bar-new .rate-row-3 .rate-change{color:#8b9bb5;font-size:0.75rem}
 .empty-state{text-align:center;color:#6b7689;padding:20px 0;font-size:0.88rem}
 .hidden{display:none!important}
-.footer{margin-top:14px;text-align:center;font-size:0.62rem;color:#4a5568;border-top:1px solid #232a36;padding-top:10px}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:1000;justify-content:center;align-items:center;padding:16px;overflow-y:auto}
+.footer{margin-top:14px;text-align:center;font-size:0.62rem;color:#4a5568;border-top:1px solid #232a36;padding-top:10px;word-break:break-word}
+
+/* МОДАЛКИ */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:1000;justify-content:center;align-items:center;padding:16px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .modal-overlay.open{display:flex}
-.modal{background:#141820;border:1px solid #232a36;border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal{background:#141820;border:1px solid #232a36;border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
 .modal-header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #232a36}
 .modal-header h2{font-size:0.95rem;font-weight:600;color:#e8edf5}
 .modal-close{background:none;border:none;color:#8b9bb5;font-size:1.5rem;line-height:1;cursor:pointer;padding:0 4px;font-family:inherit}
@@ -137,7 +142,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .cat-detail-modal .modal-header{padding:16px 20px 10px;border-bottom:none}
 .cat-detail-modal .modal-close{background:rgba(255,255,255,.05);border-radius:10px;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
 .cat-detail-modal .modal-body{padding:0 20px 20px}
-.cat-detail-top{display:flex;align-items:center;gap:18px;background:#141820;border-radius:16px;padding:16px;margin-bottom:16px;border:1px solid #232a36}
+.cat-detail-top{display:flex;align-items:center;gap:18px;background:#141820;border-radius:16px;padding:16px;margin-bottom:16px;border:1px solid #232a36;min-width:0}
 .cat-donut-wrap{position:relative;width:120px;height:120px;flex-shrink:0}
 .cat-donut-wrap canvas{max-height:120px!important;max-width:120px!important}
 .cat-donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
@@ -146,15 +151,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .cat-detail-top-info{flex:1;min-width:0}
 .cat-detail-top-info .cdt-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.5px;color:#8b9bb5;font-weight:500;margin-bottom:5px}
 .cat-detail-top-info .cdt-category{font-size:1rem;font-weight:700;color:#e8edf5;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cat-detail-top-info .cdt-desc{font-size:0.72rem;color:#8b9bb5;line-height:1.35}
-.cat-detail-list{display:flex;flex-direction:column;gap:10px}
-.cdl-item{display:flex;flex-direction:column;gap:5px}
-.cdl-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:0.8rem}
-.cdl-left{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
+.cat-detail-top-info .cdt-desc{font-size:0.72rem;color:#8b9bb5;line-height:1.35;word-break:break-word}
+.cat-detail-list{display:flex;flex-direction:column;gap:10px;min-width:0}
+.cdl-item{display:flex;flex-direction:column;gap:5px;min-width:0}
+.cdl-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:0.8rem;min-width:0}
+.cdl-left{display:flex;align-items:center;gap:8px;min-width:0;flex:1;overflow:hidden}
 .cdl-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.cdl-name{font-weight:500;color:#e8edf5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cdl-name{font-weight:500;color:#e8edf5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .cdl-right{display:flex;align-items:baseline;gap:8px;flex-shrink:0}
-.cdl-amount{font-weight:700;color:#e8edf5}
+.cdl-amount{font-weight:700;color:#e8edf5;white-space:nowrap}
 .cdl-percent{font-weight:500;color:#8b9bb5;font-size:0.75rem;min-width:40px;text-align:right}
 .cdl-bar{height:5px;background:#1a1f2a;border-radius:10px;overflow:hidden}
 .cdl-bar-fill{height:100%;border-radius:10px}
@@ -359,6 +364,19 @@ var expensePieChart=null,incomePieChart=null,rateHistoryChart=null,catDetailDonu
 var autoUpdateTimer=null;
 var editingIndex=-1;
 var currentTxType='income';
+var scrollY=0;
+
+// ★ Блокировка фона
+function lockBackground(){
+    scrollY=window.scrollY||window.pageYOffset||0;
+    document.body.classList.add('modal-locked');
+    document.body.style.top='-'+scrollY+'px';
+}
+function unlockBackground(){
+    document.body.classList.remove('modal-locked');
+    document.body.style.top='';
+    window.scrollTo(0,scrollY);
+}
 
 function parseNumber(s){var m=String(s).replace(/\s/g,'').replace(',','.').match(/(\d+\.?\d*)/);return m?parseFloat(m[1]):0;}
 
@@ -454,7 +472,6 @@ function setToken(t){localStorage.setItem(TOKEN_KEY,t);}
 
 function pad(n){return n<10?'0'+n:''+n;}
 
-// ★★★ ГЛАВНОЕ ИСПРАВЛЕНИЕ: правильный расчёт USD-эквивалента ★★★
 function computeStats(txs){
     var rubIncome=0,rubExpense=0,usdIncome=0,usdExpense=0;
     for(var i=0;i<txs.length;i++){
@@ -462,22 +479,17 @@ function computeStats(txs){
         if(t.type==='income'){if(t.usd===0)rubIncome+=t.rub;else usdIncome+=t.usd;}
         else{if(t.usd===0)rubExpense+=t.rub;else usdExpense+=t.usd;}
     }
-    // Общий доход/расход в рублях (USD-часть конвертируем по текущему курсу)
     var totalIncomeRub=rubIncome+usdIncome*currentUsdRate;
     var totalExpenseRub=rubExpense+usdExpense*currentUsdRate;
     var netRub=totalIncomeRub-totalExpenseRub;
-    // ★ ЭКВИВАЛЕНТ В USD: сколько у вас долларов, если весь остаток в рублях перевести по текущему курсу
     var netUsd=netRub/currentUsdRate;
-    // Общий доход/расход в USD-эквиваленте (для строки детализации)
-    var totalIncomeUsdEq=totalIncomeRub/currentUsdRate;
-    var totalExpenseUsdEq=totalExpenseRub/currentUsdRate;
-
     return {
         rubIncome:rubIncome,rubExpense:rubExpense,
         usdIncome:usdIncome,usdExpense:usdExpense,
         totalIncomeRub:totalIncomeRub,totalExpenseRub:totalExpenseRub,
         netRub:netRub,netUsd:netUsd,
-        totalIncomeUsdEq:totalIncomeUsdEq,totalExpenseUsdEq:totalExpenseUsdEq
+        totalIncomeUsdEq:totalIncomeRub/currentUsdRate,
+        totalExpenseUsdEq:totalExpenseRub/currentUsdRate
     };
 }
 
@@ -544,14 +556,11 @@ function renderDashboard(txs,period){
     }
     var d=calc(dS),w=calc(wS),m=calc(mS);
 
-    // Баланс
     $('totalBalanceRubDisplay').textContent=s.netRub.toLocaleString('ru-RU')+' ₽';
-    // ★★ Вот тут главное: USD-эквивалент = netRub / курс ★★
     $('totalBalanceUsdDisplay').textContent=s.netUsd.toFixed(2)+' $';
     $('usdDetails').textContent='(↑ $'+s.totalIncomeUsdEq.toFixed(0)+' / ↓ $'+s.totalExpenseUsdEq.toFixed(0)+')';
     $('rateInfoSmall').textContent='1 USD = '+currentUsdRate.toFixed(2)+' ₽';
 
-    // Статистика
     $('totalIncomeRubOnly').textContent=s.rubIncome.toLocaleString('ru-RU')+' ₽';
     $('totalExpenseRubOnly').textContent=s.rubExpense.toLocaleString('ru-RU')+' ₽';
     $('totalIncomeUsd').textContent=s.usdIncome.toLocaleString('ru-RU')+' $';
@@ -573,7 +582,6 @@ function renderDashboard(txs,period){
     $('monthIncome').textContent=(m.totalIncomeRub>=0?'+':'')+fmt(m.totalIncomeRub);
     $('monthExpense').textContent=(m.totalExpenseRub>=0?'-':'')+fmt(m.totalExpenseRub);
 
-    // Период месяца
     var monthStart=new Date(now.getFullYear(),now.getMonth(),1);
     var monthEnd=new Date(now.getFullYear(),now.getMonth()+1,0);
     var monthTxs=allTransactions.filter(function(tx){return tx.date>=monthStart&&tx.date<=monthEnd;});
@@ -582,7 +590,6 @@ function renderDashboard(txs,period){
     $('monthIncomeDisplay').textContent='↑ '+ms.totalIncomeRub.toLocaleString('ru-RU');
     $('monthExpenseDisplay').textContent='↓ '+ms.totalExpenseRub.toLocaleString('ru-RU');
 
-    // Диаграммы
     if(expensePieChart){expensePieChart.destroy();expensePieChart=null;}
     if(incomePieChart){incomePieChart.destroy();incomePieChart=null;}
 
@@ -794,9 +801,10 @@ function openTxModal(editIdx){
         $('txDateTime').value=now.toISOString().slice(0,16);
     }
     $('txModal').classList.add('open');
+    lockBackground();
 }
 
-function closeTxModal(){$('txModal').classList.remove('open');editingIndex=-1;}
+function closeTxModal(){$('txModal').classList.remove('open');editingIndex=-1;unlockBackground();}
 function editTransaction(i){openTxModal(i);}
 
 function deleteTransaction(i){
@@ -844,11 +852,13 @@ function openCategoryDetail(type){
         listEl.appendChild(item);
     }
     $('catDetailModal').classList.add('open');
+    lockBackground();
 }
 
 function closeCatDetail(){
     $('catDetailModal').classList.remove('open');
     if(catDetailDonut){catDetailDonut.destroy();catDetailDonut=null;}
+    unlockBackground();
 }
 
 function startAutoUpdate(){
@@ -943,7 +953,7 @@ $('saveTxBtn').addEventListener('click',function(){
 $('syncBtn').addEventListener('click',function(){
     if(!allTransactions.length){$('fileStatus').textContent='ℹ️ Нет данных';return;}
     var token=getToken();
-    if(!token){$('tokenModal').classList.add('open');return;}
+    if(!token){$('tokenModal').classList.add('open');lockBackground();return;}
     $('fileStatus').textContent='⏳ Синхронизация...';
     var sorted=allTransactions.slice().sort(function(a,b){return a.date-b.date;});
     var lines=[];
@@ -974,13 +984,14 @@ $('syncBtn').addEventListener('click',function(){
         .catch(function(e){$('fileStatus').textContent='❌ '+e.message;});
 });
 
-$('closeTokenModal').addEventListener('click',function(){$('tokenModal').classList.remove('open');});
-$('cancelTokenBtn').addEventListener('click',function(){$('tokenModal').classList.remove('open');});
+$('closeTokenModal').addEventListener('click',function(){$('tokenModal').classList.remove('open');unlockBackground();});
+$('cancelTokenBtn').addEventListener('click',function(){$('tokenModal').classList.remove('open');unlockBackground();});
 $('saveTokenBtn').addEventListener('click',function(){
     var t=$('githubTokenInput').value.trim();
     if(!t){alert('Введите токен');return;}
     setToken(t);
     $('tokenModal').classList.remove('open');
+    unlockBackground();
     $('fileStatus').textContent='✅ Токен сохранён';
 });
 
