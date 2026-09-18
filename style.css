@@ -214,3 +214,15 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 
 @media (max-width:900px){.stats-grid{grid-template-columns:1fr 1fr}.stats-grid .stat-card:last-child{grid-column:span 2}}
 @media (max-width:600px){.period-label{margin-left:0;width:100%;text-align:center}.top-bar .actions{justify-content:center}.cat-detail-top{flex-direction:column;text-align:center;gap:12px}.cat-detail-top-info{text-align:center}}
+/* ===== TX FILTERS ===== */
+.tx-filters{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.tx-filters input{background:#1a1f2a;border:1px solid #232a36;color:#e8edf5;padding:7px 10px;border-radius:10px;font-size:0.78rem;font-family:inherit;width:100%;-webkit-appearance:none;appearance:none}
+.tx-filters input::placeholder{color:#6b7689}
+.tx-filters input:focus{outline:none;border-color:rgba(147,197,253,0.5)}
+.tx-type-filter{display:flex;gap:4px}
+.tx-type-btn{flex:1;padding:6px 8px;border-radius:8px;background:transparent;border:1px solid #232a36;color:#8b9bb5;font-family:inherit;font-size:0.7rem;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tx-type-btn.active[data-txtype="all"]{background:rgba(147,197,253,0.12);border-color:rgba(147,197,253,0.5);color:#93c5fd}
+.tx-type-btn.active[data-txtype="income"]{background:rgba(134,239,172,0.12);border-color:rgba(134,239,172,0.5);color:#86efac}
+.tx-type-btn.active[data-txtype="expense"]{background:rgba(252,165,165,0.12);border-color:rgba(252,165,165,0.5);color:#fca5a5}
+.tx-empty{text-align:center;color:#6b7689;font-size:0.75rem;padding:14px 0}
+.tx-count{color:#6b7689;font-size:0.68rem;margin-top:6px;text-align:center}
