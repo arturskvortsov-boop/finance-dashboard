@@ -24,16 +24,20 @@ var LAST_SYNC_KEY='lastSyncTime';
 var THEME_KEY='appTheme';
 var TEMPLATES_KEY='financeTemplates';
 var BUDGETS_KEY='financeBudgets';
+var GOALS_KEY='financeGoals';
 
 var CATEGORIES_INCOME=['💰 Зарплата','🗓 Продажа','🎁 Подарок','💵 Другое'];
 var CATEGORIES_EXPENSE=['🚘 Автомобиль','🍔 Еда','🏚️ Ипотека','☕️ Кафе','🎢 Развлечения','🛍 Покупки','💊 Здоровье','🏠 Коммуналка','📱 Связь','📚 Образование','💸 Другое'];
 
 var COLORS=['#93c5fd','#a5b4fc','#c4b5fd','#f9a8d4','#fbcfe8','#fcd34d','#86efac','#5eead4','#fdba74','#d8b4fe','#a7f3d0','#fca5a5'];
 
+var GOAL_ICONS=['🎯','🚗','🏠','✈️','💻','📱','🎓','💍','🏖️','🎁','💰','🎸','📷','🚴','⛷️','🛥️'];
+
 var allTransactions=[];
 var rateHistory=[];
 var templates=[];
 var budgets=[];
+var goals=[];
 var currentFilter='month';
 var dataLoaded=false;
 var currentUsdRate=85.00;
@@ -46,6 +50,8 @@ var currentTxTypeFilter='all';
 var editingTemplateId=null;
 var currentTplType='income';
 var editingBudgetCategory=null;
+var editingGoalId=null;
+var currentGoalIcon='🎯';
 var scrollY=0;
 var currentTheme='dark';
 
@@ -194,6 +200,8 @@ function saveTemplates(){try{localStorage.setItem(TEMPLATES_KEY,JSON.stringify(t
 function loadTemplates(){try{var s=localStorage.getItem(TEMPLATES_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveBudgets(){try{localStorage.setItem(BUDGETS_KEY,JSON.stringify(budgets));}catch(e){}}
 function loadBudgets(){try{var s=localStorage.getItem(BUDGETS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
+function saveGoals(){try{localStorage.setItem(GOALS_KEY,JSON.stringify(goals));}catch(e){}}
+function loadGoals(){try{var s=localStorage.getItem(GOALS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 
 function markSynced(){
     try{localStorage.setItem(LAST_SYNC_KEY,String(Date.now()));}catch(e){}
@@ -435,6 +443,7 @@ function renderDashboard(txs,period){
     renderInsights(txs,period);
     drawBalanceHistoryChart(txs);
     renderBudgets();
+    renderGoals();
     $('dashboard').classList.remove('hidden');
     $('emptyState').classList.add('hidden');
 }
@@ -1195,7 +1204,7 @@ function saveBudget(){
         budgets.push({category:category,limit:limit});
         $('fileStatus').textContent='➕ Бюджет добавлен';
     }
-    saveBudgets();
+    saveBudgets4();
     renderBudgets();
     renderSettingsBudgetsList();
     closeBudgetEditModal();
@@ -1208,6 +1217,268 @@ function deleteBudget(category){
     renderBudgets();
     renderSettingsBudgetsList();
     $('fileStatus').textContent='🗑️ Бюджет удалён';
+}
+
+/* ===== GOALS ===== */
+function renderGoals(){
+    var block=$('goalsBlock');
+    var listEl=$('goalsList');
+    if(!block||!listEl)return;
+
+    if(!goals.length){
+        block.classList.add('hidden');
+        return;
+    }
+    block.classList.remove('hidden');
+
+    if($('goalsCount')){
+        $('goalsCount').textContent=goals.length+' '+(goals.length===1?'цель':'цели');
+    }
+
+    listEl.innerHTML='';
+
+    for(var i=0;i<goals.length;i++){
+        var g=goals[i];
+        var target=g.target||0;
+        var saved=g.saved||0;
+        var pct=target>0?Math.min((saved/target)*100,100):0;
+        var remaining=Math.max(target-saved,0);
+        var isDone=saved>=target&&target>0;
+
+        var cls='low';
+        if(isDone)cls='done';
+        else if(pct>=75)cls='high';
+        else if(pct>=40)cls='mid';
+
+        var item=document.createElement('div');
+        item.className='goal-item';
+
+        var row=document.createElement('div');
+        row.className='goal-row';
+        var nameEl=document.createElement('span');
+        nameEl.className='goal-name';
+        nameEl.textContent=(g.icon||'🎯')+' '+g.name;
+        var nums=document.createElement('span');
+        nums.className='goal-nums'+(isDone?' complete':'');
+        nums.textContent=Math.round(saved).toLocaleString('ru-RU')+' / '+Math.round(target).toLocaleString('ru-RU')+' ₽';
+        row.appendChild(nameEl);
+        row.appendChild(nums);
+
+        var bar=document.createElement('div');
+        bar.className='goal-bar';
+        var fill=document.createElement('div');
+        fill.className='goal-bar-fill '+cls;
+        fill.style.width=pct.toFixed(1)+'%';
+        bar.appendChild(fill);
+
+        var sub=document.createElement('div');
+        sub.className='goal-sub';
+        var leftSpan=document.createElement('span');
+        if(isDone){
+            leftSpan.textContent='✅ Цель достигнута';
+        } else {
+            leftSpan.textContent='осталось '+Math.round(remaining).toLocaleString('ru-RU')+' ₽';
+            if(g.deadline){
+                try{
+                    var dl=new Date(g.deadline);
+                    if(!isNaN(dl.getTime())){
+                        leftSpan.textContent+=' · до '+dl.toLocaleDateString('ru-RU');
+                    }
+                }catch(e){}
+            }
+        }
+        var pctSpan=document.createElement('span');
+        pctSpan.className='goal-pct';
+        pctSpan.textContent=Math.round(pct)+'%';
+        sub.appendChild(leftSpan);
+        sub.appendChild(pctSpan);
+
+        item.appendChild(row);
+        item.appendChild(bar);
+        item.appendChild(sub);
+
+        (function(id){item.addEventListener('click',function(){openGoalDepositModal(id);});})(g.id);
+
+        listEl.appendChild(item);
+    }
+}
+
+function renderSettingsGoalsList(){
+    var container=$('settingsGoalsList');
+    if(!container)return;
+    container.innerHTML='';
+
+    if(!goals.length){
+        var empty=document.createElement('div');
+        empty.className='template-empty';
+        empty.textContent='Целей пока нет.\nСоздайте первую кнопкой ниже.';
+        container.appendChild(empty);
+        return;
+    }
+
+    for(var i=0;i<goals.length;i++){
+        var g=goals[i];
+        var pct=g.target>0?Math.min((g.saved/g.target)*100,100):0;
+        var item=document.createElement('div');
+        item.className='goal-manage-item';
+        var info=document,
+.createElement('div');
+               info.className='g exportedmi-info';
+        var nameEl=document.createElement('Atdiv');
+        nameEl.className='gmi-name';
+        name:El.textContent=(g.icon||'🎯')+' '+g.name;
+        var metaEl=document.createElement('div');
+        metaEl.className='gmi-meta';
+        metaEl.textContent=Math.round(g.saved).toLocaleString('ru-RU')+' / '+Math.round(g.target).toLocaleString('ru-RU')+' ₽ · '+Math.round(pct)+'%';
+        info.appendChild(nameEl);
+        info.appendChild(metaEl);
+        item.appendChild(info);
+
+        var actions=document.createElement('div');
+        actions.className='gmi-actions';
+        var eBtn=document.createElement('button');
+        eBtn.textContent='✏️';
+        (function(id){eBtn.addEventListener('click',function(){openGoalEditModal(id);});})(g.id);
+        var dBtn=document.createElement('button');
+        dBtn.textContent='🗑️';
+        (function(id){dBtn.addEventListener('click',function(){deleteGoal(id);});})(g.id);
+        actions.appendChild(eBtn);
+        actions.appendChild(dBtn);
+        item.appendChild(actions);
+        container.appendChild(item);
+    }
+}
+
+function renderGoalIconPicker(){
+    var picker=$('goalIconPicker');
+    if(!picker)return;
+    picker.innerHTML='';
+    for(var i=0;i<GOAL_ICONS.length;i++){
+        var btn=document.createElement('button');
+        btn.type='button';
+        btn.className='goal-icon-btn'+(GOAL_ICONS[i]===currentGoalIcon?' active':'');
+        btn.textContent=GOAL_ICONS[i];
+        (function(icon){btn.addEventListener('click',function(){
+            currentGoalIcon=icon;
+            renderGoalIconPicker();
+        });})(GOAL_ICONS[i]);
+        picker.appendChild(btn);
+    }
+}
+
+function openGoalEditModal(id){
+    editingGoalId=id||null;
+    var title=$('goalEditTitle');
+
+    if(id){
+        var g=null;
+        for(var i=0;i<goals.length;i++)if(goals[i].id===id){g=goals[i];break;}
+        if(!g)return;
+        title.textContent='✏️ Редактировать цель';
+        currentGoalIcon=g.icon||'🎯';
+        $('goalName').value=g.name||'';
+        $('goalTarget').value=g.target||'';
+        $('goalSaved').value=g.saved||'';
+        $('goalDeadline').value=g.deadline||'';
+    } else {
+        title.textContent='🎯 Новая цель';
+        currentGoalIcon='🎯';
+        $('goalName').value='';
+        $('goalTarget').value='';
+        $('goalSaved').value='';
+        $('goalDeadline').value='';
+    }
+    renderGoalIconPicker();
+    $('goalEditModal').classList.add('open');
+    lockBackground();
+}
+
+function closeGoalEditModal(){
+    $('goalEditModal').classList.remove('open');
+    editingGoalId=null;
+    unlockBackground();
+}
+
+function saveGoal(){
+    var name=$('goalName').value.trim();
+    var target=parseFloat($('goalTarget').value)||0;
+    var saved=parseFloat($('goalSaved').value)||0;
+    var deadline=$('goalDeadline').value||'';
+    if(!name){alert('Введите название цели');return;}
+    if(target<=0){alert('Введите целевую сумму');return;}
+    if(saved<0){alert('Накоплено не может быть отрицательным');return;}
+
+    if(editingGoalId){
+        for(var i=0;i<goals.length;i++){
+            if(goals[i].id===editingGoalId){
+                goals[i].name=name;
+                goals[i].icon=currentGoalIcon;
+                goals[i].target=target;
+                goals[i].saved=saved;
+                goals[i].deadline=deadline;
+                break;
+            }
+        }
+        $('fileStatus').textContent='✏️ Цель обновлена';
+    } else {
+        goals.push({
+            id:'goal_'+Date.now()+'_'+Math.floor(Math.random()*1000),
+            name:name,
+            icon:currentGoalIcon,
+            target:target,
+            saved:saved,
+            deadline:deadline
+        });
+        $('fileStatus').textContent='➕ Цель создана';
+    }
+    saveGoals();
+    renderGoals();
+    renderSettingsGoalsList();
+    closeGoalEditModal();
+}
+
+function deleteGoal(id){
+    var g=null;
+    for(var i=0;i<goals.length;i++)if(goals[i].id===id){g=goals[i];break;}
+    if(!g)return;
+    if(!confirm('Удалить цель «'+g.name+'»?'))return;
+    goals=goals.filter(function(x){return x.id!==id;});
+    saveGoals();
+    renderGoals();
+    renderSettingsGoalsList();
+    $('fileStatus').textContent='🗑️ Цель удалена';
+}
+
+function openGoalDepositModal(id){
+    var g=null;
+    for(var i=0;i<goals.length;i++)if(goals[i].id===id){g=goals[i];break;}
+    if(!g)return;
+    editingGoalId=id;
+    $('goalDepositTitle').textContent=(g.icon||'🎯')+' '+g.name;
+    $('goalDepositCurrent').textContent=Math.round(g.saved).toLocaleString('ru-RU')+' / '+Math.round(g.target).toLocaleString('ru-RU')+' ₽';
+    $('goalDepositAmount').value='';
+    $('goalDepositModal').classList.add('open');
+    lockBackground();
+}
+
+function closeGoalDepositModal(){
+    $('goalDepositModal').classList.remove('open');
+    editingGoalId=null;
+    unlockBackground();
+}
+
+function saveGoalDeposit(){
+    var amount=parseFloat($('goalDepositAmount').value)||0;
+    if(amount===0){alert('Введите сумму');return;}
+    var g=null;
+    for(var i=0;i<goals.length;i++)if(goals[i].id===editingGoalId){g=goals[i];break;}
+    if(!g)return;
+    g.saved=Math.max(0,g.saved+amount);
+    saveGoals();
+    renderGoals();
+    renderSettingsGoalsList();
+    closeGoalDepositModal();
+    $('fileStatus').textContent='✅ '+g.name+': '+Math.round(g.saved).toLocaleString('ru-RU')+' ₽';
 }
 
 /* ===== EXPORT / IMPORT ===== */
@@ -1238,17 +1509,17 @@ function exportAllDataCSV(){
 }
 
 function exportAllData(){
-    if(!allTransactions.length&&!rateHistory.length&&!templates.length&&!budgets.length){alert('Нет данных для экспорта');return;}
+    if(!allTransactions.length&&!rateHistory.length&&!templates.length&&!budgets.length&&!goals.length){alert('Нет данных для экспорта');return;}
     var data={
-        version:3,
-        exportedAt:new Date().toISOString(),
+        version:new Date().toISOString(),
         currentUsdRate:currentUsdRate,
         transactions:allTransactions.map(function(tx){
             return {type:tx.type,date:tx.date.toISOString(),usd:tx.usd,rub:tx.rub,category:tx.category,note:tx.note};
         }),
         rateHistory:rateHistory.map(function(h){return {date:h.date.toISOString(),rate:h.rate};}),
         templates:templates.slice(),
-        budgets:budgets.slice()
+        budgets:budgets.slice(),
+        goals:goals.slice()
     };
     var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
     var url=URL.createObjectURL(blob);
@@ -1312,6 +1583,21 @@ function importAllData(file){
                 renderBudgets();
                 renderSettingsBudgetsList();
             }
+            if(data.goals&&Array.isArray(data.goals)){
+                goals=data.goals.map(function(g){
+                    return {
+                        id:g.id||('goal_'+Date.now()+'_'+Math.floor(Math.random()*1000)),
+                        name:g.name||'Цель',
+                        icon:g.icon||'🎯',
+                        target:g.target||0,
+                        saved:g.saved||0,
+                        deadline:g.deadline||''
+                    };
+                }).filter(function(g){return g.target>0;});
+                saveGoals();
+                renderGoals();
+                renderSettingsGoalsList();
+            }
             dataLoaded=true;
             var fb=document.querySelectorAll('.filter-btn');
             for(var i=0;i<fb.length;i++)fb[i].classList.remove('disabled');
@@ -1327,7 +1613,7 @@ function importAllData(file){
 }
 
 function clearAllDataConfirm(){
-    if(!confirm('Удалить ВСЕ данные (транзакции, курсы, шаблоны, бюджеты)?\n\nЭто действие нельзя отменить.'))return;
+    if(!confirm('Удалить ВСЕ данные (транзакции, курсы, шаблоны, бюджеты, цели)?\n\nЭто действие нельзя отменить.'))return;
     if(!confirm('Точно удалить? Нажмите OK для подтверждения.'))return;
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(RATE_STORAGE_KEY);
@@ -1335,7 +1621,8 @@ function clearAllDataConfirm(){
     localStorage.removeItem(LAST_SYNC_KEY);
     localStorage.removeItem(TEMPLATES_KEY);
     localStorage.removeItem(BUDGETS_KEY);
-    allTransactions=[];rateHistory=[];templates=[];budgets=[];dataLoaded=false;
+    localStorage.removeItem(GOALS_KEY);
+    allTransactions=[];rateHistory=[];templates=[];budgets=[];goals=[];dataLoaded=false;
     $('dashboard').classList.add('hidden');
     $('emptyState').classList.remove('hidden');
     var fb=document.querySelectorAll('.filter-btn');
@@ -1348,7 +1635,9 @@ function clearAllDataConfirm(){
     renderSettingsStats();
     renderTemplatesList('settingsTemplatesList','settings');
     renderSettingsBudgetsList();
+    renderSettingsGoalsList();
     if($('budgetsBlock'))$('budgetsBlock').classList.add('hidden');
+    if($('goalsBlock'))$('goalsBlock').classList.add('hidden');
     updateFreshness();
     renderRateFreshness();
     $('fileStatus').textContent='🗑️ Очищено';
@@ -1458,6 +1747,15 @@ $('settingsAddBudgetBtn').addEventListener('click',function(){openBudgetEditModa
 $('closeBudgetEditModal').addEventListener('click',closeBudgetEditModal);
 $('cancelBudgetEditBtn').addEventListener('click',closeBudgetEditModal);
 $('saveBudgetBtn').addEventListener('click',saveBudget);
+
+/* Goals events */
+$('settingsAddGoalBtn').addEventListener('click',function(){openGoalEditModal(null);});
+$('closeGoalEditModal').addEventListener('click',closeGoalEditModal);
+$('cancelGoalEditBtn').addEventListener('click',closeGoalEditModal);
+$('saveGoalBtn').addEventListener('click',saveGoal);
+$('closeGoalDepositModal').addEventListener('click',closeGoalDepositModal);
+$('cancelGoalDepositBtn').addEventListener('click',closeGoalDepositModal);
+$('saveGoalDepositBtn').addEventListener('click',saveGoalDeposit);
 
 /* Templates events */
 $('quickAddBtn').addEventListener('click',function(){openQuickAddModal();});
@@ -1632,6 +1930,7 @@ function switchPage(page,direction){
         renderSettingsStats();
         renderTemplatesList('settingsTemplatesList','settings');
         renderSettingsBudgetsList();
+        renderSettingsGoalsList();
     } else {
         setTimeout(function(){
             if(incomePieChart){try{incomePieChart.resize();}catch(e){}}
@@ -1708,6 +2007,7 @@ function animateCurrencyNumbers(){
 applyTheme(localStorage.getItem(THEME_KEY)||'dark');
 templates=loadTemplates()||[];
 budgets=loadBudgets()||[];
+goals=loadGoals()||[];
 
 var savedRate=loadRate();
 if(savedRate){
@@ -1719,6 +2019,7 @@ if(savedRate){
 
 renderTemplatesList('settingsTemplatesList','settings');
 renderSettingsBudgetsList();
+renderSettingsGoalsList();
 
 loadData(true).then(function(loaded){
     if(!loaded){
