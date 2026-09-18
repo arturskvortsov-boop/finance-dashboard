@@ -138,9 +138,11 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .currency-rate-card .crc-label{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.4px;color:#8b9bb5;font-weight:500;margin-bottom:3px}
 .currency-rate-card .crc-value{font-size:1.15rem;font-weight:700;color:#e8edf5}
 .currency-rate-card .crc-change{font-size:0.85rem;font-weight:600;padding:4px 10px;border-radius:20px;background:rgba(134,239,172,.1);color:#86efac;transition:all .3s}
-.currency-rate-card .crc-input-row{display:flex;gap:8px;align-items:center}
-.currency-rate-card .crc-input-row input{background:#1a1f2a;border:1px solid #232a36;color:#e8edf5;padding:8px 12px;border-radius:10px;font-size:0.9rem;font-family:inherit;flex:1;min-width:0;-webkit-appearance:none;appearance:none}
-.currency-rate-card .crc-input-row .update-btn{background:#fcd34d;border:none;color:#0b0e14;padding:8px 20px;border-radius:20px;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:inherit;white-space:nowrap}
+.currency-rate-card .crc-input-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.currency-rate-card .crc-input-row input{background:#1a1f2a;border:1px solid #232a36;color:#e8edf5;padding:8px 12px;border-radius:10px;font-size:0.9rem;font-family:inherit;flex:1;min-width:100px;-webkit-appearance:none;appearance:none}
+.currency-rate-card .crc-input-row .update-btn{background:#fcd34d;border:none;color:#0b0e14;padding:8px 18px;border-radius:20px;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:inherit;white-space:nowrap}
+.currency-rate-card .crc-input-row .fetch-btn{background:linear-gradient(135deg,#93c5fd,#c4b5fd);border:none;color:#0b0e14;padding:8px 18px;border-radius:20px;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:inherit;white-space:nowrap}
+.currency-rate-card .crc-input-row .fetch-btn:disabled{opacity:.5;cursor:wait}
 
 .currency-stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:10px}
 
@@ -148,9 +150,10 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .bc-usd-quick:hover{opacity:.75}
 
 /* МОДАЛКИ */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:1000;justify-content:center;align-items:center;padding:16px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-.modal-overlay.open{display:flex}
-.modal{background:#141820;border:1px solid #232a36;border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:1000;display:flex;justify-content:center;align-items:center;padding:16px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .3s ease,visibility .3s ease}
+.modal-overlay.open{opacity:1;visibility:visible;pointer-events:auto}
+.modal{background:#141820;border:1px solid #232a36;border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;transform:translateY(20px) scale(.97);transition:transform .35s cubic-bezier(.2,.7,.3,1);}
+.modal-overlay.open .modal{transform:translateY(0) scale(1)}
 .modal-header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid #232a36}
 .modal-header h2{font-size:0.95rem;font-weight:600;color:#e8edf5}
 .modal-close{background:none;border:none;color:#8b9bb5;font-size:1.5rem;line-height:1;cursor:pointer;padding:0 4px;font-family:inherit}
@@ -311,6 +314,7 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
         <div class="crc-input-row">
             <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
             <button class="update-btn" id="updateRateBtn">Обновить</button>
+            <button class="fetch-btn" id="fetchRateBtn">🔄 Онлайн</button>
         </div>
     </div>
 
@@ -753,6 +757,106 @@ function setRate(rate){
     updateWithFilter(currentFilter);
 }
 
+// ===== ЗАГРУЗКА ЖИВОГО КУРСА С OPEN.ER-API.COM =====
+function fetchLiveRate() {
+    return fetch('https://open.er-api.com/v6/latest/USD', { cache: 'no-store' })
+        .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function(data) {
+            if (data.result !== 'success' || !data.rates || !data.rates.RUB) {
+                throw new Error('Invalid response');
+            }
+            var rubRate = data.rates.RUB;
+            if (isNaN(rubRate) || rubRate <= 0) throw new Error('Invalid rate');
+            return { rate: rubRate, updatedAt: data.time_last_update_utc || '' };
+        });
+}
+
+function updateRateFromAPI() {
+    var btn = $('fetchRateBtn');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Загрузка...'; }
+    $('fileStatus').textContent = '🌐 Запрос курса с open.er-api.com...';
+
+    fetchLiveRate()
+        .then(function(res) {
+            setRate(res.rate);
+            $('usdRateInput').value = res.rate.toFixed(2);
+            $('fileStatus').textContent = '✅ Курс обновлён: 1 USD = ' + res.rate.toFixed(2) + ' ₽ (' + res.updatedAt + ')';
+
+            // Добавляем запись в историю
+            var now = new Date();
+            var alreadyToday = rateHistory.some(function(h) {
+                return h.date.toDateString() === now.toDateString() && Math.abs(h.rate - res.rate) < 0.001;
+            });
+            if (!alreadyToday) {
+                rateHistory.push({ date: now, rate: res.rate });
+                saveRateHistory(rateHistory);
+                drawRateHistoryChart();
+            }
+
+            // Автоматически пушим в rate.json
+            pushRateToGitHub();
+        })
+        .catch(function(e) {
+            $('fileStatus').textContent = '❌ Не удалось получить курс: ' + e.message;
+        })
+        .finally(function() {
+            if (btn) { btn.disabled = false; btn.textContent = '🔄 Онлайн'; }
+        });
+}
+
+// ===== ОТПРАВКА rate.json НА GITHUB =====
+function pushRateToGitHub() {
+    var token = getToken();
+    if (!token) {
+        $('fileStatus').textContent = '⚠️ Курс обновлён локально. Для синхронизации нужен токен.';
+        return Promise.resolve(false);
+    }
+
+    var lines = rateHistory.map(function(h) {
+        var d = pad(h.date.getDate()), mo = pad(h.date.getMonth() + 1), y = h.date.getFullYear();
+        var hh = pad(h.date.getHours()), mi = pad(h.date.getMinutes());
+        return d + '.' + mo + '.' + y + ', ' + hh + ':' + mi + ' | ' + h.rate.toFixed(2);
+    });
+    var newText = lines.join('\n');
+    var updatedJson = JSON.stringify({ text: newText });
+    var updatedB64 = btoa(unescape(encodeURIComponent(updatedJson)));
+
+    return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/rate.json', {
+        headers: { 'Authorization': 'token ' + token },
+        cache: 'no-store'
+    })
+    .then(function(r) {
+        if (r.status === 404) return { sha: null };
+        if (!r.ok) throw new Error('GET: ' + r.status);
+        return r.json();
+    })
+    .then(function(meta) {
+        var body = {
+            message: 'Курс ' + currentUsdRate.toFixed(2) + ' ₽ (' + rateHistory.length + ' записей)',
+            content: updatedB64
+        };
+        if (meta.sha) body.sha = meta.sha;
+
+        return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/rate.json', {
+            method: 'PUT',
+            headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+    })
+    .then(function(r) {
+        if (!r.ok) throw new Error('PUT: ' + r.status);
+        return r.json();
+    })
+    .then(function() {
+        $('fileStatus').textContent = '✅ rate.json обновлён на GitHub (' + rateHistory.length + ' записей)';
+        return true;
+    })
+    .catch(function(e) {
+        $('fileStatus').textContent = '❌ Ошибка rate.json: ' + e.message;
+        return false;
+    });
+}
+
 function loadData(showStatus){
     if(showStatus)$('fileStatus').textContent='⏳ Загрузка...';
     return fetch('stats2.json?t='+Date.now(),{cache:'no-store'})
@@ -1005,6 +1109,10 @@ $('syncBtn').addEventListener('click',function(){
     var token=getToken();
     if(!token){$('tokenModal').classList.add('open');lockBackground();return;}
     $('fileStatus').textContent='⏳ Синхронизация...';
+
+    // Обновляем rate.json параллельно с транзакциями
+    pushRateToGitHub();
+
     var sorted=allTransactions.slice().sort(function(a,b){return a.date-b.date;});
     var lines=[];
     for(var i=0;i<sorted.length;i++){
@@ -1071,6 +1179,7 @@ $('refreshBtn').addEventListener('click',function(e){
 
 $('loadRateBtn').addEventListener('click',function(e){e.preventDefault();loadRateHistoryFromServer(true);});
 $('refreshRateChartBtn').addEventListener('click',function(e){e.preventDefault();drawRateHistoryChart();$('fileStatus').textContent='🔄 График обновлён';});
+$('fetchRateBtn').addEventListener('click',function(e){e.preventDefault();updateRateFromAPI();});
 $('usdRateInput').addEventListener('keydown',function(e){if(e.key==='Enter')setRate(parseFloat(this.value));});
 $('updateRateBtn').addEventListener('click',function(){setRate(parseFloat($('usdRateInput').value));});
 
@@ -1152,6 +1261,12 @@ loadData(true).then(function(loaded){
     return loadRateHistoryFromServer(false);
 }).then(function(){
     setTimeout(drawRateHistoryChart,500);
+    // Автоматически подтягиваем живой курс при запуске (если нет свежего)
+    var lastRateEntry = rateHistory[rateHistory.length - 1];
+    var stale = !lastRateEntry || (Date.now() - lastRateEntry.date.getTime()) > 12 * 60 * 60 * 1000;
+    if (stale) {
+        setTimeout(function() { updateRateFromAPI(); }, 1200);
+    }
 });
 
 })();
