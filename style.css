@@ -291,3 +291,33 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 
 .checkbox-row{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.82rem;color:var(--text);padding:4px 0;user-select:none}
 .checkbox-row input[type="checkbox"]{width:16px!important;height:16px!important;max-width:16px!important;accent-color:var(--accent);flex-shrink:0;margin:0;cursor:pointer;padding:0!important;border-radius:4px}
+
+/* ===== BUDGETS ===== */
+.budgets-block{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px;min-width:0;transition:background .25s ease,border-color .25s ease}
+.budgets-block h3{font-weight:500;font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.4px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.budgets-block h3 .budgets-month{color:var(--text-dim);font-size:0.68rem;text-transform:none;letter-spacing:0;font-weight:500}
+.budget-item{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;min-width:0}
+.budget-item:last-child{margin-bottom:0}
+.budget-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:0.78rem;min-width:0}
+.budget-row .budget-cat{font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.budget-row .budget-nums{white-space:nowrap;flex-shrink:0;font-weight:600;color:var(--text-muted);font-size:0.72rem}
+.budget-row .budget-nums.over{color:var(--red)}
+.budget-bar{height:6px;background:var(--card-2);border-radius:10px;overflow:hidden;position:relative}
+.budget-bar-fill{height:100%;border-radius:10px;transition:width .5s cubic-bezier(.2,.7,.3,1),background .3s ease}
+.budget-bar-fill.safe{background:var(--green)}
+.budget-bar-fill.warn{background:var(--yellow)}
+.budget-bar-fill.danger{background:var(--red)}
+.budget-sub{font-size:0.68rem;color:var(--text-dim);display:flex;justify-content:space-between;gap:8px}
+.budget-sub .over-text{color:var(--red)}
+.budget-sub .left-text{color:var(--green)}
+
+.budget-add-btn{width:100%;padding:10px 16px;border-radius:10px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:inherit;border:1px dashed var(--border-soft);background:transparent;color:var(--text-muted);transition:all .15s;margin-top:10px}
+.budget-add-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+.budget-manage-item{display:flex;align-items:center;gap:10px;background:var(--card-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.budget-manage-item .bmi-info{flex:1;min-width:0}
+.budget-manage-item .bmi-cat{font-weight:600;font-size:0.85rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.budget-manage-item .bmi-limit{font-size:0.7rem;color:var(--text-muted);margin-top:2px}
+.budget-manage-item .bmi-actions{display:flex;gap:4px;flex-shrink:0}
+.budget-manage-item .bmi-actions button{background:transparent;border:1px solid var(--border);color:var(--text-muted);width:28px;height:28px;border-radius:8px;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;font-family:inherit}
+.budget-manage-item .bmi-actions button:hover{border-color:var(--accent);color:var(--accent)}
