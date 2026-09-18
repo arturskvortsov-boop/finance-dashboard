@@ -99,6 +99,12 @@
         <h3>🎯 Бюджеты на месяц <span class="budgets-month" id="budgetsMonthLabel"></span></h3>
         <div id="budgetsList"></div>
     </div>
+    
+    
+    <div class="goals-block hidden" id="goalsBlock">
+        <h3>🎯 Цели <span class="goals-count" id="goalsCount"></span></h3>
+        <div id="goalsList"></div>
+    </div>
 
     <div class="balance-chart-box">
         <h3>📈 Динамика баланса</h3>
@@ -199,6 +205,14 @@
         <div class="settings-hint">Шаблоны для быстрого добавления повторяющихся транзакций (ипотека, зарплата, коммуналка). Хранятся локально на этом устройстве.</div>
     </div>
 
+<div class="settings-section">
+        <h3>🎯 Цели накоплений</h3>
+        <div id="settingsGoalsList"></div>
+        <button class="goal-add-btn" id="settingsAddGoalBtn">➕ Новая цель</button>
+        <div class="settings-hint">Цели — это отдельные копилки с ручным пополнением. Не связаны с балансом, чтобы не путать учёт.</div>
+    </div>
+
+
     <div class="settings-section">
         <h3>🔑 GitHub-токен</h3>
         <div class="settings-row">
@@ -242,6 +256,21 @@
 
 <div class="footer">Данные из stats2.json · Синхронизация с GitHub · Курс из rate.json</div>
 </div>
+
+<div class="modal-overlay" id="goalEditModal">
+<div class="modal">
+    <div class="modal-header"><h2 id="goalEditTitle">🎯 Новая цель</h2><button class="modal-close" id="closeGoalEditModal">×</button></div>
+    <div class="modal-body">
+        <div class="form-row"><label>Иконка</label><div class="goal-icon-picker" id="goalIconPicker"></div></div>
+        <div class="form-row"><label>Название цели</label><input type="text" id="goalName" placeholder="Например: На машину"></div>
+        <div class="form-row"><label>Целевая сумма (₽)</label><input type="number" id="goalTarget" placeholder="500000" step="1000"></div>
+        <div class="form-row"><label>Уже накоплено (₽)</label><input type="number" id="goalSaved" placeholder="0" step="1000"></div>
+        <div class="form-row"><label>Срок (необязательно)</label><input type="date" id="goalDeadline"></div>
+    </div>
+    <div class="modal-footer"><button class="modal-btn cancel" id="cancelGoalEditBtn">Отмена</button><button class="modal-btn save" id="saveGoalBtn">Сохранить</button></div>
+</div>
+</div>
+
 
 <div class="modal-overlay" id="budgetEditModal">
 <div class="modal">
@@ -303,6 +332,25 @@
     <div class="modal-footer"><button class="modal-btn cancel" id="cancelTemplateEditBtn">Отмена</button><button class="modal-btn save" id="saveTemplateBtn">Сохранить</button></div>
 </div>
 </div>
+
+<div class="modal-overlay" id="goalDepositModal">
+<div class="modal">
+    <div class="modal-header"><h2 id="goalDepositTitle">➕ Пополнить цель</h2><button class="modal-close" id="closeGoalDepositModal">×</button></div>
+    <div class="modal-body">
+        <div class="settings-row" style="border-bottom:none;padding-bottom:0;margin-bottom:10px">
+            <span class="label">Сейчас накоплено</span>
+            <span class="value" id="goalDepositCurrent">0 ₽</span>
+        </div>
+        <div class="form-row"><label>Добавить к накопленному (₽)</label><input type="number" id="goalDepositAmount" placeholder="10000" step="1000"></div>
+        <div class="settings-hint">Отрицательное число — чтобы уменьшить (например, если забрал деньги).</div>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-btn cancel" id="cancelGoalDepositBtn">Отмена</button>
+        <button class="modal-btn save" id="saveGoalDepositBtn">Пополнить</button>
+    </div>
+</div>
+</div>
+
 
 <div class="modal-overlay" id="tokenModal">
 <div class="modal">
