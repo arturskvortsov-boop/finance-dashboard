@@ -97,7 +97,16 @@
         <div class="collapsible-header" data-target="transactionsContent"><h3>📋 История транзакций</h3><span class="toggle open">▼</span></div>
         <div class="collapsible-content open" id="transactionsContent">
             <div class="transactions">
+                <div class="tx-filters">
+                    <input type="text" id="txSearch" placeholder="🔍 Поиск по категории или комментарию">
+                    <div class="tx-type-filter">
+                        <button class="tx-type-btn active" data-txtype="all">Все</button>
+                        <button class="tx-type-btn" data-txtype="income">💰 Доходы</button>
+                        <button class="tx-type-btn" data-txtype="expense">💸 Расходы</button>
+                    </div>
+                </div>
                 <div class="tx-list" id="transactionList"></div>
+                <div class="tx-count" id="txCount"></div>
             </div>
         </div>
     </div>
