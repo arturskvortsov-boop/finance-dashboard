@@ -356,3 +356,14 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .goal-icon-picker{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
 .goal-icon-btn{width:38px;height:38px;border-radius:10px;background:var(--card-2);border:1px solid var(--border);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;font-family:inherit;transition:all .15s}
 .goal-icon-btn.active{border-color:var(--accent);background:var(--accent-bg)}
+/* ===== CBR RATE ===== */
+.cbr-rate-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;transition:background .25s ease,border-color .25s ease}
+.cbr-rate-card .cbr-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.cbr-rate-card .cbr-label{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);font-weight:500;margin-bottom:3px}
+.cbr-rate-card .cbr-value{font-size:1.15rem;font-weight:700;color:var(--text)}
+.cbr-rate-card .cbr-diff{font-size:0.85rem;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--green-bg);color:var(--green)}
+.cbr-rate-card .cbr-diff.negative{background:var(--red-bg);color:var(--red)}
+.cbr-rate-card .cbr-market{font-size:0.78rem;color:var(--text-muted)}
+.cbr-rate-card .cbr-market strong{color:var(--accent);font-weight:600}
+.cbr-rate-card .cbr-updated{font-size:0.68rem;color:var(--text-dim);margin-top:6px;text-align:right}
+.cbr-rate-card .cbr-loading{color:var(--text-dim);font-size:0.78rem;text-align:center;padding:8px 0}
