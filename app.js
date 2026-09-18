@@ -271,7 +271,7 @@ function renderDashboard(txs,period){
 
     $('totalIncomeRubOnly').textContent=s.rubIncome.toLocaleString('ru-RU')+' ₽';
     $('totalExpenseRubOnly').textContent=s.rubExpense.toLocaleString('ru-RU')+' ₽';
-$('totalIncomeUsd').textContent=Math.round(s.totalIncomeUsdEq).toLocaleString('ru-RU')+' $';
+    $('totalIncomeUsd').textContent=Math.round(s.totalIncomeUsdEq).toLocaleString('ru-RU')+' $';
     $('totalExpenseUsd').textContent=Math.round(s.totalExpenseUsdEq).toLocaleString('ru-RU')+' $';
     if($('balanceUsd'))$('balanceUsd').textContent=s.netUsd.toFixed(2)+' $';
     $('netIncome').textContent=s.netRub.toLocaleString('ru-RU')+' ₽';
@@ -980,14 +980,61 @@ $('settingsImportInput').addEventListener('change',function(e){
 });
 $('settingsClearBtn').addEventListener('click',function(){clearAllDataConfirm();});
 
-/* Navigation */
+/* ===== TX SEARCH & FILTER ===== */
+var txSearchInput=$('txSearch');
+if(txSearchInput){
+    txSearchInput.addEventListener('input',function(){
+        currentTxSearch=this.value;
+        if(dataLoaded)updateWithFilter(currentFilter);
+    });
+}
+var txTypeBtns=document.querySelectorAll('.tx-type-btn');
+for(var i=0;i<txTypeBtns.length;i++){
+    (function(b){
+        b.addEventListener('click',function(){
+            for(var j=0;j<txTypeBtns.length;j++)txTypeBtns[j].classList.remove('active');
+            this.classList.add('active');
+            currentTxTypeFilter=this.dataset.txtype;
+            if(dataLoaded)updateWithFilter(currentFilter);
+        });
+    })(txTypeBtns[i]);
+}
+
+/* ===== NAVIGATION ===== */
 var navTabs=document.querySelectorAll('.nav-tab');
-function switchPage(page){
+var pageOrder=['dashboard','currency','settings'];
+
+function switchPage(page, direction){
+    var currentPage='';
+    for(var i=0;i<navTabs.length;i++){
+        if(navTabs[i].classList.contains('active'))currentPage=navTabs[i].dataset.page;
+    }
+    if(currentPage===page&&!direction)return;
+
+    if(!direction&&currentPage){
+        var oi=pageOrder.indexOf(currentPage);
+        var ni=pageOrder.indexOf(page);
+        if(oi>=0&&ni>=0&&oi!==ni)direction=ni>oi?'left':'right';
+    }
+    if(!direction)direction='left';
+
     for(var i=0;i<navTabs.length;i++)navTabs[i].classList.toggle('active',navTabs[i].dataset.page===page);
-    var pgDash=$('pageDashboard'),pgCur=$('pageCurrency'),pgSet=$('pageSettings');
-    if(pgDash)pgDash.classList.toggle('active',page==='dashboard');
-    if(pgCur)pgCur.classList.toggle('active',page==='currency');
-    if(pgSet)pgSet.classList.toggle('active',page==='settings');
+
+    var pgMap={dashboard:$('pageDashboard'),currency:$('pageCurrency'),settings:$('pageSettings')};
+    var next=pgMap[page];
+    if(!next)return;
+
+    for(var k in pgMap){
+        if(!pgMap.hasOwnProperty(k))continue;
+        pgMap[k].classList.remove('active');
+        pgMap[k].classList.remove('page-enter-left');
+        pgMap[k].classList.remove('page-enter-right');
+    }
+
+    next.classList.add('active');
+    next.classList.add(direction==='left'?'page-enter-right':'page-enter-left');
+    void next.offsetWidth;
+
     if(page==='currency'){
         setTimeout(function(){
             if(rateHistoryChart){try{rateHistoryChart.resize();}catch(e){}}
@@ -1009,28 +1056,8 @@ for(var i=0;i<navTabs.length;i++){
 }
 var usdQuick=$('bcUsdQuick');
 if(usdQuick)usdQuick.addEventListener('click',function(){switchPage('currency');});
-/* ===== TX SEARCH & FILTER ===== */
-var txSearchInput=$('txSearch');
-if(txSearchInput){
-    txSearchInput.addEventListener('input',function(){
-        currentTxSearch=this.value;
-        if(dataLoaded)updateWithFilter(currentFilter);
-    });
-}
-var txTypeBtns=document.querySelectorAll('.tx-type-btn');
-for(var i=0;i<txTypeBtns.length;i++){
-    (function(b){
-        b.addEventListener('click',function(){
-            for(var j=0;j<txTypeBtns.length;j++)txTypeBtns[j].classList.remove('active');
-            this.classList.add('active');
-            currentTxTypeFilter=this.dataset.txtype;
-            if(dataLoaded)updateWithFilter(currentFilter);
-        });
-    })(txTypeBtns[i]);
-}
 
 /* ===== SWIPE NAVIGATION ===== */
-var pageOrder=['dashboard','currency','settings'];
 var swipeStartX=0,swipeStartY=0,swipeActive=false;
 document.addEventListener('touchstart',function(e){
     if(e.touches.length!==1){swipeActive=false;return;}
@@ -1053,9 +1080,11 @@ document.addEventListener('touchend',function(e){
     for(var i=0;i<navTabs.length;i++)if(navTabs[i].classList.contains('active'))cur=navTabs[i].dataset.page;
     var idx=pageOrder.indexOf(cur);
     if(idx<0)return;
-    if(dx<0&&idx<pageOrder.length-1)switchPage(pageOrder[idx+1]);
-    else if(dx>0&&idx>0)switchPage(pageOrder[idx-1]);
+    if(dx<0&&idx<pageOrder.length-1)switchPage(pageOrder[idx+1],'left');
+    else if(dx>0&&idx>0)switchPage(pageOrder[idx-1],'right');
 },{passive:true});
+
+/* ===== ANIMATED NUMBERS ===== */
 function animateValue(el,target,suffix,decimals,prefixPositive){
     if(!el)return;
     suffix=suffix||'';decimals=decimals||0;
@@ -1087,7 +1116,7 @@ function animateCurrencyNumbers(){
     animateValue($('rateProfit'),rateDiff,' ₽',0,true);
 }
 
-/* START */
+/* ===== START ===== */
 var savedRate=loadRate();
 if(savedRate){
     currentUsdRate=savedRate;
@@ -1106,6 +1135,8 @@ loadData(true).then(function(loaded){
 }).then(function(){
     setTimeout(drawRateHistoryChart,500);
     startFreshnessTimer();
+    updateTokenStatus();
+    renderSettingsStats();
     var lastRateEntry = rateHistory[rateHistory.length - 1];
     var stale = !lastRateEntry || (Date.now() - lastRateEntry.date.getTime()) > 12 * 60 * 60 * 1000;
     if (stale) setTimeout(function() { updateRateFromAPI(); }, 1200);
