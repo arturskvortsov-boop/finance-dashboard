@@ -148,25 +148,36 @@ function markSynced(){
 function getLastSync(){
     try{var s=localStorage.getItem(LAST_SYNC_KEY);return s?parseInt(s,10):0;}catch(e){return 0;}
 }
-
+function timeAgo(ts){
+    if(!ts)return '—';
+    var diff=Date.now()-ts;
+    var mins=Math.floor(diff/60000);
+    if(mins<1)return 'только что';
+    if(mins<60)return mins+' мин назад';
+    if(mins<1440)return Math.floor(mins/60)+' ч назад';
+    return Math.floor(mins/1440)+' дн назад';
+}
 function updateFreshness(){
     var el=$('dataFreshness');
     if(!el)return;
     var ts=getLastSync();
-    if(!ts){el.textContent='';return;}
-    var diff=Date.now()-ts;
-    var mins=Math.floor(diff/60000);
-    var txt;
-    if(mins<1)txt='только что';
-    else if(mins<60)txt=mins+' мин назад';
-    else if(mins<1440)txt=Math.floor(mins/60)+' ч назад';
-    else txt=Math.floor(mins/1440)+' дн назад';
-    el.textContent='· обновлено '+txt;
+    el.textContent=ts?'· обновлено '+timeAgo(ts):'';
+}
+function renderRateFreshness(){
+    var el=$('rateFreshness');
+    if(!el)return;
+    if(!rateHistory.length){el.textContent='Курс не загружен';return;}
+    var last=rateHistory[rateHistory.length-1];
+    el.textContent='Обновлён '+timeAgo(last.date.getTime());
 }
 function startFreshnessTimer(){
     if(freshnessTimer)clearInterval(freshnessTimer);
-    freshnessTimer=setInterval(updateFreshness,60000);
+    freshnessTimer=setInterval(function(){
+        updateFreshness();
+        renderRateFreshness();
+    },60000);
     updateFreshness();
+    renderRateFreshness();
 }
 
 function pad(n){return n<10?'0'+n:''+n;}
@@ -430,6 +441,7 @@ function updateRateFromAPI(){
                 drawRateHistoryChart();
             }
             markSynced();
+            renderRateFreshness();
             pushRateToGitHub();
         })
         .catch(function(e) {
@@ -475,7 +487,7 @@ function pushRateToGitHub(){
         });
     })
     .then(function(r) { if (!r.ok) throw new Error('PUT: ' + r.status); return r.json(); })
-    .then(function() { $('fileStatus').textContent = '✅ rate.json обновлён (' + rateHistory.length + ')'; markSynced(); return true; })
+    .then(function() { $('fileStatus').textContent = '✅ rate.json обновлён (' + rateHistory.length + ')'; markSynced(); renderRateFreshness(); return true; })
     .catch(function(e) { $('fileStatus').textContent = '❌ rate.json: ' + e.message; return false; });
 }
 
@@ -519,6 +531,7 @@ function loadRateHistoryFromServer(showStatus){
                 $('usdRateInput').value=history[history.length-1].rate.toFixed(2);
                 if(showStatus)$('fileStatus').textContent='✅ Курс: '+history.length+' записей';
                 drawRateHistoryChart();
+                renderRateFreshness();
                 return true;
             }
             throw new Error('empty');
@@ -530,6 +543,7 @@ function loadRateHistoryFromServer(showStatus){
                 setRate(stored[stored.length-1].rate);
                 $('usdRateInput').value=stored[stored.length-1].rate.toFixed(2);
                 drawRateHistoryChart();
+                renderRateFreshness();
                 return true;
             }
             return false;
@@ -656,6 +670,124 @@ function startAutoUpdate(){
     },60000);
 }
 
+/* ===== SETTINGS PAGE ===== */
+function updateTokenStatus(){
+    var el=$('tokenStatus');
+    if(!el)return;
+    var t=getToken();
+    if(t){
+        el.textContent='✓ '+t.slice(0,7)+'...'+t.slice(-4);
+        el.style.color='#86efac';
+    } else {
+        el.textContent='не задан';
+        el.style.color='#8b9bb5';
+    }
+}
+
+function renderSettingsStats(){
+    if($('settingsTxCount'))$('settingsTxCount').textContent=allTransactions.length;
+    if($('settingsRateCount'))$('settingsRateCount').textContent=rateHistory.length;
+    if($('settingsLastSync')){
+        var ts=getLastSync();
+        $('settingsLastSync').textContent=ts?timeAgo(ts):'—';
+    }
+}
+
+function exportAllData(){
+    if(!allTransactions.length&&!rateHistory.length){alert('Нет данных для экспорта');return;}
+    var data={
+        version:1,
+        exportedAt:new Date().toISOString(),
+        currentUsdRate:currentUsdRate,
+        transactions:allTransactions.map(function(tx){
+            return {type:tx.type,date:tx.date.toISOString(),usd:tx.usd,rub:tx.rub,category:tx.category,note:tx.note};
+        }),
+        rateHistory:rateHistory.map(function(h){
+            return {date:h.date.toISOString(),rate:h.rate};
+        })
+    };
+    var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    var d=new Date();
+    var ds=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+    a.href=url;
+    a.download='finance-backup-'+ds+'.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    $('fileStatus').textContent='💾 Экспортировано: '+allTransactions.length+' транзакций';
+}
+
+function importAllData(file){
+    var reader=new FileReader();
+    reader.onload=function(e){
+        try{
+            var data=JSON.parse(e.target.result);
+            var txs=[];
+            if(data.transactions&&Array.isArray(data.transactions)){
+                txs=data.transactions.map(function(t){
+                    return {type:t.type,date:new Date(t.date),usd:t.usd||0,rub:t.rub||0,category:t.category||'Без категории',note:t.note||'-'};
+                });
+            } else if(data.text&&typeof data.text==='string'){
+                txs=parseData(JSON.stringify(data));
+            } else {
+                throw new Error('Неверный формат файла');
+            }
+            if(!txs.length){alert('Файл не содержит транзакций');return;}
+            if(!confirm('Импортировать '+txs.length+' транзакций?\nТекущие данные будут заменены.'))return;
+
+            allTransactions=txs;
+            saveTransactions(allTransactions);
+
+            if(data.rateHistory&&Array.isArray(data.rateHistory)){
+                rateHistory=data.rateHistory.map(function(h){return {date:new Date(h.date),rate:h.rate};});
+                saveRateHistory(rateHistory);
+                if(rateHistory.length){
+                    setRate(rateHistory[rateHistory.length-1].rate);
+                    $('usdRateInput').value=rateHistory[rateHistory.length-1].rate.toFixed(2);
+                    drawRateHistoryChart();
+                    renderRateFreshness();
+                }
+            }
+            dataLoaded=true;
+            var fb=document.querySelectorAll('.filter-btn');
+            for(var i=0;i<fb.length;i++)fb[i].classList.remove('disabled');
+            updateWithFilter(currentFilter);
+            renderSettingsStats();
+            $('fileStatus').textContent='✅ Импортировано: '+txs.length;
+        } catch(err){
+            $('fileStatus').textContent='❌ Ошибка импорта: '+err.message;
+            alert('Не удалось импортировать файл:\n'+err.message);
+        }
+    };
+    reader.readAsText(file);
+}
+
+function clearAllDataConfirm(){
+    if(!confirm('Удалить ВСЕ данные (транзакции и историю курса)?\n\nЭто действие нельзя отменить. Рекомендуем сначала сделать экспорт.'))return;
+    if(!confirm('Точно удалить? Нажмите OK для подтверждения.'))return;
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(RATE_STORAGE_KEY);
+    localStorage.removeItem(RATE_HISTORY_KEY);
+    localStorage.removeItem(LAST_SYNC_KEY);
+    allTransactions=[];rateHistory=[];dataLoaded=false;
+    $('dashboard').classList.add('hidden');
+    $('emptyState').classList.remove('hidden');
+    var fb=document.querySelectorAll('.filter-btn');
+    for(var i=0;i<fb.length;i++)fb[i].classList.add('disabled');
+    if(expensePieChart){expensePieChart.destroy();expensePieChart=null;}
+    if(incomePieChart){incomePieChart.destroy();incomePieChart=null;}
+    if(rateHistoryChart){rateHistoryChart.destroy();rateHistoryChart=null;}
+    if(autoUpdateTimer){clearInterval(autoUpdateTimer);autoUpdateTimer=null;}
+    renderSettingsStats();
+    updateFreshness();
+    renderRateFreshness();
+    $('fileStatus').textContent='🗑️ Очищено';
+}
+
+/* ===== СОБЫТИЯ ===== */
 var filterBtns=document.querySelectorAll('.filter-btn');
 for(var i=0;i<filterBtns.length;i++){
     (function(btn){
@@ -771,6 +903,7 @@ $('saveTokenBtn').addEventListener('click',function(){
     setToken(t);
     $('tokenModal').classList.remove('open');
     unlockBackground();
+    updateTokenStatus();
     $('fileStatus').textContent='✅ Токен сохранён';
 });
 
@@ -790,17 +923,43 @@ $('expenseChartBox').addEventListener('click',function(){openCategoryDetail('exp
 $('closeCatDetailModal').addEventListener('click',closeCatDetail);
 $('catDetailModal').addEventListener('click',function(e){if(e.target===this)closeCatDetail();});
 
+/* Settings handlers */
+$('settingsTokenBtn').addEventListener('click',function(){
+    $('githubTokenInput').value=getToken();
+    $('tokenModal').classList.add('open');
+    lockBackground();
+});
+$('settingsClearTokenBtn').addEventListener('click',function(){
+    if(!getToken()){alert('Токен не задан');return;}
+    if(!confirm('Удалить сохранённый GitHub-токен?'))return;
+    localStorage.removeItem(TOKEN_KEY);
+    updateTokenStatus();
+    $('fileStatus').textContent='🔑 Токен удалён';
+});
+$('settingsExportBtn').addEventListener('click',function(){exportAllData();});
+$('settingsImportBtn').addEventListener('click',function(){$('settingsImportInput').click();});
+$('settingsImportInput').addEventListener('change',function(e){
+    if(e.target.files&&e.target.files[0]){importAllData(e.target.files[0]);e.target.value='';}
+});
+$('settingsClearBtn').addEventListener('click',function(){clearAllDataConfirm();});
+
+/* Navigation */
 var navTabs=document.querySelectorAll('.nav-tab');
 function switchPage(page){
     for(var i=0;i<navTabs.length;i++)navTabs[i].classList.toggle('active',navTabs[i].dataset.page===page);
-    var pgDash=$('pageDashboard'),pgCur=$('pageCurrency');
+    var pgDash=$('pageDashboard'),pgCur=$('pageCurrency'),pgSet=$('pageSettings');
     if(pgDash)pgDash.classList.toggle('active',page==='dashboard');
     if(pgCur)pgCur.classList.toggle('active',page==='currency');
+    if(pgSet)pgSet.classList.toggle('active',page==='settings');
     if(page==='currency'){
         setTimeout(function(){
             if(rateHistoryChart){try{rateHistoryChart.resize();}catch(e){}}
             animateCurrencyNumbers();
+            renderRateFreshness();
         },80);
+    } else if(page==='settings'){
+        updateTokenStatus();
+        renderSettingsStats();
     } else {
         setTimeout(function(){
             if(incomePieChart){try{incomePieChart.resize();}catch(e){}}
@@ -844,6 +1003,7 @@ function animateCurrencyNumbers(){
     animateValue($('rateProfit'),rateDiff,' ₽',0,true);
 }
 
+/* START */
 var savedRate=loadRate();
 if(savedRate){
     currentUsdRate=savedRate;
