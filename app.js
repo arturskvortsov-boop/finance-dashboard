@@ -1007,8 +1007,9 @@ function animateCurrencyNumbers(){
     if(!dataLoaded||!allTransactions.length)return;
     var s=computeStats(filterTransactions(allTransactions,currentFilter));
     animateValue($('currencyHeroUsd'),s.netUsd,' $',2);
-    animateValue($('totalIncomeUsd'),s.usdIncome,' $',0);
-    animateValue($('totalExpenseUsd'),s.usdExpense,' $',0);
+    animateValue($('totalIncomeUsd'),s.totalIncomeUsdEq,' $',0);
+    animateValue($('totalExpenseUsd'),s.totalExpenseUsdEq,' $',0);
+    if($('balanceUsd'))animateValue($('balanceUsd'),s.netUsd,' $',2);
     var rateDiff=0;
     for(var i=0;i<allTransactions.length;i++){var t=allTransactions[i];if(t.usd>0)rateDiff+=t.usd*currentUsdRate-t.rub;}
     animateValue($('rateProfit'),rateDiff,' ₽',0,true);
