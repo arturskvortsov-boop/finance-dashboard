@@ -23,6 +23,7 @@ var TOKEN_KEY='githubPersonalToken';
 var LAST_SYNC_KEY='lastSyncTime';
 var THEME_KEY='appTheme';
 var TEMPLATES_KEY='financeTemplates';
+var BUDGETS_KEY='financeBudgets';
 
 var CATEGORIES_INCOME=['💰 Зарплата','🗓 Продажа','🎁 Подарок','💵 Другое'];
 var CATEGORIES_EXPENSE=['🚘 Автомобиль','🍔 Еда','🏚️ Ипотека','☕️ Кафе','🎢 Развлечения','🛍 Покупки','💊 Здоровье','🏠 Коммуналка','📱 Связь','📚 Образование','💸 Другое'];
@@ -32,6 +33,7 @@ var COLORS=['#93c5fd','#a5b4fc','#c4b5fd','#f9a8d4','#fbcfe8','#fcd34d','#86efac
 var allTransactions=[];
 var rateHistory=[];
 var templates=[];
+var budgets=[];
 var currentFilter='month';
 var dataLoaded=false;
 var currentUsdRate=85.00;
@@ -43,6 +45,7 @@ var currentTxSearch='';
 var currentTxTypeFilter='all';
 var editingTemplateId=null;
 var currentTplType='income';
+var editingBudgetCategory=null;
 var scrollY=0;
 var currentTheme='dark';
 
@@ -189,6 +192,8 @@ function getToken(){return localStorage.getItem(TOKEN_KEY)||'';}
 function setToken(t){localStorage.setItem(TOKEN_KEY,t);}
 function saveTemplates(){try{localStorage.setItem(TEMPLATES_KEY,JSON.stringify(templates));}catch(e){}}
 function loadTemplates(){try{var s=localStorage.getItem(TEMPLATES_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
+function saveBudgets(){try{localStorage.setItem(BUDGETS_KEY,JSON.stringify(budgets));}catch(e){}}
+function loadBudgets(){try{var s=localStorage.getItem(BUDGETS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 
 function markSynced(){
     try{localStorage.setItem(LAST_SYNC_KEY,String(Date.now()));}catch(e){}
@@ -429,6 +434,7 @@ function renderDashboard(txs,period){
 
     renderInsights(txs,period);
     drawBalanceHistoryChart(txs);
+    renderBudgets();
     $('dashboard').classList.remove('hidden');
     $('emptyState').classList.add('hidden');
 }
@@ -545,7 +551,7 @@ function updateRateFromAPI(){
         .then(function(res) {
             setRate(res.rate);
             $('usdRateInput').value = res.rate.toFixed(2);
-            $('fileStatus').textContent = '✅ Курс: 1 USD = ' + res.rate.toFixed(2) + ' ₽';
+            $('fileStatus').textContent = '✅ Курс: 1 USD =show ' + res.rate.toFixed(2) + ' ₽';
             var now = new Date();
             var alreadyToday = rateHistory.some(function(h) {
                 return h.date.toDateString() === now.toDateString() && Math.abs(h.rate - res.rate) < 0.001;
@@ -568,9 +574,10 @@ function updateRateFromAPI(){
 }
 
 function pushRateToGitHub(){
-    var token = getToken();
+    var token =Status getToken();
     if (!token) {
-        $('fileStatus').textContent = '⚠️ Курс обновлён локально. Для синхронизации нужен токен.';
+        $('fileStatus').){
+text   Content = '⚠️ Курс if обновлён локально. Для синхронизации нужен токен(.';
         return Promise.resolve(false);
     }
     var lines = rateHistory.map(function(h) {
@@ -611,8 +618,7 @@ function pushRateToGitHub(){
     .catch(function(e) { $('fileStatus').textContent = '❌ rate.json: ' + e.message; return false; });
 }
 
-function loadData(showStatus){
-    if(showStatus)$('fileStatus').textContent='⏳ Загрузка...';
+function loadData(showStatus)$('fileStatus').textContent='⏳ Загрузка...';
     return fetch('stats2.json?t='+Date.now(),{cache:'no-store'})
         .then(function(r){if(!r.ok)throw new Error('not found');return r.text();})
         .then(function(txt){
@@ -993,6 +999,217 @@ function deleteTemplate(id){
     $('fileStatus').textContent='🗑️ Шаблон удалён';
 }
 
+/* ===== BUDGETS ===== */
+function getCurrentMonthExpenses(){
+    var now=new Date();
+    var monthStart=new Date(now.getFullYear(),now.getMonth(),1);
+    var monthEnd=new Date(now.getFullYear(),now.getMonth()+1,1);
+    var map={};
+    for(var i=0;i<allTransactions.length;i++){
+        var tx=allTransactions[i];
+        if(tx.type!=='expense')continue;
+        if(tx.date<monthStart||tx.date>=monthEnd)continue;
+        var c=tx.category||'Без категории';
+        map[c]=(map[c]||0)+tx.rub;
+    }
+    return map;
+}
+
+function renderBudgets(){
+    var block=$('budgetsBlock');
+    var listEl=$('budgetsList');
+    if(!block||!listEl)return;
+
+    if(!budgets.length){
+        block.classList.add('hidden');
+        return;
+    }
+    block.classList.remove('hidden');
+
+    var now=new Date();
+    var monthNames=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+    if($('budgetsMonthLabel')){
+        $('budgetsMonthLabel').textContent=monthNames[now.getMonth()]+' '+now.getFullYear();
+    }
+
+    var expenses=getCurrentMonthExpenses();
+    listEl.innerHTML='';
+
+    var sorted=budgets.slice().sort(function(a,b){return a.category.localeCompare(b.category);});
+
+    for(var i=0;i<sorted.length;i++){
+        var b=sorted[i];
+        var spent=expenses[b.category]||0;
+        var limit=b.limit||0;
+        var pct=limit>0?(spent/limit)*100:0;
+        var pctCapped=Math.min(pct,100);
+        var remaining=limit-spent;
+
+        var cls='safe';
+        if(pct>=90)cls='danger';
+        else if(pct>=70)cls='warn';
+
+        var item=document.createElement('div');
+        item.className='budget-item';
+
+        var row=document.createElement('div');
+        row.className='budget-row';
+        var catEl=document.createElement('span');
+        catEl.className='budget-cat';
+        catEl.textContent=b.category;
+        var nums=document.createElement('span');
+        nums.className='budget-nums'+(pct>=90?' over':'');
+        nums.textContent=Math.round(spent).toLocaleString('ru-RU')+' / '+Math.round(limit).toLocaleString('ru-RU')+' ₽';
+        row.appendChild(catEl);
+        row.appendChild(nums);
+
+        var bar=document.createElement('div');
+        bar.className='budget-bar';
+        var fill=document.createElement('div');
+        fill.className='budget-bar-fill '+cls;
+        fill.style.width=pctCapped.toFixed(1)+'%';
+        bar.appendChild(fill);
+
+        var sub=document.createElement('div');
+        sub.className='budget-sub';
+        var leftSpan=document.createElement('span');
+        if(remaining<0){
+            leftSpan.className='over-text';
+            leftSpan.textContent='превышен на '+Math.abs(remaining).toLocaleString('ru-RU')+' ₽';
+        } else {
+            leftSpan.className='left-text';
+            leftSpan.textContent='осталось '+remaining.toLocaleString('ru-RU')+' ₽';
+        }
+        var pctSpan=document.createElement('span');
+        pctSpan.textContent=Math.round(pct)+'%';
+        sub.appendChild(leftSpan);
+        sub.appendChild(pctSpan);
+
+        item.appendChild(row);
+        item.appendChild(bar);
+        item.appendChild(sub);
+        listEl.appendChild(item);
+    }
+}
+
+function renderSettingsBudgetsList(){
+    var container=$('settingsBudgetsList');
+    if(!container)return;
+    container.innerHTML='';
+
+    if(!budgets.length){
+        var empty=document.createElement('div');
+        empty.className='template-empty';
+        empty.textContent='Бюджеты не заданы.\nДобавьте первый, нажав кнопку ниже.';
+        container.appendChild(empty);
+        return;
+    }
+
+    for(var i=0;i<budgets.length;i++){
+        var b=budgets[i];
+        var item=document.createElement('div');
+        item.className='budget-manage-item';
+        var info=document.createElement('div');
+        info.className='bmi-info';
+        var catEl=document.createElement('div');
+        catEl.className='bmi-cat';
+        catEl.textContent=b.category;
+        var limEl=document.createElement('div');
+        limEl.className='bmi-limit';
+        limEl.textContent='Лимит: '+Math.round(b.limit).toLocaleString('ru-RU')+' ₽ / мес';
+        info.appendChild(catEl);
+        info.appendChild(limEl);
+        item.appendChild(info);
+
+        var actions=document.createElement('div');
+        actions.className='bmi-actions';
+        var eBtn=document.createElement('button');
+        eBtn.textContent='✏️';
+        (function(cat){eBtn.addEventListener('click',function(){openBudgetEditModal(cat);});})(b.category);
+        var dBtn=document.createElement('button');
+        dBtn.textContent='🗑️';
+        (function(cat){dBtn.addEventListener('click',function(){deleteBudget(cat);});})(b.category);
+        actions.appendChild(eBtn);
+        actions.appendChild(dBtn);
+        item.appendChild(actions);
+        container.appendChild(item);
+    }
+}
+
+function openBudgetEditModal(category){
+    editingBudgetCategory=category||null;
+    var title=$('budgetEditTitle');
+    var sel=$('budgetCategory');
+    sel.innerHTML='';
+    for(var i=0;i<CATEGORIES_EXPENSE.length;i++){
+        var o=document.createElement('option');
+        o.value=CATEGORIES_EXPENSE[i];
+        o.textContent=CATEGORIES_EXPENSE[i];
+        sel.appendChild(o);
+    }
+    if(category){
+        title.textContent='✏️ Редактировать бюджет';
+        sel.value=category;
+        sel.disabled=true;
+        for(var i=0;i<budgets.length;i++){
+            if(budgets[i].category===category){
+                $('budgetLimit').value=budgets[i].limit;
+                break;
+            }
+        }
+    } else {
+        title.textContent='🎯 Новый бюджет';
+        sel.disabled=false;
+        $('budgetLimit').value='';
+    }
+    $('budgetEditModal').classList.add('open');
+    lockBackground();
+}
+
+function closeBudgetEditModal(){
+    $('budgetEditModal').classList.remove('open');
+    editingBudgetCategory=null;
+    unlockBackground();
+}
+
+function saveBudget(){
+    var category=$('budgetCategory').value;
+    var limit=parseFloat($('budgetLimit').value)||0;
+    if(!category){alert('Выберите категорию');return;}
+    if(limit<=0){alert('Введите корректный лимит');return;}
+
+    if(editingBudgetCategory){
+        for(var i=0;i<budgets.length;i++){
+            if(budgets[i].category===editingBudgetCategory){
+                budgets[i].limit=limit;
+                break;
+            }
+        }
+        $('fileStatus').textContent='✏️ Бюджет обновлён';
+    } else {
+        var exists=false;
+        for(var i=0;i<budgets.length;i++){
+            if(budgets[i].category===category){exists=true;break;}
+        }
+        if(exists){alert('Для этой категории бюджет уже задан');return;}
+        budgets.push({category:category,limit:limit});
+        $('fileStatus').textContent='➕ Бюджет добавлен';
+    }
+    saveBudgets();
+    renderBudgets();
+    renderSettingsBudgetsList();
+    closeBudgetEditModal();
+}
+
+function deleteBudget(category){
+    if(!confirm('Удалить бюджет для «'+category+'»?'))return;
+    budgets=budgets.filter(function(b){return b.category!==category;});
+    saveBudgets();
+    renderBudgets();
+    renderSettingsBudgetsList();
+    $('fileStatus').textContent='🗑️ Бюджет удалён';
+}
+
 /* ===== EXPORT / IMPORT ===== */
 function exportAllDataCSV(){
     if(!allTransactions.length){alert('Нет транзакций для экспорта');return;}
@@ -1021,16 +1238,17 @@ function exportAllDataCSV(){
 }
 
 function exportAllData(){
-    if(!allTransactions.length&&!rateHistory.length&&!templates.length){alert('Нет данных для экспорта');return;}
+    if(!allTransactions.length&&!rateHistory.length&&!templates.length&&!budgets.length){alert('Нет данных для экспорта');return;}
     var data={
-        version:2,
+        version:3,
         exportedAt:new Date().toISOString(),
         currentUsdRate:currentUsdRate,
         transactions:allTransactions.map(function(tx){
             return {type:tx.type,date:tx.date.toISOString(),usd:tx.usd,rub:tx.rub,category:tx.category,note:tx.note};
         }),
         rateHistory:rateHistory.map(function(h){return {date:h.date.toISOString(),rate:h.rate};}),
-        templates:templates.slice()
+        templates:templates.slice(),
+        budgets:budgets.slice()
     };
     var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
     var url=URL.createObjectURL(blob);
@@ -1086,6 +1304,14 @@ function importAllData(file){
                 saveTemplates();
                 renderTemplatesList('settingsTemplatesList','settings');
             }
+            if(data.budgets&&Array.isArray(data.budgets)){
+                budgets=data.budgets.map(function(b){
+                    return {category:b.category||'💸 Другое',limit:b.limit||0};
+                }).filter(function(b){return b.limit>0;});
+                saveBudgets();
+                renderBudgets();
+                renderSettingsBudgetsList();
+            }
             dataLoaded=true;
             var fb=document.querySelectorAll('.filter-btn');
             for(var i=0;i<fb.length;i++)fb[i].classList.remove('disabled');
@@ -1101,14 +1327,15 @@ function importAllData(file){
 }
 
 function clearAllDataConfirm(){
-    if(!confirm('Удалить ВСЕ данные (транзакции, курсы, шаблоны)?\n\nЭто действие нельзя отменить.'))return;
+    if(!confirm('Удалить ВСЕ данные (транзакции, курсы, шаблоны, бюджеты)?\n\nЭто действие нельзя отменить.'))return;
     if(!confirm('Точно удалить? Нажмите OK для подтверждения.'))return;
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(RATE_STORAGE_KEY);
     localStorage.removeItem(RATE_HISTORY_KEY);
     localStorage.removeItem(LAST_SYNC_KEY);
     localStorage.removeItem(TEMPLATES_KEY);
-    allTransactions=[];rateHistory=[];templates=[];dataLoaded=false;
+    localStorage.removeItem(BUDGETS_KEY);
+    allTransactions=[];rateHistory=[];templates=[];budgets=[];dataLoaded=false;
     $('dashboard').classList.add('hidden');
     $('emptyState').classList.remove('hidden');
     var fb=document.querySelectorAll('.filter-btn');
@@ -1120,6 +1347,8 @@ function clearAllDataConfirm(){
     if(autoUpdateTimer){clearInterval(autoUpdateTimer);autoUpdateTimer=null;}
     renderSettingsStats();
     renderTemplatesList('settingsTemplatesList','settings');
+    renderSettingsBudgetsList();
+    if($('budgetsBlock'))$('budgetsBlock').classList.add('hidden');
     updateFreshness();
     renderRateFreshness();
     $('fileStatus').textContent='🗑️ Очищено';
@@ -1223,6 +1452,12 @@ $('saveTxBtn').addEventListener('click',function(){
     updateWithFilter(currentFilter);
     closeTxModal();
 });
+
+/* Budgets events */
+$('settingsAddBudgetBtn').addEventListener('click',function(){openBudgetEditModal(null);});
+$('closeBudgetEditModal').addEventListener('click',closeBudgetEditModal);
+$('cancelBudgetEditBtn').addEventListener('click',closeBudgetEditModal);
+$('saveBudgetBtn').addEventListener('click',saveBudget);
 
 /* Templates events */
 $('quickAddBtn').addEventListener('click',function(){openQuickAddModal();});
@@ -1396,6 +1631,7 @@ function switchPage(page,direction){
         updateTokenStatus();
         renderSettingsStats();
         renderTemplatesList('settingsTemplatesList','settings');
+        renderSettingsBudgetsList();
     } else {
         setTimeout(function(){
             if(incomePieChart){try{incomePieChart.resize();}catch(e){}}
@@ -1471,6 +1707,7 @@ function animateCurrencyNumbers(){
 /* START */
 applyTheme(localStorage.getItem(THEME_KEY)||'dark');
 templates=loadTemplates()||[];
+budgets=loadBudgets()||[];
 
 var savedRate=loadRate();
 if(savedRate){
@@ -1481,6 +1718,7 @@ if(savedRate){
 }
 
 renderTemplatesList('settingsTemplatesList','settings');
+renderSettingsBudgetsList();
 
 loadData(true).then(function(loaded){
     if(!loaded){
