@@ -321,3 +321,38 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .budget-manage-item .bmi-actions{display:flex;gap:4px;flex-shrink:0}
 .budget-manage-item .bmi-actions button{background:transparent;border:1px solid var(--border);color:var(--text-muted);width:28px;height:28px;border-radius:8px;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;font-family:inherit}
 .budget-manage-item .bmi-actions button:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ===== GOALS ===== */
+.goals-block{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px;min-width:0}
+.goals-block h3{font-weight:500;font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.4px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.goals-block h3 .goals-count{color:var(--text-dim);font-size:0.68rem;text-transform:none;letter-spacing:0;font-weight:500}
+.goal-item{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;min-width:0;cursor:pointer;padding:6px 4px;border-radius:10px;transition:background .15s}
+.goal-item:last-child{margin-bottom:0}
+.goal-item:hover{background:var(--card-2)}
+.goal-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:0.82rem;min-width:0}
+.goal-row .goal-name{font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.goal-row .goal-nums{white-space:nowrap;flex-shrink:0;font-weight:600;color:var(--text-muted);font-size:0.72rem}
+.goal-row .goal-nums.complete{color:var(--green)}
+.goal-bar{height:8px;background:var(--card-2);border-radius:10px;overflow:hidden;position:relative}
+.goal-bar-fill{height:100%;border-radius:10px;transition:width .5s cubic-bezier(.2,.7,.3,1);background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+.goal-bar-fill.low{background:var(--red)}
+.goal-bar-fill.mid{background:var(--yellow)}
+.goal-bar-fill.high{background:linear-gradient(90deg,var(--green),#22c55e)}
+.goal-bar-fill.done{background:linear-gradient(90deg,var(--green),#86efac)}
+.goal-sub{font-size:0.68rem;color:var(--text-dim);display:flex;justify-content:space-between;gap:8px}
+.goal-sub .goal-pct{color:var(--accent);font-weight:600}
+
+.goal-manage-item{display:flex;align-items:center;gap:10px;background:var(--card-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.goal-manage-item .gmi-info{flex:1;min-width:0}
+.goal-manage-item .gmi-name{font-weight:600;font-size:0.85rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.goal-manage-item .gmi-meta{font-size:0.7rem;color:var(--text-muted);margin-top:2px}
+.goal-manage-item .gmi-actions{display:flex;gap:4px;flex-shrink:0}
+.goal-manage-item .gmi-actions button{background:transparent;border:1px solid var(--border);color:var(--text-muted);width:28px;height:28px;border-radius:8px;font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;font-family:inherit}
+.goal-manage-item .gmi-actions button:hover{border-color:var(--accent);color:var(--accent)}
+
+.goal-add-btn{width:100%;padding:10px 16px;border-radius:10px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:inherit;border:1px dashed var(--border-soft);background:transparent;color:var(--text-muted);transition:all .15s;margin-top:10px}
+.goal-add-btn:hover{border-color:var(--accent);color:var(--accent)}
+
+.goal-icon-picker{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.goal-icon-btn{width:38px;height:38px;border-radius:10px;background:var(--card-2);border:1px solid var(--border);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;font-family:inherit;transition:all .15s}
+.goal-icon-btn.active{border-color:var(--accent);background:var(--accent-bg)}
