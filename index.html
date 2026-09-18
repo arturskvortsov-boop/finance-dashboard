@@ -95,6 +95,11 @@
         <div class="top-cat-list" id="topCatList"></div>
     </div>
 
+    <div class="budgets-block hidden" id="budgetsBlock">
+        <h3>🎯 Бюджеты на месяц <span class="budgets-month" id="budgetsMonthLabel"></span></h3>
+        <div id="budgetsList"></div>
+    </div>
+
     <div class="balance-chart-box">
         <h3>📈 Динамика баланса</h3>
         <canvas id="balanceHistoryChart"></canvas>
@@ -207,6 +212,14 @@
         <div class="settings-hint">Токен хранится только в этом браузере и используется для записи данных в репозиторий GitHub.</div>
     </div>
 
+<div class="settings-section">
+        <h3>🎯 Бюджеты на месяц</h3>
+        <div id="settingsBudgetsList"></div>
+        <button class="budget-add-btn" id="settingsAddBudgetBtn">➕ Добавить бюджет</button>
+        <div class="settings-hint">Задайте лимит на категорию расходов. Прогресс будет виден на дашборде. Считается за текущий календарный месяц.</div>
+    </div>
+
+
     <div class="settings-section">
         <h3>🎨 Оформление</h3>
         <div class="theme-toggle">
@@ -229,6 +242,18 @@
 
 <div class="footer">Данные из stats2.json · Синхронизация с GitHub · Курс из rate.json</div>
 </div>
+
+<div class="modal-overlay" id="budgetEditModal">
+<div class="modal">
+    <div class="modal-header"><h2 id="budgetEditTitle">🎯 Новый бюджет</h2><button class="modal-close" id="closeBudgetEditModal">×</button></div>
+    <div class="modal-body">
+        <div class="form-row"><label>Категория расходов</label><select id="budgetCategory"></select></div>
+        <div class="form-row"><label>Лимит в рублях (на месяц)</label><input type="number" id="budgetLimit" placeholder="Например: 30000" step="100"></div>
+    </div>
+    <div class="modal-footer"><button class="modal-btn cancel" id="cancelBudgetEditBtn">Отмена</button><button class="modal-btn save" id="saveBudgetBtn">Сохранить</button></div>
+</div>
+</div>
+
 
 <div class="modal-overlay" id="txModal">
 <div class="modal">
