@@ -21,6 +21,7 @@ var RATE_STORAGE_KEY='usdRate';
 var RATE_HISTORY_KEY='rateHistory';
 var TOKEN_KEY='githubPersonalToken';
 var LAST_SYNC_KEY='lastSyncTime';
+var THEME_KEY='appTheme';
 
 var CATEGORIES_INCOME=['💰 Зарплата','🗓 Продажа','🎁 Подарок','💵 Другое'];
 var CATEGORIES_EXPENSE=['🚘 Автомобиль','🍔 Еда','🏚️ Ипотека','☕️ Кафе','🎢 Развлечения','🛍 Покупки','💊 Здоровье','🏠 Коммуналка','📱 Связь','📚 Образование','💸 Другое'];
@@ -39,6 +40,53 @@ var currentTxType='income';
 var currentTxSearch='';
 var currentTxTypeFilter='all';
 var scrollY=0;
+var currentTheme='dark';
+
+/* ===== THEME ===== */
+function getPreferredTheme(){
+    var saved=localStorage.getItem(THEME_KEY)||'dark';
+    if(saved==='auto'){
+        return (window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark';
+    }
+    return saved;
+}
+function getChartTheme(){
+    var isLight=document.documentElement.getAttribute('data-theme')==='light';
+    return isLight?{
+        text:'#161d29', textMuted:'#5d6d86', card:'#ffffff', border:'#e2e7f0',
+        accent:'#2f6fed', green:'#16a34a', red:'#dc2626', grid:'rgba(0,0,0,0.06)'
+    }:{
+        text:'#e8edf5', textMuted:'#8b9bb5', card:'#141820', border:'#232a36',
+        accent:'#93c5fd', green:'#86efac', red:'#fca5a5', grid:'rgba(255,255,255,0.05)'
+    };
+}
+function applyTheme(mode){
+    currentTheme=mode;
+    var actual=(mode==='auto')?((window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches)?'light':'dark'):mode;
+    if(actual==='light'){document.documentElement.setAttribute('data-theme','light');}
+    else{document.documentElement.removeAttribute('data-theme');}
+    var meta=$('metaThemeColor');
+    if(meta)meta.setAttribute('content',actual==='light'?'#eef1f6':'#0b0e14');
+    var tbtns=document.querySelectorAll('.theme-btn');
+    for(var i=0;i<tbtns.length;i++)tbtns[i].classList.toggle('active',tbtns[i].dataset.theme===mode);
+    redrawAllCharts();
+}
+function setTheme(mode){
+    localStorage.setItem(THEME_KEY,mode);
+    applyTheme(mode);
+}
+function redrawAllCharts(){
+    if(expensePieChart||incomePieChart){
+        var f=filterTransactions(allTransactions,currentFilter);
+        if(f.length)renderDashboard(f,currentFilter);
+    }else{
+        if(balanceHistoryChart){
+            var f2=filterTransactions(allTransactions,currentFilter);
+            drawBalanceHistoryChart(f2);
+        }
+    }
+    if(rateHistory.length)drawRateHistoryChart();
+}
 
 function lockBackground(){
     scrollY=window.scrollY||window.pageYOffset||0;
@@ -234,7 +282,7 @@ function renderInsights(txs,period){
     var totalExp=0;
     for(var i=0;i<expCat.length;i++)totalExp+=expCat[i].value;
     if(top3.length){
-        var html='<div style="font-size:0.68rem;color:#8b9bb5;margin-top:10px;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.3px;">💸 Топ-3 расходов</div>';
+        var html='<div style="font-size:0.68rem;color:var(--text-muted);margin-top:10px;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.3px;">💸 Топ-3 расходов</div>';
         for(var i=0;i<top3.length;i++){
             var pct=totalExp?((top3[i].value/totalExp)*100).toFixed(1):0;
             var medal=['🥇','🥈','🥉'][i];
@@ -297,6 +345,8 @@ function renderDashboard(txs,period){
     $('monthIncomeDisplay').textContent='↑ '+ms.totalIncomeRub.toLocaleString('ru-RU');
     $('monthExpenseDisplay').textContent='↓ '+ms.totalExpenseRub.toLocaleString('ru-RU');
 
+    var theme=getChartTheme();
+
     if(expensePieChart){expensePieChart.destroy();expensePieChart=null;}
     if(incomePieChart){incomePieChart.destroy();incomePieChart=null;}
 
@@ -304,7 +354,7 @@ function renderDashboard(txs,period){
     var incEmpty=$('incomeEmpty'); if(incEmpty)incEmpty.style.display=incCat.length?'none':'flex';
     incomePieChart=new Chart($('incomePieChart'),{
         type:'doughnut',
-        data:{labels:incCat.map(function(x){return x.label;}),datasets:[{data:incCat.map(function(x){return x.value;}),backgroundColor:COLORS.slice(0,incCat.length),borderColor:'#141820',borderWidth:2}]},
+        data:{labels:incCat.map(function(x){return x.label;}),datasets:[{data:incCat.map(function(x){return x.value;}),backgroundColor:COLORS.slice(0,incCat.length),borderColor:theme.card,borderWidth:2}]},
         options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var t=0;for(var i=0;i<c.dataset.data.length;i++)t+=c.dataset.data[i];return c.label+': '+c.parsed.toLocaleString('ru-RU')+' ₽ ('+((c.parsed/t)*100).toFixed(1)+'%)';}}}}}
     });
     var incList=$('incomeCategoryList');incList.innerHTML='';
@@ -321,7 +371,7 @@ function renderDashboard(txs,period){
     var expEmpty=$('expenseEmpty'); if(expEmpty)expEmpty.style.display=expCat.length?'none':'flex';
     expensePieChart=new Chart($('expensePieChart'),{
         type:'doughnut',
-        data:{labels:expCat.map(function(x){return x.label;}),datasets:[{data:expCat.map(function(x){return x.value;}),backgroundColor:COLORS.slice(0,expCat.length),borderColor:'#141820',borderWidth:2}]},
+        data:{labels:expCat.map(function(x){return x.label;}),datasets:[{data:expCat.map(function(x){return x.value;}),backgroundColor:COLORS.slice(0,expCat.length),borderColor:theme.card,borderWidth:2}]},
         options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var t=0;for(var i=0;i<c.dataset.data.length;i++)t+=c.dataset.data[i];return c.label+': '+c.parsed.toLocaleString('ru-RU')+' ₽ ('+((c.parsed/t)*100).toFixed(1)+'%)';}}}}}
     });
     var expList=$('expenseCategoryList');expList.innerHTML='';
@@ -448,6 +498,8 @@ function drawBalanceHistoryChart(txs){
         values.unshift(0);
     }
 
+    var theme=getChartTheme();
+
     balanceHistoryChart=new Chart(c.getContext('2d'),{
         type:'line',
         data:{
@@ -455,10 +507,10 @@ function drawBalanceHistoryChart(txs){
             datasets:[{
                 label:'Баланс, ₽',
                 data:values,
-                borderColor:'#86efac',
-                backgroundColor:'rgba(134,239,172,0.1)',
+                borderColor:theme.green,
+                backgroundColor:theme.grid,
                 borderWidth:2,
-                pointBackgroundColor:'#86efac',
+                pointBackgroundColor:theme.green,
                 pointRadius:2,
                 tension:0.25,
                 fill:true
@@ -472,12 +524,12 @@ function drawBalanceHistoryChart(txs){
                 tooltip:{callbacks:{label:function(ctx){return ctx.parsed.y.toLocaleString('ru-RU')+' ₽';}}}
             },
             scales:{
-                y:{ticks:{color:'#8b9bb5',callback:function(v){
+                y:{grid:{color:theme.grid},ticks:{color:theme.textMuted,callback:function(v){
                     if(Math.abs(v)>=1000000)return (v/1000000).toFixed(1)+'M';
                     if(Math.abs(v)>=1000)return (v/1000).toFixed(0)+'k';
                     return v;
                 }}},
-                x:{ticks:{color:'#8b9bb5',maxTicksLimit:10,maxRotation:30,autoSkip:true}}
+                x:{grid:{color:theme.grid},ticks:{color:theme.textMuted,maxTicksLimit:10,maxRotation:30,autoSkip:true}}
             }
         }
     });
@@ -488,14 +540,16 @@ function drawRateHistoryChart(){
     if(!c)return;
     if(rateHistoryChart){rateHistoryChart.destroy();rateHistoryChart=null;}
     var ctx=c.getContext('2d');
+    var theme=getChartTheme();
+
     if(rateHistory.length<2){
-        rateHistoryChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'Курс',data:[],borderColor:'#93c5fd',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b9bb5'}}}}});
+        rateHistoryChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'Курс',data:[],borderColor:theme.accent,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:theme.textMuted}}}}});
         return;
     }
     rateHistoryChart=new Chart(ctx,{
         type:'line',
-        data:{labels:rateHistory.map(function(x){return x.date.toLocaleDateString('ru-RU')+' '+x.date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});}),datasets:[{label:'Курс USD/RUB',data:rateHistory.map(function(x){return x.rate;}),borderColor:'#93c5fd',backgroundColor:'rgba(147,197,253,0.1)',borderWidth:2,pointBackgroundColor:'#93c5fd',pointRadius:2,tension:0.2,fill:true}]},
-        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8b9bb5'}},tooltip:{callbacks:{label:function(c){return c.parsed.y.toFixed(2)+' ₽';}}}},scales:{y:{ticks:{color:'#8b9bb5',callback:function(v){return v.toFixed(2)+' ₽';}}},x:{ticks:{color:'#8b9bb5',maxTicksLimit:15,maxRotation:30,autoSkip:true}}}}
+        data:{labels:rateHistory.map(function(x){return x.date.toLocaleDateString('ru-RU')+' '+x.date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});}),datasets:[{label:'Курс USD/RUB',data:rateHistory.map(function(x){return x.rate;}),borderColor:theme.accent,backgroundColor:theme.grid,borderWidth:2,pointBackgroundColor:theme.accent,pointRadius:2,tension:0.2,fill:true}]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:theme.textMuted}},tooltip:{callbacks:{label:function(c){return c.parsed.y.toFixed(2)+' ₽';}}}},scales:{y:{grid:{color:theme.grid},ticks:{color:theme.textMuted,callback:function(v){return v.toFixed(2)+' ₽';}}},x:{grid:{color:theme.grid},ticks:{color:theme.textMuted,maxTicksLimit:15,maxRotation:30,autoSkip:true}}}}
     });
 }
 
@@ -509,7 +563,8 @@ function setRate(rate){
     var diff=((rate-old)/old*100).toFixed(2);
     var rc=$('rateChangeInfo');
     rc.textContent=diff>=0?'📈 +'+diff+'%':'📉 '+diff+'%';
-    rc.style.color=diff>=0?'#86efac':'#fca5a5';
+    rc.style.background=diff>=0?'var(--green-bg)':'var(--red-bg)';
+    rc.style.color=diff>=0?'var(--green)':'var(--red)';
     updateWithFilter(currentFilter);
 }
 
@@ -742,9 +797,10 @@ function openCategoryDetail(type){
 
     if(catDetailDonut){catDetailDonut.destroy();catDetailDonut=null;}
     var colors=catList.map(function(_,i){return COLORS[i%COLORS.length];});
+    var theme=getChartTheme();
     catDetailDonut=new Chart($('catDetailDonut'),{
         type:'doughnut',
-        data:{labels:catList.map(function(x){return x.label;}),datasets:[{data:catList.map(function(x){return x.value;}),backgroundColor:colors,borderColor:'#0b0e14',borderWidth:2}]},
+        data:{labels:catList.map(function(x){return x.label;}),datasets:[{data:catList.map(function(x){return x.value;}),backgroundColor:colors,borderColor:theme.card,borderWidth:2}]},
         options:{responsive:true,maintainAspectRatio:true,cutout:'65%',plugins:{legend:{display:false},tooltip:{enabled:false}}}
     });
 
@@ -791,10 +847,10 @@ function updateTokenStatus(){
     var t=getToken();
     if(t){
         el.textContent='✓ '+t.slice(0,7)+'...'+t.slice(-4);
-        el.style.color='#86efac';
+        el.style.color='var(--green)';
     } else {
         el.textContent='не задан';
-        el.style.color='#8b9bb5';
+        el.style.color='var(--text-muted)';
     }
 }
 
@@ -1089,6 +1145,19 @@ $('settingsImportInput').addEventListener('change',function(e){
 });
 $('settingsClearBtn').addEventListener('click',function(){clearAllDataConfirm();});
 
+/* Theme buttons */
+var themeBtns=document.querySelectorAll('.theme-btn');
+for(var i=0;i<themeBtns.length;i++){
+    (function(b){
+        b.addEventListener('click',function(){setTheme(this.dataset.theme);});
+    })(themeBtns[i]);
+}
+if(window.matchMedia){
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change',function(){
+        if(currentTheme==='auto')applyTheme('auto');
+    });
+}
+
 /* ===== TX SEARCH & FILTER ===== */
 var txSearchInput=$('txSearch');
 if(txSearchInput){
@@ -1227,6 +1296,8 @@ function animateCurrencyNumbers(){
 }
 
 /* ===== START ===== */
+applyTheme(localStorage.getItem(THEME_KEY)||'dark');
+
 var savedRate=loadRate();
 if(savedRate){
     currentUsdRate=savedRate;
