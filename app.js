@@ -468,25 +468,35 @@ function pushRateToGitHub(){
     var updatedJson = JSON.stringify({ text: newText });
     var updatedB64 = btoa(unescape(encodeURIComponent(updatedJson)));
 
-    return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/rate.json', {
-        headers: { 'Authorization': 'token ' + token },
-        cache: 'no-store'
-    })
-    .then(function(r) {
-        if (r.status === 404) return { sha: null };
-        if (!r.ok) throw new Error('GET: ' + r.status);
-        return r.json();
-    })
-    .then(function(meta) {
-        var body = { message: 'Курс ' + currentUsdRate.toFixed(2) + ' ₽ (' + rateHistory.length + ')', content: updatedB64 };
-        if (meta.sha) body.sha = meta.sha;
+    function attempt(retriesLeft){
         return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/rate.json', {
-            method: 'PUT',
-            headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
+            headers: { 'Authorization': 'token ' + token },
+            cache: 'no-store'
+        })
+        .then(function(r) {
+            if (r.status === 404) return { sha: null };
+            if (!r.ok) throw new Error('GET: ' + r.status);
+            return r.json();
+        })
+        .then(function(meta) {
+            var body = { message: 'Курс ' + currentUsdRate.toFixed(2) + ' ₽ (' + rateHistory.length + ')', content: updatedB64 };
+            if (meta.sha) body.sha = meta.sha;
+            return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/rate.json', {
+                method: 'PUT',
+                headers: { 'Authorization': 'token ' + token, 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+        })
+        .then(function(r) {
+            if (r.status === 409 && retriesLeft > 0) {
+                return attempt(retriesLeft - 1);
+            }
+            if (!r.ok) throw new Error('PUT: ' + r.status);
+            return r.json();
         });
-    })
-    .then(function(r) { if (!r.ok) throw new Error('PUT: ' + r.status); return r.json(); })
+    }
+
+    return attempt(3)
     .then(function() { $('fileStatus').textContent = '✅ rate.json обновлён (' + rateHistory.length + ')'; markSynced(); renderRateFreshness(); return true; })
     .catch(function(e) { $('fileStatus').textContent = '❌ rate.json: ' + e.message; return false; });
 }
