@@ -174,6 +174,24 @@ function filterTransactions(txs,period){
     return txs.filter(function(tx){return tx.date>=start;});
 }
 
+function txKey(tx){
+    return tx.type+'|'+tx.date.toISOString()+'|'+tx.rub+'|'+tx.usd+'|'+(tx.category||'')+'|'+(tx.note||'');
+}
+function mergeTransactions(local, remote){
+    var seen={};
+    var merged=[];
+    for(var i=0;i<local.length;i++){
+        var k=txKey(local[i]);
+        if(!seen[k]){seen[k]=true;merged.push(local[i]);}
+    }
+    for(var i=0;i<remote.length;i++){
+        var k=txKey(remote[i]);
+        if(!seen[k]){seen[k]=true;merged.push(remote[i]);}
+    }
+    merged.sort(function(a,b){return a.date-b.date;});
+    return merged;
+}
+
 function aggregateByCategory(txs,type){
     var map={};
     for(var i=0;i<txs.length;i++){
@@ -543,7 +561,6 @@ function setRate(rate){
 
 /* ===== CBR RATE ===== */
 function fetchCbrRate(){
-    // Публичный прокси к данным ЦБ РФ, без токена, поддерживает CORS
     return fetch('https://www.cbr-xml-daily.ru/daily_json.js', { cache: 'no-store' })
         .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
         .then(function(data){
@@ -598,8 +615,6 @@ function renderCbrRate(){
         });
 }
 
-
-
 function fetchLiveRate(){
     return fetch('https://open.er-api.com/v6/latest/USD', { cache: 'no-store' })
         .then(function(r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -631,6 +646,7 @@ function updateRateFromAPI(){
             }
             markSynced();
             renderRateFreshness();
+            renderCbrRate();
             pushRateToGitHub();
         })
         .catch(function(e) {
@@ -692,9 +708,11 @@ function loadData(showStatus){
         .then(function(txt){
             var txs=parseData(txt);
             if(txs.length){
-                initData(txs);
+                var local=loadTransactions()||[];
+                var merged=mergeTransactions(local, txs);
+                initData(merged);
                 markSynced();
-                if(showStatus)$('fileStatus').textContent='✅ Загружено с GitHub: '+txs.length;
+                if(showStatus)$('fileStatus').textContent='✅ Загружено с GitHub: '+merged.length;
                 return true;
             }
             throw new Error('empty');
@@ -870,10 +888,12 @@ function startAutoUpdate(){
         fetch('stats2.json?t='+Date.now(),{cache:'no-store'})
             .then(function(r){if(!r.ok)throw 0;return r.text();})
             .then(function(txt){
-                var txs=parseData(txt);
-                if(txs.length&&txs.length!==allTransactions.length){
-                    allTransactions=txs;
-                    saveTransactions(txs);
+                var remote=parseData(txt);
+                if(!remote.length)return;
+                var merged=mergeTransactions(allTransactions, remote);
+                if(merged.length!==allTransactions.length){
+                    allTransactions=merged;
+                    saveTransactions(allTransactions);
                     updateWithFilter(currentFilter);
                 }
             })
@@ -1847,32 +1867,60 @@ $('syncBtn').addEventListener('click',function(){
     var token=getToken();
     if(!token){$('tokenModal').classList.add('open');lockBackground();return;}
     $('fileStatus').textContent='⏳ Синхронизация...';
+
     pushRateToGitHub();
-    var sorted=allTransactions.slice().sort(function(a,b){return a.date-b.date;});
-    var lines=[];
-    for(var i=0;i<sorted.length;i++){
-        var tx=sorted[i];
-        var d=pad(tx.date.getDate()),mo=pad(tx.date.getMonth()+1),y=tx.date.getFullYear(),h=pad(tx.date.getHours()),mi=pad(tx.date.getMinutes());
-        var dateStr=d+'.'+mo+'.'+y+', '+h+':'+mi;
-        var typeLabel=tx.type==='income'?'🟢 ДОХОД':'🔴 РАСХОД';
-        var usdLabel=tx.usd>0?tx.usd+' Долларов 🇺🇸':'0 Долларов 🇺🇸';
-        var rubLabel=tx.rub+' Рублей 🇷🇺';
-        lines.push(typeLabel+' | '+dateStr+' | '+usdLabel+'  -> '+rubLabel+' | '+tx.category+' | '+(tx.note||'-'));
-    }
-    var newText=lines.join('\n');
-    var updatedJson=JSON.stringify({text:newText});
-    var updatedB64=btoa(unescape(encodeURIComponent(updatedJson)));
-    fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/stats2.json',{headers:{'Authorization':'token '+token},cache:'no-store'})
-        .then(function(r){if(!r.ok)throw new Error('GET: '+r.status);return r.json();})
-        .then(function(meta){
-            return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/stats2.json',{
-                method:'PUT',
-                headers:{'Authorization':'token '+token,'Content-Type':'application/json'},
-                body:JSON.stringify({message:'Синхронизация PWA ('+allTransactions.length+')',content:updatedB64,sha:meta.sha})
-            });
+
+    // 1. Сначала подтягиваем свежий stats2 с сервера и объединяем с локальными
+    fetch('https://raw.githubusercontent.com/arturskvortsov-boop/finance-dashboard/main/stats2.json?t='+Date.now(),{cache:'no-store'})
+        .then(function(r){if(!r.ok)return null;return r.text();})
+        .catch(function(){return null;})
+        .then(function(txt){
+            var remote=txt?parseData(txt):[];
+            var merged=mergeTransactions(allTransactions, remote);
+            allTransactions=merged;
+            saveTransactions(allTransactions);
+
+            var sorted=allTransactions.slice().sort(function(a,b){return a.date-b.date;});
+            var lines=[];
+            for(var i=0;i<sorted.length;i++){
+                var tx=sorted[i];
+                var d=pad(tx.date.getDate()),mo=pad(tx.date.getMonth()+1),y=tx.date.getFullYear(),h=pad(tx.date.getHours()),mi=pad(tx.date.getMinutes());
+                var dateStr=d+'.'+mo+'.'+y+', '+h+':'+mi;
+                var typeLabel=tx.type==='income'?'🟢 ДОХОД':'🔴 РАСХОД';
+                var usdLabel=tx.usd>0?tx.usd+' Долларов 🇺🇸':'0 Долларов 🇺🇸';
+                var rubLabel=tx.rub+' Рублей 🇷🇺';
+                lines.push(typeLabel+' | '+dateStr+' | '+usdLabel+'  -> '+rubLabel+' | '+tx.category+' | '+(tx.note||'-'));
+            }
+            var newText=lines.join('\n');
+            var updatedJson=JSON.stringify({text:newText});
+            var updatedB64=btoa(unescape(encodeURIComponent(updatedJson)));
+
+            function attemptStats(retriesLeft){
+                return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/stats2.json',{headers:{'Authorization':'token '+token},cache:'no-store'})
+                    .then(function(r){if(!r.ok)throw new Error('GET: '+r.status);return r.json();})
+                    .then(function(meta){
+                        return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/stats2.json',{
+                            method:'PUT',
+                            headers:{'Authorization':'token '+token,'Content-Type':'application/json'},
+                            body:JSON.stringify({message:'Синхронизация PWA ('+allTransactions.length+')',content:updatedB64,sha:meta.sha})
+                        });
+                    })
+                    .then(function(r){
+                        if(r.status===409&&retriesLeft>0){
+                            return new Promise(function(resolve){setTimeout(resolve,500);}).then(function(){return attemptStats(retriesLeft-1);});
+                        }
+                        if(!r.ok)throw new Error('PUT: '+r.status);
+                        return r.json();
+                    });
+            }
+
+            return attemptStats(4);
         })
-        .then(function(r){if(!r.ok)throw new Error('PUT: '+r.status);return r.json();})
-        .then(function(){$('fileStatus').textContent='✅ Синхронизировано: '+allTransactions.length;markSynced();})
+        .then(function(){
+            $('fileStatus').textContent='✅ Синхронизировано: '+allTransactions.length;
+            markSynced();
+            updateWithFilter(currentFilter);
+        })
         .catch(function(e){$('fileStatus').textContent='❌ '+e.message;});
 });
 
