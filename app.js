@@ -444,9 +444,16 @@ function renderDashboard(txs,period){
     var slice=indexed.slice(0,100);
     for(var k=0;k<slice.length;k++){
         var tx=slice[k].tx;
-        var div=document.createElement('div');div.className='tx-item';
+        var div=document.createElement('div');div.className='tx-item tx-anim';
+        div.style.animationDelay=(Math.min(k,15)*0.02)+'s';
         var left=document.createElement('div');left.className='left';
-        left.innerHTML='<span class="cat">'+tx.category+'</span><span class="date">'+tx.date.toLocaleDateString('ru-RU')+' '+tx.date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+'</span>'+(tx.note&&tx.note!=='-'?'<span class="note">'+tx.note+'</span>':'');
+        var txIcon=document.createElement('div');
+        txIcon.className='tx-icon '+(tx.type==='income'?'income':'expense');
+        txIcon.textContent=getCategoryEmoji(tx.category);
+        var txInfo=document.createElement('div');txInfo.className='tx-info';
+        txInfo.innerHTML='<span class="cat">'+tx.category+'</span><span class="date">'+tx.date.toLocaleDateString('ru-RU')+' '+tx.date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+'</span>'+(tx.note&&tx.note!=='-'?'<span class="note">'+tx.note+'</span>':'');
+        left.appendChild(txIcon);
+        left.appendChild(txInfo);
         var right=document.createElement('span');
         right.className='right '+(tx.type==='income'?'income':'expense');
         right.textContent=(tx.type==='income'?'+':'-')+tx.rub.toLocaleString('ru-RU')+' ₽'+(tx.usd>0?' ('+tx.usd.toFixed(2)+' $)':'');
@@ -560,6 +567,14 @@ function setRate(rate){
     rc.style.color=diff>=0?'var(--green)':'var(--red)';
     updateWithFilter(currentFilter);
 }
+
+/* ===== CATEGORY EMOJI ===== */
+function getCategoryEmoji(cat){
+    if(!cat)return '💸';
+    var m=String(cat).trim().match(/^(\S{1,3})/);
+    return m?m[1]:'💸';
+}
+
 
 /* ===== PRIVACY MODE ===== */
 function applyHideBalance(){
