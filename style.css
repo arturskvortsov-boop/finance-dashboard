@@ -379,3 +379,12 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .bc-quick-actions .qa-income{border-color:var(--green);color:var(--green);background:var(--green-bg)}
 .bc-quick-actions .qa-expense{border-color:var(--red);color:var(--red);background:var(--red-bg)}
 .bc-quick-actions button:active{transform:scale(0.97)}
+
+/* ===== TX ICONS + ANIMATION ===== */
+.tx-item .left{display:flex;flex-direction:row;align-items:center;gap:10px;min-width:0;flex:1;overflow:hidden}
+.tx-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;background:var(--card-2);border:1px solid var(--border)}
+.tx-icon.income{background:var(--green-bg);border-color:rgba(134,239,172,0.25)}
+.tx-icon.expense{background:var(--red-bg);border-color:rgba(252,165,165,0.25)}
+.tx-info{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1;overflow:hidden}
+@keyframes txIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.tx-item.tx-anim{animation:txIn .3s cubic-bezier(.2,.7,.3,1) both}
