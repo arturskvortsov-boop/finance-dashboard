@@ -43,9 +43,12 @@
 </div>
 
 <div class="balance-card">
-    <div class="bc-row-1">
-        <span class="bc-label">Чистый баланс (RUB)</span>
-        <span class="bc-amount" id="totalBalanceRubDisplay">0 ₽</span>
+    <div class="bc-top-row">
+        <div class="bc-row-1" style="flex:1;min-width:0;flex-wrap:nowrap">
+            <span class="bc-label">Чистый баланс (RUB)</span>
+            <span class="bc-amount" id="totalBalanceRubDisplay">0 ₽</span>
+        </div>
+        <button class="bc-hide-btn" id="hideBalanceBtn" title="Скрыть суммы">👁</button>
     </div>
     <div class="bc-row-2">
         <span class="bc-period" id="periodDisplay">—</span>
@@ -54,8 +57,13 @@
             <span class="expense" id="monthExpenseDisplay">↓ 0</span>
         </div>
     </div>
+    
     <div class="bc-row-3" style="justify-content:center">
         <span class="bc-usd-quick" id="bcUsdQuick">💵 Эквивалент: <strong id="totalBalanceUsdDisplay">0 $</strong> · 1 USD = <strong id="rateInfoSmall">— ₽</strong> →</span>
+    </div>
+    <div class="bc-quick-actions">
+        <button class="qa-income" id="qaIncomeBtn">➕ Доход</button>
+        <button class="qa-expense" id="qaExpenseBtn">➖ Расход</button>
     </div>
 </div>
 
