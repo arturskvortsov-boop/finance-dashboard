@@ -2168,6 +2168,7 @@ function animateCurrencyNumbers(){
 
 /* START */
 applyTheme(localStorage.getItem(THEME_KEY)||'dark');
+try{hideBalance=(localStorage.getItem(HIDE_BALANCE_KEY)==='1');}catch(e){}
 templates=loadTemplates()||[];
 budgets=loadBudgets()||[];
 goals=loadGoals()||[];
@@ -2196,6 +2197,7 @@ loadData(true).then(function(loaded){
     startFreshnessTimer();
     updateTokenStatus();
     renderSettingsStats();
+    setTimeout(applyHideBalance,100);
     var lastRateEntry=rateHistory[rateHistory.length-1];
     var stale=!lastRateEntry||(Date.now()-lastRateEntry.date.getTime())>12*60*60*1000;
     if(stale)setTimeout(function(){updateRateFromAPI();},1200);
