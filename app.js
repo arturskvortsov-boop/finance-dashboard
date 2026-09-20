@@ -561,6 +561,50 @@ function setRate(rate){
     updateWithFilter(currentFilter);
 }
 
+/* ===== PRIVACY MODE ===== */
+function applyHideBalance(){
+    var els=[
+        'totalBalanceRubDisplay',
+        'totalBalanceUsdDisplay',
+        'monthIncomeDisplay',
+        'monthExpenseDisplay',
+        'totalIncomeRubOnly',
+        'totalExpenseRubOnly',
+        'totalIncomeUsd',
+        'totalExpenseUsd',
+        'balanceUsd',
+        'netIncome',
+        'dayIncome','dayExpense',
+        'weekIncome','weekExpense',
+        'monthIncome','monthExpense'
+    ];
+    for(var i=0;i<els.length;i++){
+        var el=$(els[i]);
+        if(!el)continue;
+        if(hideBalance){
+            el.classList.add('bc-hidden');
+        } else {
+            el.classList.remove('bc-hidden');
+        }
+    }
+    var btn=$('hideBalanceBtn');
+    if(btn){
+        btn.textContent=hideBalance?'🙈':'👁';
+        btn.classList.toggle('active',hideBalance);
+    }
+    // Также скрываем крупные суммы на вкладке "Валюта"
+    var currencyHero=$('currencyHeroUsd');
+    var details=$('usdDetails');
+    if(currencyHero)currencyHero.classList.toggle('bc-hidden',hideBalance);
+    if(details)details.classList.toggle('bc-hidden',hideBalance);
+}
+function toggleHideBalance(){
+    hideBalance=!hideBalance;
+    try{localStorage.setItem(HIDE_BALANCE_KEY, hideBalance?'1':'0');}catch(e){}
+    applyHideBalance();
+}
+
+
 /* ===== CBR RATE ===== */
 function fetchCbrRate(){
     return fetch('https://www.cbr-xml-daily.ru/daily_json.js', { cache: 'no-store' })
@@ -2054,6 +2098,15 @@ for(var i=0;i<navTabs.length;i++){
 }
 var usdQuick=$('bcUsdQuick');
 if(usdQuick)usdQuick.addEventListener('click',function(){switchPage('currency');});
+
+var hideBtn=$('hideBalanceBtn');
+if(hideBtn)hideBtn.addEventListener('click',function(e){e.stopPropagation();toggleHideBalance();});
+
+var qaInc=$('qaIncomeBtn');
+if(qaInc)qaInc.addEventListener('click',function(){openTxModal(-1,'income');});
+var qaExp=$('qaExpenseBtn');
+if(qaExp)qaExp.addEventListener('click',function(){openTxModal(-1,'expense');});
+
 
 /* Swipe */
 var swipeStartX=0,swipeStartY=0,swipeActive=false;
