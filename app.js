@@ -54,6 +54,8 @@ var editingGoalId=null;
 var currentGoalIcon='🎯';
 var scrollY=0;
 var currentTheme='dark';
+var hideBalance=false;
+var HIDE_BALANCE_KEY='hideBalance';
 
 /* ===== THEME ===== */
 function getChartTheme(){
