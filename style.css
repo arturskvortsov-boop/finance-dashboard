@@ -367,3 +367,15 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .cbr-rate-card .cbr-market strong{color:var(--accent);font-weight:600}
 .cbr-rate-card .cbr-updated{font-size:0.68rem;color:var(--text-dim);margin-top:6px;text-align:right}
 .cbr-rate-card .cbr-loading{color:var(--text-dim);font-size:0.78rem;text-align:center;padding:8px 0}
+
+/* ===== PRIVACY + QUICK ACTIONS ===== */
+.bc-top-row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.bc-hide-btn{background:transparent;border:1px solid var(--border);color:var(--text-muted);width:34px;height:34px;border-radius:10px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;font-family:inherit;transition:all .15s;flex-shrink:0}
+.bc-hide-btn:hover{border-color:var(--accent);color:var(--accent)}
+.bc-hide-btn.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
+.balance-card .bc-hidden{filter:blur(8px);user-select:none;transition:filter .25s ease;pointer-events:none}
+.bc-quick-actions{display:flex;gap:6px;margin-top:10px}
+.bc-quick-actions button{flex:1;padding:10px 14px;border-radius:10px;font-size:0.82rem;font-weight:600;cursor:pointer;border:1px solid;background:transparent;font-family:inherit;transition:all .15s;white-space:nowrap}
+.bc-quick-actions .qa-income{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+.bc-quick-actions .qa-expense{border-color:var(--red);color:var(--red);background:var(--red-bg)}
+.bc-quick-actions button:active{transform:scale(0.97)}
