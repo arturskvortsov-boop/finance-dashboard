@@ -471,8 +471,8 @@ function renderDashboard(txs,period){
     drawBalanceHistoryChart(txs);
     renderBudgets();
     renderGoals();
+    renderReminders();
     $('dashboard').classList.remove('hidden');
-    $('emptyState').classList.add('hidden');
 }
 
 function updateWithFilter(period){
@@ -617,6 +617,88 @@ function toggleHideBalance(){
     hideBalance=!hideBalance;
     try{localStorage.setItem(HIDE_BALANCE_KEY, hideBalance?'1':'0');}catch(e){}
     applyHideBalance();
+}
+
+/* ===== REMINDERS ===== */
+function templateMatchesTransaction(tpl,tx){
+    if(tpl.type!==tx.type)return false;
+    if(tpl.category!==tx.category)return false;
+    if(tpl.rub>0&&tx.rub>0){
+        var diff=Math.abs(tpl.rub-tx.rub)/tpl.rub;
+        return diff<=0.05;
+    }
+    if(tpl.usd>0&&tx.usd>0){
+        var diff=Math.abs(tpl.usd-tx.usd)/tpl.usd;
+        return diff<=0.05;
+    }
+    return false;
+}
+
+function getPendingReminders(){
+    if(!templates.length)return [];
+    var now=new Date();
+    var today=now.getDate();
+    var monthStart=new Date(now.getFullYear(),now.getMonth(),1);
+    var monthEnd=new Date(now.getFullYear(),now.getMonth()+1,1);
+    var thisMonthTxs=[];
+    for(var i=0;i<allTransactions.length;i++){
+        var tx=allTransactions[i];
+        if(tx.date>=monthStart&&tx.date<monthEnd)thisMonthTxs.push(tx);
+    }
+    var pending=[];
+    for(var i=0;i<templates.length;i++){
+        var tpl=templates[i];
+        if(!tpl.dayOfMonth||tpl.dayOfMonth<=0)continue;
+        if(today<tpl.dayOfMonth)continue;
+        if(today>tpl.dayOfMonth+3)continue;
+        var already=false;
+        for(var j=0;j<thisMonthTxs.length;j++){
+            if(templateMatchesTransaction(tpl,thisMonthTxs[j])){already=true;break;}
+        }
+        if(!already)pending.push(tpl);
+    }
+    return pending;
+}
+
+function renderReminders(){
+    var block=$('remindersBlock');
+    var list=$('remindersList');
+    if(!block||!list)return;
+    var pending=getPendingReminders();
+    if(!pending.length){
+        block.classList.add('hidden');
+        return;
+    }
+    block.classList.remove('hidden');
+    if($('remindersCount'))$('remindersCount').textContent=pending.length+' шт.';
+    list.innerHTML='';
+    for(var i=0;i<pending.length;i++){
+        var tpl=pending[i];
+        var item=document.createElement('div');
+        item.className='reminder-item';
+        var ic=document.createElement('div');
+        ic.className='reminder-icon';
+        ic.textContent=tpl.type==='income'?'💰':'📌';
+        var info=document.createElement('div');
+        info.className='reminder-info';
+        var nm=document.createElement('div');
+        nm.className='reminder-name';
+        nm.textContent=tpl.name;
+        var meta=document.createElement('div');
+        meta.className='reminder-meta';
+        var amount=(tpl.rub>0?tpl.rub.toLocaleString('ru-RU')+' ₽':tpl.usd.toFixed(2)+' $');
+        meta.textContent=(tpl.type==='income'?'Доход':'Расход')+' · '+amount+' · '+tpl.dayOfMonth+'-е число';
+        info.appendChild(nm);
+        info.appendChild(meta);
+        var btn=document.createElement('button');
+        btn.className='reminder-btn';
+        btn.textContent='Внести';
+        (function(id){btn.addEventListener('click',function(e){e.stopPropagation();applyTemplate(id);});})(tpl.id);
+        item.appendChild(ic);
+        item.appendChild(info);
+        item.appendChild(btn);
+        list.appendChild(item);
+    }
 }
 
 
