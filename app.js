@@ -1407,10 +1407,12 @@ function closeFabOutside(e){
 function openMoreSheet(){
     $('moreSheet').classList.add('open');
     $('bsOverlay').classList.add('open');
+    lockBackground();
 }
 function closeMoreSheet(){
     $('moreSheet').classList.remove('open');
     $('bsOverlay').classList.remove('open');
+    unlockBackground();
 }
 
 /* ===== EVENTS ===== */
