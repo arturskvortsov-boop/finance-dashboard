@@ -6,39 +6,19 @@
 <title>Финансовый дашборд</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" id="metaThemeColor" content="#0b0e14">
+<meta name="theme-color" content="#0b0e14">
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="container">
 
-<div class="top-bar">
-    <div class="status-row">
-        <div class="status" id="fileStatus">📂 Загрузите файл</div>
-        <div class="freshness" id="dataFreshness"></div>
-    </div>
-    <div class="actions">
-        <button id="addTxBtn" class="btn-green">➕ Добавить</button>
-        <button id="quickAddBtn" class="btn-purple">⚡ Быстрое</button>
-        <button id="refreshBtn" class="btn-neutral">🔄 Обновить</button>
-        <button id="syncBtn" class="btn-blue">☁️ Синхронизировать</button>
-    </div>
-</div>
-
-<div class="app-nav">
-    <button class="nav-tab active" data-page="dashboard">📊 Дашборд</button>
-    <button class="nav-tab" data-page="currency">💵 Валюта</button>
-    <button class="nav-tab" data-page="settings">⚙️ Настройки</button>
+<div class="top-strip">
+    <span id="fileStatus">📂 Загрузите файл</span>
+    <span id="dataFreshness"></span>
 </div>
 
 <div class="page active" id="pageDashboard">
-
-<div class="reminders-block hidden" id="remindersBlock">
-    <h3>📌 Пора внести <span class="reminders-count" id="remindersCount"></span></h3>
-    <div id="remindersList"></div>
-</div>
-
 
 <div class="filter-bar" id="filterBar">
     <button class="filter-btn disabled" data-period="day">День</button>
@@ -50,7 +30,7 @@
 
 <div class="balance-card">
     <div class="bc-top-row">
-        <div class="bc-row-1" style="flex:1;min-width:0;flex-wrap:nowrap">
+        <div class="bc-row-1" style="flex-wrap:nowrap">
             <span class="bc-label">Чистый баланс (RUB)</span>
             <span class="bc-amount" id="totalBalanceRubDisplay">0 ₽</span>
         </div>
@@ -63,7 +43,6 @@
             <span class="expense" id="monthExpenseDisplay">↓ 0</span>
         </div>
     </div>
-    
     <div class="bc-row-3" style="justify-content:center">
         <span class="bc-usd-quick" id="bcUsdQuick">💵 Эквивалент: <strong id="totalBalanceUsdDisplay">0 $</strong> · 1 USD = <strong id="rateInfoSmall">— ₽</strong> →</span>
     </div>
@@ -109,21 +88,20 @@
         <div class="top-cat-list" id="topCatList"></div>
     </div>
 
-    <div class="budgets-block hidden" id="budgetsBlock">
-        <h3>🎯 Бюджеты на месяц <span class="budgets-month" id="budgetsMonthLabel"></span></h3>
-        <div id="budgetsList"></div>
-    </div>
-    
-    
-    <div class="goals-block hidden" id="goalsBlock">
-        <h3>🎯 Цели <span class="goals-count" id="goalsCount"></span></h3>
-        <div id="goalsList"></div>
-    </div>
-
     <div class="balance-chart-box">
         <h3>📈 Динамика баланса</h3>
         <canvas id="balanceHistoryChart"></canvas>
         <div class="balance-chart-empty" id="balanceChartEmpty" style="display:none">нет данных за период</div>
+    </div>
+
+    <div class="budgets-block hidden" id="budgetsBlock">
+        <h3>🎯 Бюджеты на месяц <span class="budgets-month" id="budgetsMonthLabel"></span></h3>
+        <div id="budgetsList"></div>
+    </div>
+
+    <div class="goals-block hidden" id="goalsBlock">
+        <h3>🏆 Цели <span class="goals-count" id="goalsCount"></span></h3>
+        <div id="goalsList"></div>
     </div>
 
     <div class="collapsible">
@@ -149,13 +127,8 @@
 </div>
 
 <div class="page" id="pageCurrency">
-    <div class="currency-hero">
-        <div class="ch-label">💵 Эквивалент баланса в USD</div>
-        <div class="ch-amount" id="currencyHeroUsd">0 $</div>
-        <div class="ch-details" id="usdDetails">↑ $0 · ↓ $0</div>
-    </div>
 
-<div class="cbr-rate-card" id="cbrRateCard">
+    <div class="cbr-rate-card" id="cbrRateCard">
         <div class="cbr-top">
             <div>
                 <div class="cbr-label">🏦 Курс ЦБ РФ</div>
@@ -167,6 +140,11 @@
         <div class="cbr-updated" id="cbrUpdated"></div>
     </div>
 
+    <div class="currency-hero">
+        <div class="ch-label">💵 Эквивалент баланса в USD</div>
+        <div class="ch-amount" id="currencyHeroUsd">0 $</div>
+        <div class="ch-details" id="usdDetails">↑ $0 · ↓ $0</div>
+    </div>
 
     <div class="currency-rate-card">
         <div class="crc-top">
@@ -229,16 +207,19 @@
         <div class="settings-actions">
             <button class="settings-btn primary" id="settingsNewTemplateBtn">➕ Создать шаблон</button>
         </div>
-        <div class="settings-hint">Шаблоны для быстрого добавления повторяющихся транзакций (ипотека, зарплата, коммуналка). Хранятся локально на этом устройстве.</div>
     </div>
 
-<div class="settings-section">
-        <h3>🎯 Цели накоплений</h3>
+    <div class="settings-section">
+        <h3>🎯 Бюджеты на месяц</h3>
+        <div id="settingsBudgetsList"></div>
+        <button class="budget-add-btn" id="settingsAddBudgetBtn">➕ Добавить бюджет</button>
+    </div>
+
+    <div class="settings-section">
+        <h3>🏆 Цели накоплений</h3>
         <div id="settingsGoalsList"></div>
         <button class="goal-add-btn" id="settingsAddGoalBtn">➕ Новая цель</button>
-        <div class="settings-hint">Цели — это отдельные копилки с ручным пополнением. Не связаны с балансом, чтобы не путать учёт.</div>
     </div>
-
 
     <div class="settings-section">
         <h3>🔑 GitHub-токен</h3>
@@ -250,30 +231,11 @@
             <button class="settings-btn primary" id="settingsTokenBtn">🔑 Ввести / изменить</button>
             <button class="settings-btn neutral" id="settingsClearTokenBtn">🗑️ Удалить</button>
         </div>
-        <div class="settings-hint">Токен хранится только в этом браузере и используется для записи данных в репозиторий GitHub.</div>
-    </div>
-
-<div class="settings-section">
-        <h3>🎯 Бюджеты на месяц</h3>
-        <div id="settingsBudgetsList"></div>
-        <button class="budget-add-btn" id="settingsAddBudgetBtn">➕ Добавить бюджет</button>
-        <div class="settings-hint">Задайте лимит на категорию расходов. Прогресс будет виден на дашборде. Считается за текущий календарный месяц.</div>
-    </div>
-
-
-    <div class="settings-section">
-        <h3>🎨 Оформление</h3>
-        <div class="theme-toggle">
-            <button class="theme-btn" data-theme="auto">🌗 Авто</button>
-            <button class="theme-btn" data-theme="light">☀️ Светлая</button>
-            <button class="theme-btn active" data-theme="dark">🌙 Тёмная</button>
-        </div>
-        <div class="settings-hint">Режим «Авто» подстраивается под системную тему устройства.</div>
     </div>
 
     <div class="settings-section">
         <h3>⚠️ Опасная зона</h3>
-        <div class="settings-danger-text">Все данные (транзакции, история курса, шаблоны, токен, кэш) будут удалены. Это действие нельзя отменить.</div>
+        <div class="settings-danger-text">Все данные будут удалены. Это действие нельзя отменить.</div>
         <div class="settings-actions">
             <button class="settings-btn danger" id="settingsClearBtn">🗑️ Очистить все данные</button>
         </div>
@@ -284,33 +246,43 @@
 <div class="footer">Данные из stats2.json · Синхронизация с GitHub · Курс из rate.json</div>
 </div>
 
-<div class="modal-overlay" id="goalEditModal">
-<div class="modal">
-    <div class="modal-header"><h2 id="goalEditTitle">🎯 Новая цель</h2><button class="modal-close" id="closeGoalEditModal">×</button></div>
-    <div class="modal-body">
-        <div class="form-row"><label>Иконка</label><div class="goal-icon-picker" id="goalIconPicker"></div></div>
-        <div class="form-row"><label>Название цели</label><input type="text" id="goalName" placeholder="Например: На машину"></div>
-        <div class="form-row"><label>Целевая сумма (₽)</label><input type="number" id="goalTarget" placeholder="500000" step="1000"></div>
-        <div class="form-row"><label>Уже накоплено (₽)</label><input type="number" id="goalSaved" placeholder="0" step="1000"></div>
-        <div class="form-row"><label>Срок (необязательно)</label><input type="date" id="goalDeadline"></div>
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+    <button class="bn-home active" id="bnHomeBtn" title="Дашборд">🏠</button>
+    <div class="bn-pill">
+        <button class="bn-tab" data-page="currency"><span class="bn-emoji">💵</span><span>Валюта</span></button>
+        <button class="bn-tab" data-page="settings"><span class="bn-emoji">⚙️</span><span>Настройки</span></button>
+        <button class="bn-tab" id="bnMoreBtn"><span class="bn-emoji">⋯</span><span>Ещё</span></button>
     </div>
-    <div class="modal-footer"><button class="modal-btn cancel" id="cancelGoalEditBtn">Отмена</button><button class="modal-btn save" id="saveGoalBtn">Сохранить</button></div>
-</div>
+    <button class="bn-fab" id="bnFabBtn">+</button>
 </div>
 
+<div class="fab-fan" id="fabFan">
+    <button class="fab-item" id="fabAddTx">➕ Добавить</button>
+    <button class="fab-item" id="fabQuick">⚡ Быстрое</button>
+    <button class="fab-item" id="fabSync">☁️ Синхронизировать</button>
+    <button class="fab-item" id="fabRefresh">🔄 Обновить</button>
+</div>
 
-<div class="modal-overlay" id="budgetEditModal">
-<div class="modal">
-    <div class="modal-header"><h2 id="budgetEditTitle">🎯 Новый бюджет</h2><button class="modal-close" id="closeBudgetEditModal">×</button></div>
-    <div class="modal-body">
-        <div class="form-row"><label>Категория расходов</label><select id="budgetCategory"></select></div>
-        <div class="form-row"><label>Лимит в рублях (на месяц)</label><input type="number" id="budgetLimit" placeholder="Например: 30000" step="100"></div>
+<div class="bs-overlay" id="bsOverlay"></div>
+<div class="bottom-sheet" id="moreSheet">
+    <div class="bs-handle"></div>
+    <div class="bs-title">Ещё</div>
+    <div class="bs-grid">
+        <button class="bs-item" id="bsReminders"><span class="bs-ico">📌</span>Напоминания</button>
+        <button class="bs-item" id="bsBudgets"><span class="bs-ico">🎯</span>Бюджеты</button>
+        <button class="bs-item" id="bsGoals"><span class="bs-ico">🏆</span>Цели</button>
+        <button class="bs-item" id="bsTemplates"><span class="bs-ico">🔁</span>Шаблоны</button>
+        <button class="bs-item" id="bsSync"><span class="bs-ico">☁️</span>Синхронизация</button>
+        <button class="bs-item" id="bsRefresh"><span class="bs-ico">🔄</span>Обновить</button>
+        <button class="bs-item" id="bsExportCsv"><span class="bs-ico">📊</span>Экспорт CSV</button>
+        <button class="bs-item" id="bsExportJson"><span class="bs-ico">💾</span>Экспорт JSON</button>
+        <button class="bs-item" id="bsImport"><span class="bs-ico">📥</span>Импорт JSON</button>
+        <button class="bs-item" id="bsAbout"><span class="bs-ico">ℹ️</span>О приложении</button>
     </div>
-    <div class="modal-footer"><button class="modal-btn cancel" id="cancelBudgetEditBtn">Отмена</button><button class="modal-btn save" id="saveBudgetBtn">Сохранить</button></div>
-</div>
 </div>
 
-
+<!-- MODALS (без изменений) -->
 <div class="modal-overlay" id="txModal">
 <div class="modal">
     <div class="modal-header"><h2 id="txModalTitle">➕ Новая транзакция</h2><button class="modal-close" id="closeTxModal">×</button></div>
@@ -328,6 +300,36 @@
         <div class="form-row hidden" id="templateDayRow"><label>День месяца (1-31, необязательно)</label><input type="number" id="txTemplateDay" placeholder="Например: 5" min="1" max="31"></div>
     </div>
     <div class="modal-footer"><button class="modal-btn cancel" id="cancelTxBtn">Отмена</button><button class="modal-btn save" id="saveTxBtn">Сохранить</button></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="tokenModal">
+<div class="modal">
+    <div class="modal-header"><h2>🔑 GitHub-токен</h2><button class="modal-close" id="closeTokenModal">×</button></div>
+    <div class="modal-body">
+        <p style="color:var(--text-muted);font-size:0.78rem;margin-bottom:10px;">Вставьте Personal Access Token (права repo).</p>
+        <div class="form-row"><label>Токен</label><input type="text" id="githubTokenInput" placeholder="ghp_..." autocomplete="off"></div>
+    </div>
+    <div class="modal-footer"><button class="modal-btn cancel" id="cancelTokenBtn">Отмена</button><button class="modal-btn save" id="saveTokenBtn">Сохранить</button></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="catDetailModal">
+<div class="modal cat-detail-modal">
+    <div class="modal-header"><h2 id="catDetailTitle">Расходы</h2><button class="modal-close" id="closeCatDetailModal">×</button></div>
+    <div class="modal-body">
+        <div class="cat-detail-top">
+            <div class="cat-donut-wrap"><canvas id="catDetailDonut"></canvas>
+                <div class="cat-donut-center"><div class="cdc-amount" id="catDetailTotal">0 ₽</div><div class="cdc-label" id="catDetailTotalLabel">всего</div></div>
+            </div>
+            <div class="cat-detail-top-info">
+                <div class="cdt-label">БОЛЬШЕ ВСЕГО</div>
+                <div class="cdt-category" id="catDetailTopCat">—</div>
+                <div class="cdt-desc" id="catDetailTopDesc">—</div>
+            </div>
+        </div>
+        <div class="cat-detail-list" id="catDetailList"></div>
+    </div>
 </div>
 </div>
 
@@ -360,6 +362,31 @@
 </div>
 </div>
 
+<div class="modal-overlay" id="budgetEditModal">
+<div class="modal">
+    <div class="modal-header"><h2 id="budgetEditTitle">🎯 Новый бюджет</h2><button class="modal-close" id="closeBudgetEditModal">×</button></div>
+    <div class="modal-body">
+        <div class="form-row"><label>Категория расходов</label><select id="budgetCategory"></select></div>
+        <div class="form-row"><label>Лимит в рублях (на месяц)</label><input type="number" id="budgetLimit" placeholder="Например: 30000" step="100"></div>
+    </div>
+    <div class="modal-footer"><button class="modal-btn cancel" id="cancelBudgetEditBtn">Отмена</button><button class="modal-btn save" id="saveBudgetBtn">Сохранить</button></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="goalEditModal">
+<div class="modal">
+    <div class="modal-header"><h2 id="goalEditTitle">🏆 Новая цель</h2><button class="modal-close" id="closeGoalEditModal">×</button></div>
+    <div class="modal-body">
+        <div class="form-row"><label>Иконка</label><div class="goal-icon-picker" id="goalIconPicker"></div></div>
+        <div class="form-row"><label>Название цели</label><input type="text" id="goalName" placeholder="Например: На машину"></div>
+        <div class="form-row"><label>Целевая сумма (₽)</label><input type="number" id="goalTarget" placeholder="500000" step="1000"></div>
+        <div class="form-row"><label>Уже накоплено (₽)</label><input type="number" id="goalSaved" placeholder="0" step="1000"></div>
+        <div class="form-row"><label>Срок (необязательно)</label><input type="date" id="goalDeadline"></div>
+    </div>
+    <div class="modal-footer"><button class="modal-btn cancel" id="cancelGoalEditBtn">Отмена</button><button class="modal-btn save" id="saveGoalBtn">Сохранить</button></div>
+</div>
+</div>
+
 <div class="modal-overlay" id="goalDepositModal">
 <div class="modal">
     <div class="modal-header"><h2 id="goalDepositTitle">➕ Пополнить цель</h2><button class="modal-close" id="closeGoalDepositModal">×</button></div>
@@ -369,42 +396,11 @@
             <span class="value" id="goalDepositCurrent">0 ₽</span>
         </div>
         <div class="form-row"><label>Добавить к накопленному (₽)</label><input type="number" id="goalDepositAmount" placeholder="10000" step="1000"></div>
-        <div class="settings-hint">Отрицательное число — чтобы уменьшить (например, если забрал деньги).</div>
+        <div class="settings-hint">Отрицательное число — уменьшить.</div>
     </div>
     <div class="modal-footer">
         <button class="modal-btn cancel" id="cancelGoalDepositBtn">Отмена</button>
         <button class="modal-btn save" id="saveGoalDepositBtn">Пополнить</button>
-    </div>
-</div>
-</div>
-
-
-<div class="modal-overlay" id="tokenModal">
-<div class="modal">
-    <div class="modal-header"><h2>🔑 GitHub-токен</h2><button class="modal-close" id="closeTokenModal">×</button></div>
-    <div class="modal-body">
-        <p style="color:var(--text-muted);font-size:0.78rem;margin-bottom:10px;">Вставьте Personal Access Token (права repo).</p>
-        <div class="form-row"><label>Токен</label><input type="text" id="githubTokenInput" placeholder="ghp_..." autocomplete="off"></div>
-    </div>
-    <div class="modal-footer"><button class="modal-btn cancel" id="cancelTokenBtn">Отмена</button><button class="modal-btn save" id="saveTokenBtn">Сохранить</button></div>
-</div>
-</div>
-
-<div class="modal-overlay" id="catDetailModal">
-<div class="modal cat-detail-modal">
-    <div class="modal-header"><h2 id="catDetailTitle">Расходы</h2><button class="modal-close" id="closeCatDetailModal">×</button></div>
-    <div class="modal-body">
-        <div class="cat-detail-top">
-            <div class="cat-donut-wrap"><canvas id="catDetailDonut"></canvas>
-                <div class="cat-donut-center"><div class="cdc-amount" id="catDetailTotal">0 ₽</div><div class="cdc-label" id="catDetailTotalLabel">всего</div></div>
-            </div>
-            <div class="cat-detail-top-info">
-                <div class="cdt-label">БОЛЬШЕ ВСЕГО</div>
-                <div class="cdt-category" id="catDetailTopCat">—</div>
-                <div class="cdt-desc" id="catDetailTopDesc">—</div>
-            </div>
-        </div>
-        <div class="cat-detail-list" id="catDetailList"></div>
     </div>
 </div>
 </div>
