@@ -321,20 +321,20 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .bn-tab.active{background:var(--accent-bg);color:var(--accent)}
 .bn-tab:active{transform:scale(0.95)}
 
-.bn-fab{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent-2));border:none;display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#0b0e14;cursor:pointer;font-family:inherit;padding:0;flex-shrink:0;box-shadow:0 4px 20px rgba(147,197,253,0.35);transition:transform .25s;font-weight:300;line-height:1}
-.bn-fab:active{transform:scale(0.94)}
+.bn-fab{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#93c5fd,#c4b5fd);border:none;display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#0b0e14;cursor:pointer;font-family:inherit;padding:0;flex-shrink:0;box-shadow:0 6px 22px rgba(147,197,253,0.5),0 0 0 1px rgba(255,255,255,0.15) inset;transition:transform .25s,box-shadow .25s;font-weight:400;line-height:1}
+.bn-fab:active{transform:scale(0.92);box-shadow:0 4px 14px rgba(147,197,253,0.35),0 0 0 1px rgba(255,255,255,0.1) inset}
 .bn-fab.open{transform:rotate(45deg)}
 
 /* ===== FAB FAN ===== */
 .fab-fan{position:fixed;right:14px;bottom:calc(90px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;align-items:flex-end;z-index:899;pointer-events:none}
 .fab-fan.open{pointer-events:auto}
-.fab-item{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:999px;padding:10px 16px;color:var(--text);font-family:inherit;font-size:0.8rem;font-weight:500;cursor:pointer;white-space:nowrap;opacity:0;transform:translateY(20px) scale(0.85);transition:all .28s cubic-bezier(.2,.8,.3,1);pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,0.4)}
+.fab-item{display:flex;align-items:center;gap:8px;background:var(--card-2);border:1px solid var(--border-soft);border-radius:999px;padding:11px 18px;color:var(--text);font-family:inherit;font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;opacity:0;transform:translateY(20px) scale(0.85);transition:all .28s cubic-bezier(.2,.8,.3,1);pointer-events:none;box-shadow:0 6px 20px rgba(0,0,0,0.55),0 1px 0 rgba(255,255,255,0.05) inset}
 .fab-fan.open .fab-item{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
 .fab-fan.open .fab-item:nth-child(1){transition-delay:.04s}
 .fab-fan.open .fab-item:nth-child(2){transition-delay:.08s}
 .fab-fan.open .fab-item:nth-child(3){transition-delay:.12s}
 .fab-fan.open .fab-item:nth-child(4){transition-delay:.16s}
-.fab-item:active{transform:scale(0.96)}
+.fab-item:active{transform:scale(0.96);background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
 
 /* ===== BOTTOM SHEET ===== */
 .bottom-sheet{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top-left-radius:24px;border-top-right-radius:24px;border-top:1px solid var(--border);padding:10px 18px calc(24px + env(safe-area-inset-bottom,0px));z-index:1100;transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.8,.3,1);max-height:75vh;overflow-y:auto}
@@ -348,7 +348,7 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .bs-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1099;opacity:0;visibility:hidden;transition:all .3s}
 .bs-overlay.open{opacity:1;visibility:visible}
 
-/* ===== MODALS (без изменений) ===== */
+/* ===== MODALS ===== */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1200;display:flex;justify-content:center;align-items:center;padding:16px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .3s ease,visibility .3s ease}
 .modal-overlay.open{opacity:1;visibility:visible;pointer-events:auto}
 .modal{background:var(--card);border:1px solid var(--border);border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;transform:translateY(20px) scale(.97);transition:transform .35s cubic-bezier(.2,.7,.3,1)}
