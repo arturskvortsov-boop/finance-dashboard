@@ -109,6 +109,22 @@ function unlockBackground(){
 
 function parseNumber(s){var m=String(s).replace(/\s/g,'').replace(',','.').match(/(\d+\.?\d*)/);return m?parseFloat(m[1]):0;}
 
+function normalizeCategory(cat){
+    if(!cat)return 'Без категории';
+    var s=String(cat).replace(/[\uFE0E\uFE0F]/g,'');
+    var trimmed=s.replace(/\s*[\(\[].*?[\)\]]\s*/g,' ').replace(/\s+/g,' ').trim();
+    if(trimmed.length>=2) s=trimmed;
+    return s;
+}
+function roundRub(n){
+    if(isNaN(n))return 0;
+    return Math.round(n);
+}
+function roundUsd(n){
+    if(isNaN(n))return 0;
+    return Math.round(n*100)/100;
+}
+
 function parseLine(line){
     try{
         var p=line.split('|');
@@ -124,7 +140,7 @@ function parseLine(line){
         var dateObj=new Date(+dm[3],+dm[2]-1,+dm[1],+dm[4],+dm[5]);
         var as=amtP.split('->');
         if(as.length!==2)return null;
-        return {type:type,date:dateObj,dateStr:dm[3]+'-'+dm[2]+'-'+dm[1],usd:parseNumber(as[0]),rub:parseNumber(as[1]),category:catP||'Без категории',note:noteP};
+        return {type:type,date:dateObj,dateStr:dm[3]+'-'+dm[2]+'-'+dm[1],usd:parseNumber(as[0]),rub:parseNumber(as[1]),category:normalizeCategory(catP),note:noteP};
     }catch(e){return null;}
 }
 
@@ -340,18 +356,18 @@ function renderDashboard(txs,period){
     }
     var d=calc(dS),w=calc(wS),m=calc(mS);
 
-    $('totalBalanceRubDisplay').textContent=s.netRub.toLocaleString('ru-RU')+' ₽';
-    $('totalBalanceUsdDisplay').textContent=s.netUsd.toFixed(2)+' $';
-    $('usdDetails').textContent='↑ $'+s.totalIncomeUsdEq.toFixed(0)+' · ↓ $'+s.totalExpenseUsdEq.toFixed(0);
-    if($('currencyHeroUsd'))$('currencyHeroUsd').textContent=s.netUsd.toFixed(2)+' $';
+    $('totalBalanceRubDisplay').textContent=roundRub(s.netRub).toLocaleString('ru-RU')+' ₽';
+    $('totalBalanceUsdDisplay').textContent=roundUsd(s.netUsd).toFixed(2)+' $';
+    $('usdDetails').textContent='↑ $'+Math.round(s.totalIncomeUsdEq)+' · ↓ $'+Math.round(s.totalExpenseUsdEq);
+    if($('currencyHeroUsd'))$('currencyHeroUsd').textContent=roundUsd(s.netUsd).toFixed(2)+' $';
     $('rateInfoSmall').textContent='1 USD = '+currentUsdRate.toFixed(2)+' ₽';
 
-    $('totalIncomeRubOnly').textContent=s.rubIncome.toLocaleString('ru-RU')+' ₽';
-    $('totalExpenseRubOnly').textContent=s.rubExpense.toLocaleString('ru-RU')+' ₽';
+    $('totalIncomeRubOnly').textContent=roundRub(s.rubIncome).toLocaleString('ru-RU')+' ₽';
+    $('totalExpenseRubOnly').textContent=roundRub(s.rubExpense).toLocaleString('ru-RU')+' ₽';
     $('totalIncomeUsd').textContent=Math.round(s.totalIncomeUsdEq).toLocaleString('ru-RU')+' $';
     $('totalExpenseUsd').textContent=Math.round(s.totalExpenseUsdEq).toLocaleString('ru-RU')+' $';
-    if($('balanceUsd'))$('balanceUsd').textContent=s.netUsd.toFixed(2)+' $';
-    $('netIncome').textContent=s.netRub.toLocaleString('ru-RU')+' ₽';
+    if($('balanceUsd'))$('balanceUsd').textContent=roundUsd(s.netUsd).toFixed(2)+' $';
+    $('netIncome').textContent=roundRub(s.netRub).toLocaleString('ru-RU')+' ₽';
     $('recordCount').textContent=txs.length;
 
     var rateDiff=0;
