@@ -599,24 +599,63 @@ function drawBalanceHistoryChart(txs){
     for(var i=0;i<sorted.length;i++){
         var tx=sorted[i];
         var key=tx.date.getFullYear()+'-'+pad(tx.date.getMonth()+1)+'-'+pad(tx.date.getDate());
-        if(!byDay[key])byDay[key]=0;
+        if(!byDay[key])byDay[key]={income:0,expense:0};
         var rub=tx.rub;if(tx.usd>0)rub=tx.usd*currentUsdRate;
-        byDay[key]+=(tx.type==='income'?rub:-rub);
+        if(tx.type==='income')byDay[key].income+=rub;
+        else byDay[key].expense+=rub;
     }
     var keys=Object.keys(byDay).sort();
-    var labels=[],values=[],running=0;
+    var labels=[],incomeVals=[],expenseVals=[];
     for(var i=0;i<keys.length;i++){
-        running+=byDay[keys[i]];
         var parts=keys[i].split('-');
         labels.push(parts[2]+'.'+parts[1]);
-        values.push(roundRub(running));
+        incomeVals.push(roundRub(byDay[keys[i]].income));
+        expenseVals.push(roundRub(byDay[keys[i]].expense));
     }
-    if(values.length===1){labels.unshift('');values.unshift(0);}
+    if(labels.length===1){labels.unshift('');incomeVals.unshift(0);expenseVals.unshift(0);}
     var theme=getChartTheme();
     balanceHistoryChart=new Chart(c.getContext('2d'),{
         type:'line',
-        data:{labels:labels,datasets:[{label:'Баланс, ₽',data:values,borderColor:theme.green,backgroundColor:theme.grid,borderWidth:2,pointBackgroundColor:theme.green,pointRadius:2,tension:0.25,fill:true}]},
-        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return roundRub(ctx.parsed.y).toLocaleString('ru-RU')+' ₽';}}}},scales:{y:{grid:{color:theme.grid},ticks:{color:theme.textMuted,callback:function(v){if(Math.abs(v)>=1000000)return (v/1000000).toFixed(1)+'M';if(Math.abs(v)>=1000)return (v/1000).toFixed(0)+'k';return v;}}},x:{grid:{color:theme.grid},ticks:{color:theme.textMuted,maxTicksLimit:10,maxRotation:30,autoSkip:true}}}}
+        data:{
+            labels:labels,
+            datasets:[
+                {
+                    label:'Доход',
+                    data:incomeVals,
+                    borderColor:theme.green,
+                    backgroundColor:'rgba(134,239,172,0.08)',
+                    borderWidth:2,
+                    pointBackgroundColor:theme.green,
+                    pointRadius:2,
+                    tension:0.25,
+                    fill:true
+                },
+                {
+                    label:'Расход',
+                    data:expenseVals,
+                    borderColor:theme.red,
+                    backgroundColor:'rgba(252,165,165,0.08)',
+                    borderWidth:2,
+                    pointBackgroundColor:theme.red,
+                    pointRadius:2,
+                    tension:0.25,
+                    fill:true
+                }
+            ]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            interaction:{mode:'index',intersect:false},
+            plugins:{
+                legend:{display:true,labels:{color:theme.textMuted,boxWidth:10,boxHeight:10,font:{size:10},padding:8}},
+                tooltip:{callbacks:{label:function(ctx){return ctx.dataset.label+': '+roundRub(ctx.parsed.y).toLocaleString('ru-RU')+' ₽';}}}
+            },
+            scales:{
+                y:{grid:{color:theme.grid},ticks:{color:theme.textMuted,callback:function(v){if(Math.abs(v)>=1000000)return (v/1000000).toFixed(1)+'M';if(Math.abs(v)>=1000)return (v/1000).toFixed(0)+'k';return v;}}},
+                x:{grid:{color:theme.grid},ticks:{color:theme.textMuted,maxTicksLimit:10,maxRotation:30,autoSkip:true}}
+            }
+        }
     });
 }
 function drawRateHistoryChart(){
