@@ -318,8 +318,8 @@ function renderInsights(txs,period){
     var pctSave=s.totalIncomeRub>0?Math.round((s.netRub/s.totalIncomeRub)*100):0;
 
     grid.innerHTML=
-        '<div class="insight-item income"><div class="it-label">📊 Доход / день</div><div class="it-value">'+Math.round(avgIncome).toLocaleString('ru-RU')+' ₽</div><div class="it-sub">Всего: '+s.totalIncomeRub.toLocaleString('ru-RU')+' ₽</div></div>'+
-        '<div class="insight-item expense"><div class="it-label">📉 Расход / день</div><div class="it-value">'+Math.round(avgExpense).toLocaleString('ru-RU')+' ₽</div><div class="it-sub">Всего: '+s.totalExpenseRub.toLocaleString('ru-RU')+' ₽</div></div>'+
+        '<div class="insight-item income"><div class="it-label">📊 Доход / день</div><div class="it-value">'+Math.round(avgIncome).toLocaleString('ru-RU')+' ₽</div><div class="it-sub">Всего: '+roundRub(s.totalIncomeRub).toLocaleString('ru-RU')+' ₽</div></div>'+
+        '<div class="insight-item expense"><div class="it-label">📉 Расход / день</div><div class="it-value">'+Math.round(avgExpense).toLocaleString('ru-RU')+' ₽</div><div class="it-sub">Всего: '+roundRub(s.totalExpenseRub).toLocaleString('ru-RU')+' ₽</div></div>'+
         '<div class="insight-item"><div class="it-label">💾 Сбережения</div><div class="it-value">'+pctSave+'%</div><div class="it-sub">'+(pctSave>=30?'Отлично!':pctSave>=15?'Хорошо':pctSave>=0?'Можно лучше':'Расход > доход')+'</div></div>';
 
     var expCat=aggregateByCategory(txs,'expense');
@@ -372,7 +372,9 @@ function renderDashboard(txs,period){
 
     var rateDiff=0;
     for(var i=0;i<txs.length;i++){if(txs[i].usd>0)rateDiff+=txs[i].usd*currentUsdRate-txs[i].rub;}
-    $('rateProfit').textContent=(rateDiff>=0?'+':'')+rateDiff.toLocaleString('ru-RU')+' ₽';
+    $('rateProfit').textContent=(rateDiff>=0?'+':'')+roundRub(rateDiff).toLocaleString('ru-RU')+' ₽';
+
+    function fmt(n){return roundRub(n).toLocaleString('ru-RU');}
 
     function fmt(n){return n.toLocaleString('ru-RU');}
     $('dayIncome').textContent=(d.totalIncomeRub>=0?'+':'')+fmt(d.totalIncomeRub);
@@ -2315,5 +2317,27 @@ loadData(true).then(function(loaded){
     var stale=!lastRateEntry||(Date.now()-lastRateEntry.date.getTime())>12*60*60*1000;
     if(stale)setTimeout(function(){updateRateFromAPI();},1200);
 });
+
+/* ===== ОДНОРАЗОВАЯ МИГРАЦИЯ КАТЕГОРИЙ ===== */
+try{
+    var MIGRATION_KEY='categoryMigration_v1';
+    if(localStorage.getItem(MIGRATION_KEY)!=='1'){
+        var stored=loadTransactions();
+        if(stored&&stored.length){
+            var changed=0;
+            for(var mi=0;mi<stored.length;mi++){
+                var oldCat=stored[mi].category;
+                var newCat=normalizeCategory(oldCat);
+                if(oldCat!==newCat){stored[mi].category=newCat;changed++;}
+            }
+            if(changed>0){
+                allTransactions=stored;
+                saveTransactions(allTransactions);
+                updateWithFilter(currentFilter);
+            }
+        }
+        localStorage.setItem(MIGRATION_KEY,'1');
+    }
+}catch(e){}
 
 })();
