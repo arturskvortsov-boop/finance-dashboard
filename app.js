@@ -21,6 +21,9 @@ var RATE_STORAGE_KEY='usdRate';
 var RATE_HISTORY_KEY='rateHistory';
 var TOKEN_KEY='githubPersonalToken';
 var LAST_SYNC_KEY='lastSyncTime';
+var TEMPLATES_FILE='templates.json';
+var BUDGETS_FILE='budgets.json';
+var GOALS_FILE='goals.json';
 var TEMPLATES_KEY='financeTemplates';
 var BUDGETS_KEY='financeBudgets';
 var GOALS_KEY='financeGoals';
@@ -1033,6 +1036,94 @@ function startAutoUpdate(){
     },60000);
 }
 
+/* ===== СИНХРОНИЗАЦИЯ JSON-ФАЙЛОВ ===== */
+function fetchJsonFile(path){
+    return fetch('https://raw.githubusercontent.com/arturskvortsov-boop/finance-dashboard/main/'+path+'?t='+Date.now(),{cache:'no-store'})
+        .then(function(r){if(r.status===404)return null;if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+        .catch(function(){return null;});
+}
+function putJsonFile(path,data,message){
+    var token=getToken();
+    if(!token)return Promise.resolve(false);
+    var json=JSON.stringify(data,null,2);
+    var b64=btoa(unescape(encodeURIComponent(json)));
+    function attempt(retriesLeft){
+        return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/'+path,{headers:{'Authorization':'token '+token},cache:'no-store'})
+            .then(function(r){if(r.status===404)return{sha:null};if(!r.ok)throw new Error('GET: '+r.status);return r.json();})
+            .then(function(meta){
+                var body={message:message||('Update '+path),content:b64};
+                if(meta.sha)body.sha=meta.sha;
+                return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/'+path,{
+                    method:'PUT',
+                    headers:{'Authorization':'token '+token,'Content-Type':'application/json'},
+                    body:JSON.stringify(body)
+                });
+            })
+            .then(function(r){
+                if(r.status===409&&retriesLeft>0){return new Promise(function(res){setTimeout(res,600);}).then(function(){return attempt(retriesLeft-1);});}
+                if(!r.ok)throw new Error('PUT: '+r.status);
+                return r.json();
+            });
+    }
+    return attempt(4);
+}
+function mergeById(local,remote){
+    var seen={};
+    var merged=[];
+    for(var i=0;i<local.length;i++){if(local[i].id)seen[local[i].id]=true;merged.push(local[i]);}
+    for(var i=0;i<remote.length;i++){if(remote[i].id&&!seen[remote[i].id]){seen[remote[i].id]=true;merged.push(remote[i]);}}
+    return merged;
+}
+function mergeBudgets(local,remote){
+    var seen={};
+    var merged=[];
+    for(var i=0;i<local.length;i++){if(local[i].category)seen[local[i].category]=true;merged.push(local[i]);}
+    for(var i=0;i<remote.length;i++){if(remote[i].category&&!seen[remote[i].category]){seen[remote[i].category]=true;merged.push(remote[i]);}}
+    return merged;
+}
+function syncTemplates(){
+    if(!getToken())return Promise.resolve(false);
+    return putJsonFile(TEMPLATES_FILE,templates,'Шаблоны ('+templates.length+')').catch(function(){return false;});
+}
+function syncBudgets(){
+    if(!getToken())return Promise.resolve(false);
+    return putJsonFile(BUDGETS_FILE,budgets,'Бюджеты ('+budgets.length+')').catch(function(){return false;});
+}
+function syncGoals(){
+    if(!getToken())return Promise.resolve(false);
+    return putJsonFile(GOALS_FILE,goals,'Цели ('+goals.length+')').catch(function(){return false;});
+}
+function loadTemplatesFromServer(){
+    return fetchJsonFile(TEMPLATES_FILE).then(function(data){
+        if(!data||!Array.isArray(data))return false;
+        templates=mergeById(templates,data);
+        saveTemplates();
+        return true;
+    });
+}
+function loadBudgetsFromServer(){
+    return fetchJsonFile(BUDGETS_FILE).then(function(data){
+        if(!data||!Array.isArray(data))return false;
+        budgets=mergeBudgets(budgets,data);
+        saveBudgets();
+        return true;
+    });
+}
+function loadGoalsFromServer(){
+    return fetchJsonFile(GOALS_FILE).then(function(data){
+        if(!data||!Array.isArray(data))return false;
+        goals=mergeById(goals,data);
+        saveGoals();
+        return true;
+    });
+}
+function syncAllExtras(){
+    if(!getToken())return;
+    syncTemplates();
+    syncBudgets();
+    syncGoals();
+}
+
 /* ===== АВТОСИНХРОНИЗАЦИЯ ===== */
 function scheduleAutoSync(){
     if(!getToken())return;
@@ -1040,6 +1131,15 @@ function scheduleAutoSync(){
     if(autoSyncTimer)clearTimeout(autoSyncTimer);
     autoSyncTimer=setTimeout(function(){silentSync();},2000);
 }
+
+var extrasSyncTimer=null;
+function scheduleSyncExtras(){
+    if(!getToken())return;
+    if(extrasSyncTimer)clearTimeout(extrasSyncTimer);
+    extrasSyncTimer=setTimeout(function(){syncAllExtras();},1500);
+}
+
+
 function silentSync(){
     if(!getToken())return;
     if(!allTransactions.length)return;
@@ -1193,6 +1293,7 @@ function saveTemplate(){
         $('fileStatus').textContent='➕ Шаблон создан';
     }
     saveTemplates();renderTemplatesList('settingsTemplatesList','settings');closeTemplateEditModal();
+    scheduleSyncExtras();
 }
 function deleteTemplate(id){
     var tpl=null;for(var i=0;i<templates.length;i++)if(templates[i].id===id){tpl=templates[i];break;}
@@ -1202,6 +1303,7 @@ function deleteTemplate(id){
     saveTemplates();renderTemplatesList('settingsTemplatesList','settings');
     if($('quickAddModal').classList.contains('open'))renderTemplatesList('quickAddTemplatesList','quick');
     $('fileStatus').textContent='🗑️ Шаблон удалён';
+    scheduleSyncExtras();
 }
 
 /* ===== BUDGETS ===== */
@@ -1307,12 +1409,14 @@ function saveBudget(){
         $('fileStatus').textContent='➕ Бюджет добавлен';
     }
     saveBudgets();renderBudgets();renderSettingsBudgetsList();closeBudgetEditModal();
+    scheduleSyncExtras();
 }
 function deleteBudget(category){
     if(!confirm('Удалить бюджет для «'+category+'»?'))return;
     budgets=budgets.filter(function(b){return b.category!==category;});
     saveBudgets();renderBudgets();renderSettingsBudgetsList();
     $('fileStatus').textContent='🗑️ Бюджет удалён';
+    scheduleSyncExtras();
 }
 
 /* ===== GOALS ===== */
@@ -1420,6 +1524,7 @@ function saveGoal(){
         $('fileStatus').textContent='➕ Цель создана';
     }
     saveGoals();renderGoals();renderSettingsGoalsList();closeGoalEditModal();
+    scheduleSyncExtras();
 }
 function deleteGoal(id){
     var g=null;for(var i=0;i<goals.length;i++)if(goals[i].id===id){g=goals[i];break;}
@@ -1428,6 +1533,7 @@ function deleteGoal(id){
     goals=goals.filter(function(x){return x.id!==id;});
     saveGoals();renderGoals();renderSettingsGoalsList();
     $('fileStatus').textContent='🗑️ Цель удалена';
+    scheduleSyncExtras();
 }
 function openGoalDepositModal(id){
     var g=null;for(var i=0;i<goals.length;i++)if(goals[i].id===id){g=goals[i];break;}
@@ -1447,6 +1553,7 @@ function saveGoalDeposit(){
     g.saved=Math.max(0,g.saved+amount);
     saveGoals();renderGoals();renderSettingsGoalsList();closeGoalDepositModal();
     $('fileStatus').textContent='✅ '+g.name+': '+roundRub(g.saved).toLocaleString('ru-RU')+' ₽';
+    scheduleSyncExtras();
 }
 
 /* ===== EXPORT / IMPORT ===== */
@@ -1685,8 +1792,8 @@ function doPullRefresh(){
     }
     Promise.resolve()
         .then(function(){return loadData(false);})
-        .then(function(){return loadRateHistoryFromServer(false);})
-        .then(function(){renderCbrRate();return new Promise(function(r){setTimeout(r,300);});})
+        .then(function(){return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer()]);})
+        .then(function(){renderTemplatesList('settingsTemplatesList','settings');renderSettingsBudgetsList();renderSettingsGoalsList();renderCbrRate();return new Promise(function(r){setTimeout(r,300);});})
         .then(function(){
             pullRefreshing=false;
             if(ind){
@@ -1757,7 +1864,15 @@ function doSync(){
 }
 function doRefresh(){
     showToast('🔄 Обновление...',1500);
-    loadData(false).then(function(){return loadRateHistoryFromServer(false);}).then(function(){renderCbrRate();showToast('✅ Данные обновлены');});
+    loadData(false)
+        .then(function(){return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer()]);})
+        .then(function(){
+            renderTemplatesList('settingsTemplatesList','settings');
+            renderSettingsBudgetsList();
+            renderSettingsGoalsList();
+            renderCbrRate();
+            showToast('✅ Данные обновлены');
+        });
 }
 
 /* ===== EVENTS ===== */
@@ -2025,6 +2140,9 @@ document.addEventListener('visibilitychange',function(){
     if(document.visibilityState==='hidden'){
         silentSync();
     } else if(document.visibilityState==='visible'){
+        loadTemplatesFromServer().then(function(){renderTemplatesList('settingsTemplatesList','settings');});
+        loadBudgetsFromServer().then(function(){renderSettingsBudgetsList();});
+        loadGoalsFromServer().then(function(){renderSettingsGoalsList();});
         fetch('stats2.json?t='+Date.now(),{cache:'no-store'})
             .then(function(r){if(!r.ok)throw 0;return r.text();})
             .then(function(txt){
@@ -2064,7 +2182,7 @@ loadData(true).then(function(loaded){
         $('emptyState').classList.remove('hidden');
         if(!$('fileStatus').textContent||$('fileStatus').textContent==='⏳ Загрузка...')$('fileStatus').textContent='📂 Загрузите JSON или проверьте GitHub';
     }
-    return loadRateHistoryFromServer(false);
+    return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer()]);
 }).then(function(){
     setTimeout(drawRateHistoryChart,500);
     startFreshnessTimer();
