@@ -610,26 +610,18 @@ function drawBalanceHistoryChart(txs,period){
 
     period=period||currentFilter;
     var sorted=txs.slice().sort(function(a,b){return a.date-b.date;});
-    var incomeSeries=[], expenseSeries=[], labels=[];
+    var incomeBuckets=[], expenseBuckets=[], labels=[];
 
     if(period==='day'){
-        // По часам: 24 точки
-        var byHour=[];
-        for(var i=0;i<24;i++)byHour.push({income:0,expense:0});
+        for(var i=0;i<24;i++){incomeBuckets.push(0);expenseBuckets.push(0);labels.push((i<10?'0'+i:i)+':00');}
         for(var i=0;i<sorted.length;i++){
             var tx=sorted[i];
             var hr=tx.date.getHours();
             var rub=tx.rub;if(tx.usd>0)rub=tx.usd*currentUsdRate;
-            if(tx.type==='income')byHour[hr].income+=rub;
-            else byHour[hr].expense+=rub;
-        }
-        for(var i=0;i<24;i++){
-            labels.push((i<10?'0'+i:i)+':00');
-            incomeSeries.push(roundRub(byHour[i].income));
-            expenseSeries.push(roundRub(byHour[i].expense));
+            if(tx.type==='income')incomeBuckets[hr]+=rub;
+            else expenseBuckets[hr]+=rub;
         }
     } else if(period==='week'){
-        // По дням: последние 7
         var byDay={};
         for(var i=0;i<sorted.length;i++){
             var tx=sorted[i];
@@ -643,11 +635,10 @@ function drawBalanceHistoryChart(txs,period){
         for(var i=0;i<keys.length;i++){
             var parts=keys[i].split('-');
             labels.push(parts[2]+'.'+parts[1]);
-            incomeSeries.push(roundRub(byDay[keys[i]].income));
-            expenseSeries.push(roundRub(byDay[keys[i]].expense));
+            incomeBuckets.push(byDay[keys[i]].income);
+            expenseBuckets.push(byDay[keys[i]].expense);
         }
     } else if(period==='month'){
-        // По неделям: 1-7, 8-14, 15-21, 22-28, 29-конец
         var weeks=[
             {label:'1-7',income:0,expense:0},
             {label:'8-14',income:0,expense:0},
@@ -665,11 +656,10 @@ function drawBalanceHistoryChart(txs,period){
         }
         for(var i=0;i<5;i++){
             labels.push(weeks[i].label);
-            incomeSeries.push(roundRub(weeks[i].income));
-            expenseSeries.push(roundRub(weeks[i].expense));
+            incomeBuckets.push(weeks[i].income);
+            expenseBuckets.push(weeks[i].expense);
         }
     } else {
-        // all: по месяцам
         var byMonth={};
         var monthNames=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
         for(var i=0;i<sorted.length;i++){
@@ -684,12 +674,21 @@ function drawBalanceHistoryChart(txs,period){
         for(var i=0;i<keys.length;i++){
             var d=byMonth[keys[i]].date;
             labels.push(monthNames[d.getMonth()]+' '+String(d.getFullYear()).slice(2));
-            incomeSeries.push(roundRub(byMonth[keys[i]].income));
-            expenseSeries.push(roundRub(byMonth[keys[i]].expense));
+            incomeBuckets.push(byMonth[keys[i]].income);
+            expenseBuckets.push(byMonth[keys[i]].expense);
         }
     }
 
-    // Определяем показывать ли точки (если мало точек — да)
+    // ===== Кумулятивные линии =====
+    var cumIncome=[], cumExpense=[];
+    var runI=0, runE=0;
+    for(var i=0;i<incomeBuckets.length;i++){
+        runI+=incomeBuckets[i];
+        runE+=expenseBuckets[i];
+        cumIncome.push(roundRub(runI));
+        cumExpense.push(roundRub(runE));
+    }
+
     var showPoints=labels.length<=8;
     var theme=getChartTheme();
     balanceHistoryChart=new Chart(c.getContext('2d'),{
@@ -698,8 +697,8 @@ function drawBalanceHistoryChart(txs,period){
             labels:labels,
             datasets:[
                 {
-                    label:'Доход',
-                    data:incomeSeries,
+                    label:'Доход (накопительно)',
+                    data:cumIncome,
                     borderColor:theme.green,
                     backgroundColor:'rgba(34,197,94,0.15)',
                     borderWidth:3,
@@ -711,8 +710,8 @@ function drawBalanceHistoryChart(txs,period){
                     fill:true
                 },
                 {
-                    label:'Расход',
-                    data:expenseSeries,
+                    label:'Расход (накопительно)',
+                    data:cumExpense,
                     borderColor:theme.red,
                     backgroundColor:'rgba(239,68,68,0.15)',
                     borderWidth:3,
@@ -757,6 +756,7 @@ function drawBalanceHistoryChart(txs,period){
         }
     });
 }
+
 function drawRateHistoryChart(){
     var c=$('rateHistoryChart');if(!c)return;
     if(rateHistoryChart){rateHistoryChart.destroy();rateHistoryChart=null;}
