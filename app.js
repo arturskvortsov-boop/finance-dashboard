@@ -25,6 +25,7 @@ var TEMPLATES_KEY='financeTemplates';
 var BUDGETS_KEY='financeBudgets';
 var GOALS_KEY='financeGoals';
 var HIDE_BALANCE_KEY='hideBalance';
+var USER_ID_KEY='financeUserId';
 
 var CATEGORIES_INCOME=['💰 Зарплата','🗓 Продажа','🎁 Подарок','💵 Другое'];
 var CATEGORIES_EXPENSE=['🚘 Автомобиль','🍔 Еда','🏚️ Ипотека','☕️ Кафе','🎢 Развлечения','🛍 Покупки','💊 Здоровье','🏠 Коммуналка','📱 Связь','📚 Образование','💸 Другое'];
@@ -54,6 +55,7 @@ var editingGoalId=null;
 var currentGoalIcon='🎯';
 var scrollY=0;
 var hideBalance=false;
+var userId='';
 
 function lockBackground(){
     scrollY=window.scrollY||window.pageYOffset||0;
@@ -180,6 +182,17 @@ function aggregateByCategory(txs,type){
     arr.sort(function(a,b){return b.value-a.value;});
     return arr;
 }
+
+function getOrCreateUserId(){
+    try{
+        var s=localStorage.getItem(USER_ID_KEY);
+        if(s)return s;
+        var id='u_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10);
+        localStorage.setItem(USER_ID_KEY,id);
+        return id;
+    }catch(e){return 'u_unknown';}
+}
+
 
 function saveTransactions(t){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(t));}catch(e){}}
 function loadTransactions(){try{var s=localStorage.getItem(STORAGE_KEY);if(s)return JSON.parse(s).map(function(tx){tx.date=new Date(tx.date);return tx;});}catch(e){}return null;}
@@ -855,6 +868,7 @@ function deleteTransaction(i){
     if(!confirm('Удалить транзакцию?\n'+tx.category+'\n'+tx.rub+' ₽'))return;
     allTransactions.splice(i,1);saveTransactions(allTransactions);updateWithFilter(currentFilter);
     $('fileStatus').textContent='🗑️ Удалено';
+    scheduleAutoSync();
 }
 
 /* ===== CATEGORY DETAIL ===== */
@@ -924,6 +938,7 @@ function renderSettingsStats(){
     if($('settingsTxCount'))$('settingsTxCount').textContent=allTransactions.length;
     if($('settingsRateCount'))$('settingsRateCount').textContent=rateHistory.length;
     if($('settingsLastSync')){var ts=getLastSync();$('settingsLastSync').textContent=ts?timeAgo(ts):'—';}
+    if($('settingsUserId'))$('settingsUserId').textContent=userId||'—';
 }
 
 /* ===== TEMPLATES ===== */
@@ -1604,7 +1619,7 @@ $('saveTxBtn').addEventListener('click',function(){
     if(!newTx){alert('Ошибка при разборе');return;}
     if(editingIndex>=0){allTransactions[editingIndex]=newTx;$('fileStatus').textContent='✏️ Отредактировано';}
     else{allTransactions.push(newTx);$('fileStatus').textContent='➕ Добавлено';}
-    saveTransactions(allTransactions);updateWithFilter(currentFilter);closeTxModal();
+    saveTransactions(allTransactions);updateWithFilter(currentFilter);scheduleAutoSync();closeTxModal();
 });
 
 $('incomeChartBox').addEventListener('click',function(){openCategoryDetail('income');});
@@ -1643,6 +1658,61 @@ for(var i=0;i<tplTypeBtns.length;i++){
         });
     })(tplTypeBtns[i]);
 }
+
+/* ===== АВТОСИНХРОНИЗАЦИЯ ===== */
+var autoSyncTimer=null;
+function scheduleAutoSync(){
+    if(!getToken())return;
+    if(!allTransactions.length)return;
+    if(autoSyncTimer)clearTimeout(autoSyncTimer);
+    autoSyncTimer=setTimeout(function(){silentSync();},2000);
+}
+function silentSync(){
+    if(!getToken())return;
+    if(!allTransactions.length)return;
+    var token=getToken();
+    var sorted=allTransactions.slice().sort(function(a,b){return a.date-b.date;});
+    var lines=[];
+    for(var i=0;i<sorted.length;i++){
+        var tx=sorted[i];
+        var d=pad(tx.date.getDate()),mo=pad(tx.date.getMonth()+1),y=tx.date.getFullYear(),h=pad(tx.date.getHours()),mi=pad(tx.date.getMinutes());
+        var dateStr=d+'.'+mo+'.'+y+', '+h+':'+mi;
+        var typeLabel=tx.type==='income'?'🟢 ДОХОД':'🔴 РАСХОД';
+        var usdLabel=tx.usd>0?tx.usd+' Долларов 🇺🇸':'0 Долларов 🇺🇸';
+        var rubLabel=tx.rub+' Рублей 🇷🇺';
+        lines.push(typeLabel+' | '+dateStr+' | '+usdLabel+'  -> '+rubLabel+' | '+tx.category+' | '+(tx.note||'-'));
+    }
+    var newText=lines.join('\n');
+    var updatedJson=JSON.stringify({text:newText});
+    var updatedB64=btoa(unescape(encodeURIComponent(updatedJson)));
+    function attempt(retriesLeft){
+        return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/stats2.json',{headers:{'Authorization':'token '+token},cache:'no-store'})
+            .then(function(r){if(!r.ok)throw new Error('GET: '+r.status);return r.json();})
+            .then(function(meta){
+                return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/stats2.json',{
+                    method:'PUT',
+                    headers:{'Authorization':'token '+token,'Content-Type':'application/json'},
+                    body:JSON.stringify({message:'Автосинхронизация ('+allTransactions.length+')',content:updatedB64,sha:meta.sha})
+                });
+            })
+            .then(function(r){
+                if(r.status===409&&retriesLeft>0){return new Promise(function(resolve){setTimeout(resolve,600);}).then(function(){return attempt(retriesLeft-1);});}
+                if(!r.ok)throw new Error('PUT: '+r.status);
+                return r.json();
+            });
+    }
+    return attempt(4)
+        .then(function(){
+            markSynced();
+            var fs=$('fileStatus');
+            if(fs)fs.textContent='☁️ Сохранено: '+allTransactions.length;
+        })
+        .catch(function(e){
+            var fs=$('fileStatus');
+            if(fs)fs.textContent='⚠️ Автосинхронизация: '+e.message;
+        });
+}
+
 
 function doSync(){
     if(!allTransactions.length){showToast('ℹ️ Нет данных для синхронизации');return;}
@@ -1848,6 +1918,7 @@ function animateCurrencyNumbers(){
 
 /* START */
 try{hideBalance=(localStorage.getItem(HIDE_BALANCE_KEY)==='1');}catch(e){}
+userId=getOrCreateUserId();
 templates=loadTemplates()||[];
 budgets=loadBudgets()||[];
 goals=loadGoals()||[];
@@ -1859,6 +1930,25 @@ if(savedRate){
     $('rateInfo').textContent='1 USD = '+savedRate.toFixed(2)+' ₽';
     $('rateInfoSmall').textContent='1 USD = '+savedRate.toFixed(2)+' ₽';
 }
+
+/* ===== VISIBILITY SYNC ===== */
+document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='hidden'){
+        silentSync();
+    } else if(document.visibilityState==='visible'){
+        fetch('stats2.json?t='+Date.now(),{cache:'no-store'})
+            .then(function(r){if(!r.ok)throw 0;return r.text();})
+            .then(function(txt){
+                var remote=parseData(txt);if(!remote.length)return;
+                var merged=mergeTransactions(allTransactions,remote);
+                if(merged.length!==allTransactions.length){
+                    allTransactions=merged;saveTransactions(allTransactions);updateWithFilter(currentFilter);
+                }
+            })
+            .catch(function(){});
+    }
+});
+
 
 renderTemplatesList('settingsTemplatesList','settings');
 renderSettingsBudgetsList();
