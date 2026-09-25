@@ -609,8 +609,29 @@ function renderDashboard(txs,period){
     var monthTxs=allTransactions.filter(function(tx){return tx.date>=monthStart&&tx.date<=monthEnd;});
     var ms=computeStats(monthTxs);
     $('periodDisplay').textContent=monthStart.toLocaleDateString('ru-RU')+' — '+monthEnd.toLocaleDateString('ru-RU');
-    $('monthIncomeDisplay').textContent='↑ '+roundRub(ms.totalIncomeRub).toLocaleString('ru-RU');
-    $('monthExpenseDisplay').textContent='↓ '+roundRub(ms.totalExpenseRub).toLocaleString('ru-RU');
+
+    // Сравнение с прошлым месяцем
+    var prevMonthStart=new Date(now.getFullYear(),now.getMonth()-1,1);
+    var prevMonthEnd=new Date(now.getFullYear(),now.getMonth(),0);
+    var prevInc=0,prevExp=0;
+    for(var pi=0;pi<allTransactions.length;pi++){
+        var ptx=allTransactions[pi];
+        if(ptx.date<prevMonthStart||ptx.date>prevMonthEnd)continue;
+        var prub=ptx.rub;if(ptx.usd>0)prub=ptx.usd*currentUsdRate;
+        if(ptx.type==='income')prevInc+=prub;
+        else prevExp+=prub;
+    }
+    function fmtComparePct(cur,prev,invert){
+        if(prev<=0)return '';
+        var pct=((cur-prev)/prev)*100;
+        var up=pct>=0;
+        var good=invert?!up:up;
+        var color=good?'var(--green)':'var(--red)';
+        var arrow=up?'▲':'▼';
+        return ' <span style="font-size:0.66rem;color:'+color+';opacity:0.85;font-weight:600">'+arrow+Math.abs(pct).toFixed(0)+'%</span>';
+    }
+    $('monthIncomeDisplay').innerHTML='↑ '+roundRub(ms.totalIncomeRub).toLocaleString('ru-RU')+fmtComparePct(ms.totalIncomeRub,prevInc,false);
+    $('monthExpenseDisplay').innerHTML='↓ '+roundRub(ms.totalExpenseRub).toLocaleString('ru-RU')+fmtComparePct(ms.totalExpenseRub,prevExp,true);
 
     var theme=getChartTheme();
     if(expensePieChart){expensePieChart.destroy();expensePieChart=null;}
