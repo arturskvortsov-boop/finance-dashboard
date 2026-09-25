@@ -958,10 +958,67 @@ function drawRateHistoryChart(){
         rateHistoryChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'Курс',data:[],borderColor:theme.accent,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:theme.textMuted}}}}});
         return;
     }
+
+    // Определяем общий тренд: сравниваем первый и последний курс
+    var firstRate=rateHistory[0].rate;
+    var lastRate=rateHistory[rateHistory.length-1].rate;
+    var isRising=lastRate>=firstRate;
+
+    var lineColor=isRising?'#22c55e':'#ef4444';
+    var fillTop=isRising?'rgba(34,197,94,0.28)':'rgba(239,68,68,0.28)';
+    var fillBottom=isRising?'rgba(34,197,94,0.01)':'rgba(239,68,68,0.01)';
+
+    // Градиент под линией
+    var gradient=ctx.createLinearGradient(0,0,0,180);
+    gradient.addColorStop(0,fillTop);
+    gradient.addColorStop(1,fillBottom);
+
     rateHistoryChart=new Chart(ctx,{
         type:'line',
-        data:{labels:rateHistory.map(function(x){return x.date.toLocaleDateString('ru-RU')+' '+x.date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});}),datasets:[{label:'Курс USD/RUB',data:rateHistory.map(function(x){return x.rate;}),borderColor:theme.accent,backgroundColor:theme.grid,borderWidth:2,pointBackgroundColor:theme.accent,pointRadius:2,tension:0.2,fill:true}]},
-        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:theme.textMuted}},tooltip:{callbacks:{label:function(c){return c.parsed.y.toFixed(2)+' ₽';}}}},scales:{y:{grid:{color:theme.grid},ticks:{color:theme.textMuted,callback:function(v){return v.toFixed(2)+' ₽';}}},x:{grid:{color:theme.grid},ticks:{color:theme.textMuted,maxTicksLimit:15,maxRotation:30,autoSkip:true}}}}
+        data:{
+            labels:rateHistory.map(function(x){return x.date.toLocaleDateString('ru-RU')+' '+x.date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});}),
+            datasets:[{
+                label:'Курс USD/RUB',
+                data:rateHistory.map(function(x){return x.rate;}),
+                borderColor:lineColor,
+                backgroundColor:gradient,
+                borderWidth:3,
+                pointRadius:0,
+                pointHoverRadius:6,
+                pointHoverBackgroundColor:lineColor,
+                pointHoverBorderColor:'#fff',
+                pointHoverBorderWidth:2,
+                tension:0.45,
+                fill:true,
+                cubicInterpolationMode:'monotone'
+            }]
+        },
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            interaction:{mode:'index',intersect:false},
+            plugins:{
+                legend:{display:false},
+                tooltip:{
+                    backgroundColor:'#1c2230',
+                    borderColor:'#2c3444',
+                    borderWidth:1,
+                    titleColor:'#f2f5fa',
+                    bodyColor:'#f2f5fa',
+                    callbacks:{label:function(c){return c.parsed.y.toFixed(2)+' ₽';}}
+                }
+            },
+            scales:{
+                y:{
+                    grid:{color:theme.grid},
+                    ticks:{color:theme.textMuted,callback:function(v){return v.toFixed(2)+' ₽';}}
+                },
+                x:{
+                    grid:{color:theme.grid},
+                    ticks:{color:theme.textMuted,maxTicksLimit:6,maxRotation:30,autoSkip:true,font:{size:9}}
+                }
+            }
+        }
     });
 }
 function setRate(rate){
