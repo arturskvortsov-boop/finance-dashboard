@@ -2015,6 +2015,17 @@ function doRefresh(){
 }
 
 /* ===== EVENTS ===== */
+/* ===== CALENDAR EVENTS ===== */
+$('calPrev').addEventListener('click',function(){
+    calendarMonth--;
+    if(calendarMonth<0){calendarMonth=11;calendarYear--;}
+    renderCalendar();
+});
+$('calNext').addEventListener('click',function(){
+    calendarMonth++;
+    if(calendarMonth>11){calendarMonth=0;calendarYear++;}
+    renderCalendar();
+});
 var filterBtns=document.querySelectorAll('.filter-btn');
 for(var i=0;i<filterBtns.length;i++){
     (function(btn){
