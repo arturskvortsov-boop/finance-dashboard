@@ -967,6 +967,23 @@ function fillCategories(type,selectId){
 }
 
 /* ===== TX MODAL ===== */
+function repeatLastTransaction(){
+    if(!allTransactions.length){showToast('ℹ️ Нет транзакций для повтора');return;}
+    var latest=null;
+    for(var i=0;i<allTransactions.length;i++){
+        if(!latest||allTransactions[i].date>latest.date)latest=allTransactions[i];
+    }
+    if(!latest){showToast('ℹ️ Нет данных');return;}
+    openTxModal(-1,latest.type,{
+        type:latest.type,
+        rub:latest.rub,
+        usd:latest.usd,
+        category:latest.category,
+        note:(latest.note&&latest.note!=='-')?latest.note:''
+    });
+    showToast('🔁 Повтор: '+latest.category,2000);
+}
+
 function openTxModal(editIdx,presetType,presetData){
     editingIndex=(typeof editIdx==='number')?editIdx:-1;
     var title=$('txModalTitle');
@@ -2108,6 +2125,7 @@ $('bnFabBtn').addEventListener('click',function(e){
     if(fan.classList.contains('open')){closeFabFan();}
     else{openFabFan();}
 });
+$('fabRepeat').addEventListener('click',function(){closeFabFan();setTimeout(function(){repeatLastTransaction();},150);});
 $('fabAddTx').addEventListener('click',function(){closeFabFan();setTimeout(function(){openTxModal(-1);},150);});
 $('fabQuick').addEventListener('click',function(){closeFabFan();setTimeout(function(){openQuickAddModal();},150);});
 $('fabSync').addEventListener('click',function(){closeFabFan();setTimeout(function(){doSync();},150);});
