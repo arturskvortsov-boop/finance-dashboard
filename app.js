@@ -28,7 +28,8 @@ try{
         try{if(tg.disableVerticalSwipes)tg.disableVerticalSwipes();}catch(e){}
         try{if(tg.requestFullscreen)tg.requestFullscreen();}catch(e){}
         try{if(tg.setHeaderColor)tg.setHeaderColor('#000000');}catch(e){}
-        try{if(tg.setBottomBarColor)tg.setBottomBarColor('#000000');}catch(e){}
+try{if(tg.setBottomBarColor)tg.setBottomBarColor('#000000');}catch(e){}
+try{if(tg.setBackgroundColor)tg.setBackgroundColor('#000000');}catch(e){}
         if(tg.initDataUnsafe && tg.initDataUnsafe.user){
             tgUser=tg.initDataUnsafe.user;
         }
