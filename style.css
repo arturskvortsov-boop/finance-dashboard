@@ -101,7 +101,11 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .quick-sums .group .sum.expense{color:var(--red);word-break:break-all}
 .insights-block{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px;min-width:0}
 .insights-block h3{font-weight:500;font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px}
-.insight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;min-width:0}
+.insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;min-width:0}
+.insight-grid .insight-item{padding:8px 6px}
+.insight-grid .insight-item .it-label{font-size:0.55rem}
+.insight-grid .insight-item .it-value{font-size:0.85rem}
+.insight-grid .insight-item .it-sub{font-size:0.6rem}
 .insight-item{background:var(--card-2);border:1px solid var(--border);border-radius:10px;padding:8px 10px;min-width:0}
 .insight-item .it-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.3px;color:var(--text-muted);font-weight:500;margin-bottom:2px}
 .insight-item .it-value{font-size:0.9rem;font-weight:600;color:var(--text);word-break:break-all}
