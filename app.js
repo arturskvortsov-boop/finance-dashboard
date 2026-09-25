@@ -59,6 +59,8 @@ var currentGoalIcon='🎯';
 var scrollY=0;
 var hideBalance=false;
 var userId='';
+var calendarYear=0;
+var calendarMonth=0;
 
 function lockBackground(){
     scrollY=window.scrollY||window.pageYOffset||0;
@@ -360,6 +362,78 @@ function renderReminders(){
     }
 }
 
+/* ===== CALENDAR ===== */
+function renderCalendar(){
+    var grid=$('calendarGrid');
+    var title=$('calTitle');
+    if(!grid||!title)return;
+    if(!calendarYear&&!calendarMonth){
+        var now=new Date();
+        calendarYear=now.getFullYear();
+        calendarMonth=now.getMonth();
+    }
+    var monthNames=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+    title.textContent=monthNames[calendarMonth]+' '+calendarYear;
+
+    // Считаем траты по дням выбранного месяца
+    var monthStart=new Date(calendarYear,calendarMonth,1);
+    var monthEnd=new Date(calendarYear,calendarMonth+1,0);
+    var daysInMonth=monthEnd.getDate();
+    var expenseByDay={};
+    var maxExpense=0;
+    for(var i=0;i<allTransactions.length;i++){
+        var tx=allTransactions[i];
+        if(tx.type!=='expense')continue;
+        if(tx.date<monthStart||tx.date>monthEnd)continue;
+        var day=tx.date.getDate();
+        var rub=tx.rub;if(tx.usd>0)rub=tx.usd*currentUsdRate;
+        expenseByDay[day]=(expenseByDay[day]||0)+rub;
+        if(expenseByDay[day]>maxExpense)maxExpense=expenseByDay[day];
+    }
+
+    // Первый день недели (0 = Пн, 6 = Вс)
+    var firstDayOfWeek=new Date(calendarYear,calendarMonth,1).getDay();
+    var offset=(firstDayOfWeek===0)?6:firstDayOfWeek-1;
+
+    var html='';
+    for(var i=0;i<offset;i++)html+='<div class="cal-day empty"></div>';
+    var today=new Date();
+    var isCurrentMonth=(today.getFullYear()===calendarYear&&today.getMonth()===calendarMonth);
+
+    for(var d=1;d<=daysInMonth;d++){
+        var expense=expenseByDay[d]||0;
+        var level=0;
+        if(maxExpense>0&&expense>0){
+            var ratio=expense/maxExpense;
+            if(ratio>=0.8)level=4;
+            else if(ratio>=0.55)level=3;
+            else if(ratio>=0.3)level=2;
+            else level=1;
+        }
+        var isToday=isCurrentMonth&&today.getDate()===d;
+        var cls='cal-day lvl'+level+(isToday?' today':'');
+        html+='<div class="'+cls+'" data-day="'+d+'">'+d+'</div>';
+    }
+    grid.innerHTML=html;
+
+    // Обработчики кликов на дни
+    var cells=grid.querySelectorAll('.cal-day:not(.empty)');
+    for(var j=0;j<cells.length;j++){
+        (function(el){
+            el.addEventListener('click',function(){
+                var day=parseInt(this.dataset.day,10);
+                var spent=expenseByDay[day]||0;
+                if(spent>0){
+                    showToast('📅 '+day+' '+monthNames[calendarMonth]+': потрачено '+roundRub(spent).toLocaleString('ru-RU')+' ₽',3000);
+                } else {
+                    showToast('📅 '+day+' '+monthNames[calendarMonth]+': трат нет',2000);
+                }
+            });
+        })(cells[j]);
+    }
+}
+
+
 /* ===== FORECAST ===== */
 function renderForecast(){
     var block=$('forecastBlock');
@@ -629,6 +703,7 @@ function renderDashboard(txs,period){
     renderGoals();
     renderReminders();
     renderForecast();
+    renderCalendar();
     $('dashboard').classList.remove('hidden');
 }
 
