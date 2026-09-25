@@ -16,6 +16,32 @@ if(window.caches&&caches.keys){
 
 function $(id){return document.getElementById(id);}
 
+/* ===== TELEGRAM WEBAPP ===== */
+var tg=null;
+var tgUser=null;
+var isTelegram=false;
+try{
+    if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData){
+        tg=window.Telegram.WebApp;
+        isTelegram=true;
+        try{tg.ready();tg.expand();}catch(e){}
+        try{if(tg.disableVerticalSwipes)tg.disableVerticalSwipes();}catch(e){}
+        if(tg.initDataUnsafe && tg.initDataUnsafe.user){
+            tgUser=tg.initDataUnsafe.user;
+        }
+        try{document.body.classList.add('tg-webapp');}catch(e){}
+    }
+}catch(e){}
+function getTelegramUserId(){
+    if(tgUser&&tgUser.id)return 'tg_'+tgUser.id;
+    return null;
+}
+function getTelegramName(){
+    if(!tgUser)return '';
+    return tgUser.first_name||tgUser.username||'';
+}
+
+
 var STORAGE_KEY='financeDataTransactions';
 var RATE_STORAGE_KEY='usdRate';
 var RATE_HISTORY_KEY='rateHistory';
@@ -89,9 +115,11 @@ function getCategoryEmoji(cat){
     return m?m[1]:'💸';
 }
 function getOrCreateUserId(){
+    var tgId=getTelegramUserId();
+    if(tgId)return tgId;
     try{
         var s=localStorage.getItem(USER_ID_KEY);
-        if(s)return s;
+        if(s&&s.indexOf('tg_')!==0)return s;
         var id='u_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10);
         localStorage.setItem(USER_ID_KEY,id);
         return id;
@@ -2327,6 +2355,50 @@ document.addEventListener('visibilitychange',function(){
             .catch(function(){});
     }
 });
+
+/* ===== TELEGRAM BACK BUTTON ===== */
+if(isTelegram&&tg){
+    tg.BackButton.onClick(function(){
+        // Приоритет закрытия: модалка → bottom sheet → FAB-веер
+        var modal=document.querySelector('.modal-overlay.open');
+        if(modal){
+            modal.classList.remove('open');
+            unlockBackground();
+            try{tg.BackButton.hide();}catch(e){}
+            return;
+        }
+        var sheet=$('moreSheet');
+        if(sheet&&sheet.classList.contains('open')){
+            closeMoreSheet();
+            try{tg.BackButton.hide();}catch(e){}
+            return;
+        }
+        var fan=$('fabFan');
+        if(fan&&fan.classList.contains('open')){
+            closeFabFan();
+            try{tg.BackButton.hide();}catch(e){}
+            return;
+        }
+    });
+    // Показываем Back Button только когда есть что закрыть
+    var observer=new MutationObserver(function(){
+        var hasOpen=document.querySelector('.modal-overlay.open, .bottom-sheet.open, .fab-fan.open');
+        if(hasOpen){try{tg.BackButton.show();}catch(e){}}
+        else{try{tg.BackButton.hide();}catch(e){}}
+    });
+    observer.observe(document.body,{attributes:true,subtree:true,attributeFilter:['class']});
+}
+
+/* ===== TELEGRAM UI TWEAKS ===== */
+if(isTelegram){
+    // Приветствие в статус-строке
+    var tgName=getTelegramName();
+    if(tgName){
+        var fs=$('fileStatus');
+        if(fs&&(!fs.textContent||fs.textContent.indexOf('Загрузите')!==-1))fs.textContent='Привет, '+tgName+'!';
+    }
+}
+
 
 /* START */
 try{hideBalance=(localStorage.getItem(HIDE_BALANCE_KEY)==='1');}catch(e){}
