@@ -610,7 +610,7 @@ function renderDashboard(txs,period){
     $('totalBalanceUsdDisplay').textContent=roundUsd(s.netUsd).toFixed(2)+' $';
     $('usdDetails').textContent='↑ $'+Math.round(s.totalIncomeUsdEq)+' · ↓ $'+Math.round(s.totalExpenseUsdEq);
     if($('currencyHeroUsd'))$('currencyHeroUsd').textContent=roundUsd(s.netUsd).toFixed(2)+' $';
-    $('rateInfoSmall').textContent='1 USD = '+currentUsdRate.toFixed(2)+' ₽';
+    $('rateInfoSmall').textContent=currentUsdRate.toFixed(2)+' ₽';
 
     $('totalIncomeRubOnly').textContent=roundRub(s.rubIncome).toLocaleString('ru-RU')+' ₽';
     $('totalExpenseRubOnly').textContent=roundRub(s.rubExpense).toLocaleString('ru-RU')+' ₽';
