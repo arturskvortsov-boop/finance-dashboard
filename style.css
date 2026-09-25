@@ -409,3 +409,16 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 @keyframes pullSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 .pull-text{font-size:0.7rem;color:var(--text-muted);font-weight:500}
 .pull-indicator.ready .pull-text{color:var(--accent)}
+
+/* ===== FORECAST ===== */
+.forecast-block{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.forecast-block h3{font-weight:500;font-size:0.72rem;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.4px}
+.forecast-block h3 span{color:var(--accent);font-weight:600}
+.forecast-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.forecast-item{background:var(--card-2);border:1px solid var(--border);border-radius:10px;padding:8px 10px;text-align:center;min-width:0}
+.forecast-item .fc-label{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.3px;color:var(--text-muted);font-weight:500;margin-bottom:3px}
+.forecast-item .fc-value{font-size:0.95rem;font-weight:700;color:var(--text);word-break:break-all;line-height:1.2}
+.forecast-item.income .fc-value{color:var(--green)}
+.forecast-item.expense .fc-value{color:var(--red)}
+.forecast-item.balance .fc-value{color:var(--accent)}
+.forecast-hint{font-size:0.62rem;color:var(--text-dim);margin-top:8px;text-align:center}
