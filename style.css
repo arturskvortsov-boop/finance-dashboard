@@ -19,7 +19,8 @@
 }
 
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{max-width:100%;overflow-x:hidden}
+html{background:#000000;min-height:100%}
+html,body{max-width:100%;overflow-x:hidden;background:#000000}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);padding:6px 12px calc(110px + env(safe-area-inset-bottom,0px));min-height:100vh;display:flex;justify-content:center;align-items:flex-start;position:relative}
 
 body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
@@ -465,3 +466,18 @@ body.tg-webapp .bottom-nav{bottom:calc(16px + env(safe-area-inset-bottom,0px))}
 body.tg-webapp .fab-fan{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 body.tg-webapp .toast{bottom:calc(130px + env(safe-area-inset-bottom,0px))}
 body.tg-webapp .pull-indicator{height:60px}
+
+/* ===== TELEGRAM: без белых полос ===== */
+body.tg-webapp,
+body.tg-webapp html,
+body.tg-webapp .container{background:#000000}
+body.tg-webapp.tg-fullscreen{
+    min-height:100vh;
+    min-height:100dvh;
+    background:#000000;
+}
+body.tg-webapp.tg-fullscreen .container{
+    min-height:100vh;
+    min-height:100dvh;
+    padding-bottom:calc(140px + env(safe-area-inset-bottom,0px));
+}
