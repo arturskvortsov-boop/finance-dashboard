@@ -457,7 +457,7 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 
 /* ===== TELEGRAM WEBAPP ===== */
 body.tg-webapp{padding-top:10px;padding-bottom:calc(130px + env(safe-area-inset-bottom,0px))}
-body.tg-webapp.tg-fullscreen{padding-top:calc(70px + env(safe-area-inset-top,0px))}
+body.tg-webapp.tg-fullscreen{padding-top:calc(95px + env(safe-area-inset-top,0px))}
 body.tg-webapp .pull-indicator{top:calc(50px + env(safe-area-inset-top,0px))}
 body.tg-webapp.tg-fullscreen .pull-indicator{top:calc(60px + env(safe-area-inset-top,0px))}
 body.tg-webapp.tg-fullscreen .bottom-nav{bottom:calc(16px + env(safe-area-inset-bottom,0px))}
