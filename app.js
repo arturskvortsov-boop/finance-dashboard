@@ -360,6 +360,53 @@ function renderReminders(){
     }
 }
 
+/* ===== FORECAST ===== */
+function renderForecast(){
+    var block=$('forecastBlock');
+    var grid=$('forecastGrid');
+    if(!block||!grid)return;
+    if(!allTransactions.length){block.classList.add('hidden');return;}
+    var now=new Date();
+    var year=now.getFullYear(),month=now.getMonth();
+    var monthStart=new Date(year,month,1);
+    var monthEnd=new Date(year,month+1,0);
+    var daysTotal=monthEnd.getDate();
+    var daysPassed=now.getDate();
+    var daysLeft=daysTotal-daysPassed;
+
+    var incMonth=0,expMonth=0;
+    for(var i=0;i<allTransactions.length;i++){
+        var tx=allTransactions[i];
+        if(tx.date<monthStart||tx.date>monthEnd)continue;
+        var rub=tx.rub;if(tx.usd>0)rub=tx.usd*currentUsdRate;
+        if(tx.type==='income')incMonth+=rub;
+        else expMonth+=rub;
+    }
+
+    var monthNames=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+    if($('forecastMonthLabel'))$('forecastMonthLabel').textContent=monthNames[month];
+
+    var avgIncPerDay=daysPassed>0?incMonth/daysPassed:0;
+    var avgExpPerDay=daysPassed>0?expMonth/daysPassed:0;
+    var forecastInc=avgIncPerDay*daysTotal;
+    var forecastExp=avgExpPerDay*daysTotal;
+    var forecastBal=forecastInc-forecastExp;
+
+    block.classList.remove('hidden');
+    grid.innerHTML=
+        '<div class="forecast-item income"><div class="fc-label">💰 Доход</div><div class="fc-value">'+roundRub(forecastInc).toLocaleString('ru-RU')+' ₽</div></div>'+
+        '<div class="forecast-item expense"><div class="fc-label">💸 Расход</div><div class="fc-value">'+roundRub(forecastExp).toLocaleString('ru-RU')+' ₽</div></div>'+
+        '<div class="forecast-item balance"><div class="fc-label">⚖️ Баланс</div><div class="fc-value">'+roundRub(forecastBal).toLocaleString('ru-RU')+' ₽</div></div>';
+
+    var hint=document.createElement('div');
+    hint.className='forecast-hint';
+    hint.textContent='Осталось '+daysLeft+' дн. Прогноз по среднему темпу за '+daysPassed+' дн.';
+    var existingHint=block.querySelector('.forecast-hint');
+    if(existingHint)existingHint.remove();
+    block.appendChild(hint);
+}
+
+
 /* ===== CBR ===== */
 function fetchCbrRate(){
     return fetch('https://www.cbr-xml-daily.ru/daily_json.js', { cache: 'no-store' })
@@ -581,8 +628,8 @@ function renderDashboard(txs,period){
     renderBudgets();
     renderGoals();
     renderReminders();
+    renderForecast();
     $('dashboard').classList.remove('hidden');
-    $('emptyState').classList.add('hidden');
 }
 
 function updateWithFilter(period){
