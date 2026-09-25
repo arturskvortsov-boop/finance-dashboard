@@ -22,40 +22,27 @@ var tgUser=null;
 var isTelegram=false;
 try{
     if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData){
-    tg=window.Telegram.WebApp;
-    isTelegram=true;
-    try{tg.ready();tg.expand();}catch(e){}
-    try{if(tg.disableVerticalSwipes)tg.disableVerticalSwipes();}catch(e){}
-    // Full Screen Mode (Bot API 8.0+)
-    try{
-        if(tg.requestFullscreen){
-            tg.requestFullscreen();
-        }
-    }catch(e){}
-    // Скрываем стандартные элементы управления
-    try{
-        if(tg.setHeaderColor)tg.setHeaderColor('#000000');
-        if(tg.setBottomBarColor)tg.setBottomBarColor('#000000');
-    }catch(e){}
+        tg=window.Telegram.WebApp;
+        isTelegram=true;
+        try{tg.ready();tg.expand();}catch(e){}
+        try{if(tg.disableVerticalSwipes)tg.disableVerticalSwipes();}catch(e){}
+        try{if(tg.requestFullscreen)tg.requestFullscreen();}catch(e){}
+        try{if(tg.setHeaderColor)tg.setHeaderColor('#000000');}catch(e){}
+        try{if(tg.setBottomBarColor)tg.setBottomBarColor('#000000');}catch(e){}
         if(tg.initDataUnsafe && tg.initDataUnsafe.user){
             tgUser=tg.initDataUnsafe.user;
         }
         try{document.body.classList.add('tg-webapp');}catch(e){}
-    // Отслеживаем состояние fullscreen
-    try{
-        if(tg.isFullscreen){
-            document.body.classList.add('tg-fullscreen');
-        }
-        if(tg.onEvent){
-            tg.onEvent('fullscreenChanged',function(){
-                if(tg.isFullscreen){
-                    document.body.classList.add('tg-fullscreen');
-                } else {
-                    document.body.classList.remove('tg-fullscreen');
-                }
-            });
-        }
-    }catch(e){}
+        try{
+            if(tg.isFullscreen){document.body.classList.add('tg-fullscreen');}
+            if(tg.onEvent){
+                tg.onEvent('fullscreenChanged',function(){
+                    if(tg.isFullscreen){document.body.classList.add('tg-fullscreen');}
+                    else{document.body.classList.remove('tg-fullscreen');}
+                });
+            }
+        }catch(e){}
+    }
 }catch(e){}
 function getTelegramUserId(){
     if(tgUser&&tgUser.id)return 'tg_'+tgUser.id;
@@ -66,20 +53,19 @@ function getTelegramName(){
     return tgUser.first_name||tgUser.username||'';
 }
 
-
 var STORAGE_KEY='financeDataTransactions';
 var RATE_STORAGE_KEY='usdRate';
 var RATE_HISTORY_KEY='rateHistory';
 var TOKEN_KEY='githubPersonalToken';
 var LAST_SYNC_KEY='lastSyncTime';
-var TEMPLATES_FILE='templates.json';
-var BUDGETS_FILE='budgets.json';
-var GOALS_FILE='goals.json';
 var TEMPLATES_KEY='financeTemplates';
 var BUDGETS_KEY='financeBudgets';
 var GOALS_KEY='financeGoals';
 var HIDE_BALANCE_KEY='hideBalance';
 var USER_ID_KEY='financeUserId';
+var TEMPLATES_FILE='templates.json';
+var BUDGETS_FILE='budgets.json';
+var GOALS_FILE='goals.json';
 
 var CATEGORIES_INCOME=['💰 Зарплата','🗓 Продажа','🎁 Подарок','💵 Другое'];
 var CATEGORIES_EXPENSE=['🚘 Автомобиль','🍔 Еда','🏚️ Ипотека','☕️ Кафе','🎢 Развлечения','🛍 Покупки','💊 Здоровье','🏠 Коммуналка','📱 Связь','📚 Образование','💸 Другое'];
@@ -97,7 +83,7 @@ var currentFilter='month';
 var dataLoaded=false;
 var currentUsdRate=85.00;
 var expensePieChart=null,incomePieChart=null,rateHistoryChart=null,catDetailDonut=null,balanceHistoryChart=null;
-var autoUpdateTimer=null, freshnessTimer=null, autoSyncTimer=null;
+var autoUpdateTimer=null, freshnessTimer=null, autoSyncTimer=null, extrasSyncTimer=null;
 var editingIndex=-1;
 var currentTxType='income';
 var currentTxSearch='';
@@ -233,6 +219,20 @@ function mergeTransactions(local, remote){
         if(!seen[k]){seen[k]=true;merged.push(remote[i]);}
     }
     merged.sort(function(a,b){return a.date-b.date;});
+    return merged;
+}
+function mergeById(local,remote){
+    var seen={};
+    var merged=[];
+    for(var i=0;i<local.length;i++){if(local[i].id)seen[local[i].id]=true;merged.push(local[i]);}
+    for(var i=0;i<remote.length;i++){if(remote[i].id&&!seen[remote[i].id]){seen[remote[i].id]=true;merged.push(remote[i]);}}
+    return merged;
+}
+function mergeBudgets(local,remote){
+    var seen={};
+    var merged=[];
+    for(var i=0;i<local.length;i++){if(local[i].category)seen[local[i].category]=true;merged.push(local[i]);}
+    for(var i=0;i<remote.length;i++){if(remote[i].category&&!seen[remote[i].category]){seen[remote[i].category]=true;merged.push(remote[i]);}}
     return merged;
 }
 
@@ -415,125 +415,6 @@ function renderReminders(){
     }
 }
 
-/* ===== CALENDAR ===== */
-function renderCalendar(){
-    var grid=$('calendarGrid');
-    var title=$('calTitle');
-    if(!grid||!title)return;
-    if(!calendarYear&&!calendarMonth){
-        var now=new Date();
-        calendarYear=now.getFullYear();
-        calendarMonth=now.getMonth();
-    }
-    var monthNames=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
-    title.textContent=monthNames[calendarMonth]+' '+calendarYear;
-
-    // Считаем траты по дням выбранного месяца
-    var monthStart=new Date(calendarYear,calendarMonth,1);
-    var monthEnd=new Date(calendarYear,calendarMonth+1,0);
-    var daysInMonth=monthEnd.getDate();
-    var expenseByDay={};
-    var maxExpense=0;
-    for(var i=0;i<allTransactions.length;i++){
-        var tx=allTransactions[i];
-        if(tx.type!=='expense')continue;
-        if(tx.date<monthStart||tx.date>monthEnd)continue;
-        var day=tx.date.getDate();
-        var rub=tx.rub;if(tx.usd>0)rub=tx.usd*currentUsdRate;
-        expenseByDay[day]=(expenseByDay[day]||0)+rub;
-        if(expenseByDay[day]>maxExpense)maxExpense=expenseByDay[day];
-    }
-
-    // Первый день недели (0 = Пн, 6 = Вс)
-    var firstDayOfWeek=new Date(calendarYear,calendarMonth,1).getDay();
-    var offset=(firstDayOfWeek===0)?6:firstDayOfWeek-1;
-
-    var html='';
-    for(var i=0;i<offset;i++)html+='<div class="cal-day empty"></div>';
-    var today=new Date();
-    var isCurrentMonth=(today.getFullYear()===calendarYear&&today.getMonth()===calendarMonth);
-
-    for(var d=1;d<=daysInMonth;d++){
-        var expense=expenseByDay[d]||0;
-        var level=0;
-        if(maxExpense>0&&expense>0){
-            var ratio=expense/maxExpense;
-            if(ratio>=0.8)level=4;
-            else if(ratio>=0.55)level=3;
-            else if(ratio>=0.3)level=2;
-            else level=1;
-        }
-        var isToday=isCurrentMonth&&today.getDate()===d;
-        var cls='cal-day lvl'+level+(isToday?' today':'');
-        html+='<div class="'+cls+'" data-day="'+d+'">'+d+'</div>';
-    }
-    grid.innerHTML=html;
-
-    // Обработчики кликов на дни
-    var cells=grid.querySelectorAll('.cal-day:not(.empty)');
-    for(var j=0;j<cells.length;j++){
-        (function(el){
-            el.addEventListener('click',function(){
-                var day=parseInt(this.dataset.day,10);
-                var spent=expenseByDay[day]||0;
-                if(spent>0){
-                    showToast('📅 '+day+' '+monthNames[calendarMonth]+': потрачено '+roundRub(spent).toLocaleString('ru-RU')+' ₽',3000);
-                } else {
-                    showToast('📅 '+day+' '+monthNames[calendarMonth]+': трат нет',2000);
-                }
-            });
-        })(cells[j]);
-    }
-}
-
-
-/* ===== FORECAST ===== */
-function renderForecast(){
-    var block=$('forecastBlock');
-    var grid=$('forecastGrid');
-    if(!block||!grid)return;
-    if(!allTransactions.length){block.classList.add('hidden');return;}
-    var now=new Date();
-    var year=now.getFullYear(),month=now.getMonth();
-    var monthStart=new Date(year,month,1);
-    var monthEnd=new Date(year,month+1,0);
-    var daysTotal=monthEnd.getDate();
-    var daysPassed=now.getDate();
-    var daysLeft=daysTotal-daysPassed;
-
-    var incMonth=0,expMonth=0;
-    for(var i=0;i<allTransactions.length;i++){
-        var tx=allTransactions[i];
-        if(tx.date<monthStart||tx.date>monthEnd)continue;
-        var rub=tx.rub;if(tx.usd>0)rub=tx.usd*currentUsdRate;
-        if(tx.type==='income')incMonth+=rub;
-        else expMonth+=rub;
-    }
-
-    var monthNames=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
-    if($('forecastMonthLabel'))$('forecastMonthLabel').textContent=monthNames[month];
-
-    var avgIncPerDay=daysPassed>0?incMonth/daysPassed:0;
-    var avgExpPerDay=daysPassed>0?expMonth/daysPassed:0;
-    var forecastInc=avgIncPerDay*daysTotal;
-    var forecastExp=avgExpPerDay*daysTotal;
-    var forecastBal=forecastInc-forecastExp;
-
-    block.classList.remove('hidden');
-    grid.innerHTML=
-        '<div class="forecast-item income"><div class="fc-label">💰 Доход</div><div class="fc-value">'+roundRub(forecastInc).toLocaleString('ru-RU')+' ₽</div></div>'+
-        '<div class="forecast-item expense"><div class="fc-label">💸 Расход</div><div class="fc-value">'+roundRub(forecastExp).toLocaleString('ru-RU')+' ₽</div></div>'+
-        '<div class="forecast-item balance"><div class="fc-label">⚖️ Баланс</div><div class="fc-value">'+roundRub(forecastBal).toLocaleString('ru-RU')+' ₽</div></div>';
-
-    var hint=document.createElement('div');
-    hint.className='forecast-hint';
-    hint.textContent='Осталось '+daysLeft+' дн. Прогноз по среднему темпу за '+daysPassed+' дн.';
-    var existingHint=block.querySelector('.forecast-hint');
-    if(existingHint)existingHint.remove();
-    block.appendChild(hint);
-}
-
-
 /* ===== CBR ===== */
 function fetchCbrRate(){
     return fetch('https://www.cbr-xml-daily.ru/daily_json.js', { cache: 'no-store' })
@@ -616,6 +497,112 @@ function renderInsights(txs,period){
     } else topList.innerHTML='';
 }
 
+/* ===== FORECAST ===== */
+function renderForecast(){
+    var block=$('forecastBlock');
+    var grid=$('forecastGrid');
+    if(!block||!grid)return;
+    if(!allTransactions.length){block.classList.add('hidden');return;}
+    var now=new Date();
+    var year=now.getFullYear(),month=now.getMonth();
+    var monthStart=new Date(year,month,1);
+    var monthEnd=new Date(year,month+1,0);
+    var daysTotal=monthEnd.getDate();
+    var daysPassed=now.getDate();
+    var daysLeft=daysTotal-daysPassed;
+
+    var incMonth=0,expMonth=0;
+    for(var i=0;i<allTransactions.length;i++){
+        var tx=allTransactions[i];
+        if(tx.date<monthStart||tx.date>monthEnd)continue;
+        var rub=tx.rub;if(tx.usd>0)rub=tx.usd*currentUsdRate;
+        if(tx.type==='income')incMonth+=rub;
+        else expMonth+=rub;
+    }
+    var monthNames=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+    if($('forecastMonthLabel'))$('forecastMonthLabel').textContent=monthNames[month];
+    var avgIncPerDay=daysPassed>0?incMonth/daysPassed:0;
+    var avgExpPerDay=daysPassed>0?expMonth/daysPassed:0;
+    var forecastInc=avgIncPerDay*daysTotal;
+    var forecastExp=avgExpPerDay*daysTotal;
+    var forecastBal=forecastInc-forecastExp;
+    block.classList.remove('hidden');
+    grid.innerHTML=
+        '<div class="forecast-item income"><div class="fc-label">💰 Доход</div><div class="fc-value">'+roundRub(forecastInc).toLocaleString('ru-RU')+' ₽</div></div>'+
+        '<div class="forecast-item expense"><div class="fc-label">💸 Расход</div><div class="fc-value">'+roundRub(forecastExp).toLocaleString('ru-RU')+' ₽</div></div>'+
+        '<div class="forecast-item balance"><div class="fc-label">⚖️ Баланс</div><div class="fc-value">'+roundRub(forecastBal).toLocaleString('ru-RU')+' ₽</div></div>';
+    var hint=document.createElement('div');
+    hint.className='forecast-hint';
+    hint.textContent='Осталось '+daysLeft+' дн. Прогноз по среднему темпу за '+daysPassed+' дн.';
+    var existingHint=block.querySelector('.forecast-hint');
+    if(existingHint)existingHint.remove();
+    block.appendChild(hint);
+}
+
+/* ===== CALENDAR ===== */
+function renderCalendar(){
+    var grid=$('calendarGrid');
+    var title=$('calTitle');
+    if(!grid||!title)return;
+    if(!calendarYear&&!calendarMonth){
+        var now=new Date();
+        calendarYear=now.getFullYear();
+        calendarMonth=now.getMonth();
+    }
+    var monthNames=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+    title.textContent=monthNames[calendarMonth]+' '+calendarYear;
+
+    var monthStart=new Date(calendarYear,calendarMonth,1);
+    var monthEnd=new Date(calendarYear,calendarMonth+1,0);
+    var daysInMonth=monthEnd.getDate();
+    var expenseByDay={};
+    var maxExpense=0;
+    for(var i=0;i<allTransactions.length;i++){
+        var tx=allTransactions[i];
+        if(tx.type!=='expense')continue;
+        if(tx.date<monthStart||tx.date>monthEnd)continue;
+        var day=tx.date.getDate();
+        var rub=tx.rub;if(tx.usd>0)rub=tx.usd*currentUsdRate;
+        expenseByDay[day]=(expenseByDay[day]||0)+rub;
+        if(expenseByDay[day]>maxExpense)maxExpense=expenseByDay[day];
+    }
+    var firstDayOfWeek=new Date(calendarYear,calendarMonth,1).getDay();
+    var offset=(firstDayOfWeek===0)?6:firstDayOfWeek-1;
+    var html='';
+    for(var i=0;i<offset;i++)html+='<div class="cal-day empty"></div>';
+    var today=new Date();
+    var isCurrentMonth=(today.getFullYear()===calendarYear&&today.getMonth()===calendarMonth);
+    for(var d=1;d<=daysInMonth;d++){
+        var expense=expenseByDay[d]||0;
+        var level=0;
+        if(maxExpense>0&&expense>0){
+            var ratio=expense/maxExpense;
+            if(ratio>=0.8)level=4;
+            else if(ratio>=0.55)level=3;
+            else if(ratio>=0.3)level=2;
+            else level=1;
+        }
+        var isToday=isCurrentMonth&&today.getDate()===d;
+        var cls='cal-day lvl'+level+(isToday?' today':'');
+        html+='<div class="'+cls+'" data-day="'+d+'">'+d+'</div>';
+    }
+    grid.innerHTML=html;
+    var cells=grid.querySelectorAll('.cal-day:not(.empty)');
+    for(var j=0;j<cells.length;j++){
+        (function(el){
+            el.addEventListener('click',function(){
+                var day=parseInt(this.dataset.day,10);
+                var spent=expenseByDay[day]||0;
+                if(spent>0){
+                    showToast('📅 '+day+' '+monthNames[calendarMonth]+': потрачено '+roundRub(spent).toLocaleString('ru-RU')+' ₽',3000);
+                } else {
+                    showToast('📅 '+day+' '+monthNames[calendarMonth]+': трат нет',2000);
+                }
+            });
+        })(cells[j]);
+    }
+}
+
 /* ===== DASHBOARD ===== */
 function renderDashboard(txs,period){
     if(!txs.length){
@@ -663,7 +650,6 @@ function renderDashboard(txs,period){
     var ms=computeStats(monthTxs);
     $('periodDisplay').textContent=monthStart.toLocaleDateString('ru-RU')+' — '+monthEnd.toLocaleDateString('ru-RU');
 
-    // Сравнение с прошлым месяцем
     var prevMonthStart=new Date(now.getFullYear(),now.getMonth()-1,1);
     var prevMonthEnd=new Date(now.getFullYear(),now.getMonth(),0);
     var prevInc=0,prevExp=0;
@@ -779,6 +765,7 @@ function renderDashboard(txs,period){
     renderForecast();
     renderCalendar();
     $('dashboard').classList.remove('hidden');
+    $('emptyState').classList.add('hidden');
 }
 
 function updateWithFilter(period){
@@ -798,19 +785,15 @@ function initData(txs){
     if(!autoUpdateTimer)startAutoUpdate();
 }
 
-/* ===== BALANCE HISTORY CHART (cumulative from beginning) ===== */
 function drawBalanceHistoryChart(txs,period){
     var c=$('balanceHistoryChart');if(!c)return;
     var emptyEl=$('balanceChartEmpty');
     if(balanceHistoryChart){balanceHistoryChart.destroy();balanceHistoryChart=null;}
     if(!txs.length){if(emptyEl)emptyEl.style.display='flex';c.style.display='none';return;}
     if(emptyEl)emptyEl.style.display='none';c.style.display='block';
-
     period=period||currentFilter;
     var sorted=txs.slice().sort(function(a,b){return a.date-b.date;});
     var windowStart=sorted[0].date.getTime();
-
-    // Считаем накопленное ДО начала окна
     var incomeBefore=0, expenseBefore=0;
     for(var i=0;i<allTransactions.length;i++){
         var tx=allTransactions[i];
@@ -819,9 +802,7 @@ function drawBalanceHistoryChart(txs,period){
         if(tx.type==='income')incomeBefore+=rub;
         else expenseBefore+=rub;
     }
-
     var incomeBuckets=[], expenseBuckets=[], labels=[];
-
     if(period==='day'){
         for(var i=0;i<24;i++){incomeBuckets.push(0);expenseBuckets.push(0);labels.push((i<10?'0'+i:i)+':00');}
         for(var i=0;i<sorted.length;i++){
@@ -888,7 +869,6 @@ function drawBalanceHistoryChart(txs,period){
             expenseBuckets.push(byMonth[keys[i]].expense);
         }
     }
-
     var cumIncome=[], cumExpense=[];
     var runI=incomeBefore, runE=expenseBefore;
     for(var i=0;i<incomeBuckets.length;i++){
@@ -897,7 +877,6 @@ function drawBalanceHistoryChart(txs,period){
         cumIncome.push(roundRub(runI));
         cumExpense.push(roundRub(runE));
     }
-
     var showPoints=labels.length<=8;
     var theme=getChartTheme();
     balanceHistoryChart=new Chart(c.getContext('2d'),{
@@ -905,71 +884,19 @@ function drawBalanceHistoryChart(txs,period){
         data:{
             labels:labels,
             datasets:[
-                {
-                    label:'Доход',
-                    data:cumIncome,
-                    borderColor:theme.green,
-                    backgroundColor:'rgba(34,197,94,0.15)',
-                    borderWidth:3,
-                    pointBackgroundColor:theme.green,
-                    pointBorderColor:theme.green,
-                    pointRadius:showPoints?4:0,
-                    pointHoverRadius:5,
-                    tension:0.4,
-                    fill:true
-                },
-                {
-                    label:'Расход',
-                    data:cumExpense,
-                    borderColor:theme.red,
-                    backgroundColor:'rgba(239,68,68,0.12)',
-                    borderWidth:3,
-                    pointBackgroundColor:theme.red,
-                    pointBorderColor:theme.red,
-                    pointRadius:showPoints?4:0,
-                    pointHoverRadius:5,
-                    tension:0.4,
-                    fill:true
-                }
+                {label:'Доход',data:cumIncome,borderColor:theme.green,backgroundColor:'rgba(34,197,94,0.15)',borderWidth:3,pointBackgroundColor:theme.green,pointBorderColor:theme.green,pointRadius:showPoints?4:0,pointHoverRadius:5,tension:0.4,fill:true},
+                {label:'Расход',data:cumExpense,borderColor:theme.red,backgroundColor:'rgba(239,68,68,0.12)',borderWidth:3,pointBackgroundColor:theme.red,pointBorderColor:theme.red,pointRadius:showPoints?4:0,pointHoverRadius:5,tension:0.4,fill:true}
             ]
         },
         options:{
-            responsive:true,
-            maintainAspectRatio:false,
-            interaction:{mode:'index',intersect:false},
+            responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
             plugins:{
                 legend:{display:true,labels:{color:theme.textMuted,boxWidth:10,boxHeight:10,font:{size:10},padding:8,usePointStyle:true,pointStyle:'circle'}},
-                tooltip:{
-                    backgroundColor:'#1c2230',
-                    borderColor:'#2c3444',
-                    borderWidth:1,
-                    titleColor:'#f2f5fa',
-                    bodyColor:'#f2f5fa',
-                    callbacks:{
-                        label:function(ctx){return ctx.dataset.label+': '+roundRub(ctx.parsed.y).toLocaleString('ru-RU')+' ₽';},
-                        afterBody:function(items){
-                            if(!items.length)return '';
-                            var inc=cumIncome[items[0].dataIndex];
-                            var exp=cumExpense[items[0].dataIndex];
-                            var bal=inc-exp;
-                            return 'Баланс: '+roundRub(bal).toLocaleString('ru-RU')+' ₽';
-                        }
-                    }
-                }
+                tooltip:{backgroundColor:'#1c2230',borderColor:'#2c3444',borderWidth:1,titleColor:'#f2f5fa',bodyColor:'#f2f5fa',callbacks:{label:function(ctx){return ctx.dataset.label+': '+roundRub(ctx.parsed.y).toLocaleString('ru-RU')+' ₽';},afterBody:function(items){if(!items.length)return '';var inc=cumIncome[items[0].dataIndex];var exp=cumExpense[items[0].dataIndex];return 'Баланс: '+roundRub(inc-exp).toLocaleString('ru-RU')+' ₽';}}}
             },
             scales:{
-                y:{
-                    grid:{color:theme.grid},
-                    ticks:{color:theme.textMuted,callback:function(v){
-                        if(Math.abs(v)>=1000000)return (v/1000000).toFixed(1)+'M';
-                        if(Math.abs(v)>=1000)return (v/1000).toFixed(0)+'k';
-                        return v;
-                    }}
-                },
-                x:{
-                    grid:{color:theme.grid},
-                    ticks:{color:theme.textMuted,maxTicksLimit:8,maxRotation:0,autoSkip:true,font:{size:10}}
-                }
+                y:{grid:{color:theme.grid},ticks:{color:theme.textMuted,callback:function(v){if(Math.abs(v)>=1000000)return (v/1000000).toFixed(1)+'M';if(Math.abs(v)>=1000)return (v/1000).toFixed(0)+'k';return v;}}},
+                x:{grid:{color:theme.grid},ticks:{color:theme.textMuted,maxTicksLimit:8,maxRotation:0,autoSkip:true,font:{size:10}}}
             }
         }
     });
@@ -983,10 +910,8 @@ function drawRateHistoryChart(){
         rateHistoryChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'Курс',data:[],borderColor:theme.accent,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:theme.textMuted}}}}});
         return;
     }
-
     var labels=rateHistory.map(function(x){return x.date.toLocaleDateString('ru-RU')+' '+x.date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});});
     var values=rateHistory.map(function(x){return x.rate;});
-
     rateHistoryChart=new Chart(ctx,{
         type:'line',
         data:{
@@ -1019,43 +944,19 @@ function drawRateHistoryChart(){
             }]
         },
         options:{
-            responsive:true,
-            maintainAspectRatio:false,
-            interaction:{mode:'index',intersect:false},
+            responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
             plugins:{
                 legend:{display:false},
-                tooltip:{
-                    backgroundColor:'#1c2230',
-                    borderColor:'#2c3444',
-                    borderWidth:1,
-                    titleColor:'#f2f5fa',
-                    bodyColor:'#f2f5fa',
-                    callbacks:{
-                        label:function(c){
-                            var i=c.dataIndex;
-                            var sign='';
-                            if(i>0){
-                                var diff=c.parsed.y-values[i-1];
-                                sign=' ('+(diff>=0?'+':'')+diff.toFixed(2)+')';
-                            }
-                            return c.parsed.y.toFixed(2)+' ₽'+sign;
-                        }
-                    }
-                }
+                tooltip:{backgroundColor:'#1c2230',borderColor:'#2c3444',borderWidth:1,titleColor:'#f2f5fa',bodyColor:'#f2f5fa',callbacks:{label:function(c){var i=c.dataIndex;var sign='';if(i>0){var diff=c.parsed.y-values[i-1];sign=' ('+(diff>=0?'+':'')+diff.toFixed(2)+')';}return c.parsed.y.toFixed(2)+' ₽'+sign;}}}
             },
             scales:{
-                y:{
-                    grid:{color:theme.grid},
-                    ticks:{color:theme.textMuted,callback:function(v){return v.toFixed(2)+' ₽';}}
-                },
-                x:{
-                    grid:{color:theme.grid},
-                    ticks:{color:theme.textMuted,maxTicksLimit:6,maxRotation:30,autoSkip:true,font:{size:9}}
-                }
+                y:{grid:{color:theme.grid},ticks:{color:theme.textMuted,callback:function(v){return v.toFixed(2)+' ₽';}}},
+                x:{grid:{color:theme.grid},ticks:{color:theme.textMuted,maxTicksLimit:6,maxRotation:30,autoSkip:true,font:{size:9}}}
             }
         }
     });
 }
+
 function setRate(rate){
     if(isNaN(rate)||rate<=0){alert('Введите корректный курс');return;}
     var old=currentUsdRate;currentUsdRate=rate;saveRate(rate);
@@ -1113,17 +1014,9 @@ function pushRateToGitHub(){
             .then(function(meta){
                 var body={message:'Курс '+currentUsdRate.toFixed(2)+' ₽ ('+rateHistory.length+')',content:updatedB64};
                 if(meta.sha)body.sha=meta.sha;
-                return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/rate.json',{
-                    method:'PUT',
-                    headers:{'Authorization':'token '+token,'Content-Type':'application/json'},
-                    body:JSON.stringify(body)
-                });
+                return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/rate.json',{method:'PUT',headers:{'Authorization':'token '+token,'Content-Type':'application/json'},body:JSON.stringify(body)});
             })
-            .then(function(r){
-                if(r.status===409&&retriesLeft>0)return attempt(retriesLeft-1);
-                if(!r.ok)throw new Error('PUT: '+r.status);
-                return r.json();
-            });
+            .then(function(r){if(r.status===409&&retriesLeft>0)return attempt(retriesLeft-1);if(!r.ok)throw new Error('PUT: '+r.status);return r.json();});
     }
     return attempt(3).then(function(){markSynced();renderRateFreshness();return true;}).catch(function(){return false;});
 }
@@ -1183,23 +1076,6 @@ function fillCategories(type,selectId){
 }
 
 /* ===== TX MODAL ===== */
-function repeatLastTransaction(){
-    if(!allTransactions.length){showToast('ℹ️ Нет транзакций для повтора');return;}
-    var latest=null;
-    for(var i=0;i<allTransactions.length;i++){
-        if(!latest||allTransactions[i].date>latest.date)latest=allTransactions[i];
-    }
-    if(!latest){showToast('ℹ️ Нет данных');return;}
-    openTxModal(-1,latest.type,{
-        type:latest.type,
-        rub:latest.rub,
-        usd:latest.usd,
-        category:latest.category,
-        note:(latest.note&&latest.note!=='-')?latest.note:''
-    });
-    showToast('🔁 Повтор: '+latest.category,2000);
-}
-
 function openTxModal(editIdx,presetType,presetData){
     editingIndex=(typeof editIdx==='number')?editIdx:-1;
     var title=$('txModalTitle');
@@ -1258,6 +1134,16 @@ function deleteTransaction(i){
     allTransactions.splice(i,1);saveTransactions(allTransactions);updateWithFilter(currentFilter);
     $('fileStatus').textContent='🗑️ Удалено';
     scheduleAutoSync();
+}
+function repeatLastTransaction(){
+    if(!allTransactions.length){showToast('ℹ️ Нет транзакций для повтора');return;}
+    var latest=null;
+    for(var i=0;i<allTransactions.length;i++){
+        if(!latest||allTransactions[i].date>latest.date)latest=allTransactions[i];
+    }
+    if(!latest){showToast('ℹ️ Нет данных');return;}
+    openTxModal(-1,latest.type,{type:latest.type,rub:latest.rub,usd:latest.usd,category:latest.category,note:(latest.note&&latest.note!=='-')?latest.note:''});
+    showToast('🔁 Повтор: '+latest.category,2000);
 }
 
 /* ===== CATEGORY DETAIL ===== */
@@ -1333,93 +1219,32 @@ function putJsonFile(path,data,message){
             .then(function(meta){
                 var body={message:message||('Update '+path),content:b64};
                 if(meta.sha)body.sha=meta.sha;
-                return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/'+path,{
-                    method:'PUT',
-                    headers:{'Authorization':'token '+token,'Content-Type':'application/json'},
-                    body:JSON.stringify(body)
-                });
+                return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/'+path,{method:'PUT',headers:{'Authorization':'token '+token,'Content-Type':'application/json'},body:JSON.stringify(body)});
             })
-            .then(function(r){
-                if(r.status===409&&retriesLeft>0){return new Promise(function(res){setTimeout(res,600);}).then(function(){return attempt(retriesLeft-1);});}
-                if(!r.ok)throw new Error('PUT: '+r.status);
-                return r.json();
-            });
+            .then(function(r){if(r.status===409&&retriesLeft>0){return new Promise(function(res){setTimeout(res,600);}).then(function(){return attempt(retriesLeft-1);});}if(!r.ok)throw new Error('PUT: '+r.status);return r.json();});
     }
     return attempt(4);
 }
-function mergeById(local,remote){
-    var seen={};
-    var merged=[];
-    for(var i=0;i<local.length;i++){if(local[i].id)seen[local[i].id]=true;merged.push(local[i]);}
-    for(var i=0;i<remote.length;i++){if(remote[i].id&&!seen[remote[i].id]){seen[remote[i].id]=true;merged.push(remote[i]);}}
-    return merged;
-}
-function mergeBudgets(local,remote){
-    var seen={};
-    var merged=[];
-    for(var i=0;i<local.length;i++){if(local[i].category)seen[local[i].category]=true;merged.push(local[i]);}
-    for(var i=0;i<remote.length;i++){if(remote[i].category&&!seen[remote[i].category]){seen[remote[i].category]=true;merged.push(remote[i]);}}
-    return merged;
-}
-function syncTemplates(){
-    if(!getToken())return Promise.resolve(false);
-    return putJsonFile(TEMPLATES_FILE,templates,'Шаблоны ('+templates.length+')').catch(function(){return false;});
-}
-function syncBudgets(){
-    if(!getToken())return Promise.resolve(false);
-    return putJsonFile(BUDGETS_FILE,budgets,'Бюджеты ('+budgets.length+')').catch(function(){return false;});
-}
-function syncGoals(){
-    if(!getToken())return Promise.resolve(false);
-    return putJsonFile(GOALS_FILE,goals,'Цели ('+goals.length+')').catch(function(){return false;});
-}
-function loadTemplatesFromServer(){
-    return fetchJsonFile(TEMPLATES_FILE).then(function(data){
-        if(!data||!Array.isArray(data))return false;
-        templates=mergeById(templates,data);
-        saveTemplates();
-        return true;
-    });
-}
-function loadBudgetsFromServer(){
-    return fetchJsonFile(BUDGETS_FILE).then(function(data){
-        if(!data||!Array.isArray(data))return false;
-        budgets=mergeBudgets(budgets,data);
-        saveBudgets();
-        return true;
-    });
-}
-function loadGoalsFromServer(){
-    return fetchJsonFile(GOALS_FILE).then(function(data){
-        if(!data||!Array.isArray(data))return false;
-        goals=mergeById(goals,data);
-        saveGoals();
-        return true;
-    });
-}
-function syncAllExtras(){
-    if(!getToken())return;
-    syncTemplates();
-    syncBudgets();
-    syncGoals();
-}
+function syncTemplates(){if(!getToken())return Promise.resolve(false);return putJsonFile(TEMPLATES_FILE,templates,'Шаблоны ('+templates.length+')').catch(function(){return false;});}
+function syncBudgets(){if(!getToken())return Promise.resolve(false);return putJsonFile(BUDGETS_FILE,budgets,'Бюджеты ('+budgets.length+')').catch(function(){return false;});}
+function syncGoals(){if(!getToken())return Promise.resolve(false);return putJsonFile(GOALS_FILE,goals,'Цели ('+goals.length+')').catch(function(){return false;});}
+function loadTemplatesFromServer(){return fetchJsonFile(TEMPLATES_FILE).then(function(data){if(!data||!Array.isArray(data))return false;templates=mergeById(templates,data);saveTemplates();return true;});}
+function loadBudgetsFromServer(){return fetchJsonFile(BUDGETS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;budgets=mergeBudgets(budgets,data);saveBudgets();return true;});}
+function loadGoalsFromServer(){return fetchJsonFile(GOALS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;goals=mergeById(goals,data);saveGoals();return true;});}
+function syncAllExtras(){if(!getToken())return;syncTemplates();syncBudgets();syncGoals();}
 
 /* ===== АВТОСИНХРОНИЗАЦИЯ ===== */
+function scheduleSyncExtras(){
+    if(!getToken())return;
+    if(extrasSyncTimer)clearTimeout(extrasSyncTimer);
+    extrasSyncTimer=setTimeout(function(){syncAllExtras();},1500);
+}
 function scheduleAutoSync(){
     if(!getToken())return;
     if(!allTransactions.length)return;
     if(autoSyncTimer)clearTimeout(autoSyncTimer);
     autoSyncTimer=setTimeout(function(){silentSync();},2000);
 }
-
-var extrasSyncTimer=null;
-function scheduleSyncExtras(){
-    if(!getToken())return;
-    if(extrasSyncTimer)clearTimeout(extrasSyncTimer);
-    extrasSyncTimer=setTimeout(function(){syncAllExtras();},1500);
-}
-
-
 function silentSync(){
     if(!getToken())return;
     if(!allTransactions.length)return;
@@ -1442,28 +1267,11 @@ function silentSync(){
         return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/stats2.json',{headers:{'Authorization':'token '+token},cache:'no-store'})
             .then(function(r){if(!r.ok)throw new Error('GET: '+r.status);return r.json();})
             .then(function(meta){
-                return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/stats2.json',{
-                    method:'PUT',
-                    headers:{'Authorization':'token '+token,'Content-Type':'application/json'},
-                    body:JSON.stringify({message:'Автосинхронизация ('+allTransactions.length+')',content:updatedB64,sha:meta.sha})
-                });
+                return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/stats2.json',{method:'PUT',headers:{'Authorization':'token '+token,'Content-Type':'application/json'},body:JSON.stringify({message:'Автосинхронизация ('+allTransactions.length+')',content:updatedB64,sha:meta.sha})});
             })
-            .then(function(r){
-                if(r.status===409&&retriesLeft>0){return new Promise(function(resolve){setTimeout(resolve,600);}).then(function(){return attempt(retriesLeft-1);});}
-                if(!r.ok)throw new Error('PUT: '+r.status);
-                return r.json();
-            });
+            .then(function(r){if(r.status===409&&retriesLeft>0){return new Promise(function(resolve){setTimeout(resolve,600);}).then(function(){return attempt(retriesLeft-1);});}if(!r.ok)throw new Error('PUT: '+r.status);return r.json();});
     }
-    return attempt(4)
-        .then(function(){
-            markSynced();
-            var fs=$('fileStatus');
-            if(fs)fs.textContent='☁️ Сохранено: '+allTransactions.length;
-        })
-        .catch(function(e){
-            var fs=$('fileStatus');
-            if(fs)fs.textContent='⚠️ '+e.message;
-        });
+    return attempt(4).then(function(){markSynced();var fs=$('fileStatus');if(fs)fs.textContent='☁️ Сохранено: '+allTransactions.length;}).catch(function(e){var fs=$('fileStatus');if(fs)fs.textContent='⚠️ '+e.message;});
 }
 
 /* ===== SETTINGS ===== */
@@ -2039,13 +1847,8 @@ document.addEventListener('touchmove',function(e){
     ind.classList.add('visible');
     ind.style.transform='translateY('+(capped-PULL_MAX)+'px)';
     var txt=$('pullText');
-    if(dy>=PULL_THRESHOLD*2){
-        ind.classList.add('ready');
-        if(txt)txt.textContent='Отпустите для обновления';
-    }else{
-        ind.classList.remove('ready');
-        if(txt)txt.textContent='Потяните вниз...';
-    }
+    if(dy>=PULL_THRESHOLD*2){ind.classList.add('ready');if(txt)txt.textContent='Отпустите для обновления';}
+    else{ind.classList.remove('ready');if(txt)txt.textContent='Потяните вниз...';}
 },{passive:true});
 document.addEventListener('touchend',function(e){
     if(!pullActive)return;
@@ -2064,33 +1867,17 @@ function doPullRefresh(){
     if(pullRefreshing)return;
     pullRefreshing=true;
     var ind=$('pullIndicator');
-    if(ind){
-        ind.classList.add('visible','spinning','ready');
-        ind.style.transform='translateY(0)';
-        var txt=$('pullText');
-        if(txt)txt.textContent='Обновление...';
-    }
+    if(ind){ind.classList.add('visible','spinning','ready');ind.style.transform='translateY(0)';var txt=$('pullText');if(txt)txt.textContent='Обновление...';}
     Promise.resolve()
         .then(function(){return loadData(false);})
         .then(function(){return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer()]);})
         .then(function(){renderTemplatesList('settingsTemplatesList','settings');renderSettingsBudgetsList();renderSettingsGoalsList();renderCbrRate();return new Promise(function(r){setTimeout(r,300);});})
         .then(function(){
             pullRefreshing=false;
-            if(ind){
-                ind.classList.remove('spinning');
-                var txt=$('pullText');
-                if(txt)txt.textContent='✅ Обновлено';
-            }
-            setTimeout(function(){
-                hidePullIndicator();
-                var txt=$('pullText');
-                if(txt)txt.textContent='Потяните вниз...';
-            },500);
+            if(ind){ind.classList.remove('spinning');var txt=$('pullText');if(txt)txt.textContent='✅ Обновлено';}
+            setTimeout(function(){hidePullIndicator();var txt=$('pullText');if(txt)txt.textContent='Потяните вниз...';},500);
         })
-        .catch(function(){
-            pullRefreshing=false;
-            hidePullIndicator();
-        });
+        .catch(function(){pullRefreshing=false;hidePullIndicator();});
 }
 
 /* ===== SYNC ===== */
@@ -2100,6 +1887,7 @@ function doSync(){
     if(!token){$('tokenModal').classList.add('open');lockBackground();return;}
     showToast('⏳ Синхронизация...',2000);
     pushRateToGitHub();
+    syncAllExtras();
     fetch('https://raw.githubusercontent.com/arturskvortsov-boop/finance-dashboard/main/stats2.json?t='+Date.now(),{cache:'no-store'})
         .then(function(r){if(!r.ok)return null;return r.text();})
         .catch(function(){return null;})
@@ -2125,17 +1913,9 @@ function doSync(){
                 return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/stats2.json',{headers:{'Authorization':'token '+token},cache:'no-store'})
                     .then(function(r){if(!r.ok)throw new Error('GET: '+r.status);return r.json();})
                     .then(function(meta){
-                        return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/stats2.json',{
-                            method:'PUT',
-                            headers:{'Authorization':'token '+token,'Content-Type':'application/json'},
-                            body:JSON.stringify({message:'Синхронизация PWA ('+allTransactions.length+')',content:updatedB64,sha:meta.sha})
-                        });
+                        return fetch('https://api.github.com/repos/arturskvortsov-boop/finance-dashboard/contents/stats2.json',{method:'PUT',headers:{'Authorization':'token '+token,'Content-Type':'application/json'},body:JSON.stringify({message:'Синхронизация PWA ('+allTransactions.length+')',content:updatedB64,sha:meta.sha})});
                     })
-                    .then(function(r){
-                        if(r.status===409&&retriesLeft>0){return new Promise(function(resolve){setTimeout(resolve,500);}).then(function(){return attemptStats(retriesLeft-1);});}
-                        if(!r.ok)throw new Error('PUT: '+r.status);
-                        return r.json();
-                    });
+                    .then(function(r){if(r.status===409&&retriesLeft>0){return new Promise(function(resolve){setTimeout(resolve,500);}).then(function(){return attemptStats(retriesLeft-1);});}if(!r.ok)throw new Error('PUT: '+r.status);return r.json();});
             }
             return attemptStats(4);
         })
@@ -2156,17 +1936,6 @@ function doRefresh(){
 }
 
 /* ===== EVENTS ===== */
-/* ===== CALENDAR EVENTS ===== */
-$('calPrev').addEventListener('click',function(){
-    calendarMonth--;
-    if(calendarMonth<0){calendarMonth=11;calendarYear--;}
-    renderCalendar();
-});
-$('calNext').addEventListener('click',function(){
-    calendarMonth++;
-    if(calendarMonth>11){calendarMonth=0;calendarYear++;}
-    renderCalendar();
-});
 var filterBtns=document.querySelectorAll('.filter-btn');
 for(var i=0;i<filterBtns.length;i++){
     (function(btn){
@@ -2190,6 +1959,17 @@ for(var i=0;i<collapsibleHeaders.length;i++){
         });
     })(collapsibleHeaders[i]);
 }
+
+$('calPrev').addEventListener('click',function(){
+    calendarMonth--;
+    if(calendarMonth<0){calendarMonth=11;calendarYear--;}
+    renderCalendar();
+});
+$('calNext').addEventListener('click',function(){
+    calendarMonth++;
+    if(calendarMonth>11){calendarMonth=0;calendarYear++;}
+    renderCalendar();
+});
 
 $('closeTxModal').addEventListener('click',closeTxModal);
 $('cancelTxBtn').addEventListener('click',closeTxModal);
@@ -2226,6 +2006,7 @@ $('saveTxBtn').addEventListener('click',function(){
         var tplDayVal=parseInt($('txTemplateDay').value)||0;
         templates.push({id:'tpl_'+Date.now()+'_'+Math.floor(Math.random()*1000),name:tplNameVal,type:currentTxType,rub:rub,usd:usd,category:category,note:(note==='-')?'':note,dayOfMonth:tplDayVal});
         saveTemplates();renderTemplatesList('settingsTemplatesList','settings');
+        scheduleSyncExtras();
     }
     var dt=new Date(dtVal);
     var d=pad(dt.getDate()),mo=pad(dt.getMonth()+1),y=dt.getFullYear(),h=pad(dt.getHours()),mi=pad(dt.getMinutes());
@@ -2427,6 +2208,28 @@ function animateCurrencyNumbers(){
     animateValue($('rateProfit'),rateDiff,' ₽',0,true);
 }
 
+/* ===== TELEGRAM BACK BUTTON + UI ===== */
+if(isTelegram&&tg){
+    tg.BackButton.onClick(function(){
+        var modal=document.querySelector('.modal-overlay.open');
+        if(modal){modal.classList.remove('open');unlockBackground();try{tg.BackButton.hide();}catch(e){}return;}
+        var sheet=$('moreSheet');
+        if(sheet&&sheet.classList.contains('open')){closeMoreSheet();try{tg.BackButton.hide();}catch(e){}return;}
+        var fan=$('fabFan');
+        if(fan&&fan.classList.contains('open')){closeFabFan();try{tg.BackButton.hide();}catch(e){}return;}
+    });
+    var observer=new MutationObserver(function(){
+        var hasOpen=document.querySelector('.modal-overlay.open, .bottom-sheet.open, .fab-fan.open');
+        if(hasOpen){try{tg.BackButton.show();}catch(e){}}
+        else{try{tg.BackButton.hide();}catch(e){}}
+    });
+    observer.observe(document.body,{attributes:true,subtree:true,attributeFilter:['class']});
+    var tgName=getTelegramName();
+    if(tgName){
+        setTimeout(function(){showToast('👋 Привет, '+tgName+'!',2500);},1500);
+    }
+}
+
 /* ===== VISIBILITY SYNC ===== */
 document.addEventListener('visibilitychange',function(){
     if(document.visibilityState==='hidden'){
@@ -2447,52 +2250,6 @@ document.addEventListener('visibilitychange',function(){
             .catch(function(){});
     }
 });
-
-/* ===== TELEGRAM BACK BUTTON ===== */
-if(isTelegram&&tg){
-    tg.BackButton.onClick(function(){
-        // Приоритет закрытия: модалка → bottom sheet → FAB-веер
-        var modal=document.querySelector('.modal-overlay.open');
-        if(modal){
-            modal.classList.remove('open');
-            unlockBackground();
-            try{tg.BackButton.hide();}catch(e){}
-            return;
-        }
-        var sheet=$('moreSheet');
-        if(sheet&&sheet.classList.contains('open')){
-            closeMoreSheet();
-            try{tg.BackButton.hide();}catch(e){}
-            return;
-        }
-        var fan=$('fabFan');
-        if(fan&&fan.classList.contains('open')){
-            closeFabFan();
-            try{tg.BackButton.hide();}catch(e){}
-            return;
-        }
-    });
-    // Показываем Back Button только когда есть что закрыть
-    var observer=new MutationObserver(function(){
-        var hasOpen=document.querySelector('.modal-overlay.open, .bottom-sheet.open, .fab-fan.open');
-        if(hasOpen){try{tg.BackButton.show();}catch(e){}}
-        else{try{tg.BackButton.hide();}catch(e){}}
-    });
-    observer.observe(document.body,{attributes:true,subtree:true,attributeFilter:['class']});
-}
-
-/* ===== TELEGRAM UI TWEAKS ===== */
-if(isTelegram&&tg){
-    try{tg.setHeaderColor('#0b0e14');}catch(e){}
-    try{tg.setBackgroundColor('#000000');}catch(e){}
-    var tgName=getTelegramName();
-    if(tgName){
-        setTimeout(function(){
-            showToast('👋 Привет, '+tgName+'!',2500);
-        },1500);
-    }
-}
-
 
 /* START */
 try{hideBalance=(localStorage.getItem(HIDE_BALANCE_KEY)==='1');}catch(e){}
@@ -2539,11 +2296,7 @@ loadData(true).then(function(loaded){
                     var newCat=normalizeCategory(oldCat);
                     if(oldCat!==newCat){stored[mi].category=newCat;changed++;}
                 }
-                if(changed>0){
-                    allTransactions=stored;
-                    saveTransactions(allTransactions);
-                    updateWithFilter(currentFilter);
-                }
+                if(changed>0){allTransactions=stored;saveTransactions(allTransactions);updateWithFilter(currentFilter);}
             }
             localStorage.setItem(MIGRATION_KEY,'1');
         }
@@ -2557,11 +2310,7 @@ loadData(true).then(function(loaded){
                 var block=$('remindersBlock');
                 if(pending.length){
                     showToast('📌 Напоминаний: '+pending.length,4000);
-                    if(block){
-                        block.classList.add('highlight');
-                        try{block.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}
-                        setTimeout(function(){block.classList.remove('highlight');},3500);
-                    }
+                    if(block){block.classList.add('highlight');try{block.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}setTimeout(function(){block.classList.remove('highlight');},3500);}
                 } else showToast('✅ Всё внесено, напоминаний нет.',3000);
             },700);
         }
