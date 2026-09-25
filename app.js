@@ -22,15 +22,40 @@ var tgUser=null;
 var isTelegram=false;
 try{
     if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData){
-        tg=window.Telegram.WebApp;
-        isTelegram=true;
-        try{tg.ready();tg.expand();}catch(e){}
-        try{if(tg.disableVerticalSwipes)tg.disableVerticalSwipes();}catch(e){}
+    tg=window.Telegram.WebApp;
+    isTelegram=true;
+    try{tg.ready();tg.expand();}catch(e){}
+    try{if(tg.disableVerticalSwipes)tg.disableVerticalSwipes();}catch(e){}
+    // Full Screen Mode (Bot API 8.0+)
+    try{
+        if(tg.requestFullscreen){
+            tg.requestFullscreen();
+        }
+    }catch(e){}
+    // Скрываем стандартные элементы управления
+    try{
+        if(tg.setHeaderColor)tg.setHeaderColor('#000000');
+        if(tg.setBottomBarColor)tg.setBottomBarColor('#000000');
+    }catch(e){}
         if(tg.initDataUnsafe && tg.initDataUnsafe.user){
             tgUser=tg.initDataUnsafe.user;
         }
         try{document.body.classList.add('tg-webapp');}catch(e){}
-    }
+    // Отслеживаем состояние fullscreen
+    try{
+        if(tg.isFullscreen){
+            document.body.classList.add('tg-fullscreen');
+        }
+        if(tg.onEvent){
+            tg.onEvent('fullscreenChanged',function(){
+                if(tg.isFullscreen){
+                    document.body.classList.add('tg-fullscreen');
+                } else {
+                    document.body.classList.remove('tg-fullscreen');
+                }
+            });
+        }
+    }catch(e){}
 }catch(e){}
 function getTelegramUserId(){
     if(tgUser&&tgUser.id)return 'tg_'+tgUser.id;
