@@ -451,7 +451,7 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .calendar-legend .cal-leg-swatch[data-level="4"]{background:#ef4444;border-color:#ef4444}
 
 /* ===== TELEGRAM WEBAPP ===== */
-body.tg-webapp{padding-top:10px}
+body.tg-webapp{padding-top:10px;padding-bottom:calc(130px + env(safe-area-inset-bottom,0px))}
 body.tg-webapp .bottom-nav{bottom:calc(16px + env(safe-area-inset-bottom,0px))}
 body.tg-webapp .fab-fan{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 body.tg-webapp .toast{bottom:calc(130px + env(safe-area-inset-bottom,0px))}
