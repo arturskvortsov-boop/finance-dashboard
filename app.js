@@ -984,38 +984,38 @@ function drawRateHistoryChart(){
         return;
     }
 
-    // Определяем общий тренд: сравниваем первый и последний курс
-    var firstRate=rateHistory[0].rate;
-    var lastRate=rateHistory[rateHistory.length-1].rate;
-    var isRising=lastRate>=firstRate;
-
-    var lineColor=isRising?'#22c55e':'#ef4444';
-    var fillTop=isRising?'rgba(34,197,94,0.28)':'rgba(239,68,68,0.28)';
-    var fillBottom=isRising?'rgba(34,197,94,0.01)':'rgba(239,68,68,0.01)';
-
-    // Градиент под линией
-    var gradient=ctx.createLinearGradient(0,0,0,180);
-    gradient.addColorStop(0,fillTop);
-    gradient.addColorStop(1,fillBottom);
+    var labels=rateHistory.map(function(x){return x.date.toLocaleDateString('ru-RU')+' '+x.date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});});
+    var values=rateHistory.map(function(x){return x.rate;});
 
     rateHistoryChart=new Chart(ctx,{
         type:'line',
         data:{
-            labels:rateHistory.map(function(x){return x.date.toLocaleDateString('ru-RU')+' '+x.date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});}),
+            labels:labels,
             datasets:[{
                 label:'Курс USD/RUB',
-                data:rateHistory.map(function(x){return x.rate;}),
-                borderColor:lineColor,
-                backgroundColor:gradient,
+                data:values,
                 borderWidth:3,
                 pointRadius:0,
                 pointHoverRadius:6,
-                pointHoverBackgroundColor:lineColor,
+                pointHoverBackgroundColor:'#fff',
                 pointHoverBorderColor:'#fff',
                 pointHoverBorderWidth:2,
-                tension:0.45,
+                tension:0.35,
                 fill:true,
-                cubicInterpolationMode:'monotone'
+                borderColor:'#22c55e',
+                backgroundColor:'rgba(34,197,94,0.2)',
+                segment:{
+                    borderColor:function(c){
+                        var p0=c.p0.parsed.y;
+                        var p1=c.p1.parsed.y;
+                        return p1>=p0?'#22c55e':'#ef4444';
+                    },
+                    backgroundColor:function(c){
+                        var p0=c.p0.parsed.y;
+                        var p1=c.p1.parsed.y;
+                        return p1>=p0?'rgba(34,197,94,0.28)':'rgba(239,68,68,0.28)';
+                    }
+                }
             }]
         },
         options:{
@@ -1030,7 +1030,17 @@ function drawRateHistoryChart(){
                     borderWidth:1,
                     titleColor:'#f2f5fa',
                     bodyColor:'#f2f5fa',
-                    callbacks:{label:function(c){return c.parsed.y.toFixed(2)+' ₽';}}
+                    callbacks:{
+                        label:function(c){
+                            var i=c.dataIndex;
+                            var sign='';
+                            if(i>0){
+                                var diff=c.parsed.y-values[i-1];
+                                sign=' ('+(diff>=0?'+':'')+diff.toFixed(2)+')';
+                            }
+                            return c.parsed.y.toFixed(2)+' ₽'+sign;
+                        }
+                    }
                 }
             },
             scales:{
