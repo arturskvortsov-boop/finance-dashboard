@@ -968,7 +968,7 @@ function setRate(rate){
     if(isNaN(rate)||rate<=0){alert('Введите корректный курс');return;}
     var old=currentUsdRate;currentUsdRate=rate;saveRate(rate);
     $('rateInfo').textContent='1 USD = '+rate.toFixed(2)+' ₽';
-    $('rateInfoSmall').textContent='1 USD = '+rate.toFixed(2)+' ₽';
+    $('rateInfoSmall').textContent=rate.toFixed(2)+' ₽';
     var diff=((rate-old)/old*100).toFixed(2);
     var rc=$('rateChangeInfo');
     rc.textContent=diff>=0?'📈 +'+diff+'%':'📉 '+diff+'%';
@@ -2390,12 +2390,14 @@ if(isTelegram&&tg){
 }
 
 /* ===== TELEGRAM UI TWEAKS ===== */
-if(isTelegram){
-    // Приветствие в статус-строке
+if(isTelegram&&tg){
+    try{tg.setHeaderColor('#0b0e14');}catch(e){}
+    try{tg.setBackgroundColor('#000000');}catch(e){}
     var tgName=getTelegramName();
     if(tgName){
-        var fs=$('fileStatus');
-        if(fs&&(!fs.textContent||fs.textContent.indexOf('Загрузите')!==-1))fs.textContent='Привет, '+tgName+'!';
+        setTimeout(function(){
+            showToast('👋 Привет, '+tgName+'!',2500);
+        },1500);
     }
 }
 
@@ -2412,7 +2414,7 @@ if(savedRate){
     currentUsdRate=savedRate;
     $('usdRateInput').value=savedRate.toFixed(2);
     $('rateInfo').textContent='1 USD = '+savedRate.toFixed(2)+' ₽';
-    $('rateInfoSmall').textContent='1 USD = '+savedRate.toFixed(2)+' ₽';
+    $('rateInfoSmall').textContent=savedRate.toFixed(2)+' ₽';
 }
 
 renderTemplatesList('settingsTemplatesList','settings');
