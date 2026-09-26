@@ -61,6 +61,11 @@
     <div class="forecast-grid" id="forecastGrid"></div>
 </div>
 
+<div class="reminders-custom-block" id="remindersCustomBlock">
+    <h3>🔔 Напоминания <button class="rcb-add" id="rcbAddBtn">➕</button></h3>
+    <div id="remindersCustomList"></div>
+</div>
+
 
 <div class="calendar-block" id="calendarBlock">
     <div class="calendar-header">
@@ -393,6 +398,21 @@
         <div class="form-row"><label>День месяца (1-31, необязательно)</label><input type="number" id="tplDay" placeholder="Например: 5" min="1" max="31"></div>
     </div>
     <div class="modal-footer"><button class="modal-btn cancel" id="cancelTemplateEditBtn">Отмена</button><button class="modal-btn save" id="saveTemplateBtn">Сохранить</button></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="reminderEditModal">
+<div class="modal">
+    <div class="modal-header"><h2 id="reminderEditTitle">🔔 Новое напоминание</h2><button class="modal-close" id="closeReminderEditModal">×</button></div>
+    <div class="modal-body">
+        <div class="form-row"><label>Текст напоминания</label><input type="text" id="reminderText" placeholder="Например: Позвонить маме"></div>
+        <div class="form-row"><label>Дата</label><input type="date" id="reminderDate"></div>
+        <div class="form-row"><label>Время</label><input type="time" id="reminderTime" value="10:00"></div>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-btn cancel" id="cancelReminderEditBtn">Отмена</button>
+        <button class="modal-btn save" id="saveReminderBtn">Сохранить</button>
+    </div>
 </div>
 </div>
 
