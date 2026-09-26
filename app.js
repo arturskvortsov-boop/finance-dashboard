@@ -614,12 +614,15 @@ function renderCustomReminders(){
     var block=$('remindersCustomBlock');
     var list=$('remindersCustomList');
     if(!block||!list)return;
-    if(!customReminders.length){
-        block.classList.add('hidden');
-        return;
-    }
     block.classList.remove('hidden');
     list.innerHTML='';
+    if(!customReminders.length){
+        var empty=document.createElement('div');
+        empty.className='reminders-custom-empty';
+        empty.textContent='Нет напоминаний. Нажми ➕ чтобы добавить.';
+        list.appendChild(empty);
+        return;
+    }
     var now=new Date();
     var sorted=customReminders.slice().sort(function(a,b){
         return new Date(a.dueAt)-new Date(b.dueAt);
