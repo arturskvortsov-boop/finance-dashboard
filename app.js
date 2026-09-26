@@ -65,6 +65,7 @@ var GOALS_KEY='financeGoals';
 var HIDE_BALANCE_KEY='hideBalance';
 var USER_ID_KEY='financeUserId';
 var TEMPLATES_FILE='templates.json';
+var REMINDERS_FILE_CUSTOM='reminders.json';
 var BUDGETS_FILE='budgets.json';
 var GOALS_FILE='goals.json';
 
@@ -80,6 +81,7 @@ var rateHistory=[];
 var templates=[];
 var budgets=[];
 var goals=[];
+var customReminders=[];
 var currentFilter='month';
 var dataLoaded=false;
 var currentUsdRate=85.00;
@@ -92,6 +94,7 @@ var currentTxTypeFilter='all';
 var editingTemplateId=null;
 var currentTplType='income';
 var editingBudgetCategory=null;
+var editingReminderId=null;
 var editingGoalId=null;
 var currentGoalIcon='🎯';
 var scrollY=0;
@@ -261,6 +264,8 @@ function getToken(){return localStorage.getItem(TOKEN_KEY)||'';}
 function setToken(t){localStorage.setItem(TOKEN_KEY,t);}
 function saveTemplates(){try{localStorage.setItem(TEMPLATES_KEY,JSON.stringify(templates));}catch(e){}}
 function loadTemplates(){try{var s=localStorage.getItem(TEMPLATES_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
+function saveCustomReminders(t){try{localStorage.setItem('financeCustomReminders',JSON.stringify(t));}catch(e){}}
+function loadCustomReminders(){try{var s=localStorage.getItem('financeCustomReminders');if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveBudgets(){try{localStorage.setItem(BUDGETS_KEY,JSON.stringify(budgets));}catch(e){}}
 function loadBudgets(){try{var s=localStorage.getItem(BUDGETS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveGoals(){try{localStorage.setItem(GOALS_KEY,JSON.stringify(goals));}catch(e){}}
@@ -604,6 +609,136 @@ function renderCalendar(){
     }
 }
 
+/* ===== CUSTOM REMINDERS ===== */
+function renderCustomReminders(){
+    var block=$('remindersCustomBlock');
+    var list=$('remindersCustomList');
+    if(!block||!list)return;
+    if(!customReminders.length){
+        block.classList.add('hidden');
+        return;
+    }
+    block.classList.remove('hidden');
+    list.innerHTML='';
+    var now=new Date();
+    var sorted=customReminders.slice().sort(function(a,b){
+        return new Date(a.dueAt)-new Date(b.dueAt);
+    });
+    for(var i=0;i<sorted.length;i++){
+        var r=sorted[i];
+        var due=new Date(r.dueAt);
+        var isPast=due<now;
+        var item=document.createElement('div');
+        item.className='reminder-custom-item'+(isPast?' past':'');
+        var ic=document.createElement('div');ic.className='rci-ico';ic.textContent=isPast?'✅':'🔔';
+        var info=document.createElement('div');info.className='rci-info';
+        var txt=document.createElement('div');txt.className='rci-text';txt.textContent=r.text||'Напоминание';
+        var when=document.createElement('div');when.className='rci-when';
+        var dd=due.getDate()<10?'0'+due.getDate():due.getDate();
+        var mm=(due.getMonth()+1)<10?'0'+(due.getMonth()+1):(due.getMonth()+1);
+        var yy=due.getFullYear();
+        var hh=due.getHours()<10?'0'+due.getHours():due.getHours();
+        var mi=due.getMinutes()<10?'0'+due.getMinutes():due.getMinutes();
+        when.textContent=(isPast?'✓ ':'')+dd+'.'+mm+'.'+yy+' в '+hh+':'+mi;
+        info.appendChild(txt);info.appendChild(when);
+        var delBtn=document.createElement('button');delBtn.className='rci-del';delBtn.textContent='🗑️';
+        (function(id){delBtn.addEventListener('click',function(e){e.stopPropagation();deleteCustomReminder(id);});})(r.id);
+        (function(id){item.addEventListener('click',function(){openReminderEditModal(id);});})(r.id);
+        item.appendChild(ic);item.appendChild(info);item.appendChild(delBtn);
+        list.appendChild(item);
+    }
+}
+
+function openReminderEditModal(id){
+    editingReminderId=id||null;
+    var title=$('reminderEditTitle');
+    if(id){
+        var r=null;for(var i=0;i<customReminders.length;i++)if(customReminders[i].id===id){r=customReminders[i];break;}
+        if(!r)return;
+        title.textContent='✏️ Редактировать';
+        $('reminderText').value=r.text||'';
+        var d=new Date(r.dueAt);
+        var dd=d.getDate()<10?'0'+d.getDate():d.getDate();
+        var mm=(d.getMonth()+1)<10?'0'+(d.getMonth()+1):(d.getMonth()+1);
+        $('reminderDate').value=d.getFullYear()+'-'+mm+'-'+dd;
+        var hh=d.getHours()<10?'0'+d.getHours():d.getHours();
+        var mi=d.getMinutes()<10?'0'+d.getMinutes():d.getMinutes();
+        $('reminderTime').value=hh+':'+mi;
+    } else {
+        title.textContent='🔔 Новое напоминание';
+        $('reminderText').value='';
+        var today=new Date();
+        var dd=today.getDate()<10?'0'+today.getDate():today.getDate();
+        var mm=(today.getMonth()+1)<10?'0'+(today.getMonth()+1):(today.getMonth()+1);
+        $('reminderDate').value=today.getFullYear()+'-'+mm+'-'+dd;
+        $('reminderTime').value='10:00';
+    }
+    $('reminderEditModal').classList.add('open');
+    lockBackground();
+}
+function closeReminderEditModal(){
+    $('reminderEditModal').classList.remove('open');
+    editingReminderId=null;
+    unlockBackground();
+}
+function saveCustomReminder(){
+    var text=$('reminderText').value.trim();
+    var date=$('reminderDate').value;
+    var time=$('reminderTime').value;
+    if(!text){alert('Введите текст напоминания');return;}
+    if(!date){alert('Укажите дату');return;}
+    if(!time){alert('Укажите время');return;}
+    var localString=date+'T'+time+':00';
+    var due=new Date(localString);
+    if(isNaN(due.getTime())){alert('Неверная дата/время');return;}
+    var iso=due.toISOString();
+    if(editingReminderId){
+        for(var i=0;i<customReminders.length;i++)if(customReminders[i].id===editingReminderId){
+            customReminders[i].text=text;customReminders[i].dueAt=iso;break;
+        }
+        $('fileStatus').textContent='✏️ Напоминание обновлено';
+    } else {
+        customReminders.push({
+            id:'rem_'+Date.now()+'_'+Math.floor(Math.random()*1000),
+            text:text,
+            dueAt:iso,
+            status:'pending',
+            createdAt:new Date().toISOString()
+        });
+        $('fileStatus').textContent='🔔 Напоминание создано';
+    }
+    saveCustomReminders(customReminders);
+    renderCustomReminders();
+    scheduleSyncCustomReminders();
+    closeReminderEditModal();
+}
+function deleteCustomReminder(id){
+    if(!confirm('Удалить напоминание?'))return;
+    customReminders=customReminders.filter(function(r){return r.id!==id;});
+    saveCustomReminders(customReminders);
+    renderCustomReminders();
+    scheduleSyncCustomReminders();
+    $('fileStatus').textContent='🗑️ Напоминание удалено';
+}
+var customRemindersSyncTimer=null;
+function scheduleSyncCustomReminders(){
+    if(!getToken())return;
+    if(customRemindersSyncTimer)clearTimeout(customRemindersSyncTimer);
+    customRemindersSyncTimer=setTimeout(function(){syncCustomReminders();},1500);
+}
+function syncCustomReminders(){
+    if(!getToken())return Promise.resolve(false);
+    return putJsonFile(REMINDERS_FILE_CUSTOM,customReminders,'Напоминания ('+customReminders.length+')').catch(function(){return false;});
+}
+function loadCustomRemindersFromServer(){
+    return fetchJsonFile(REMINDERS_FILE_CUSTOM).then(function(data){
+        if(!data||!Array.isArray(data))return false;
+        customReminders=mergeById(customReminders,data);
+        saveCustomReminders(customReminders);
+        return true;
+    });
+}
+
 /* ===== DASHBOARD ===== */
 function renderDashboard(txs,period){
     if(!txs.length){
@@ -765,6 +900,7 @@ function renderDashboard(txs,period){
     renderReminders();
     renderForecast();
     renderCalendar();
+    renderCustomReminders();
     $('dashboard').classList.remove('hidden');
     $('emptyState').classList.add('hidden');
 }
@@ -2127,7 +2263,10 @@ for(var i=0;i<bnTabs.length;i++){
 }
 $('bnMoreBtn').addEventListener('click',openMoreSheet);
 $('bsOverlay').addEventListener('click',closeMoreSheet);
-
+$('rcbAddBtn').addEventListener('click',function(e){e.stopPropagation();openReminderEditModal(null);});
+$('closeReminderEditModal').addEventListener('click',closeReminderEditModal);
+$('cancelReminderEditBtn').addEventListener('click',closeReminderEditModal);
+$('saveReminderBtn').addEventListener('click',saveCustomReminder);
 $('bnFabBtn').addEventListener('click',function(e){
     e.stopPropagation();
     var fan=$('fabFan');
@@ -2258,6 +2397,7 @@ userId=getOrCreateUserId();
 templates=loadTemplates()||[];
 budgets=loadBudgets()||[];
 goals=loadGoals()||[];
+customReminders=loadCustomReminders()||[];
 
 var savedRate=loadRate();
 if(savedRate){
@@ -2278,8 +2418,9 @@ loadData(true).then(function(loaded){
         $('emptyState').classList.remove('hidden');
         if(!$('fileStatus').textContent||$('fileStatus').textContent==='⏳ Загрузка...')$('fileStatus').textContent='📂 Загрузите JSON или проверьте GitHub';
     }
-    return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer()]);
+    return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadCustomRemindersFromServer()]);
 }).then(function(){
+    renderCustomReminders();
     setTimeout(drawRateHistoryChart,500);
     startFreshnessTimer();
     updateTokenStatus();
