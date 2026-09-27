@@ -498,3 +498,50 @@ body.tg-webapp.tg-fullscreen .container{
 .reminder-custom-item .rci-del{background:transparent;border:1px solid var(--border);color:var(--text-muted);width:26px;height:26px;border-radius:8px;font-size:0.7rem;cursor:pointer;font-family:inherit;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0}
 .reminders-custom-empty{text-align:center;color:var(--text-dim);font-size:0.75rem;padding:14px 0}
 
+/* ===== DESKTOP ===== */
+@media (min-width: 768px){
+    body{
+        padding:20px;
+        justify-content:center;
+        align-items:flex-start;
+    }
+    .container{
+        max-width:480px;
+        border-left:1px solid var(--border);
+        border-right:1px solid var(--border);
+        padding:0 16px;
+        min-height:100vh;
+    }
+    .bottom-nav{
+        max-width:460px;
+        left:50%;
+        right:auto;
+        transform:translateX(-50%);
+        width:calc(100% - 40px);
+    }
+    .fab-fan{
+        right:calc(50% - 230px + 14px);
+    }
+    .bottom-sheet{
+        max-width:480px;
+        left:50%;
+        right:auto;
+        transform:translate(-50%,100%);
+    }
+    .bottom-sheet.open{
+        transform:translate(-50%,0);
+    }
+    .toast{
+        max-width:460px;
+    }
+    .pull-indicator{
+        max-width:480px;
+        left:50%;
+        right:auto;
+        transform:translateX(-50%) translateY(-70px);
+        border-radius:0 0 16px 16px;
+    }
+    .pull-indicator.visible{
+        transform:translateX(-50%) translateY(0) !important;
+    }
+}
