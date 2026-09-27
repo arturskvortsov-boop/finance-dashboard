@@ -24,25 +24,14 @@ try{
     if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData){
         tg=window.Telegram.WebApp;
         isTelegram=true;
-        try{tg.ready();tg.expand();}catch(e){}
-        try{if(tg.disableVerticalSwipes)tg.disableVerticalSwipes();}catch(e){}
-        try{if(tg.requestFullscreen)tg.requestFullscreen();}catch(e){}
-        try{if(tg.setHeaderColor)tg.setHeaderColor('#000000');}catch(e){}
-try{if(tg.setBottomBarColor)tg.setBottomBarColor('#000000');}catch(e){}
-try{if(tg.setBackgroundColor)tg.setBackgroundColor('#000000');}catch(e){}
+    try{tg.ready();}catch(e){}
+    try{if(tg.setHeaderColor)tg.setHeaderColor('#000000');}catch(e){}
+    try{if(tg.setBottomBarColor)tg.setBottomBarColor('#000000');}catch(e){}
+    try{if(tg.setBackgroundColor)tg.setBackgroundColor('#000000');}catch(e){}
         if(tg.initDataUnsafe && tg.initDataUnsafe.user){
             tgUser=tg.initDataUnsafe.user;
         }
         try{document.body.classList.add('tg-webapp');}catch(e){}
-        try{
-            if(tg.isFullscreen){document.body.classList.add('tg-fullscreen');}
-            if(tg.onEvent){
-                tg.onEvent('fullscreenChanged',function(){
-                    if(tg.isFullscreen){document.body.classList.add('tg-fullscreen');}
-                    else{document.body.classList.remove('tg-fullscreen');}
-                });
-            }
-        }catch(e){}
     }
 }catch(e){}
 function getTelegramUserId(){
