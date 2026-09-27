@@ -28,6 +28,22 @@ try{
     try{if(tg.setHeaderColor)tg.setHeaderColor('#000000');}catch(e){}
     try{if(tg.setBottomBarColor)tg.setBottomBarColor('#000000');}catch(e){}
     try{if(tg.setBackgroundColor)tg.setBackgroundColor('#000000');}catch(e){}
+    // Fullscreen только на мобильных (iOS/Android), не на десктопе
+    try{
+        var tgPlatform=tg.platform||'';
+        var isMobileTg=(tgPlatform==='ios'||tgPlatform==='android'||tgPlatform==='android_x');
+        if(isMobileTg){
+            if(tg.requestFullscreen)tg.requestFullscreen();
+            if(tg.disableVerticalSwipes)tg.disableVerticalSwipes();
+            if(tg.isFullscreen){document.body.classList.add('tg-fullscreen');}
+            if(tg.onEvent){
+                tg.onEvent('fullscreenChanged',function(){
+                    if(tg.isFullscreen){document.body.classList.add('tg-fullscreen');}
+                    else{document.body.classList.remove('tg-fullscreen');}
+                });
+            }
+        }
+    }catch(e){}
         if(tg.initDataUnsafe && tg.initDataUnsafe.user){
             tgUser=tg.initDataUnsafe.user;
         }
