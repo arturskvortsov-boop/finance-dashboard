@@ -209,7 +209,7 @@ function filterTransactions(txs,period){
     var start=new Date(now);
     if(period==='day')start.setHours(0,0,0,0);
     else if(period==='week'){start.setDate(now.getDate()-7);start.setHours(0,0,0,0);}
-    else{start.setMonth(now.getMonth()-1);start.setHours(0,0,0,0);}
+    else{start=new Date(now.getFullYear(),now.getMonth(),1);start.setHours(0,0,0,0);}
     return txs.filter(function(tx){return tx.date>=start;});
 }
 
@@ -480,7 +480,7 @@ function renderInsights(txs,period){
     var s=computeStats(txs);
     var periodDays=1;
     if(period==='week')periodDays=7;
-    else if(period==='month')periodDays=30;
+    else if(period==='month')periodDays=new Date().getDate();
     else if(period==='all'&&txs.length){
         var minD=txs[0].date.getTime(),maxD=txs[0].date.getTime();
         for(var i=1;i<txs.length;i++){var tm=txs[i].date.getTime();if(tm<minD)minD=tm;if(tm>maxD)maxD=tm;}
@@ -917,7 +917,7 @@ function updateWithFilter(period){
     if(!dataLoaded)return;
     var f=filterTransactions(allTransactions,period);
     renderDashboard(f,period);
-    var names={day:'за сегодня',week:'за последние 7 дней',month:'за последние 30 дней',all:'за всё время'};
+    var names={day:'за сегодня',week:'за последние 7 дней',month:'за текущий месяц',all:'за всё время'};
     $('periodLabel').textContent=names[period]||'';
 }
 function initData(txs){
