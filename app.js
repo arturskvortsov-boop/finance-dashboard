@@ -766,19 +766,19 @@ function renderDashboard(txs,period){
     $('totalBalanceRubDisplay').textContent=roundRub(sAll.netRub).toLocaleString('ru-RU')+' ₽';
     $('totalBalanceUsdDisplay').textContent=roundUsd(sAll.netUsd).toFixed(2)+' $';
     $('usdDetails').textContent='↑ $'+Math.round(s.totalIncomeUsdEq)+' · ↓ $'+Math.round(s.totalExpenseUsdEq);
-    if($('currencyHeroUsd'))$('currencyHeroUsd').textContent=roundUsd(s.netUsd).toFixed(2)+' $';
+    if($('currencyHeroUsd'))$('currencyHeroUsd').textContent=roundUsd(sAll.netUsd).toFixed(2)+' $';
     $('rateInfoSmall').textContent=currentUsdRate.toFixed(2)+' ₽';
 
     $('totalIncomeRubOnly').textContent=roundRub(s.rubIncome).toLocaleString('ru-RU')+' ₽';
     $('totalExpenseRubOnly').textContent=roundRub(s.rubExpense).toLocaleString('ru-RU')+' ₽';
     $('totalIncomeUsd').textContent=Math.round(s.totalIncomeUsdEq).toLocaleString('ru-RU')+' $';
     $('totalExpenseUsd').textContent=Math.round(s.totalExpenseUsdEq).toLocaleString('ru-RU')+' $';
-    if($('balanceUsd'))$('balanceUsd').textContent=roundUsd(s.netUsd).toFixed(2)+' $';
+    if($('balanceUsd'))$('balanceUsd').textContent=roundUsd(sAll.netUsd).toFixed(2)+' $';
     $('netIncome').textContent=roundRub(sAll.netRub).toLocaleString('ru-RU')+' ₽';
     $('recordCount').textContent=txs.length;
 
     var rateDiff=0;
-    for(var i=0;i<txs.length;i++){if(txs[i].usd>0)rateDiff+=txs[i].usd*currentUsdRate-txs[i].rub;}
+    for(var i=0;i<allTransactions.length;i++){if(allTransactions[i].usd>0)rateDiff+=allTransactions[i].usd*currentUsdRate-allTransactions[i].rub;}
     $('rateProfit').textContent=(rateDiff>=0?'+':'')+roundRub(rateDiff).toLocaleString('ru-RU')+' ₽';
 
     function fmt(n){return roundRub(n).toLocaleString('ru-RU');}
@@ -2348,10 +2348,11 @@ function animateValue(el,target,suffix,decimals,prefixPositive){
 function animateCurrencyNumbers(){
     if(!dataLoaded||!allTransactions.length)return;
     var s=computeStats(filterTransactions(allTransactions,currentFilter));
-    animateValue($('currencyHeroUsd'),s.netUsd,' $',2);
+    var sAll=computeStats(allTransactions);
+    animateValue($('currencyHeroUsd'),sAll.netUsd,' $',2);
     animateValue($('totalIncomeUsd'),s.totalIncomeUsdEq,' $',0);
     animateValue($('totalExpenseUsd'),s.totalExpenseUsdEq,' $',0);
-    if($('balanceUsd'))animateValue($('balanceUsd'),s.netUsd,' $',2);
+    if($('balanceUsd'))animateValue($('balanceUsd'),sAll.netUsd,' $',2);
     var rateDiff=0;
     for(var i=0;i<allTransactions.length;i++){var t=allTransactions[i];if(t.usd>0)rateDiff+=t.usd*currentUsdRate-t.rub;}
     animateValue($('rateProfit'),rateDiff,' ₽',0,true);
