@@ -755,6 +755,7 @@ function renderDashboard(txs,period){
         return;
     }
     var s=computeStats(txs);
+    var sAll=computeStats(allTransactions);
     var now=new Date();
     var dS=new Date(now);dS.setHours(0,0,0,0);
     var wS=new Date(now);wS.setDate(now.getDate()-7);wS.setHours(0,0,0,0);
@@ -762,8 +763,8 @@ function renderDashboard(txs,period){
     function calc(start){var arr=txs.filter(function(t){return t.date>=start;});return computeStats(arr);}
     var d=calc(dS),w=calc(wS),m=calc(mS);
 
-    $('totalBalanceRubDisplay').textContent=roundRub(s.netRub).toLocaleString('ru-RU')+' ₽';
-    $('totalBalanceUsdDisplay').textContent=roundUsd(s.netUsd).toFixed(2)+' $';
+    $('totalBalanceRubDisplay').textContent=roundRub(sAll.netRub).toLocaleString('ru-RU')+' ₽';
+    $('totalBalanceUsdDisplay').textContent=roundUsd(sAll.netUsd).toFixed(2)+' $';
     $('usdDetails').textContent='↑ $'+Math.round(s.totalIncomeUsdEq)+' · ↓ $'+Math.round(s.totalExpenseUsdEq);
     if($('currencyHeroUsd'))$('currencyHeroUsd').textContent=roundUsd(s.netUsd).toFixed(2)+' $';
     $('rateInfoSmall').textContent=currentUsdRate.toFixed(2)+' ₽';
@@ -773,7 +774,7 @@ function renderDashboard(txs,period){
     $('totalIncomeUsd').textContent=Math.round(s.totalIncomeUsdEq).toLocaleString('ru-RU')+' $';
     $('totalExpenseUsd').textContent=Math.round(s.totalExpenseUsdEq).toLocaleString('ru-RU')+' $';
     if($('balanceUsd'))$('balanceUsd').textContent=roundUsd(s.netUsd).toFixed(2)+' $';
-    $('netIncome').textContent=roundRub(s.netRub).toLocaleString('ru-RU')+' ₽';
+    $('netIncome').textContent=roundRub(sAll.netRub).toLocaleString('ru-RU')+' ₽';
     $('recordCount').textContent=txs.length;
 
     var rateDiff=0;
