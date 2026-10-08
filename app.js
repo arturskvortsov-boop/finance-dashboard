@@ -735,6 +735,88 @@ function loadCustomRemindersFromServer(){
     });
 }
 
+/* ===== PERIOD HISTORY ===== */
+var MONTH_NAMES=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+function formatMonthLabel(d){
+    return MONTH_NAMES[d.getMonth()].charAt(0).toUpperCase()+MONTH_NAMES[d.getMonth()].slice(1)+' '+d.getFullYear();
+}
+function groupByMonth(){
+    var map={};
+    for(var i=0;i<allTransactions.length;i++){
+        var tx=allTransactions[i];
+        var key=tx.date.getFullYear()+'-'+pad(tx.date.getMonth()+1);
+        if(!map[key])map[key]={key:key,month:tx.date.getMonth(),year:tx.date.getFullYear(),income:0,expense:0};
+        if(tx.type==='income')map[key].income+=tx.rub;
+        else map[key].expense+=tx.rub;
+    }
+    var arr=[];
+    for(var k in map)if(map.hasOwnProperty(k))arr.push(map[k]);
+    arr.sort(function(a,b){return (b.year-a.year)||(b.month-a.month);});
+    return arr;
+}
+function renderPeriodHistory(){
+    var block=$('periodHistoryBlock');
+    var list=$('periodHistoryList');
+    if(!block||!list)return;
+    if(!allTransactions.length){block.classList.add('hidden');return;}
+    var months=groupByMonth();
+    if(!months.length){block.classList.add('hidden');return;}
+    var now=new Date();
+    var currentKey=now.getFullYear()+'-'+pad(now.getMonth()+1);
+    var past=months.filter(function(m){return m.key!==currentKey;});
+    if(!past.length){block.classList.add('hidden');return;}
+    block.classList.remove('hidden');
+    list.innerHTML='';
+    for(var i=0;i<past.length;i++){
+        var m=past[i];
+        var net=m.income-m.expense;
+        var d=new Date(m.year,m.month,1);
+        var netStr=(net>=0?'+':'-')+roundRub(Math.abs(net)).toLocaleString('ru-RU')+' ₽';
+        var card=document.createElement('div');
+        card.className='ph-card';
+        card.innerHTML=
+            '<div class="ph-top">'+
+                '<div class="ph-month">'+formatMonthLabel(d)+'</div>'+
+                '<div class="ph-net '+(net>=0?'positive':'negative')+'">'+netStr+'</div>'+
+            '</div>'+
+            '<div class="ph-split">'+
+                '<div class="ph-split-col"><span class="ph-split-label">доходы</span><span class="ph-split-value income">↑ '+roundRub(m.income).toLocaleString('ru-RU')+' ₽</span></div>'+
+                '<div class="ph-split-col"><span class="ph-split-label">расходы</span><span class="ph-split-value expense">↓ '+roundRub(m.expense).toLocaleString('ru-RU')+' ₽</span></div>'+
+            '</div>'+
+            '<button class="ph-open-btn">Открыть</button>';
+        (function(key){card.addEventListener('click',function(){openPeriodDetail(key);});})(m.key);
+        list.appendChild(card);
+    }
+}
+function openPeriodDetail(key){
+    var months=groupByMonth();
+    var m=null;
+    for(var i=0;i<months.length;i++){if(months[i].key===key){m=months[i];break;}}
+    if(!m)return;
+    var d=new Date(m.year,m.month,1);
+    $('periodDetailTitle').textContent=formatMonthLabel(d);
+    var net=m.income-m.expense;
+    $('periodDetailSummary').innerHTML=
+        '<div class="pd-net-label">Итог периода</div>'+
+        '<div class="pd-net-big '+(net>=0?'positive':'negative')+'">'+(net>=0?'+':'-')+roundRub(Math.abs(net)).toLocaleString('ru-RU')+' ₽</div>'+
+        '<div class="pd-net-sub">Доходы '+roundRub(m.income).toLocaleString('ru-RU')+' ₽ · Расходы '+roundRub(m.expense).toLocaleString('ru-RU')+' ₽</div>';
+    var start=new Date(m.year,m.month,1);
+    var end=new Date(m.year,m.month+1,1);
+    var txs=allTransactions.filter(function(t){return t.date>=start&&t.date<end;});
+    var incCat=aggregateByCategory(txs,'income');
+    var expCat=aggregateByCategory(txs,'expense');
+    var incEl=$('periodDetailIncome');incEl.innerHTML='';
+    var expEl=$('periodDetailExpense');expEl.innerHTML='';
+    if(!incCat.length){incEl.innerHTML='<div class="pd-empty">Нет доходов</div>';}
+    else{for(var i=0;i<incCat.length;i++){var it=document.createElement('div');it.className='pd-item income';it.innerHTML='<span class="pd-name">'+incCat[i].label+'</span><span class="pd-value">+'+roundRub(incCat[i].value).toLocaleString('ru-RU')+' ₽</span>';incEl.appendChild(it);}}
+    if(!expCat.length){expEl.innerHTML='<div class="pd-empty">Нет расходов</div>';}
+    else{for(var i=0;i<expCat.length;i++){var it=document.createElement('div');it.className='pd-item expense';it.innerHTML='<span class="pd-name">'+expCat[i].label+'</span><span class="pd-value">-'+roundRub(expCat[i].value).toLocaleString('ru-RU')+' ₽</span>';expEl.appendChild(it);}}
+    $('periodDetailModal').classList.add('open');
+    lockBackground();
+}
+function closePeriodDetailModal(){$('periodDetailModal').classList.remove('open');unlockBackground();}
+if($('closePeriodDetailModal'))$('closePeriodDetailModal').addEventListener('click',closePeriodDetailModal);
+
 /* ===== DASHBOARD ===== */
 function renderDashboard(txs,period){
     if(!txs.length){
@@ -897,6 +979,7 @@ function renderDashboard(txs,period){
     renderReminders();
     renderCalendar();
     renderCustomReminders();
+    renderPeriodHistory();
     $('dashboard').classList.remove('hidden');
     $('emptyState').classList.add('hidden');
 }

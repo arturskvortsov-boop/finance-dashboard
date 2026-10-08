@@ -125,6 +125,11 @@
         <div class="balance-chart-empty" id="balanceChartEmpty" style="display:none">нет данных за период</div>
     </div>
 
+    <div class="period-history-block hidden" id="periodHistoryBlock">
+        <h3>📂 История периодов</h3>
+        <div class="period-history-list" id="periodHistoryList"></div>
+    </div>
+
     <div class="budgets-block hidden" id="budgetsBlock">
         <h3>🎯 Бюджеты на месяц <span class="budgets-month" id="budgetsMonthLabel"></span></h3>
         <div id="budgetsList"></div>
@@ -452,6 +457,23 @@
     <div class="modal-footer">
         <button class="modal-btn cancel" id="cancelGoalDepositBtn">Отмена</button>
         <button class="modal-btn save" id="saveGoalDepositBtn">Пополнить</button>
+    </div>
+</div>
+</div>
+
+<div class="modal-overlay" id="periodDetailModal">
+<div class="modal">
+    <div class="modal-header"><h2 id="periodDetailTitle">Период</h2><button class="modal-close" id="closePeriodDetailModal">×</button></div>
+    <div class="modal-body">
+        <div class="pd-summary" id="periodDetailSummary"></div>
+        <div class="pd-section">
+            <div class="pd-section-title">💰 Доходы</div>
+            <div class="pd-list" id="periodDetailIncome"></div>
+        </div>
+        <div class="pd-section">
+            <div class="pd-section-title">💸 Расходы</div>
+            <div class="pd-list" id="periodDetailExpense"></div>
+        </div>
     </div>
 </div>
 </div>

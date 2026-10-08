@@ -466,6 +466,44 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .calendar-legend .cal-leg-swatch[data-level="3"]{background:rgba(239,68,68,0.55);border-color:rgba(239,68,68,0.75)}
 .calendar-legend .cal-leg-swatch[data-level="4"]{background:#ef4444;border-color:#ef4444}
 
+/* ===== PERIOD HISTORY ===== */
+.period-history-block{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.period-history-block h3{font-weight:500;font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.4px}
+.period-history-list{display:flex;flex-direction:column;gap:8px}
+.period-history-empty{text-align:center;color:var(--text-dim);font-size:0.75rem;padding:10px 0}
+.ph-card{background:var(--card-2);border:1px solid var(--border);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;cursor:pointer;transition:border-color .15s,transform .15s}
+.ph-card:active{transform:scale(0.99)}
+.ph-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.ph-month{font-weight:700;font-size:0.95rem;color:var(--text);text-transform:capitalize}
+.ph-net{font-weight:700;font-size:0.95rem;white-space:nowrap}
+.ph-net.positive{color:var(--green)}
+.ph-net.negative{color:var(--red)}
+.ph-open-btn{background:var(--accent-bg);border:1px solid var(--accent);color:var(--accent);padding:5px 14px;border-radius:20px;font-size:0.7rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;transition:all .15s;align-self:flex-start;margin-top:2px}
+.ph-open-btn:active{transform:scale(0.95)}
+.ph-split{display:flex;gap:6px;min-width:0}
+.ph-split-col{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.ph-split-label{font-size:0.6rem;text-transform:uppercase;letter-spacing:0.3px;color:var(--text-muted)}
+.ph-split-value{font-weight:600;font-size:0.82rem;white-space:nowrap}
+.ph-split-value.income{color:var(--green)}
+.ph-split-value.expense{color:var(--red)}
+
+.pd-summary{background:var(--card-2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;text-align:center}
+.pd-summary .pd-net-big{font-size:1.6rem;font-weight:800;line-height:1.1}
+.pd-summary .pd-net-big.positive{color:var(--green)}
+.pd-summary .pd-net-big.negative{color:var(--red)}
+.pd-summary .pd-net-label{font-size:0.62rem;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);margin-bottom:4px}
+.pd-summary .pd-net-sub{font-size:0.72rem;color:var(--text-muted);margin-top:6px}
+.pd-section{margin-bottom:12px}
+.pd-section-title{font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);margin-bottom:6px}
+.pd-list{display:flex;flex-direction:column;gap:4px}
+.pd-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:0.82rem}
+.pd-item:last-child{border-bottom:none}
+.pd-item .pd-name{color:var(--text);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.pd-item .pd-value{font-weight:600;white-space:nowrap}
+.pd-item.income .pd-value{color:var(--green)}
+.pd-item.expense .pd-value{color:var(--red)}
+.pd-empty{color:var(--text-dim);font-size:0.75rem;padding:4px 0}
+
 /* ===== TELEGRAM WEBAPP ===== */
 body.tg-webapp{padding-top:10px;padding-bottom:calc(130px + env(safe-area-inset-bottom,0px))}
 body.tg-webapp{padding-top:10px;padding-bottom:calc(130px + env(safe-area-inset-bottom,0px))}
