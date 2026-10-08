@@ -63,20 +63,6 @@
     <div id="remindersCustomList"></div>
 </div>
 
-
-    <div class="calendar-weekdays">
-        <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
-    </div>
-    <div class="calendar-grid" id="calendarGrid"></div>
-    <div class="calendar-legend">
-        <span class="cal-leg-item"><span class="cal-leg-swatch" data-level="0"></span>нет</span>
-        <span class="cal-leg-item"><span class="cal-leg-swatch" data-level="1"></span>мало</span>
-        <span class="cal-leg-item"><span class="cal-leg-swatch" data-level="2"></span>средне</span>
-        <span class="cal-leg-item"><span class="cal-leg-swatch" data-level="3"></span>много</span>
-        <span class="cal-leg-item"><span class="cal-leg-swatch" data-level="4"></span>очень много</span>
-    </div>
-</div>
-
 <div class="charts-row">
     <div class="chart-box" id="incomeChartBox">
         <h3>🟢 Доходы</h3>
@@ -114,7 +100,7 @@
     </div>
 
     <div class="balance-chart-box">
-     <h3>📈 Накопительно</h3>
+        <h3>📈 Накопительно</h3>
         <canvas id="balanceHistoryChart"></canvas>
         <div class="balance-chart-empty" id="balanceChartEmpty" style="display:none">нет данных за период</div>
     </div>
@@ -134,11 +120,23 @@
         <div id="goalsList"></div>
     </div>
 
-<div class="calendar-block" id="calendarBlock">
-    <div class="calendar-header">
-        <button class="cal-nav" id="calPrev">◀</button>
-        <div class="cal-title" id="calTitle">—</div>
-        <button class="cal-nav" id="calNext">▶</button>
+    <div class="calendar-block" id="calendarBlock">
+        <div class="calendar-header">
+            <button class="cal-nav" id="calPrev">◀</button>
+            <div class="cal-title" id="calTitle">—</div>
+            <button class="cal-nav" id="calNext">▶</button>
+        </div>
+        <div class="calendar-weekdays">
+            <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+        <div class="calendar-legend">
+            <span class="cal-leg-item"><span class="cal-leg-swatch" data-level="0"></span>нет</span>
+            <span class="cal-leg-item"><span class="cal-leg-swatch" data-level="1"></span>мало</span>
+            <span class="cal-leg-item"><span class="cal-leg-swatch" data-level="2"></span>средне</span>
+            <span class="cal-leg-item"><span class="cal-leg-swatch" data-level="3"></span>много</span>
+            <span class="cal-leg-item"><span class="cal-leg-swatch" data-level="4"></span>очень много</span>
+        </div>
     </div>
 
     <div class="collapsible">
@@ -225,7 +223,7 @@
             <span class="label">Записей курса</span>
             <span class="value" id="settingsRateCount">0</span>
         </div>
-<div class="settings-row">
+        <div class="settings-row">
             <span class="label">Последняя синхронизация</span>
             <span class="value" id="settingsLastSync">—</span>
         </div>
@@ -324,7 +322,6 @@
     </div>
 </div>
 
-<!-- MODALS (без изменений) -->
 <div class="modal-overlay" id="txModal">
 <div class="modal">
     <div class="modal-header"><h2 id="txModalTitle">➕ Новая транзакция</h2><button class="modal-close" id="closeTxModal">×</button></div>
