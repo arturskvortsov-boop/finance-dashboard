@@ -74,6 +74,32 @@ var REMINDERS_FILE_CUSTOM='reminders.json';
 var BUDGETS_FILE='budgets.json';
 var GOALS_FILE='goals.json';
 
+/* ===== THEME ===== */
+var THEME_STORAGE_KEY='theme';
+function getCurrentTheme(){
+    var t='dark';
+    try{var v=localStorage.getItem(THEME_STORAGE_KEY);if(v==='light'||v==='dark')t=v;}catch(e){}
+    return t;
+}
+function applyTheme(t,forceRender){
+    if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
+    else{document.documentElement.removeAttribute('data-theme');}
+    var btn=$('themeToggleBtn');
+    if(btn)btn.textContent=(t==='light')?'☀️':'🌙';
+    try{localStorage.setItem(THEME_STORAGE_KEY,t);}catch(e){}
+    var mc=document.querySelector('meta[name="theme-color"]');
+    if(mc)mc.setAttribute('content',(t==='light')?'#f2f2f7':'#0b0e14');
+    try{if(tg&&tg.setHeaderColor)tg.setHeaderColor(t==='light'?'#f2f2f7':'#000000');}catch(e){}
+    try{if(tg&&tg.setBackgroundColor)tg.setBackgroundColor(t==='light'?'#f2f2f7':'#000000');}catch(e){}
+    if(forceRender&&dataLoaded){updateWithFilter(currentFilter);drawRateHistoryChart();}
+}
+function toggleTheme(){
+    var cur=getCurrentTheme();
+    applyTheme(cur==='light'?'dark':'light',true);
+}
+if($('themeToggleBtn'))$('themeToggleBtn').addEventListener('click',toggleTheme);
+applyTheme(getCurrentTheme(),false);
+
 var CATEGORIES_INCOME=['💰 Зарплата','🗓 Продажа','🎁 Подарок','💵 Другое'];
 var CATEGORIES_EXPENSE=['🚘 Автомобиль','🍔 Еда','🏚️ Ипотека','☕️ Кафе','🎢 Развлечения','🛍 Покупки','💊 Здоровье','🏠 Коммуналка','📱 Связь','📚 Образование','💸 Другое'];
 
@@ -468,6 +494,10 @@ function renderCbrRate(){
 }
 
 function getChartTheme(){
+    var light=document.documentElement.getAttribute('data-theme')==='light';
+    if(light){
+        return { text:'#1c1c1e', textMuted:'#6e6e73', card:'#ffffff', border:'#e5e5ea', accent:'#0a84ff', green:'#22c55e', red:'#ef4444', grid:'rgba(0,0,0,0.06)' };
+    }
     return { text:'#f2f5fa', textMuted:'#9aa8c0', card:'#141820', border:'#2c3444', accent:'#60a5fa', green:'#22c55e', red:'#ef4444', grid:'rgba(255,255,255,0.07)' };
 }
 
@@ -506,48 +536,6 @@ function renderInsights(txs,period){
         }
         topList.innerHTML=html;
     } else topList.innerHTML='';
-}
-
-/* ===== FORECAST ===== */
-function renderForecast(){
-    var block=$('forecastBlock');
-    var grid=$('forecastGrid');
-    if(!block||!grid)return;
-    if(!allTransactions.length){block.classList.add('hidden');return;}
-    var now=new Date();
-    var year=now.getFullYear(),month=now.getMonth();
-    var monthStart=new Date(year,month,1);
-    var monthEnd=new Date(year,month+1,0);
-    var daysTotal=monthEnd.getDate();
-    var daysPassed=now.getDate();
-    var daysLeft=daysTotal-daysPassed;
-
-    var incMonth=0,expMonth=0;
-    for(var i=0;i<allTransactions.length;i++){
-        var tx=allTransactions[i];
-        if(tx.date<monthStart||tx.date>monthEnd)continue;
-        var rub=tx.rub;if(tx.usd>0)rub=tx.usd*currentUsdRate;
-        if(tx.type==='income')incMonth+=rub;
-        else expMonth+=rub;
-    }
-    var monthNames=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
-    if($('forecastMonthLabel'))$('forecastMonthLabel').textContent=monthNames[month];
-    var avgIncPerDay=daysPassed>0?incMonth/daysPassed:0;
-    var avgExpPerDay=daysPassed>0?expMonth/daysPassed:0;
-    var forecastInc=avgIncPerDay*daysTotal;
-    var forecastExp=avgExpPerDay*daysTotal;
-    var forecastBal=forecastInc-forecastExp;
-    block.classList.remove('hidden');
-    grid.innerHTML=
-        '<div class="forecast-item income"><div class="fc-label">💰 Доход</div><div class="fc-value">'+roundRub(forecastInc).toLocaleString('ru-RU')+' ₽</div></div>'+
-        '<div class="forecast-item expense"><div class="fc-label">💸 Расход</div><div class="fc-value">'+roundRub(forecastExp).toLocaleString('ru-RU')+' ₽</div></div>'+
-        '<div class="forecast-item balance"><div class="fc-label">⚖️ Баланс</div><div class="fc-value">'+roundRub(forecastBal).toLocaleString('ru-RU')+' ₽</div></div>';
-    var hint=document.createElement('div');
-    hint.className='forecast-hint';
-    hint.textContent='Осталось '+daysLeft+' дн. Прогноз по среднему темпу за '+daysPassed+' дн.';
-    var existingHint=block.querySelector('.forecast-hint');
-    if(existingHint)existingHint.remove();
-    block.appendChild(hint);
 }
 
 /* ===== CALENDAR ===== */
@@ -907,7 +895,6 @@ function renderDashboard(txs,period){
     renderBudgets();
     renderGoals();
     renderReminders();
-    renderForecast();
     renderCalendar();
     renderCustomReminders();
     $('dashboard').classList.remove('hidden');

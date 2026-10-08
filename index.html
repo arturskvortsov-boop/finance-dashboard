@@ -9,6 +9,7 @@
 <meta name="theme-color" content="#0b0e14">
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="style.css">
+<script>try{var t=localStorage.getItem('theme');if(t==='light'){document.documentElement.setAttribute('data-theme','light');}}catch(e){}</script>
 </head>
 <body>
 <div class="pull-indicator" id="pullIndicator">
@@ -20,6 +21,7 @@
 <div class="top-strip">
     <span id="fileStatus">📂 Загрузите файл</span>
     <span id="dataFreshness"></span>
+    <button class="theme-toggle-btn" id="themeToggleBtn" title="Переключить тему">🌙</button>
 </div>
 
 <div class="page active" id="pageDashboard">
@@ -54,11 +56,6 @@
         <button class="qa-income" id="qaIncomeBtn">➕ Доход</button>
         <button class="qa-expense" id="qaExpenseBtn">➖ Расход</button>
     </div>
-</div>
-
-<div class="forecast-block hidden" id="forecastBlock">
-    <h3>🔮 Прогноз на <span id="forecastMonthLabel"></span></h3>
-    <div class="forecast-grid" id="forecastGrid"></div>
 </div>
 
 <div class="reminders-custom-block" id="remindersCustomBlock">

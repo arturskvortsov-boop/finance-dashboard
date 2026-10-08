@@ -18,9 +18,31 @@
     --purple-bg:rgba(167,139,250,0.12);
 }
 
+html[data-theme="light"]{
+    --bg:#F2F2F7;
+    --card:#FFFFFF;
+    --card-2:#F2F2F7;
+    --border:#E5E5EA;
+    --border-soft:#D1D1D6;
+    --text:#1C1C1E;
+    --text-muted:#6E6E73;
+    --text-dim:#AEAEB2;
+    --accent:#0A84FF;
+    --accent-2:#5AC8FA;
+    --green:#22c55e;
+    --red:#ef4444;
+    --yellow:#f59e0b;
+    --green-bg:rgba(34,197,94,0.14);
+    --red-bg:rgba(239,68,68,0.12);
+    --accent-bg:rgba(10,132,255,0.12);
+    --purple-bg:rgba(175,82,222,0.12);
+}
+
+html[data-theme="light"] body{color-scheme:light}
+
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{background:#000000;min-height:100%}
-html,body{max-width:100%;overflow-x:hidden;background:#000000}
+html{background:var(--bg);min-height:100%}
+html,body{max-width:100%;overflow-x:hidden;background:var(--bg)}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);padding:6px 12px calc(110px + env(safe-area-inset-bottom,0px));min-height:100vh;display:flex;justify-content:center;align-items:flex-start;position:relative}
 
 body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
@@ -31,6 +53,8 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .top-strip{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:2px 2px 8px;min-height:18px;font-size:0.66rem}
 .top-strip #fileStatus{color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}
 .top-strip #dataFreshness{color:var(--text-dim);white-space:nowrap;flex-shrink:0}
+.theme-toggle-btn{background:var(--card);border:1px solid var(--border);color:var(--text);width:32px;height:28px;border-radius:9px;font-size:0.95rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;transition:transform .15s,background .15s;font-family:inherit}
+.theme-toggle-btn:active{transform:scale(0.88)}
 
 /* ===== PAGES ===== */
 .page{display:none}
@@ -415,19 +439,6 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .pull-text{font-size:0.7rem;color:var(--text-muted);font-weight:500}
 .pull-indicator.ready .pull-text{color:var(--accent)}
 
-/* ===== FORECAST ===== */
-.forecast-block{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px}
-.forecast-block h3{font-weight:500;font-size:0.72rem;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.4px}
-.forecast-block h3 span{color:var(--accent);font-weight:600}
-.forecast-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.forecast-item{background:var(--card-2);border:1px solid var(--border);border-radius:10px;padding:8px 10px;text-align:center;min-width:0}
-.forecast-item .fc-label{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.3px;color:var(--text-muted);font-weight:500;margin-bottom:3px}
-.forecast-item .fc-value{font-size:0.95rem;font-weight:700;color:var(--text);word-break:break-all;line-height:1.2}
-.forecast-item.income .fc-value{color:var(--green)}
-.forecast-item.expense .fc-value{color:var(--red)}
-.forecast-item.balance .fc-value{color:var(--accent)}
-.forecast-hint{font-size:0.62rem;color:var(--text-dim);margin-top:8px;text-align:center}
-
 /* ===== CALENDAR ===== */
 .calendar-block{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:10px}
 .calendar-header{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
@@ -473,11 +484,11 @@ body.tg-webapp .pull-indicator{height:60px}
 /* ===== TELEGRAM: без белых полос ===== */
 body.tg-webapp,
 body.tg-webapp html,
-body.tg-webapp .container{background:#000000}
+body.tg-webapp .container{background:var(--bg)}
 body.tg-webapp.tg-fullscreen{
     min-height:100vh;
     min-height:100dvh;
-    background:#000000;
+    background:var(--bg);
 }
 body.tg-webapp.tg-fullscreen .container{
     min-height:100vh;
