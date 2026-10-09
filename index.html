@@ -77,13 +77,13 @@
 </div>
 
 <div id="dashboard" class="hidden">
-    <div class="stats-grid">
+        <div class="stats-grid hidden">
         <div class="stat-card income"><div class="label">💰 Доход RUB</div><div class="value" id="totalIncomeRubOnly">0 ₽</div></div>
         <div class="stat-card"><div class="label">📈 Баланс RUB</div><div class="value" id="netIncome">0 ₽</div></div>
         <div class="stat-card expense"><div class="label">💸 Расход RUB</div><div class="value" id="totalExpenseRubOnly">0 ₽</div></div>
     </div>
 
-    <div class="stats-grid-extra">
+    <div class="stats-grid-extra hidden">
         <div class="stat-card"><div class="label">📋 Записей за период</div><div class="value" id="recordCount">0</div></div>
     </div>
 
@@ -287,8 +287,8 @@
 
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
-    <button class="bn-home active" id="bnHomeBtn" title="Дашборд">🏠</button>
     <div class="bn-pill">
+        <button class="bn-tab active" id="bnHomeBtn" data-page="dashboard"><span class="bn-emoji">🏠</span><span>Главная</span></button>
         <button class="bn-tab" data-page="currency"><span class="bn-emoji">💵</span><span>Валюта</span></button>
         <button class="bn-tab" data-page="settings"><span class="bn-emoji">⚙️</span><span>Настройки</span></button>
         <button class="bn-tab" id="bnMoreBtn"><span class="bn-emoji">⋯</span><span>Ещё</span></button>
