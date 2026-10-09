@@ -350,15 +350,15 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .bn-tab.active{background:var(--accent-bg);color:var(--accent)}
 .bn-tab:active{transform:scale(0.95)}
 
-.bn-fab{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#93c5fd,#c4b5fd);border:none;display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#0b0e14;cursor:pointer;font-family:inherit;padding:0;flex-shrink:0;box-shadow:0 6px 22px rgba(147,197,253,0.5),0 0 0 1px rgba(255,255,255,0.15) inset;transition:transform .25s,box-shadow .25s;font-weight:400;line-height:1}
+.bn-fab{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#93c5fd,#c4b5fd);border:none;display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#0b0e14;cursor:pointer;font-family:inherit;padding:0;flex-shrink:0;box-shadow:0 6px 22px rgba(147,197,253,0.5),0 0 0 1px rgba(255,255,255,0.15) inset;transition:transform .4s cubic-bezier(.34,1.4,.5,1),box-shadow .3s;font-weight:400;line-height:1}
 .bn-fab:active{transform:scale(0.92);box-shadow:0 4px 14px rgba(147,197,253,0.35),0 0 0 1px rgba(255,255,255,0.1) inset}
-.bn-fab.open{transform:rotate(45deg)}
+.bn-fab.open{transform:rotate(45deg) scale(1.15);box-shadow:0 8px 30px rgba(147,197,253,0.7),0 0 0 1px rgba(255,255,255,0.2) inset}
 
 /* ===== FAB FAN ===== */
 /* ===== FAB RADIAL FAN ===== */
 .fab-fan{
     position:fixed;
-    right:40px;
+    right:42px;
     bottom:calc(50px + env(safe-area-inset-bottom,0px));
     width:0;
     height:0;
@@ -376,7 +376,7 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
     align-items:center;
     gap:6px;
     background:linear-gradient(135deg,rgba(30,36,48,0.94),rgba(22,27,38,0.94));
-    border:1px solid rgba(147,197,253,0.32);
+    border:1px solid rgba(147,197,253,0.35);
     border-radius:999px;
     padding:10px 16px;
     color:#f2f5fa;
@@ -387,24 +387,24 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
     white-space:nowrap;
     opacity:0;
     transform:rotate(var(--ang,0deg)) translateY(0) rotate(calc(-1 * var(--ang,0deg))) scale(0.5);
-    transition:opacity .32s cubic-bezier(.2,.8,.3,1),transform .38s cubic-bezier(.2,.8,.3,1);
+    transition:opacity .3s cubic-bezier(.2,.8,.3,1),transform .5s cubic-bezier(.34,1.4,.5,1);
     pointer-events:none;
-    box-shadow:0 8px 24px rgba(0,0,0,0.7),0 1px 0 rgba(255,255,255,0.1) inset,0 0 0 0.5px rgba(255,255,255,0.05);
+    box-shadow:0 10px 28px rgba(0,0,0,0.75),0 1px 0 rgba(255,255,255,0.1) inset,0 0 0 0.5px rgba(255,255,255,0.05);
     backdrop-filter:blur(16px);
     -webkit-backdrop-filter:blur(16px);
     z-index:1
 }
 .fab-fan.open .fab-item{
     opacity:1;
-    transform:rotate(var(--ang,0deg)) translateY(-125px) rotate(calc(-1 * var(--ang,0deg))) scale(1);
+    transform:rotate(var(--ang,0deg)) translateY(-150px) rotate(calc(-1 * var(--ang,0deg))) scale(1);
     pointer-events:auto
 }
 
 .fab-item:nth-child(1){ --ang: 0deg; }
-.fab-item:nth-child(2){ --ang: -22deg; }
-.fab-item:nth-child(3){ --ang: -44deg; }
-.fab-item:nth-child(4){ --ang: -66deg; }
-.fab-item:nth-child(5){ --ang: -88deg; }
+.fab-item:nth-child(2){ --ang: -17deg; }
+.fab-item:nth-child(3){ --ang: -34deg; }
+.fab-item:nth-child(4){ --ang: -51deg; }
+.fab-item:nth-child(5){ --ang: -68deg; }
 
 .fab-fan.open .fab-item:nth-child(1){transition-delay:.02s}
 .fab-fan.open .fab-item:nth-child(2){transition-delay:.06s}
@@ -651,4 +651,4 @@ body.tg-webapp.tg-fullscreen .container{
     .pull-indicator.visible{
         transform:translateX(-50%) translateY(0) !important;
     }
-}
+
