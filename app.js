@@ -925,7 +925,10 @@ function renderDashboard(txs,period){
     }
 
     var indexed=[];
-    for(var i=0;i<txs.length;i++)indexed.push({tx:txs[i],i:i});
+    for(var i=0;i<txs.length;i++){
+        var realIdx=allTransactions.indexOf(txs[i]);
+        if(realIdx>=0)indexed.push({tx:txs[i],i:realIdx});
+    }
     indexed.sort(function(a,b){return b.tx.date-a.tx.date;});
     var searchQ=(currentTxSearch||'').toLowerCase().trim();
     var typeF=currentTxTypeFilter||'all';
