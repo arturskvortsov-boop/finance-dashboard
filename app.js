@@ -1964,7 +1964,6 @@ function clearAllDataConfirm(){
 /* ===== BOTTOM NAV ===== */
 var navPages=['dashboard','currency','settings'];
 function updateBottomNav(page){
-    var home=$('bnHomeBtn');if(home)home.classList.toggle('active',page==='dashboard');
     var tabs=document.querySelectorAll('.bn-tab[data-page]');
     for(var i=0;i<tabs.length;i++)tabs[i].classList.toggle('active',tabs[i].dataset.page===page);
 }
