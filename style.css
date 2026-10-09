@@ -358,23 +358,25 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 /* ===== FAB RADIAL FAN ===== */
 .fab-fan{
     position:fixed;
-    right:calc(12px + 28px);
-    bottom:calc(22px + 28px + env(safe-area-inset-bottom,0px));
+    right:40px;
+    bottom:calc(50px + env(safe-area-inset-bottom,0px));
     width:0;
     height:0;
     z-index:899;
     pointer-events:none
 }
 .fab-fan.open{pointer-events:auto}
+
 .fab-item{
     position:absolute;
-    left:0;
-    top:0;
+    right:0;
+    bottom:0;
+    transform-origin:100% 100%;
     display:flex;
     align-items:center;
     gap:6px;
-    background:linear-gradient(135deg,rgba(30,36,48,0.92),rgba(22,27,38,0.92));
-    border:1px solid rgba(147,197,253,0.28);
+    background:linear-gradient(135deg,rgba(30,36,48,0.94),rgba(22,27,38,0.94));
+    border:1px solid rgba(147,197,253,0.32);
     border-radius:999px;
     padding:10px 16px;
     color:#f2f5fa;
@@ -384,18 +386,20 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
     cursor:pointer;
     white-space:nowrap;
     opacity:0;
-    transform:translate(-50%,-50%) rotate(var(--ang,0deg)) translateY(0) rotate(calc(-1 * var(--ang,0deg))) scale(0.5);
+    transform:rotate(var(--ang,0deg)) translateY(0) rotate(calc(-1 * var(--ang,0deg))) scale(0.5);
     transition:opacity .32s cubic-bezier(.2,.8,.3,1),transform .38s cubic-bezier(.2,.8,.3,1);
     pointer-events:none;
-    box-shadow:0 8px 24px rgba(0,0,0,0.65),0 1px 0 rgba(255,255,255,0.08) inset,0 0 0 0.5px rgba(255,255,255,0.04);
-    backdrop-filter:blur(14px);
-    -webkit-backdrop-filter:blur(14px)
+    box-shadow:0 8px 24px rgba(0,0,0,0.7),0 1px 0 rgba(255,255,255,0.1) inset,0 0 0 0.5px rgba(255,255,255,0.05);
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+    z-index:1
 }
 .fab-fan.open .fab-item{
     opacity:1;
-    transform:translate(-50%,-50%) rotate(var(--ang,0deg)) translateY(-110px) rotate(calc(-1 * var(--ang,0deg))) scale(1);
+    transform:rotate(var(--ang,0deg)) translateY(-125px) rotate(calc(-1 * var(--ang,0deg))) scale(1);
     pointer-events:auto
 }
+
 .fab-item:nth-child(1){ --ang: 0deg; }
 .fab-item:nth-child(2){ --ang: -22deg; }
 .fab-item:nth-child(3){ --ang: -44deg; }
@@ -409,7 +413,7 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .fab-fan.open .fab-item:nth-child(5){transition-delay:.18s}
 
 .fab-item:active{
-    background:linear-gradient(135deg,rgba(96,165,250,0.35),rgba(167,139,250,0.35));
+    background:linear-gradient(135deg,rgba(96,165,250,0.4),rgba(167,139,250,0.4));
     border-color:#93c5fd;
     color:#fff
 }
@@ -622,7 +626,7 @@ body.tg-webapp.tg-fullscreen .container{
     }
     .fab-fan{
         right:calc(50% - 230px + 40px);
-        bottom:calc(22px + 28px);
+        bottom:calc(50px);
     }
     }
     .bottom-sheet{
