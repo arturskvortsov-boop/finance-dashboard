@@ -1351,4 +1351,185 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
 .day-cat-item .ph-cat-head{cursor:default}
 .day-cat-item .ph-cat-head:active{background:transparent}
 
+/* ===== CURRENCY PAGE v2 ===== */
+.rate-hero{
+    background:linear-gradient(135deg,var(--card) 0%,var(--card-2) 100%);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:20px 20px 16px;
+    margin-bottom:10px;
+    position:relative;
+    overflow:hidden
+}
+.rate-hero::before{
+    content:'';
+    position:absolute;
+    top:-60%;right:-30%;
+    width:220px;height:220px;
+    background:radial-gradient(circle,rgba(96,165,250,.18),transparent 70%);
+    pointer-events:none
+}
+.rate-hero-label{
+    font-size:0.72rem;
+    text-transform:uppercase;
+    letter-spacing:1.2px;
+    color:var(--text-muted);
+    font-weight:600;
+    margin-bottom:8px;
+    position:relative
+}
+.rate-hero-value{
+    font-size:2.2rem;
+    font-weight:800;
+    color:var(--text);
+    line-height:1.05;
+    letter-spacing:-0.5px;
+    position:relative;
+    word-break:break-all
+}
+.rate-hero-delta{
+    display:inline-block;
+    font-size:0.78rem;
+    font-weight:700;
+    padding:4px 12px;
+    border-radius:20px;
+    background:var(--green-bg);
+    color:var(--green);
+    margin-top:10px;
+    position:relative;
+    letter-spacing:0.3px
+}
+.rate-hero-delta.negative{background:var(--red-bg);color:var(--red)}
+.rate-hero-cbr{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:14px;
+    padding-top:12px;
+    border-top:1px solid var(--border);
+    font-size:0.8rem;
+    position:relative
+}
+.rhc-label{color:var(--text-muted);font-weight:500}
+.rhc-value{color:var(--text);font-weight:700}
+.rhc-diff{
+    font-size:0.72rem;
+    font-weight:700;
+    color:var(--green);
+    margin-left:auto
+}
+.rhc-diff.negative{color:var(--red)}
+.rate-hero-updated{
+    font-size:0.68rem;
+    color:var(--text-dim);
+    text-align:right;
+    margin-top:6px;
+    position:relative
+}
 
+/* Свой курс */
+.custom-rate-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:14px 16px;
+    margin-bottom:10px
+}
+.custom-rate-label{
+    font-size:0.72rem;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--text-muted);
+    font-weight:600;
+    margin-bottom:10px
+}
+.custom-rate-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:8px
+}
+.custom-rate-row input{
+    flex:1;
+    min-width:0;
+    background:var(--card-2);
+    border:1.5px solid var(--border);
+    color:var(--text);
+    padding:10px 12px;
+    border-radius:12px;
+    font-size:0.95rem;
+    font-family:inherit;
+    -webkit-appearance:none;
+    appearance:none
+}
+.custom-rate-row input:focus{
+    outline:none;
+    border-color:rgba(252,211,77,0.65);
+    box-shadow:0 0 0 3px rgba(252,211,77,0.12)
+}
+.custom-rate-apply{
+    padding:10px 20px;
+    border-radius:12px;
+    background:linear-gradient(135deg,#fcd34d,#fbbf24);
+    border:none;
+    color:#0b0e14;
+    font-family:inherit;
+    font-size:0.82rem;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 6px 16px rgba(252,211,77,0.35),0 3px 6px rgba(0,0,0,0.4);
+    transition:transform .12s,box-shadow .2s;
+    flex-shrink:0;
+    letter-spacing:0.2px
+}
+.custom-rate-apply:active{
+    transform:translateY(2px);
+    box-shadow:0 2px 6px rgba(252,211,77,0.4)
+}
+.custom-rate-online{
+    width:100%;
+    padding:10px 16px;
+    border-radius:12px;
+    background:transparent;
+    border:1.5px solid var(--border);
+    color:var(--text-muted);
+    font-family:inherit;
+    font-size:0.8rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:all .2s
+}
+.custom-rate-online:active{
+    transform:scale(0.98);
+    border-color:var(--accent);
+    color:var(--accent)
+}
+.custom-rate-online:disabled{opacity:.5;cursor:wait}
+.custom-rate-freshness{
+    font-size:0.68rem;
+    color:var(--text-dim);
+    text-align:right;
+    margin-top:8px
+}
+
+/* Курсовая разница */
+.rate-diff-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:14px 18px;
+    margin-bottom:10px;
+    gap:10px
+}
+.rdr-label{
+    font-size:0.82rem;
+    color:var(--text-muted);
+    font-weight:500
+}
+.rdr-value{
+    font-size:1.05rem;
+    font-weight:700;
+    color:var(--text)
+}
