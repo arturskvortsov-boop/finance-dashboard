@@ -1010,112 +1010,146 @@ function drawBalanceHistoryChart(txs,period){
     if(balanceHistoryChart){balanceHistoryChart.destroy();balanceHistoryChart=null;}
     if(!txs.length){if(emptyEl)emptyEl.style.display='flex';c.style.display='none';return;}
     if(emptyEl)emptyEl.style.display='none';c.style.display='block';
+
     period=period||currentFilter;
-    var sorted=txs.slice().sort(function(a,b){return a.date-b.date;});
-    var windowStart=sorted[0].date.getTime();
-    var incomeBefore=0, expenseBefore=0;
-    for(var i=0;i<allTransactions.length;i++){
-        var tx=allTransactions[i];
-        if(tx.date.getTime()>=windowStart)continue;
-        var rub=tx.rub;if(tx.usd>0)rub=tx.usd*currentUsdRate;
-        if(tx.type==='income')incomeBefore+=rub;
-        else expenseBefore+=rub;
-    }
-    var incomeBuckets=[], expenseBuckets=[], labels=[];
-    if(period==='day'){
-        for(var i=0;i<24;i++){incomeBuckets.push(0);expenseBuckets.push(0);labels.push((i<10?'0'+i:i)+':00');}
-        for(var i=0;i<sorted.length;i++){
-            var tx=sorted[i];
-            var hr=tx.date.getHours();
-            var rub=tx.rub;if(tx.usd>0)rub=tx.usd*currentUsdRate;
-            if(tx.type==='income')incomeBuckets[hr]+=rub;
-            else expenseBuckets[hr]+=rub;
+
+    // Строим накопительный график от самой первой транзакции в базе до сегодня
+    var all=allTransactions.slice().sort(function(a,b){return a.date-b.date;});
+    if(!all.length){if(emptyEl)emptyEl.style.display='flex';c.style.display='none';return;}
+
+    var firstDate=all[0].date;
+    var now=new Date();
+
+    // Определяем шаг: день / неделя / месяц — в зависимости от длительности
+    var totalDays=Math.max(1,Math.ceil((now-firstDate)/(1000*60*60*24)));
+    var step='day';
+    if(totalDays>90)step='week';
+    if(totalDays>730)step='month';
+
+    var buckets=[]; // {label, start, end}
+
+    function monthNamesShort(m){return ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'][m];}
+
+    if(step==='day'){
+        var d=new Date(firstDate.getFullYear(),firstDate.getMonth(),firstDate.getDate());
+        while(d<=now){
+            var end=new Date(d);end.setDate(end.getDate()+1);
+            buckets.push({label:(d.getDate()<10?'0'+d.getDate():d.getDate())+'.'+((d.getMonth()+1)<10?'0'+(d.getMonth()+1):(d.getMonth()+1)),start:new Date(d),end:end});
+            d=end;
         }
-    } else if(period==='week'){
-        var byDay={};
-        for(var i=0;i<sorted.length;i++){
-            var tx=sorted[i];
-            var key=tx.date.getFullYear()+'-'+pad(tx.date.getMonth()+1)+'-'+pad(tx.date.getDate());
-            if(!byDay[key])byDay[key]={income:0,expense:0,date:tx.date};
-            var rub=tx.rub;if(tx.usd>0)rub=tx.usd*currentUsdRate;
-            if(tx.type==='income')byDay[key].income+=rub;
-            else byDay[key].expense+=rub;
-        }
-        var keys=Object.keys(byDay).sort();
-        for(var i=0;i<keys.length;i++){
-            var parts=keys[i].split('-');
-            labels.push(parts[2]+'.'+parts[1]);
-            incomeBuckets.push(byDay[keys[i]].income);
-            expenseBuckets.push(byDay[keys[i]].expense);
-        }
-    } else if(period==='month'){
-        var weeks=[
-            {label:'1-7',income:0,expense:0},
-            {label:'8-14',income:0,expense:0},
-            {label:'15-21',income:0,expense:0},
-            {label:'22-28',income:0,expense:0},
-            {label:'29+',income:0,expense:0}
-        ];
-        for(var i=0;i<sorted.length;i++){
-            var tx=sorted[i];
-            var day=tx.date.getDate();
-            var idx=Math.min(Math.floor((day-1)/7),4);
-            var rub=tx.rub;if(tx.usd>0)rub=tx.usd*currentUsdRate;
-            if(tx.type==='income')weeks[idx].income+=rub;
-            else weeks[idx].expense+=rub;
-        }
-        for(var i=0;i<5;i++){
-            labels.push(weeks[i].label);
-            incomeBuckets.push(weeks[i].income);
-            expenseBuckets.push(weeks[i].expense);
+    } else if(step==='week'){
+        var d=new Date(firstDate.getFullYear(),firstDate.getMonth(),firstDate.getDate());
+        // Округляем до начала недели (пн)
+        var dow=d.getDay();var shift=(dow===0)?6:dow-1;d.setDate(d.getDate()-shift);
+        while(d<=now){
+            var end=new Date(d);end.setDate(end.getDate()+7);
+            buckets.push({label:(d.getDate()<10?'0'+d.getDate():d.getDate())+'.'+((d.getMonth()+1)<10?'0'+(d.getMonth()+1):(d.getMonth()+1)),start:new Date(d),end:end});
+            d=end;
         }
     } else {
-        var byMonth={};
-        var monthNames=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
-        for(var i=0;i<sorted.length;i++){
-            var tx=sorted[i];
-            var key=tx.date.getFullYear()+'-'+pad(tx.date.getMonth()+1);
-            if(!byMonth[key])byMonth[key]={income:0,expense:0,date:tx.date};
-            var rub=tx.rub;if(tx.usd>0)rub=tx.usd*currentUsdRate;
-            if(tx.type==='income')byMonth[key].income+=rub;
-            else byMonth[key].expense+=rub;
-        }
-        var keys=Object.keys(byMonth).sort();
-        for(var i=0;i<keys.length;i++){
-            var d=byMonth[keys[i]].date;
-            labels.push(monthNames[d.getMonth()]+' '+String(d.getFullYear()).slice(2));
-            incomeBuckets.push(byMonth[keys[i]].income);
-            expenseBuckets.push(byMonth[keys[i]].expense);
+        var d=new Date(firstDate.getFullYear(),firstDate.getMonth(),1);
+        while(d<=now){
+            var end=new Date(d.getFullYear(),d.getMonth()+1,1);
+            buckets.push({label:monthNamesShort(d.getMonth())+' '+String(d.getFullYear()).slice(2),start:new Date(d),end:end});
+            d=end;
         }
     }
-    var cumIncome=[], cumExpense=[];
-    var runI=incomeBefore, runE=expenseBefore;
-    for(var i=0;i<incomeBuckets.length;i++){
-        runI+=incomeBuckets[i];
-        runE+=expenseBuckets[i];
+
+    // Считаем кумулятивно
+    var cumIncome=[],cumExpense=[],labels=[];
+    var runI=0,runE=0;
+    var idx=0;
+
+    // Первая точка — 0 перед началом всех транзакций
+    labels.push('0');
+    cumIncome.push(0);
+    cumExpense.push(0);
+
+    for(var b=0;b<buckets.length;b++){
+        var bEnd=buckets[b].end;
+        while(idx<all.length && all[idx].date<bEnd){
+            var tx=all[idx];
+            var rub=tx.rub;if(tx.usd>0)rub=tx.usd*currentUsdRate;
+            if(tx.type==='income')runI+=rub;
+            else runE+=rub;
+            idx++;
+        }
+        labels.push(buckets[b].label);
         cumIncome.push(roundRub(runI));
         cumExpense.push(roundRub(runE));
     }
-    var showPoints=labels.length<=8;
+
     var theme=getChartTheme();
     balanceHistoryChart=new Chart(c.getContext('2d'),{
         type:'line',
         data:{
             labels:labels,
             datasets:[
-                {label:'Доход',data:cumIncome,borderColor:theme.green,backgroundColor:'rgba(34,197,94,0.15)',borderWidth:3,pointBackgroundColor:theme.green,pointBorderColor:theme.green,pointRadius:showPoints?4:0,pointHoverRadius:5,tension:0.4,fill:true},
-                {label:'Расход',data:cumExpense,borderColor:theme.red,backgroundColor:'rgba(239,68,68,0.12)',borderWidth:3,pointBackgroundColor:theme.red,pointBorderColor:theme.red,pointRadius:showPoints?4:0,pointHoverRadius:5,tension:0.4,fill:true}
+                {
+                    label:'Доход',
+                    data:cumIncome,
+                    borderColor:'#4ade80',
+                    backgroundColor:(function(){
+                        var g=c.getContext('2d').createLinearGradient(0,0,0,200);
+                        g.addColorStop(0,'rgba(74,222,128,0.35)');
+                        g.addColorStop(1,'rgba(74,222,128,0.02)');
+                        return g;
+                    })(),
+                    borderWidth:3,
+                    pointBackgroundColor:'#4ade80',
+                    pointBorderColor:'#0b0e14',
+                    pointBorderWidth:2,
+                    pointRadius:0,
+                    pointHoverRadius:6,
+                    tension:0.4,
+                    fill:true
+                },
+                {
+                    label:'Расход',
+                    data:cumExpense,
+                    borderColor:'#f87171',
+                    backgroundColor:(function(){
+                        var g=c.getContext('2d').createLinearGradient(0,0,0,200);
+                        g.addColorStop(0,'rgba(248,113,113,0.28)');
+                        g.addColorStop(1,'rgba(248,113,113,0.02)');
+                        return g;
+                    })(),
+                    borderWidth:3,
+                    pointBackgroundColor:'#f87171',
+                    pointBorderColor:'#0b0e14',
+                    pointBorderWidth:2,
+                    pointRadius:0,
+                    pointHoverRadius:6,
+                    tension:0.4,
+                    fill:true
+                }
             ]
         },
         options:{
-            responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+            responsive:true,
+            maintainAspectRatio:false,
+            interaction:{mode:'index',intersect:false},
             plugins:{
-                legend:{display:true,labels:{color:theme.textMuted,boxWidth:8,boxHeight:8,font:{size:9,weight:'500'},padding:6,usePointStyle:true,pointStyle:'circle'}},
-                tooltip:{backgroundColor:'#1c2230',borderColor:'#2c3444',borderWidth:1,titleColor:'#94a3b8',bodyColor:'#f2f5fa',bodyFont:{size:11},titleFont:{size:10},padding:8,cornerRadius:8,callbacks:{label:function(ctx){return ctx.dataset.label+': '+roundRub(ctx.parsed.y).toLocaleString('ru-RU')+' ₽';},afterBody:function(items){if(!items.length)return '';var inc=cumIncome[items[0].dataIndex];var exp=cumExpense[items[0].dataIndex];return 'Баланс: '+roundRub(inc-exp).toLocaleString('ru-RU')+' ₽';}}}
+                legend:{display:false},
+                tooltip:{
+                    backgroundColor:'#1c2230',
+                    borderColor:'#2c3444',
+                    borderWidth:1,
+                    titleColor:'#94a3b8',
+                    bodyColor:'#f2f5fa',
+                    bodyFont:{size:11},
+                    titleFont:{size:10},
+                    padding:10,
+                    cornerRadius:10,
+                    callbacks:{
+                        label:function(ctx){return ctx.dataset.label+': '+roundRub(ctx.parsed.y).toLocaleString('ru-RU')+' ₽';},
+                        afterBody:function(items){if(!items.length)return '';var inc=cumIncome[items[0].dataIndex];var exp=cumExpense[items[0].dataIndex];return 'Баланс: '+roundRub(inc-exp).toLocaleString('ru-RU')+' ₽';}
+                    }
+                }
             },
             scales:{
-                                y:{grid:{color:theme.grid},ticks:{color:theme.textMuted,font:{size:9},callback:function(v){if(Math.abs(v)>=1000000)return (v/1000000).toFixed(1)+'M';if(Math.abs(v)>=1000)return (v/1000).toFixed(0)+'k';return v;}}},
-                x:{grid:{color:theme.grid},ticks:{color:theme.textMuted,maxTicksLimit:8,maxRotation:0,autoSkip:true,font:{size:9}}}
+                y:{grid:{color:theme.grid},ticks:{color:theme.textMuted,font:{size:9},callback:function(v){if(Math.abs(v)>=1000000)return (v/1000000).toFixed(1)+'M';if(Math.abs(v)>=1000)return (v/1000).toFixed(0)+'k';return v;}}},
+                x:{grid:{display:false},ticks:{color:theme.textMuted,maxTicksLimit:6,maxRotation:0,autoSkip:true,font:{size:9}}}
             }
         }
     });
