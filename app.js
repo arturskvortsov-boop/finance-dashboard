@@ -603,19 +603,96 @@ function renderCalendar(){
 }
 
 /* ===== CUSTOM REMINDERS ===== */
+function updateBellState(){
+    var bell=$('bnBellBtn');
+    if(!bell)return;
+    if(!customReminders.length){
+        bell.classList.remove('has-active');
+        bell.classList.remove('has-urgent');
+        return;
+    }
+    var now=new Date();
+    var soon=new Date(now.getTime()+24*60*60*1000);
+    var hasActive=false, hasUrgent=false;
+    for(var i=0;i<customReminders.length;i++){
+        var due=new Date(customReminders[i].dueAt);
+        if(due>=now){
+            hasActive=true;
+            if(due<=soon)hasUrgent=true;
+        }
+    }
+    bell.classList.toggle('has-active',hasActive);
+    bell.classList.toggle('has-urgent',hasUrgent);
+}
+
 function renderCustomReminders(){
-    var block=$('remindersCustomBlock');
-    var list=$('remindersCustomList');
-    if(!block||!list)return;
-    block.classList.remove('hidden');
+    var list=$('remindersListContainer');
+    if(!list){updateBellState();return;}
     list.innerHTML='';
+    updateBellState();
     if(!customReminders.length){
         var empty=document.createElement('div');
-        empty.className='reminders-custom-empty';
-        empty.textContent='Нет напоминаний. Нажми ➕ чтобы добавить.';
+        empty.className='rem-empty';
+        empty.textContent='Нет напоминаний. Нажми «Добавить» выше.';
         list.appendChild(empty);
         return;
     }
+    var now=new Date();
+    var sorted=customReminders.slice().sort(function(a,b){
+        return new Date(a.dueAt)-new Date(b.dueAt);
+    });
+    for(var i=0;i<sorted.length;i++){
+        var r=sorted[i];
+        var due=new Date(r.dueAt);
+        var isPast=due<now;
+        var item=document.createElement('div');
+        item.className='rem-item'+(isPast?' past':'');
+        var ic=document.createElement('div');
+        ic.className='rem-ico';
+        ic.textContent=isPast?'✅':'🔔';
+        var info=document.createElement('div');
+        info.className='rem-info';
+        var txt=document.createElement('div');
+        txt.className='rem-text';
+        txt.textContent=r.text||'Напоминание';
+        var when=document.createElement('div');
+        when.className='rem-when';
+        var dd=due.getDate()<10?'0'+due.getDate():due.getDate();
+        var mm=(due.getMonth()+1)<10?'0'+(due.getMonth()+1):(due.getMonth()+1);
+        var yy=due.getFullYear();
+        var hh=due.getHours()<10?'0'+due.getHours():due.getHours();
+        var mi=due.getMinutes()<10?'0'+due.getMinutes():due.getMinutes();
+        when.textContent=(isPast?'✓ ':'')+dd+'.'+mm+'.'+yy+' в '+hh+':'+mi;
+        info.appendChild(txt);
+        info.appendChild(when);
+        var actions=document.createElement('div');
+        actions.className='rem-actions';
+        if(!isPast){
+            var eBtn=document.createElement('button');
+            eBtn.textContent='✏️';
+            (function(id){eBtn.addEventListener('click',function(e){e.stopPropagation();closeRemindersListModal();setTimeout(function(){openReminderEditModal(id);},260);});})(r.id);
+            actions.appendChild(eBtn);
+        }
+        var dBtn=document.createElement('button');
+        dBtn.textContent='🗑️';
+        (function(id){dBtn.addEventListener('click',function(e){e.stopPropagation();deleteCustomReminder(id);});})(r.id);
+        actions.appendChild(dBtn);
+        item.appendChild(ic);
+        item.appendChild(info);
+        item.appendChild(actions);
+        list.appendChild(item);
+    }
+}
+
+function openRemindersListModal(){
+    renderCustomReminders();
+    $('remindersListModal').classList.add('open');
+    lockBackground();
+}
+function closeRemindersListModal(){
+    $('remindersListModal').classList.remove('open');
+    unlockBackground();
+}
     var now=new Date();
     var sorted=customReminders.slice().sort(function(a,b){
         return new Date(a.dueAt)-new Date(b.dueAt);
@@ -2375,7 +2452,10 @@ for(var i=0;i<bnTabs.length;i++){
 }
 $('bnMoreBtn').addEventListener('click',openMoreSheet);
 $('bsOverlay').addEventListener('click',closeMoreSheet);
-$('rcbAddBtn').addEventListener('click',function(e){e.stopPropagation();openReminderEditModal(null);});
+$('bnBellBtn').addEventListener('click',function(e){e.stopPropagation();openRemindersListModal();});
+$('closeRemindersListModal').addEventListener('click',closeRemindersListModal);
+$('remindersListModal').addEventListener('click',function(e){if(e.target===this)closeRemindersListModal();});
+$('remAddBtn').addEventListener('click',function(){closeRemindersListModal();setTimeout(function(){openReminderEditModal(null);},260);});
 $('closeReminderEditModal').addEventListener('click',closeReminderEditModal);
 $('cancelReminderEditBtn').addEventListener('click',closeReminderEditModal);
 $('saveReminderBtn').addEventListener('click',saveCustomReminder);
