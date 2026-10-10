@@ -118,11 +118,6 @@
 
     <div class="period-history-block hidden" id="periodHistoryBlock">
         <h3>📂 История периодов</h3>
-        <div class="ph-filters" id="phFilters">
-            <button class="ph-filter-btn active" data-phtype="all">Все</button>
-            <button class="ph-filter-btn" data-phtype="income">💰 Доходы</button>
-            <button class="ph-filter-btn" data-phtype="expense">💸 Расходы</button>
-        </div>
         <div class="period-history-list" id="periodHistoryList"></div>
     </div>
 
@@ -467,19 +462,16 @@
 </div>
 </div>
 
-<div class="modal-overlay" id="periodDetailModal">
-<div class="modal">
-    <div class="modal-header"><h2 id="periodDetailTitle">Период</h2><button class="modal-close" id="closePeriodDetailModal">×</button></div>
+<div class="modal-overlay" id="periodHistoryModal">
+<div class="modal ph-modal">
+    <div class="modal-header"><h2 id="phModalTitle">Месяц</h2><button class="modal-close" id="closePeriodHistoryModal">×</button></div>
     <div class="modal-body">
-        <div class="pd-summary" id="periodDetailSummary"></div>
-        <div class="pd-section">
-            <div class="pd-section-title">💰 Доходы</div>
-            <div class="pd-list" id="periodDetailIncome"></div>
+        <div class="ph-filters">
+            <button class="ph-filter-btn active" data-phtype="all">Все</button>
+            <button class="ph-filter-btn" data-phtype="income">💰 Доходы</button>
+            <button class="ph-filter-btn" data-phtype="expense">💸 Расходы</button>
         </div>
-        <div class="pd-section">
-            <div class="pd-section-title">💸 Расходы</div>
-            <div class="pd-list" id="periodDetailExpense"></div>
-        </div>
+        <div class="ph-modal-scroll" id="phModalBody"></div>
     </div>
 </div>
 </div>
