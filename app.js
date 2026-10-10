@@ -480,16 +480,16 @@ function renderCbrRate(){
             var diff = currentUsdRate - res.rate;
             var pct = res.rate > 0 ? (diff / res.rate) * 100 : 0;
             var sign = diff >= 0 ? '+' : '';
-            diffEl.textContent = sign + diff.toFixed(2) + ' ₽ (' + sign + pct.toFixed(2) + '%)';
-            diffEl.className = 'cbr-diff' + (diff < 0 ? ' negative' : '');
+            diffEl.textContent = sign + diff.toFixed(2) + ' (' + sign + pct.toFixed(2) + '%)';
+            diffEl.className = 'rhc-diff' + (diff < 0 ? ' negative' : '');
             if(updEl && res.date){
                 try{var d=new Date(res.date);updEl.textContent='Курс на '+d.toLocaleDateString('ru-RU');}catch(e){}
             }
         })
         .catch(function(){
             valEl.textContent='—';
-            diffEl.textContent='Ошибка загрузки';
-            diffEl.className='cbr-diff negative';
+            diffEl.textContent='ошибка';
+            diffEl.className='rhc-diff negative';
         });
 }
 
@@ -1134,8 +1134,8 @@ function renderDashboard(txs,period){
 
     $('totalIncomeRubOnly').textContent=roundRub(s.rubIncome).toLocaleString('ru-RU')+' ₽';
     $('totalExpenseRubOnly').textContent=roundRub(s.rubExpense).toLocaleString('ru-RU')+' ₽';
-    $('totalIncomeUsd').textContent=Math.round(s.totalIncomeUsdEq).toLocaleString('ru-RU')+' $';
-    $('totalExpenseUsd').textContent=Math.round(s.totalExpenseUsdEq).toLocaleString('ru-RU')+' $';
+    if($('totalIncomeUsd'))$('totalIncomeUsd').textContent=Math.round(s.totalIncomeUsdEq).toLocaleString('ru-RU')+' $';
+    if($('totalExpenseUsd'))$('totalExpenseUsd').textContent=Math.round(s.totalExpenseUsdEq).toLocaleString('ru-RU')+' $';
     if($('balanceUsd'))$('balanceUsd').textContent=roundUsd(sAll.netUsd).toFixed(2)+' $';
     $('netIncome').textContent=roundRub(sAll.netRub).toLocaleString('ru-RU')+' ₽';
     $('recordCount').textContent=txs.length;
@@ -1592,13 +1592,14 @@ function drawRateHistoryChart(){
 function setRate(rate){
     if(isNaN(rate)||rate<=0){alert('Введите корректный курс');return;}
     var old=currentUsdRate;currentUsdRate=rate;saveRate(rate);
-    $('rateInfo').textContent='1 USD = '+rate.toFixed(2)+' ₽';
-    $('rateInfoSmall').textContent=rate.toFixed(2)+' ₽';
-    var diff=((rate-old)/old*100).toFixed(2);
+    var ri=$('rateInfo');if(ri)ri.textContent=rate.toFixed(2)+' ₽';
+    var ris=$('rateInfoSmall');if(ris)ris.textContent=rate.toFixed(2)+' ₽';
+    var diff=((rate-old)/old*100);
     var rc=$('rateChangeInfo');
-    rc.textContent=diff>=0?'📈 +'+diff+'%':'📉 '+diff+'%';
-    rc.style.background=diff>=0?'var(--green-bg)':'var(--red-bg)';
-    rc.style.color=diff>=0?'var(--green)':'var(--red)';
+    if(rc){
+        rc.textContent=(diff>=0?'+':'')+diff.toFixed(2)+'%';
+        rc.classList.toggle('negative',diff<0);
+    }
     updateWithFilter(currentFilter);
 }
 function fetchLiveRate(){
