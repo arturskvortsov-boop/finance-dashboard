@@ -693,35 +693,6 @@ function closeRemindersListModal(){
     $('remindersListModal').classList.remove('open');
     unlockBackground();
 }
-    var now=new Date();
-    var sorted=customReminders.slice().sort(function(a,b){
-        return new Date(a.dueAt)-new Date(b.dueAt);
-    });
-    for(var i=0;i<sorted.length;i++){
-        var r=sorted[i];
-        var due=new Date(r.dueAt);
-        var isPast=due<now;
-        var item=document.createElement('div');
-        item.className='reminder-custom-item'+(isPast?' past':'');
-        var ic=document.createElement('div');ic.className='rci-ico';ic.textContent=isPast?'✅':'🔔';
-        var info=document.createElement('div');info.className='rci-info';
-        var txt=document.createElement('div');txt.className='rci-text';txt.textContent=r.text||'Напоминание';
-        var when=document.createElement('div');when.className='rci-when';
-        var dd=due.getDate()<10?'0'+due.getDate():due.getDate();
-        var mm=(due.getMonth()+1)<10?'0'+(due.getMonth()+1):(due.getMonth()+1);
-        var yy=due.getFullYear();
-        var hh=due.getHours()<10?'0'+due.getHours():due.getHours();
-        var mi=due.getMinutes()<10?'0'+due.getMinutes():due.getMinutes();
-        when.textContent=(isPast?'✓ ':'')+dd+'.'+mm+'.'+yy+' в '+hh+':'+mi;
-        info.appendChild(txt);info.appendChild(when);
-        var delBtn=document.createElement('button');delBtn.className='rci-del';delBtn.textContent='🗑️';
-        (function(id){delBtn.addEventListener('click',function(e){e.stopPropagation();deleteCustomReminder(id);});})(r.id);
-        (function(id){item.addEventListener('click',function(){openReminderEditModal(id);});})(r.id);
-        item.appendChild(ic);item.appendChild(info);item.appendChild(delBtn);
-        list.appendChild(item);
-    }
-}
-
 function openReminderEditModal(id){
     editingReminderId=id||null;
     var title=$('reminderEditTitle');
