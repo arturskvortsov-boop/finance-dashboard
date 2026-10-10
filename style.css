@@ -189,11 +189,42 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .tx-item.tx-anim{animation:txIn .3s cubic-bezier(.2,.7,.3,1) both}
 
 /* ===== RATE CHART (Currency page) ===== */
-.rate-chart-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:10px;min-width:0}
-.rate-chart-box h3{font-weight:500;font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px}
-.rate-chart-box .rate-chart-controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
-.rate-chart-box .rate-chart-controls button{background:transparent;border:1px solid var(--border);color:var(--text-muted);padding:3px 12px;border-radius:20px;font-size:0.68rem;cursor:pointer;font-family:inherit}
-#rateHistoryChart{height:180px!important;width:100%!important}
+.rate-chart-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;min-width:0}
+.rate-chart-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    margin-bottom:12px
+}
+.rate-chart-header h3{
+    font-weight:600;
+    font-size:0.82rem;
+    color:var(--text-muted);
+    margin-bottom:0;
+    text-transform:uppercase;
+    letter-spacing:0.6px
+}
+.rate-chart-refresh-btn{
+    padding:9px 18px;
+    border-radius:12px;
+    background:linear-gradient(135deg,#3b82f6,#60a5fa);
+    border:none;
+    color:#fff;
+    font-family:inherit;
+    font-size:0.76rem;
+    font-weight:700;
+    cursor:pointer;
+    letter-spacing:0.3px;
+    box-shadow:0 6px 16px rgba(59,130,246,0.38),0 3px 6px rgba(0,0,0,0.45);
+    transition:transform .12s,box-shadow .2s;
+    flex-shrink:0
+}
+.rate-chart-refresh-btn:active{
+    transform:translateY(2px);
+    box-shadow:0 2px 6px rgba(59,130,246,0.45),0 1px 2px rgba(0,0,0,0.5)
+}
+#rateHistoryChart{height:200px!important;width:100%!important}
 
 .empty-state{text-align:center;color:var(--text-dim);padding:20px 0;font-size:0.88rem}
 .hidden{display:none!important}
@@ -202,13 +233,13 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 /* ===== CURRENCY HERO / RATE ===== */
 .currency-hero{background:linear-gradient(135deg,var(--card) 0%,var(--card-2) 100%);border:1px solid var(--border);border-radius:16px;padding:22px 18px;margin-bottom:10px;text-align:center;position:relative;overflow:hidden}
 .currency-hero::before{content:'';position:absolute;top:-60%;right:-30%;width:240px;height:240px;background:radial-gradient(circle,rgba(147,197,253,.18),transparent 70%);pointer-events:none}
-.currency-hero .ch-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.6px;color:var(--text-muted);font-weight:500;margin-bottom:8px;position:relative}
+.currency-hero .ch-label{font-size:0.74rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-muted);font-weight:600;margin-bottom:10px;position:relative}
 .currency-hero .ch-amount{font-size:2.4rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1;word-break:break-all;position:relative}
 .currency-hero .ch-details{margin-top:8px;font-size:0.82rem;color:var(--text-muted);position:relative}
 
 .currency-rate-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px}
 .currency-rate-card .crc-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
-.currency-rate-card .crc-label{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);font-weight:500;margin-bottom:3px}
+.currency-rate-card .crc-label{font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);font-weight:600;margin-bottom:5px}
 .currency-rate-card .crc-value{font-size:1.15rem;font-weight:700;color:var(--text)}
 .currency-rate-card .crc-change{font-size:0.85rem;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--green-bg);color:var(--green);transition:all .3s}
 .currency-rate-card .crc-input-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -223,7 +254,7 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 /* ===== CBR RATE ===== */
 .cbr-rate-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px}
 .cbr-rate-card .cbr-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-.cbr-rate-card .cbr-label{font-size:0.66rem;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-muted);font-weight:500;margin-bottom:3px}
+.cbr-rate-card .cbr-label{font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);font-weight:600;margin-bottom:5px}
 .cbr-rate-card .cbr-value{font-size:1.15rem;font-weight:700;color:var(--text)}
 .cbr-rate-card .cbr-diff{font-size:0.85rem;font-weight:600;padding:4px 10px;border-radius:20px;background:var(--green-bg);color:var(--green)}
 .cbr-rate-card .cbr-diff.negative{background:var(--red-bg);color:var(--red)}
