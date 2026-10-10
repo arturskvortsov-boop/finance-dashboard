@@ -808,6 +808,7 @@ function groupByMonth(){
 var currentPhFilter='all';
 var expandedCategoryKey=null;
 var currentPhMonthKey=null;
+var pendingPhReopenKey=null;
 
 function renderPeriodHistory(){
     var block=$('periodHistoryBlock');
@@ -967,7 +968,12 @@ function buildCatGroup(monthKey,catList,type){
                     var editBtn=document.createElement('button');
                     editBtn.className='ph-tx-edit';
                     editBtn.textContent='✏️';
-                    (function(idx){editBtn.addEventListener('click',function(e){e.stopPropagation();editTransaction(idx);});})(realIdx);
+                    (function(idx){editBtn.addEventListener('click',function(e){
+    e.stopPropagation();
+    pendingPhReopenKey=currentPhMonthKey;
+    closePeriodHistoryModal();
+    setTimeout(function(){editTransaction(idx);},180);
+});})(realIdx);
                     row.appendChild(editBtn);
                     txList.appendChild(row);
                 }
@@ -1499,7 +1505,16 @@ function openTxModal(editIdx,presetType,presetData){
     $('txModal').classList.add('open');
     lockBackground();
 }
-function closeTxModal(){$('txModal').classList.remove('open');editingIndex=-1;unlockBackground();}
+function closeTxModal(){
+    $('txModal').classList.remove('open');
+    editingIndex=-1;
+    unlockBackground();
+    if(pendingPhReopenKey){
+        var k=pendingPhReopenKey;
+        pendingPhReopenKey=null;
+        setTimeout(function(){openPeriodHistoryModal(k);},180);
+    }
+}
 function editTransaction(i){openTxModal(i);}
 function deleteTransaction(i){
     var tx=allTransactions[i];if(!tx)return;
