@@ -1399,13 +1399,89 @@ function drawBalanceHistoryChart(txs,period){
 function drawRateHistoryChart(){
     var c=$('rateHistoryChart');if(!c)return;
     if(rateHistoryChart){rateHistoryChart.destroy();rateHistoryChart=null;}
-    var ctx=c.getContext('2d');var theme=getChartTheme();
+    var ctx=c.getContext('2d');
+    var theme=getChartTheme();
+
     if(rateHistory.length<2){
-        rateHistoryChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'Курс',data:[],borderColor:theme.accent,borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:theme.textMuted}}}}});
+        rateHistoryChart=new Chart(ctx,{type:'line',data:{labels:[],datasets:[{label:'Курс',data:[],borderColor:'#60a5fa',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false}});
         return;
     }
-    var labels=rateHistory.map(function(x){return x.date.toLocaleDateString('ru-RU')+' '+x.date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});});
+
     var values=rateHistory.map(function(x){return x.rate;});
+
+    // Короткие подписи: DD.MM (и HH:MM если в этот день несколько записей)
+    var labels=[];
+    var prevKey=null;
+    for(var i=0;i<rateHistory.length;i++){
+        var d=rateHistory[i].date;
+        var dayKey=d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();
+        var dd=pad(d.getDate())+'.'+pad(d.getMonth()+1);
+        if(prevKey===dayKey) dd+=' '+pad(d.getHours())+':'+pad(d.getMinutes());
+        labels.push(dd);
+        prevKey=dayKey;
+    }
+
+    // min / max
+    var minVal=Infinity,maxVal=-Infinity,minIdx=0,maxIdx=0;
+    for(var i=0;i<values.length;i++){
+        if(values[i]<minVal){minVal=values[i];minIdx=i;}
+        if(values[i]>maxVal){maxVal=values[i];maxIdx=i;}
+    }
+    var lastIdx=values.length-1;
+
+    // Точки: обычные = 0, последняя = 5, min/max = 4
+    var pointRadii=values.map(function(v,i){
+        if(i===lastIdx)return 5;
+        if(i===minIdx||i===maxIdx)return 4;
+        return 0;
+    });
+    var pointColors=values.map(function(v,i){
+        if(i===minIdx)return '#f87171';
+        if(i===maxIdx)return '#4ade80';
+        return '#60a5fa';
+    });
+
+    // Плагин: пунктирные линии min/max + подписи
+    var minMaxPlugin={
+        id:'rateMinMax',
+        afterDatasetsDraw:function(chart){
+            var yScale=chart.scales.y;
+            var chartArea=chart.chartArea;
+            var ctx2=chart.ctx;
+            ctx2.save();
+            ctx2.setLineDash([4,4]);
+            ctx2.lineWidth=1;
+
+            // min line
+            var yMin=yScale.getPixelForValue(minVal);
+            ctx2.strokeStyle='rgba(248,113,113,0.55)';
+            ctx2.beginPath();
+            ctx2.moveTo(chartArea.left,yMin);
+            ctx2.lineTo(chartArea.right,yMin);
+            ctx2.stroke();
+            ctx2.setLineDash([]);
+            ctx2.fillStyle='rgba(248,113,113,0.9)';
+            ctx2.font='600 9px -apple-system,sans-serif';
+            ctx2.textAlign='left';
+            ctx2.fillText('min '+minVal.toFixed(2),chartArea.left+4,yMin-4);
+
+            // max line
+            ctx2.setLineDash([4,4]);
+            var yMax=yScale.getPixelForValue(maxVal);
+            ctx2.strokeStyle='rgba(74,222,128,0.55)';
+            ctx2.beginPath();
+            ctx2.moveTo(chartArea.left,yMax);
+            ctx2.lineTo(chartArea.right,yMax);
+            ctx2.stroke();
+            ctx2.setLineDash([]);
+            ctx2.fillStyle='rgba(74,222,128,0.9)';
+            ctx2.textAlign='left';
+            ctx2.fillText('max '+maxVal.toFixed(2),chartArea.left+4,yMax+12);
+
+            ctx2.restore();
+        }
+    };
+
     rateHistoryChart=new Chart(ctx,{
         type:'line',
         data:{
@@ -1413,41 +1489,98 @@ function drawRateHistoryChart(){
             datasets:[{
                 label:'Курс USD/RUB',
                 data:values,
-                borderWidth:3,
-                pointRadius:0,
-                pointHoverRadius:6,
-                pointHoverBackgroundColor:'#fff',
-                pointHoverBorderColor:'#fff',
-                pointHoverBorderWidth:2,
-                tension:0.35,
+                borderWidth:2.5,
+                pointRadius:pointRadii,
+                pointHoverRadius:7,
+                pointBackgroundColor:pointColors,
+                pointBorderColor:'#0b0e14',
+                pointBorderWidth:2,
+                tension:0.32,
                 fill:true,
-                borderColor:'#22c55e',
-                backgroundColor:'rgba(34,197,94,0.2)',
-                segment:{
-                    borderColor:function(c){
-                        var p0=c.p0.parsed.y;
-                        var p1=c.p1.parsed.y;
-                        return p1>=p0?'#22c55e':'#ef4444';
-                    },
-                    backgroundColor:function(c){
-                        var p0=c.p0.parsed.y;
-                        var p1=c.p1.parsed.y;
-                        return p1>=p0?'rgba(34,197,94,0.28)':'rgba(239,68,68,0.28)';
-                    }
+                borderColor:function(ctx2){
+                    var chart=ctx2.chart;
+                    if(!chart.chartArea)return '#60a5fa';
+                    var g=chart.ctx.createLinearGradient(chart.chartArea.left,0,chart.chartArea.right,0);
+                    g.addColorStop(0,'#60a5fa');
+                    g.addColorStop(1,'#a78bfa');
+                    return g;
+                },
+                backgroundColor:function(ctx2){
+                    var chart=ctx2.chart;
+                    if(!chart.chartArea)return 'rgba(96,165,250,0.15)';
+                    var g=chart.ctx.createLinearGradient(0,chart.chartArea.top,0,chart.chartArea.bottom);
+                    g.addColorStop(0,'rgba(96,165,250,0.28)');
+                    g.addColorStop(1,'rgba(167,139,250,0.02)');
+                    return g;
                 }
             }]
         },
         options:{
-            responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+            responsive:true,
+            maintainAspectRatio:false,
+            interaction:{mode:'index',intersect:false},
+            layout:{padding:{top:8,right:6,bottom:0,left:0}},
+            animation:{duration:900,easing:'easeOutQuart'},
             plugins:{
                 legend:{display:false},
-                tooltip:{backgroundColor:'#1c2230',borderColor:'#2c3444',borderWidth:1,titleColor:'#f2f5fa',bodyColor:'#f2f5fa',callbacks:{label:function(c){var i=c.dataIndex;var sign='';if(i>0){var diff=c.parsed.y-values[i-1];sign=' ('+(diff>=0?'+':'')+diff.toFixed(2)+')';}return c.parsed.y.toFixed(2)+' ₽'+sign;}}}
+                tooltip:{
+                    backgroundColor:'#1c2230',
+                    borderColor:'rgba(252,211,77,0.45)',
+                    borderWidth:1.5,
+                    titleColor:'#9aa8c0',
+                    titleFont:{size:10,weight:'600'},
+                    bodyColor:'#f2f5fa',
+                    bodyFont:{size:14,weight:'700'},
+                    padding:10,
+                    cornerRadius:10,
+                    displayColors:false,
+                    callbacks:{
+                        title:function(items){
+                            if(!items.length)return '';
+                            var idx=items[0].dataIndex;
+                            var d=rateHistory[idx].date;
+                            return pad(d.getDate())+'.'+pad(d.getMonth()+1)+'.'+d.getFullYear()+' · '+pad(d.getHours())+':'+pad(d.getMinutes());
+                        },
+                        label:function(c){
+                            var v=c.parsed.y;
+                            var i=c.dataIndex;
+                            var sign='';
+                            if(i>0){
+                                var diff=v-values[i-1];
+                                sign=' ('+(diff>=0?'+':'')+diff.toFixed(2)+')';
+                            }
+                            return v.toFixed(2)+' ₽'+sign;
+                        }
+                    }
+                }
             },
             scales:{
-                y:{grid:{color:theme.grid},ticks:{color:theme.textMuted,callback:function(v){return v.toFixed(2)+' ₽';}}},
-                x:{grid:{color:theme.grid},ticks:{color:theme.textMuted,maxTicksLimit:6,maxRotation:30,autoSkip:true,font:{size:9}}}
+                y:{
+                    grid:{color:'rgba(255,255,255,0.04)',drawTicks:false},
+                    border:{display:false},
+                    ticks:{
+                        color:theme.textMuted,
+                        font:{size:10},
+                        padding:6,
+                        maxTicksLimit:5,
+                        callback:function(v){return v.toFixed(1);}
+                    }
+                },
+                x:{
+                    grid:{display:false},
+                    border:{display:false},
+                    ticks:{
+                        color:theme.textMuted,
+                        font:{size:9},
+                        maxTicksLimit:5,
+                        maxRotation:0,
+                        autoSkip:true,
+                        padding:4
+                    }
+                }
             }
-        }
+        },
+        plugins:[minMaxPlugin]
     });
 }
 
