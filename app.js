@@ -1070,7 +1070,6 @@ function renderDashboard(txs,period){
     drawBalanceHistoryChart(txs,period);
     renderBudgets();
     renderGoals();
-    renderReminders();
     renderCalendar();
     renderCustomReminders();
     renderPeriodHistory();
