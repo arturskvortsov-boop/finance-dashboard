@@ -2678,8 +2678,6 @@ $('bsReminders').addEventListener('click',function(){closeMoreSheet();switchPage
 $('bsBudgets').addEventListener('click',function(){closeMoreSheet();switchPage('dashboard');setTimeout(function(){var b=$('budgetsBlock');if(b&&!b.classList.contains('hidden')){b.scrollIntoView({behavior:'smooth',block:'center'});}else{showToast('🎯 Бюджеты не заданы');}},400);});
 $('bsGoals').addEventListener('click',function(){closeMoreSheet();switchPage('dashboard');setTimeout(function(){var b=$('goalsBlock');if(b&&!b.classList.contains('hidden')){b.scrollIntoView({behavior:'smooth',block:'center'});}else{showToast('🏆 Целей пока нет');}},400);});
 $('bsTemplates').addEventListener('click',function(){closeMoreSheet();switchPage('settings');setTimeout(function(){var b=$('settingsTemplatesList');if(b)b.scrollIntoView({behavior:'smooth',block:'center'});},400);});
-$('bsSync').addEventListener('click',function(){closeMoreSheet();setTimeout(function(){doSync();},250);});
-$('bsRefresh').addEventListener('click',function(){closeMoreSheet();setTimeout(function(){doRefresh();},250);});
 $('bsExportCsv').addEventListener('click',function(){closeMoreSheet();setTimeout(function(){exportAllDataCSV();},250);});
 $('bsExportJson').addEventListener('click',function(){closeMoreSheet();setTimeout(function(){exportAllData();},250);});
 $('bsImport').addEventListener('click',function(){closeMoreSheet();setTimeout(function(){$('settingsImportInput').click();},250);});
