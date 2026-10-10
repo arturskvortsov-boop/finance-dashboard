@@ -1519,7 +1519,7 @@ function drawRateHistoryChart(){
             responsive:true,
             maintainAspectRatio:false,
             interaction:{mode:'index',intersect:false},
-            layout:{padding:{top:8,right:6,bottom:0,left:0}},
+            layout:{padding:{top:10,right:8,bottom:4,left:0}},
             animation:{duration:900,easing:'easeOutQuart'},
             plugins:{
                 legend:{display:false},
@@ -1560,8 +1560,12 @@ function drawRateHistoryChart(){
                     border:{display:false},
                     ticks:{
                         color:theme.textMuted,
-                        font:{size:10},
-                        padding:6,
+                        font:{
+                            size:11,
+                            weight:'500',
+                            family:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'
+                        },
+                        padding:8,
                         maxTicksLimit:5,
                         callback:function(v){return v.toFixed(1);}
                     }
@@ -1571,11 +1575,15 @@ function drawRateHistoryChart(){
                     border:{display:false},
                     ticks:{
                         color:theme.textMuted,
-                        font:{size:9},
+                        font:{
+                            size:11,
+                            weight:'500',
+                            family:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'
+                        },
                         maxTicksLimit:5,
                         maxRotation:0,
                         autoSkip:true,
-                        padding:4
+                        padding:6
                     }
                 }
             }
