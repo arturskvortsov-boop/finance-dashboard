@@ -1297,3 +1297,29 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
     padding:16px 0
 }
 
+
+/* ===== DAY DETAIL (календарь) ===== */
+.day-add-btn{
+    width:100%;
+    padding:11px 16px;
+    border-radius:12px;
+    background:linear-gradient(135deg,rgba(252,211,77,0.18),rgba(251,191,36,0.1));
+    border:1.5px solid rgba(252,211,77,0.55);
+    color:#fcd34d;
+    font-family:inherit;
+    font-size:0.82rem;
+    font-weight:700;
+    cursor:pointer;
+    margin-top:12px;
+    transition:all .2s;
+    box-shadow:0 0 12px rgba(252,211,77,0.15);
+    flex-shrink:0
+}
+.day-add-btn:active{
+    transform:scale(0.97);
+    background:linear-gradient(135deg,rgba(252,211,77,0.3),rgba(251,191,36,0.2))
+}
+.day-cat-item .ph-cat-head{cursor:default}
+.day-cat-item .ph-cat-head:active{background:transparent}
+
+
