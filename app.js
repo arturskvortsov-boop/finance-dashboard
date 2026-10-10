@@ -1066,57 +1066,6 @@ function renderDashboard(txs,period){
         expList.appendChild(dd);
     }
 
-    var indexed=[];
-    for(var i=0;i<txs.length;i++){
-        var realIdx=allTransactions.indexOf(txs[i]);
-        if(realIdx>=0)indexed.push({tx:txs[i],i:realIdx});
-    }
-    indexed.sort(function(a,b){return b.tx.date-a.tx.date;});
-    var searchQ=(currentTxSearch||'').toLowerCase().trim();
-    var typeF=currentTxTypeFilter||'all';
-    if(searchQ||typeF!=='all'){
-        indexed=indexed.filter(function(item){
-            var tx=item.tx;
-            if(typeF!=='all'&&tx.type!==typeF)return false;
-            if(searchQ){
-                var hay=(tx.category+' '+(tx.note||'')).toLowerCase();
-                if(hay.indexOf(searchQ)===-1)return false;
-            }
-            return true;
-        });
-    }
-    var list=$('transactionList');list.innerHTML='';
-    if(!indexed.length){
-        var empty=document.createElement('div');empty.className='tx-empty';
-        empty.textContent=(searchQ||typeF!=='all')?'Ничего не найдено':'Нет транзакций за период';
-        list.appendChild(empty);
-    }
-    if($('txCount')){$('txCount').textContent=indexed.length?('Показано '+Math.min(indexed.length,100)+' из '+indexed.length):'';}
-    var slice=indexed.slice(0,100);
-    for(var k=0;k<slice.length;k++){
-        var tx=slice[k].tx;
-        var div=document.createElement('div');div.className='tx-item tx-anim';
-        div.style.animationDelay=(Math.min(k,15)*0.02)+'s';
-        var left=document.createElement('div');left.className='left';
-        var txIcon=document.createElement('div');
-        txIcon.className='tx-icon '+(tx.type==='income'?'income':'expense');
-        txIcon.textContent=getCategoryEmoji(tx.category);
-        var txInfo=document.createElement('div');txInfo.className='tx-info';
-        txInfo.innerHTML='<span class="cat">'+tx.category+'</span><span class="date">'+tx.date.toLocaleDateString('ru-RU')+' '+tx.date.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+'</span>'+(tx.note&&tx.note!=='-'?'<span class="note">'+tx.note+'</span>':'');
-        left.appendChild(txIcon);left.appendChild(txInfo);
-        var right=document.createElement('span');
-        right.className='right '+(tx.type==='income'?'income':'expense');
-        right.textContent=(tx.type==='income'?'+':'-')+roundRub(tx.rub).toLocaleString('ru-RU')+' ₽'+(tx.usd>0?' ('+tx.usd.toFixed(2)+' $)':'');
-        var actions=document.createElement('div');actions.className='tx-actions';
-        var eBtn=document.createElement('button');eBtn.className='edit';eBtn.textContent='✏️';
-        (function(idx){eBtn.addEventListener('click',function(){editTransaction(idx);});})(slice[k].i);
-        var dBtn=document.createElement('button');dBtn.className='del';dBtn.textContent='🗑️';
-        (function(idx){dBtn.addEventListener('click',function(){deleteTransaction(idx);});})(slice[k].i);
-        actions.appendChild(eBtn);actions.appendChild(dBtn);
-        div.appendChild(left);div.appendChild(right);div.appendChild(actions);
-        list.appendChild(div);
-    }
-
     renderInsights(txs,period);
     drawBalanceHistoryChart(txs,period);
     renderBudgets();
@@ -2504,24 +2453,7 @@ if(qaExp)qaExp.addEventListener('click',function(){openTxModal(-1,'expense');});
 var usdQuick=$('bcUsdQuick');
 if(usdQuick)usdQuick.addEventListener('click',function(){switchPage('currency');});
 
-var txSearchInput=$('txSearch');
-if(txSearchInput){
-    txSearchInput.addEventListener('input',function(){
-        currentTxSearch=this.value;
-        if(dataLoaded)updateWithFilter(currentFilter);
-    });
-}
-var txTypeBtns=document.querySelectorAll('.tx-type-btn');
-for(var i=0;i<txTypeBtns.length;i++){
-    (function(b){
-        b.addEventListener('click',function(){
-            for(var j=0;j<txTypeBtns.length;j++)txTypeBtns[j].classList.remove('active');
-            this.classList.add('active');
-            currentTxTypeFilter=this.dataset.txtype;
-            if(dataLoaded)updateWithFilter(currentFilter);
-        });
-    })(txTypeBtns[i]);
-}
+
 
 $('bnHomeBtn').addEventListener('click',function(){switchPage('dashboard');});
 var bnTabs=document.querySelectorAll('.bn-tab[data-page]');
