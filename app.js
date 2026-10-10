@@ -1846,7 +1846,6 @@ function applyTemplate(id){
     var tpl=null;for(var i=0;i<templates.length;i++)if(templates[i].id===id){tpl=templates[i];break;}
     if(!tpl)return;
     closeQuickAddModal();
-    closeMoreSheet();
     setTimeout(function(){openTxModal(-1,tpl.type,{type:tpl.type,rub:tpl.rub,usd:tpl.usd,category:tpl.category,note:tpl.note});},250);
 }
 function openTemplateEditModal(id){
@@ -2322,17 +2321,6 @@ function closeFabFan(){
     fab.classList.remove('open');
 }
 
-/* ===== MORE SHEET ===== */
-function openMoreSheet(){
-    $('moreSheet').classList.add('open');
-    $('bsOverlay').classList.add('open');
-    lockBackground();
-}
-function closeMoreSheet(){
-    $('moreSheet').classList.remove('open');
-    $('bsOverlay').classList.remove('open');
-    unlockBackground();
-}
 
 /* ===== PULL TO REFRESH ===== */
 var pullStartY=0,pullActive=false,pullY=0,pullRefreshing=false;
@@ -2340,7 +2328,7 @@ var PULL_THRESHOLD=80,PULL_MAX=120;
 document.addEventListener('touchstart',function(e){
     if(e.touches.length!==1){pullActive=false;return;}
     if(window.scrollY>5){pullActive=false;return;}
-    if(document.querySelector('.modal-overlay.open')||document.querySelector('.bottom-sheet.open')){pullActive=false;return;}
+    if(document.querySelector('.modal-overlay.open')){pullActive=false;return;}
     if($('fabFan')&&$('fabFan').classList.contains('open')){pullActive=false;return;}
     pullStartY=e.touches[0].clientY;
     pullActive=true;
@@ -2651,8 +2639,7 @@ var bnTabs=document.querySelectorAll('.bn-tab[data-page]');
 for(var i=0;i<bnTabs.length;i++){
     (function(t){t.addEventListener('click',function(){switchPage(this.dataset.page);});})(bnTabs[i]);
 }
-$('bnMoreBtn').addEventListener('click',openMoreSheet);
-$('bsOverlay').addEventListener('click',closeMoreSheet);
+
 $('bnBellBtn').addEventListener('click',function(e){e.stopPropagation();openRemindersListModal();});
 $('closeRemindersListModal').addEventListener('click',closeRemindersListModal);
 $('remindersListModal').addEventListener('click',function(e){if(e.target===this)closeRemindersListModal();});
@@ -2674,19 +2661,11 @@ $('fabQuick').addEventListener('click',function(){closeFabFan();setTimeout(funct
 $('fabSync').addEventListener('click',function(){closeFabFan();setTimeout(function(){doSync();},150);});
 $('fabRefresh').addEventListener('click',function(){closeFabFan();setTimeout(function(){doRefresh();},150);});
 
-$('bsReminders').addEventListener('click',function(){closeMoreSheet();switchPage('dashboard');setTimeout(function(){var b=$('remindersBlock');if(b&&!b.classList.contains('hidden')){b.classList.add('highlight');try{b.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){}setTimeout(function(){b.classList.remove('highlight');},3500);}else{showToast('📌 Напоминаний пока нет');}},400);});
-$('bsBudgets').addEventListener('click',function(){closeMoreSheet();switchPage('dashboard');setTimeout(function(){var b=$('budgetsBlock');if(b&&!b.classList.contains('hidden')){b.scrollIntoView({behavior:'smooth',block:'center'});}else{showToast('🎯 Бюджеты не заданы');}},400);});
-$('bsGoals').addEventListener('click',function(){closeMoreSheet();switchPage('dashboard');setTimeout(function(){var b=$('goalsBlock');if(b&&!b.classList.contains('hidden')){b.scrollIntoView({behavior:'smooth',block:'center'});}else{showToast('🏆 Целей пока нет');}},400);});
-$('bsTemplates').addEventListener('click',function(){closeMoreSheet();switchPage('settings');setTimeout(function(){var b=$('settingsTemplatesList');if(b)b.scrollIntoView({behavior:'smooth',block:'center'});},400);});
-$('bsExportCsv').addEventListener('click',function(){closeMoreSheet();setTimeout(function(){exportAllDataCSV();},250);});
-$('bsExportJson').addEventListener('click',function(){closeMoreSheet();setTimeout(function(){exportAllData();},250);});
-$('bsImport').addEventListener('click',function(){closeMoreSheet();setTimeout(function(){$('settingsImportInput').click();},250);});
-$('bsAbout').addEventListener('click',function(){closeMoreSheet();setTimeout(function(){showToast('💼 Финансовый дашборд v4 · Личный проект');},300);});
 
 var swipeStartX=0,swipeStartY=0,swipeActive=false;
 document.addEventListener('touchstart',function(e){
     if(e.touches.length!==1){swipeActive=false;return;}
-    if(document.querySelector('.modal-overlay.open')||document.querySelector('.bottom-sheet.open')){swipeActive=false;return;}
+    if(document.querySelector('.modal-overlay.open')){swipeActive=false;return;}
     swipeStartX=e.touches[0].clientX;
     swipeStartY=e.touches[0].clientY;
     swipeActive=true;
@@ -2747,13 +2726,11 @@ if(isTelegram&&tg){
     tg.BackButton.onClick(function(){
         var modal=document.querySelector('.modal-overlay.open');
         if(modal){modal.classList.remove('open');unlockBackground();try{tg.BackButton.hide();}catch(e){}return;}
-        var sheet=$('moreSheet');
-        if(sheet&&sheet.classList.contains('open')){closeMoreSheet();try{tg.BackButton.hide();}catch(e){}return;}
         var fan=$('fabFan');
         if(fan&&fan.classList.contains('open')){closeFabFan();try{tg.BackButton.hide();}catch(e){}return;}
     });
     var observer=new MutationObserver(function(){
-        var hasOpen=document.querySelector('.modal-overlay.open, .bottom-sheet.open, .fab-fan.open');
+        var hasOpen=document.querySelector('.modal-overlay.open, .fab-fan.open');
         if(hasOpen){try{tg.BackButton.show();}catch(e){}}
         else{try{tg.BackButton.hide();}catch(e){}}
     });
