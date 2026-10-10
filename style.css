@@ -888,7 +888,7 @@ body.tg-webapp.tg-fullscreen .container{
     background:linear-gradient(135deg,rgba(252,211,77,0.18),rgba(251,191,36,0.08));
     border-color:#fcd34d;
     color:#fcd34d;
-    animation:bellPulse 2.2s ease-in-out infinite
+    animation:bellPulse 2.2s ease-in-out infinite, bellNod 5s ease-in-out infinite
 }
 @keyframes bellPulse{
     0%,100%{box-shadow:0 0 16px rgba(252,211,77,0.4),0 0 0 3px rgba(252,211,77,0.08)}
@@ -1533,3 +1533,57 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
     font-weight:700;
     color:var(--text)
 }
+
+/* ===== EFFECTS PACK ===== */
+
+/* Ripple */
+.ripple-wave{
+    position:absolute;
+    border-radius:50%;
+    background:rgba(255,255,255,0.35);
+    transform:scale(0);
+    animation:rippleAnim .7s ease-out;
+    pointer-events:none;
+    z-index:5
+}
+@keyframes rippleAnim{
+    to{transform:scale(2.6);opacity:0}
+}
+
+/* Block highlight — пульсация при переходе */
+.block-highlight{
+    animation:blockPulse 2s ease-out;
+    border-radius:14px
+}
+@keyframes blockPulse{
+    0%{box-shadow:0 0 0 3px rgba(252,211,77,0.75),0 0 42px rgba(252,211,77,0.5)}
+    100%{box-shadow:0 0 0 0 rgba(252,211,77,0),0 0 0 rgba(252,211,77,0)}
+}
+
+/* Bell nod — кивок раз в 5 сек */
+@keyframes bellNod{
+    0%,88%,100%{transform:rotate(0)}
+    92%{transform:rotate(-9deg)}
+    95%{transform:rotate(9deg)}
+    98%{transform:rotate(-4deg)}
+}
+
+/* Tab shimmer — блеск по активной вкладке */
+.bn-tab.active{
+    position:relative;
+    overflow:hidden
+}
+.bn-tab.active::after{
+    content:'';
+    position:absolute;
+    top:0;left:-100%;
+    width:60%;height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.22),transparent);
+    animation:tabShimmer 3.6s ease-in-out infinite;
+    pointer-events:none
+}
+@keyframes tabShimmer{
+    0%{left:-100%}
+    55%,100%{left:150%}
+}
+
