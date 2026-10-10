@@ -482,9 +482,68 @@ body.fab-open .top-strip{
 .bottom-sheet{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top-left-radius:24px;border-top-right-radius:24px;border-top:1px solid var(--border);padding:14px 16px calc(34px + env(safe-area-inset-bottom,0px));z-index:1100;transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.8,.3,1);max-height:92vh;overflow-y:auto}
 .bs-handle{width:40px;height:4px;background:var(--border-soft);border-radius:2px;margin:0 auto 14px}
 .bs-title{font-size:1rem;font-weight:600;color:var(--text);margin-bottom:14px;text-align:center}
-.bs-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.bs-item{padding:12px 8px;font-size:0.68rem}
-.bs-item .bs-ico{font-size:1.3rem}
+.bs-section{margin-bottom:14px}
+.bs-section:last-child{margin-bottom:0}
+.bs-section-label{
+    font-size:0.6rem;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    color:var(--text-dim);
+    font-weight:600;
+    margin-bottom:6px;
+    padding-left:6px
+}
+.bs-rows{
+    background:var(--card-2);
+    border:1px solid var(--border);
+    border-radius:14px;
+    overflow:hidden
+}
+.bs-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    width:100%;
+    padding:11px 14px;
+    background:transparent;
+    border:none;
+    border-bottom:1px solid var(--border);
+    color:var(--text);
+    font-family:inherit;
+    font-size:0.85rem;
+    font-weight:500;
+    cursor:pointer;
+    text-align:left;
+    transition:background .15s
+}
+.bs-row:last-child{border-bottom:none}
+.bs-row:active{background:rgba(252,211,77,0.08)}
+.bs-row-ico{
+    width:32px;
+    height:32px;
+    border-radius:9px;
+    background:rgba(252,211,77,0.1);
+    border:1px solid rgba(252,211,77,0.25);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1rem;
+    flex-shrink:0
+}
+.bs-row-label{
+    flex:1;
+    min-width:0;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis
+}
+.bs-row-arrow{
+    color:var(--text-dim);
+    font-size:1.3rem;
+    line-height:1;
+    flex-shrink:0;
+    font-weight:300
+}
 .bs-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1099;opacity:0;visibility:hidden;transition:all .3s}
 .bs-overlay.open{opacity:1;visibility:visible}
 
