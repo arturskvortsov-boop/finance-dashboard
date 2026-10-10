@@ -785,8 +785,10 @@ function loadCustomRemindersFromServer(){
 
 /* ===== PERIOD HISTORY ===== */
 var MONTH_NAMES=['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'];
+var MONTH_NAMES_CAP=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+
 function formatMonthLabel(d){
-    return MONTH_NAMES[d.getMonth()].charAt(0).toUpperCase()+MONTH_NAMES[d.getMonth()].slice(1)+' '+d.getFullYear();
+    return MONTH_NAMES_CAP[d.getMonth()]+' '+d.getFullYear();
 }
 function groupByMonth(){
     var map={};
@@ -802,8 +804,10 @@ function groupByMonth(){
     arr.sort(function(a,b){return (b.year-a.year)||(b.month-a.month);});
     return arr;
 }
-var expandedPeriodKey=null;
+
+var currentPhFilter='all';
 var expandedCategoryKey=null;
+var currentPhMonthKey=null;
 
 function renderPeriodHistory(){
     var block=$('periodHistoryBlock');
@@ -824,59 +828,86 @@ function renderPeriodHistory(){
         var net=m.income-m.expense;
         var d=new Date(m.year,m.month,1);
         var netStr=(net>=0?'+':'-')+roundRub(Math.abs(net)).toLocaleString('ru-RU')+' ₽';
-        var isExpanded=(expandedPeriodKey===m.key);
 
         var card=document.createElement('div');
-        card.className='ph-card'+(isExpanded?' expanded':'');
-
-        var head=document.createElement('div');
-        head.className='ph-head';
-        head.innerHTML=
-            '<div class="ph-row-1">'+
-                '<div class="ph-title">'+formatMonthLabel(d)+'</div>'+
-                '<button class="ph-btn-expand">'+(isExpanded?'Закрыть':'Открыть')+'</button>'+
+        card.className='ph-card';
+        card.innerHTML=
+            '<div class="ph-card-left">'+
+                '<div class="ph-card-title">'+formatMonthLabel(d)+'</div>'+
+                '<div class="ph-card-total '+(net>=0?'positive':'negative')+'">'+
+                    '<span class="ph-card-total-label">Итог</span>'+
+                    netStr+
+                '</div>'+
             '</div>'+
-            '<div class="ph-row-2">'+
-                '<span class="ph-total-label">Итог</span>'+
-                '<span class="ph-total-value '+(net>=0?'positive':'negative')+'">'+netStr+'</span>'+
-            '</div>'+
-            '<div class="ph-split">'+
-                '<div class="ph-split-col"><span class="ph-split-label">Доходы</span><span class="ph-split-value income">↑ '+roundRub(m.income).toLocaleString('ru-RU')+' ₽</span></div>'+
-                '<div class="ph-split-col"><span class="ph-split-label">Расходы</span><span class="ph-split-value expense">↓ '+roundRub(m.expense).toLocaleString('ru-RU')+' ₽</span></div>'+
-            '</div>';
-
-        var body=document.createElement('div');
-        body.className='ph-body';
-        var bodyInner=document.createElement('div');
-        bodyInner.className='ph-body-inner';
-        if(isExpanded){
-            var start=new Date(m.year,m.month,1);
-            var end=new Date(m.year,m.month+1,1);
-            var txs=allTransactions.filter(function(t){return t.date>=start&&t.date<end;});
-            var filter=(typeof currentPhFilter!=='undefined')?currentPhFilter:'all';
-            var incCat=(filter==='expense')?[]:aggregateByCategory(txs,'income');
-            var expCat=(filter==='income')?[]:aggregateByCategory(txs,'expense');
-            if(!incCat.length&&!expCat.length){
-                bodyInner.innerHTML='<div class="ph-empty">Нет данных за выбранный фильтр</div>';
-            } else {
-                if(incCat.length) bodyInner.appendChild(buildCatGroup(m.key,incCat,'income'));
-                if(expCat.length) bodyInner.appendChild(buildCatGroup(m.key,expCat,'expense'));
-            }
-        }
-        body.appendChild(bodyInner);
-        card.appendChild(head);
-        card.appendChild(body);
-        list.appendChild(card);
+            '<button class="ph-btn-expand">Открыть</button>';
 
         (function(key){
-            head.querySelector('.ph-btn-expand').addEventListener('click',function(e){
-                e.stopPropagation();
-                if(expandedPeriodKey===key){expandedPeriodKey=null;expandedCategoryKey=null;}
-                else{expandedPeriodKey=key;expandedCategoryKey=null;}
-                renderPeriodHistory();
-            });
+            card.addEventListener('click',function(){openPeriodHistoryModal(key);});
         })(m.key);
+
+        list.appendChild(card);
     }
+}
+
+function openPeriodHistoryModal(monthKey){
+    currentPhMonthKey=monthKey;
+    expandedCategoryKey=null;
+    currentPhFilter='all';
+    var btns=document.querySelectorAll('#periodHistoryModal .ph-filter-btn');
+    for(var i=0;i<btns.length;i++)btns[i].classList.toggle('active',btns[i].dataset.phtype==='all');
+
+    var parts=monthKey.split('-');
+    var y=parseInt(parts[0],10),mo=parseInt(parts[1],10)-1;
+    var title=$('phModalTitle');
+    if(title)title.textContent=formatMonthLabel(new Date(y,mo,1));
+
+    renderPeriodModalBody();
+    var m=$('periodHistoryModal');
+    if(m)m.classList.add('open');
+    lockBackground();
+}
+
+function closePeriodHistoryModal(){
+    var m=$('periodHistoryModal');
+    if(m)m.classList.remove('open');
+    currentPhMonthKey=null;
+    expandedCategoryKey=null;
+    unlockBackground();
+}
+
+function renderPeriodModalBody(){
+    var body=$('phModalBody');
+    if(!body||!currentPhMonthKey)return;
+    body.innerHTML='';
+    var parts=currentPhMonthKey.split('-');
+    var y=parseInt(parts[0],10),mo=parseInt(parts[1],10)-1;
+    var start=new Date(y,mo,1);
+    var end=new Date(y,mo+1,1);
+    var txs=[];
+    for(var i=0;i<allTransactions.length;i++){
+        var t=allTransactions[i];
+        if(t.date>=start&&t.date<end)txs.push(t);
+    }
+    var s=computeStats(txs);
+    var summary=document.createElement('div');
+    summary.className='ph-modal-summary';
+    summary.innerHTML=
+        '<div class="ph-ms-item income"><span class="ph-ms-label">Доходы</span><span class="ph-ms-value">↑ '+roundRub(s.totalIncomeRub).toLocaleString('ru-RU')+' ₽</span></div>'+
+        '<div class="ph-ms-item expense"><span class="ph-ms-label">Расходы</span><span class="ph-ms-value">↓ '+roundRub(s.totalExpenseRub).toLocaleString('ru-RU')+' ₽</span></div>';
+    body.appendChild(summary);
+
+    var incCat=(currentPhFilter==='expense')?[]:aggregateByCategory(txs,'income');
+    var expCat=(currentPhFilter==='income')?[]:aggregateByCategory(txs,'expense');
+
+    if(!incCat.length&&!expCat.length){
+        var empty=document.createElement('div');
+        empty.className='ph-empty';
+        empty.textContent='Нет данных за выбранный фильтр';
+        body.appendChild(empty);
+        return;
+    }
+    if(incCat.length)body.appendChild(buildCatGroup(currentPhMonthKey,incCat,'income'));
+    if(expCat.length)body.appendChild(buildCatGroup(currentPhMonthKey,expCat,'expense'));
 }
 
 function buildCatGroup(monthKey,catList,type){
@@ -949,14 +980,13 @@ function buildCatGroup(monthKey,catList,type){
             head.addEventListener('click',function(){
                 if(expandedCategoryKey===key)expandedCategoryKey=null;
                 else expandedCategoryKey=key;
-                renderPeriodHistory();
+                renderPeriodModalBody();
             });
         })(catKey);
     }
     return group;
 }
 
-var currentPhFilter='all';
 
 
 /* ===== DASHBOARD ===== */
@@ -2275,7 +2305,7 @@ function doRefresh(){
 }
 
 /* ===== EVENTS ===== */
-var phFilterBtns=document.querySelectorAll('.ph-filter-btn');
+var phFilterBtns=document.querySelectorAll('#periodHistoryModal .ph-filter-btn');
 for(var i=0;i<phFilterBtns.length;i++){
     (function(b){
         b.addEventListener('click',function(){
@@ -2283,10 +2313,14 @@ for(var i=0;i<phFilterBtns.length;i++){
             this.classList.add('active');
             currentPhFilter=this.dataset.phtype;
             expandedCategoryKey=null;
-            renderPeriodHistory();
+            renderPeriodModalBody();
         });
     })(phFilterBtns[i]);
 }
+var phCloseBtn=$('closePeriodHistoryModal');
+if(phCloseBtn)phCloseBtn.addEventListener('click',closePeriodHistoryModal);
+var phModalEl=$('periodHistoryModal');
+if(phModalEl)phModalEl.addEventListener('click',function(e){if(e.target===this)closePeriodHistoryModal();});
 
 var filterBtns=document.querySelectorAll('.filter-btn');
 for(var i=0;i<filterBtns.length;i++){
