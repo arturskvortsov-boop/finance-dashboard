@@ -1409,16 +1409,11 @@ function drawRateHistoryChart(){
 
     var values=rateHistory.map(function(x){return x.rate;});
 
-    // Короткие подписи: DD.MM (и HH:MM если в этот день несколько записей)
+    // Только дата DD.MM — время остаётся в тултипе
     var labels=[];
-    var prevKey=null;
     for(var i=0;i<rateHistory.length;i++){
         var d=rateHistory[i].date;
-        var dayKey=d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();
-        var dd=pad(d.getDate())+'.'+pad(d.getMonth()+1);
-        if(prevKey===dayKey) dd+=' '+pad(d.getHours())+':'+pad(d.getMinutes());
-        labels.push(dd);
-        prevKey=dayKey;
+        labels.push(pad(d.getDate())+'.'+pad(d.getMonth()+1));
     }
 
     // min / max
@@ -1580,9 +1575,11 @@ function drawRateHistoryChart(){
                             weight:'500',
                             family:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'
                         },
-                        maxTicksLimit:5,
+                        maxTicksLimit:6,
                         maxRotation:0,
+                        minRotation:0,
                         autoSkip:true,
+                        autoSkipPadding:18,
                         padding:6
                     }
                 }
