@@ -1110,12 +1110,12 @@ function drawBalanceHistoryChart(txs,period){
         options:{
             responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
             plugins:{
-                legend:{display:true,labels:{color:theme.textMuted,boxWidth:10,boxHeight:10,font:{size:10},padding:8,usePointStyle:true,pointStyle:'circle'}},
-                tooltip:{backgroundColor:'#1c2230',borderColor:'#2c3444',borderWidth:1,titleColor:'#f2f5fa',bodyColor:'#f2f5fa',callbacks:{label:function(ctx){return ctx.dataset.label+': '+roundRub(ctx.parsed.y).toLocaleString('ru-RU')+' ₽';},afterBody:function(items){if(!items.length)return '';var inc=cumIncome[items[0].dataIndex];var exp=cumExpense[items[0].dataIndex];return 'Баланс: '+roundRub(inc-exp).toLocaleString('ru-RU')+' ₽';}}}
+                legend:{display:true,labels:{color:theme.textMuted,boxWidth:8,boxHeight:8,font:{size:9,weight:'500'},padding:6,usePointStyle:true,pointStyle:'circle'}},
+                tooltip:{backgroundColor:'#1c2230',borderColor:'#2c3444',borderWidth:1,titleColor:'#94a3b8',bodyColor:'#f2f5fa',bodyFont:{size:11},titleFont:{size:10},padding:8,cornerRadius:8,callbacks:{label:function(ctx){return ctx.dataset.label+': '+roundRub(ctx.parsed.y).toLocaleString('ru-RU')+' ₽';},afterBody:function(items){if(!items.length)return '';var inc=cumIncome[items[0].dataIndex];var exp=cumExpense[items[0].dataIndex];return 'Баланс: '+roundRub(inc-exp).toLocaleString('ru-RU')+' ₽';}}}
             },
             scales:{
-                y:{grid:{color:theme.grid},ticks:{color:theme.textMuted,callback:function(v){if(Math.abs(v)>=1000000)return (v/1000000).toFixed(1)+'M';if(Math.abs(v)>=1000)return (v/1000).toFixed(0)+'k';return v;}}},
-                x:{grid:{color:theme.grid},ticks:{color:theme.textMuted,maxTicksLimit:8,maxRotation:0,autoSkip:true,font:{size:10}}}
+                                y:{grid:{color:theme.grid},ticks:{color:theme.textMuted,font:{size:9},callback:function(v){if(Math.abs(v)>=1000000)return (v/1000000).toFixed(1)+'M';if(Math.abs(v)>=1000)return (v/1000).toFixed(0)+'k';return v;}}},
+                x:{grid:{color:theme.grid},ticks:{color:theme.textMuted,maxTicksLimit:8,maxRotation:0,autoSkip:true,font:{size:9}}}
             }
         }
     });
