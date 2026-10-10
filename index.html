@@ -58,10 +58,6 @@
     </div>
 </div>
 
-<div class="reminders-custom-block" id="remindersCustomBlock">
-    <h3>🔔 Напоминания <button class="rcb-add" id="rcbAddBtn">➕</button></h3>
-    <div id="remindersCustomList"></div>
-</div>
 
 <div class="charts-row">
     <div class="chart-box" id="incomeChartBox">
@@ -301,6 +297,7 @@
 
 <div class="fab-overlay" id="fabOverlay"></div>
 
+<button class="bn-bell" id="bnBellBtn" title="Напоминания">🔔<span class="bell-dot"></span></button>
 <button class="bn-fab" id="bnFabBtn">+</button>
 
 <div class="fab-fan" id="fabFan">
@@ -407,6 +404,20 @@
     <div class="modal-footer"><button class="modal-btn cancel" id="cancelTemplateEditBtn">Отмена</button><button class="modal-btn save" id="saveTemplateBtn">Сохранить</button></div>
 </div>
 </div>
+
+<div class="modal-overlay" id="remindersListModal">
+<div class="modal reminders-list-modal">
+    <div class="modal-header">
+        <h2>🔔 Напоминания</h2>
+        <button class="modal-close" id="closeRemindersListModal">×</button>
+    </div>
+    <div class="modal-body">
+        <button class="rem-add-btn" id="remAddBtn">➕ Добавить напоминание</button>
+        <div class="rem-list" id="remindersListContainer"></div>
+    </div>
+</div>
+</div>
+
 
 <div class="modal-overlay" id="reminderEditModal">
 <div class="modal">
