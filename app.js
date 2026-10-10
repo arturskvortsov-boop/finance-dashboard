@@ -591,12 +591,7 @@ function renderCalendar(){
         (function(el){
             el.addEventListener('click',function(){
                 var day=parseInt(this.dataset.day,10);
-                var spent=expenseByDay[day]||0;
-                if(spent>0){
-                    showToast('📅 '+day+' '+monthNames[calendarMonth]+': потрачено '+roundRub(spent).toLocaleString('ru-RU')+' ₽',3000);
-                } else {
-                    showToast('📅 '+day+' '+monthNames[calendarMonth]+': трат нет',2000);
-                }
+                openDayDetailModal(calendarYear,calendarMonth,day);
             });
         })(cells[j]);
     }
@@ -781,6 +776,126 @@ function loadCustomRemindersFromServer(){
         saveCustomReminders(customReminders);
         return true;
     });
+}
+
+/* ===== DAY DETAIL (календарь) ===== */
+var DAY_MONTH_GEN=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+var currentDayKey=null;
+var pendingDayReopenKey=null;
+
+function openDayDetailModal(y,m,d){
+    currentDayKey={y:y,m:m,d:d};
+    var title=$('dayDetailTitle');
+    if(title)title.textContent=d+' '+DAY_MONTH_GEN[m]+' '+y;
+    renderDayDetailBody();
+    var el=$('dayDetailModal');
+    if(el)el.classList.add('open');
+    lockBackground();
+}
+function closeDayDetailModal(){
+    var el=$('dayDetailModal');
+    if(el)el.classList.remove('open');
+    currentDayKey=null;
+    unlockBackground();
+}
+function renderDayDetailBody(){
+    var body=$('dayDetailBody');
+    if(!body||!currentDayKey)return;
+    body.innerHTML='';
+    var start=new Date(currentDayKey.y,currentDayKey.m,currentDayKey.d,0,0,0);
+    var end=new Date(currentDayKey.y,currentDayKey.m,currentDayKey.d+1,0,0,0);
+    var txs=[];
+    for(var i=0;i<allTransactions.length;i++){
+        var t=allTransactions[i];
+        if(t.date>=start&&t.date<end)txs.push(t);
+    }
+    var s=computeStats(txs);
+    var net=s.totalIncomeRub-s.totalExpenseRub;
+    var summary=document.createElement('div');
+    summary.className='ph-modal-summary';
+    summary.innerHTML=
+        '<div class="ph-ms-item expense"><span class="ph-ms-label">Потрачено</span><span class="ph-ms-value">↓ '+roundRub(s.totalExpenseRub).toLocaleString('ru-RU')+' ₽</span></div>'+
+        '<div class="ph-ms-item income"><span class="ph-ms-label">Получено</span><span class="ph-ms-value">↑ '+roundRub(s.totalIncomeRub).toLocaleString('ru-RU')+' ₽</span></div>'+
+        '<div class="ph-ms-item" style="grid-column:1 / -1"><span class="ph-ms-label">Итог</span><span class="ph-ms-value" style="color:'+(net>=0?'#4ade80':'#f87171')+'">'+(net>=0?'+':'-')+roundRub(Math.abs(net)).toLocaleString('ru-RU')+' ₽</span></div>';
+    body.appendChild(summary);
+
+    var incCat=aggregateByCategory(txs,'income');
+    var expCat=aggregateByCategory(txs,'expense');
+
+    if(!incCat.length&&!expCat.length){
+        var empty=document.createElement('div');
+        empty.className='ph-empty';
+        empty.textContent='В этот день транзакций нет';
+        body.appendChild(empty);
+        return;
+    }
+    if(expCat.length)body.appendChild(buildDayCatGroup(expCat,'expense'));
+    if(incCat.length)body.appendChild(buildDayCatGroup(incCat,'income'));
+}
+
+function buildDayCatGroup(catList,type){
+    var group=document.createElement('div');
+    group.className='ph-cat-group';
+    var title=document.createElement('div');
+    title.className='ph-cat-group-title '+type;
+    title.textContent=(type==='income'?'💰 Доходы':'💸 Расходы');
+    group.appendChild(title);
+
+    var start=new Date(currentDayKey.y,currentDayKey.m,currentDayKey.d,0,0,0);
+    var end=new Date(currentDayKey.y,currentDayKey.m,currentDayKey.d+1,0,0,0);
+
+    for(var i=0;i<catList.length;i++){
+        var cat=catList[i];
+        var item=document.createElement('div');
+        item.className='ph-cat-item day-cat-item open';
+        var head=document.createElement('div');
+        head.className='ph-cat-head';
+        head.innerHTML=
+            '<div class="ph-cat-icon">'+getCategoryEmoji(cat.label)+'</div>'+
+            '<span class="ph-cat-name">'+cat.label+'</span>'+
+            '<span class="ph-cat-amount '+type+'">'+(type==='income'?'+':'-')+roundRub(cat.value).toLocaleString('ru-RU')+' ₽</span>';
+        item.appendChild(head);
+
+        var txList=document.createElement('div');
+        txList.className='ph-tx-list';
+        var dayTxs=[];
+        for(var k=0;k<allTransactions.length;k++){
+            var t=allTransactions[k];
+            if(t.date<start||t.date>=end)continue;
+            if(t.type!==type)continue;
+            if((t.category||'Без категории')!==cat.label)continue;
+            dayTxs.push(t);
+        }
+        dayTxs.sort(function(a,b){return a.date-b.date;});
+        for(var j=0;j<dayTxs.length;j++){
+            var tx=dayTxs[j];
+            var realIdx=allTransactions.indexOf(tx);
+            var row=document.createElement('div');
+            row.className='ph-tx-item';
+            var timeStr=pad(tx.date.getHours())+':'+pad(tx.date.getMinutes());
+            var noteText=(tx.note&&tx.note!=='-')?tx.note:'';
+            row.innerHTML=
+                '<span class="ph-tx-date">'+timeStr+'</span>'+
+                '<span class="ph-tx-note">'+(noteText||'—')+'</span>'+
+                '<span class="ph-tx-amount '+type+'">'+(type==='income'?'+':'-')+roundRub(tx.rub).toLocaleString('ru-RU')+' ₽</span>';
+            var editBtn=document.createElement('button');
+            editBtn.className='ph-tx-edit';
+            editBtn.textContent='✏️';
+            (function(idx){
+                editBtn.addEventListener('click',function(e){
+                    e.stopPropagation();
+                    pendingDayReopenKey={y:currentDayKey.y,m:currentDayKey.m,d:currentDayKey.d};
+                    closeDayDetailModal();
+                    setTimeout(function(){editTransaction(idx);},180);
+                });
+            })(realIdx);
+            row.appendChild(editBtn);
+            txList.appendChild(row);
+        }
+        item.appendChild(txList);
+        group.appendChild(item);
+    }
+    return group;
 }
 
 /* ===== PERIOD HISTORY ===== */
@@ -1498,9 +1613,16 @@ function openTxModal(editIdx,presetType,presetData){
             if(!exists){var o=document.createElement('option');o.value=presetData.category;o.textContent=presetData.category;$('txCategory').appendChild(o);}
             $('txCategory').value=presetData.category;
         }
-        var now=new Date();
-        now.setMinutes(now.getMinutes()-now.getTimezoneOffset());
-        $('txDateTime').value=now.toISOString().slice(0,16);
+        var baseDate;
+        if(presetData&&presetData.date){
+            baseDate=new Date(presetData.date);
+            var nowT=new Date();
+            baseDate.setHours(nowT.getHours(),nowT.getMinutes(),0,0);
+        } else {
+            baseDate=new Date();
+        }
+        baseDate.setMinutes(baseDate.getMinutes()-baseDate.getTimezoneOffset());
+        $('txDateTime').value=baseDate.toISOString().slice(0,16);
     }
     $('txModal').classList.add('open');
     lockBackground();
@@ -1513,6 +1635,12 @@ function closeTxModal(){
         var k=pendingPhReopenKey;
         pendingPhReopenKey=null;
         setTimeout(function(){openPeriodHistoryModal(k);},180);
+        return;
+    }
+    if(pendingDayReopenKey){
+        var kd=pendingDayReopenKey;
+        pendingDayReopenKey=null;
+        setTimeout(function(){openDayDetailModal(kd.y,kd.m,kd.d);},180);
     }
 }
 function editTransaction(i){openTxModal(i);}
@@ -2336,7 +2464,22 @@ var phCloseBtn=$('closePeriodHistoryModal');
 if(phCloseBtn)phCloseBtn.addEventListener('click',closePeriodHistoryModal);
 var phModalEl=$('periodHistoryModal');
 if(phModalEl)phModalEl.addEventListener('click',function(e){if(e.target===this)closePeriodHistoryModal();});
-
+var dayCloseBtn=$('closeDayDetailModal');
+if(dayCloseBtn)dayCloseBtn.addEventListener('click',closeDayDetailModal);
+var dayModalEl=$('dayDetailModal');
+if(dayModalEl)dayModalEl.addEventListener('click',function(e){if(e.target===this)closeDayDetailModal();});
+var dayAddBtn=$('dayDetailAddBtn');
+if(dayAddBtn){
+    dayAddBtn.addEventListener('click',function(){
+        var k=currentDayKey;
+        if(!k)return;
+        closeDayDetailModal();
+        setTimeout(function(){
+            var dateObj=new Date(k.y,k.m,k.d);
+            openTxModal(-1,null,{date:dateObj});
+        },180);
+    });
+}
 var filterBtns=document.querySelectorAll('.filter-btn');
 for(var i=0;i<filterBtns.length;i++){
     (function(btn){
