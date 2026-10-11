@@ -12,6 +12,7 @@
 <script>try{var t=localStorage.getItem('theme');if(t==='light'){document.documentElement.setAttribute('data-theme','light');}}catch(e){}</script>
 </head>
 <body>
+<div class="sync-progress" id="syncProgress"><div class="sync-progress-bar"></div></div>
 <div class="pull-indicator" id="pullIndicator">
     <div class="pull-spinner" id="pullSpinner">🔄</div>
     <div class="pull-text" id="pullText">Потяните вниз...</div>
@@ -70,6 +71,16 @@
         <div class="chart-canvas-wrap"><canvas id="expensePieChart"></canvas><div class="chart-empty" id="expenseEmpty" style="display:none">нет данных</div></div>
         <div class="category-list" id="expenseCategoryList"></div>
     </div>
+</div>
+
+<div id="skeleton" class="skeleton-wrap">
+    <div class="sk-card sk-balance"></div>
+    <div class="sk-row">
+        <div class="sk-card sk-chart"></div>
+        <div class="sk-card sk-chart"></div>
+    </div>
+    <div class="sk-card sk-line"></div>
+    <div class="sk-card sk-line"></div>
 </div>
 
 <div id="dashboard" class="hidden">
@@ -277,7 +288,7 @@
 
 <div class="fab-overlay" id="fabOverlay"></div>
 
-<button class="bn-bell" id="bnBellBtn" title="Напоминания">🔔<span class="bell-dot"></span></button>
+<button class="bn-bell" id="bnBellBtn" title="Напоминания">🔔<span class="bell-dot"></span><span class="bell-count" id="bellCount">0</span></button>
 <button class="bn-fab" id="bnFabBtn">+</button>
 
 <div class="fab-fan" id="fabFan">
