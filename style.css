@@ -1104,10 +1104,10 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
     transition:all .2s
 }
 .ph-filter-btn.active[data-phtype="all"]{
-    background:rgba(147,197,253,0.12);
-    border-color:#93c5fd;
-    color:#93c5fd;
-    box-shadow:0 0 12px rgba(147,197,253,0.22)
+    background:rgba(245,200,76,0.12);
+    border-color:#f5c84c;
+    color:#f5c84c;
+    box-shadow:0 0 12px rgba(245,200,76,0.22)
 }
 .ph-filter-btn.active[data-phtype="income"]{
     background:rgba(74,222,128,0.12);
@@ -1213,12 +1213,13 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
 .ph-cat-name{
     flex:1;
     font-weight:600;
-    font-size:0.82rem;
+    font-size:0.86rem;
     color:var(--text);
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
-    min-width:0
+    min-width:0;
+    padding-left:2px
 }
 .ph-cat-amount{
     font-weight:700;
