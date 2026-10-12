@@ -83,7 +83,7 @@ try{
 var CATEGORIES_INCOME=['💰 Зарплата','🗓 Продажа','🎁 Подарок','💵 Другое'];
 var CATEGORIES_EXPENSE=['🚘 Автомобиль','🍔 Еда','🏚️ Ипотека','☕️ Кафе','🎢 Развлечения','🛍 Покупки','💊 Здоровье','🏠 Коммуналка','📱 Связь','📚 Образование','💸 Другое'];
 
-var COLORS=['#93c5fd','#a5b4fc','#c4b5fd','#f9a8d4','#fbcfe8','#fcd34d','#86efac','#5eead4','#fdba74','#d8b4fe','#a7f3d0','#fca5a5'];
+var COLORS=['#f5c84c','#fb923c','#f472b6','#a78bfa','#60a5fa','#2dd4bf','#4ade80','#a3e635','#fdba74','#fb7185','#818cf8','#d4a017'];
 
 var GOAL_ICONS=['🎯','🚗','🏠','✈️','💻','📱','🎓','💍','🏖️','🎁','💰','🎸','📷','🚴','⛷️','🛥️'];
 
@@ -502,10 +502,31 @@ function renderInsights(txs,period){
     var avgIncome=s.totalIncomeRub/periodDays;
     var avgExpense=s.totalExpenseRub/periodDays;
     var pctSave=s.totalIncomeRub>0?Math.round((s.netRub/s.totalIncomeRub)*100):0;
+    var pctSaveText;
+    var pctSaveSub;
+    if(s.totalIncomeRub<=0){
+        pctSaveText='—';
+        pctSaveSub='Нет доходов';
+    } else if(pctSave>=30){
+        pctSaveText=pctSave+'%';
+        pctSaveSub='Отлично!';
+    } else if(pctSave>=15){
+        pctSaveText=pctSave+'%';
+        pctSaveSub='Хорошо';
+    } else if(pctSave>=0){
+        pctSaveText=pctSave+'%';
+        pctSaveSub='Можно лучше';
+    } else if(pctSave>=-100){
+        pctSaveText=pctSave+'%';
+        pctSaveSub='Мало дохода';
+    } else {
+        pctSaveText='—';
+        pctSaveSub='Расход > доход';
+    }
     grid.innerHTML=
         '<div class="insight-item income"><div class="it-label">📊 Доход / день</div><div class="it-value">'+Math.round(avgIncome).toLocaleString('ru-RU')+' ₽</div><div class="it-sub">Всего: '+roundRub(s.totalIncomeRub).toLocaleString('ru-RU')+' ₽</div></div>'+
         '<div class="insight-item expense"><div class="it-label">📉 Расход / день</div><div class="it-value">'+Math.round(avgExpense).toLocaleString('ru-RU')+' ₽</div><div class="it-sub">Всего: '+roundRub(s.totalExpenseRub).toLocaleString('ru-RU')+' ₽</div></div>'+
-        '<div class="insight-item"><div class="it-label">💾 Сбережения</div><div class="it-value">'+pctSave+'%</div><div class="it-sub">'+(pctSave>=30?'Отлично!':pctSave>=15?'Хорошо':pctSave>=0?'Можно лучше':'Расход > доход')+'</div></div>';
+        '<div class="insight-item"><div class="it-label">💾 Сбережения</div><div class="it-value">'+pctSaveText+'</div><div class="it-sub">'+pctSaveSub+'</div></div>';
     var expCat=aggregateByCategory(txs,'expense');
     var top3=expCat.slice(0,3);
     var totalExp=0;
