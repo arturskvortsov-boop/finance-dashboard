@@ -1736,4 +1736,59 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
     80%{transform:scale(1)}
 }
 
+/* ===== SWIPE-DOWN MODAL GRAB ===== */
+.modal{cursor:grab}
+@media (pointer:coarse){
+    .modal{cursor:auto}
+}
+
+/* ===== TX CONTEXT MENU ===== */
+.tx-context-menu{
+    position:fixed;
+    z-index:3500;
+    background:linear-gradient(180deg,#1e1e23,#16161a);
+    border:1.5px solid rgba(245,200,76,0.5);
+    border-radius:14px;
+    padding:6px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.75),0 0 30px rgba(245,200,76,0.18);
+    opacity:0;
+    transform:scale(0.85) translateY(8px);
+    transform-origin:center bottom;
+    transition:opacity .18s ease-out,transform .22s cubic-bezier(.34,1.4,.5,1);
+    min-width:210px;
+    pointer-events:auto
+}
+.tx-context-menu.show{
+    opacity:1;
+    transform:scale(1) translateY(0)
+}
+.tx-context-menu button{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    width:100%;
+    padding:11px 14px;
+    background:transparent;
+    border:none;
+    border-radius:10px;
+    color:var(--text);
+    font-family:inherit;
+    font-size:0.86rem;
+    font-weight:500;
+    cursor:pointer;
+    text-align:left;
+    transition:background .15s;
+    -webkit-tap-highlight-color:transparent
+}
+.tx-context-menu button:active{
+    background:rgba(245,200,76,0.12)
+}
+.tx-context-menu button.danger{
+    color:var(--red)
+}
+.tx-context-menu button.danger:active{
+    background:rgba(248,113,113,0.14)
+}
+
+
 
