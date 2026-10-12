@@ -25,9 +25,9 @@ try{
         tg=window.Telegram.WebApp;
         isTelegram=true;
     try{tg.ready();}catch(e){}
-    try{if(tg.setHeaderColor)tg.setHeaderColor('#000000');}catch(e){}
-    try{if(tg.setBottomBarColor)tg.setBottomBarColor('#000000');}catch(e){}
-    try{if(tg.setBackgroundColor)tg.setBackgroundColor('#000000');}catch(e){}
+    try{if(tg.setHeaderColor)tg.setHeaderColor('#0a0a0b');}catch(e){}
+    try{if(tg.setBottomBarColor)tg.setBottomBarColor('#0a0a0b');}catch(e){}
+    try{if(tg.setBackgroundColor)tg.setBackgroundColor('#0a0a0b');}catch(e){}
     // Fullscreen только на мобильных (iOS/Android), не на десктопе
     try{
         var tgPlatform=tg.platform||'';
@@ -74,31 +74,11 @@ var REMINDERS_FILE_CUSTOM='reminders.json';
 var BUDGETS_FILE='budgets.json';
 var GOALS_FILE='goals.json';
 
-/* ===== THEME ===== */
-var THEME_STORAGE_KEY='theme';
-function getCurrentTheme(){
-    var t='dark';
-    try{var v=localStorage.getItem(THEME_STORAGE_KEY);if(v==='light'||v==='dark')t=v;}catch(e){}
-    return t;
-}
-function applyTheme(t,forceRender){
-    if(t==='light'){document.documentElement.setAttribute('data-theme','light');}
-    else{document.documentElement.removeAttribute('data-theme');}
-    var btn=$('themeToggleBtn');
-    if(btn)btn.textContent=(t==='light')?'☀️':'🌙';
-    try{localStorage.setItem(THEME_STORAGE_KEY,t);}catch(e){}
+/* ===== THEME (only dark) ===== */
+try{
     var mc=document.querySelector('meta[name="theme-color"]');
-    if(mc)mc.setAttribute('content',(t==='light')?'#f2f2f7':'#0b0e14');
-    try{if(tg&&tg.setHeaderColor)tg.setHeaderColor(t==='light'?'#f2f2f7':'#000000');}catch(e){}
-    try{if(tg&&tg.setBackgroundColor)tg.setBackgroundColor(t==='light'?'#f2f2f7':'#000000');}catch(e){}
-    if(forceRender&&dataLoaded){updateWithFilter(currentFilter);drawRateHistoryChart();}
-}
-function toggleTheme(){
-    var cur=getCurrentTheme();
-    applyTheme(cur==='light'?'dark':'light',true);
-}
-if($('themeToggleBtn'))$('themeToggleBtn').addEventListener('click',toggleTheme);
-applyTheme(getCurrentTheme(),false);
+    if(mc)mc.setAttribute('content','#0a0a0b');
+}catch(e){}
 
 var CATEGORIES_INCOME=['💰 Зарплата','🗓 Продажа','🎁 Подарок','💵 Другое'];
 var CATEGORIES_EXPENSE=['🚘 Автомобиль','🍔 Еда','🏚️ Ипотека','☕️ Кафе','🎢 Развлечения','🛍 Покупки','💊 Здоровье','🏠 Коммуналка','📱 Связь','📚 Образование','💸 Другое'];
@@ -501,11 +481,7 @@ function renderCbrRate(){
 }
 
 function getChartTheme(){
-    var light=document.documentElement.getAttribute('data-theme')==='light';
-    if(light){
-        return { text:'#1c1c1e', textMuted:'#6e6e73', card:'#ffffff', border:'#e5e5ea', accent:'#0a84ff', green:'#22c55e', red:'#ef4444', grid:'rgba(0,0,0,0.06)' };
-    }
-    return { text:'#f2f5fa', textMuted:'#9aa8c0', card:'#141820', border:'#2c3444', accent:'#60a5fa', green:'#22c55e', red:'#ef4444', grid:'rgba(255,255,255,0.07)' };
+    return { text:'#f2f2f4', textMuted:'#9a9aa5', card:'#16161a', border:'#2a2a30', accent:'#f5c84c', green:'#4ade80', red:'#f87171', grid:'rgba(255,255,255,0.06)' };
 }
 
 /* ===== INSIGHTS ===== */
@@ -1489,7 +1465,7 @@ function drawRateHistoryChart(){
     var pointColors=values.map(function(v,i){
         if(i===minIdx)return '#f87171';
         if(i===maxIdx)return '#4ade80';
-        return '#60a5fa';
+        return '#f5c84c';
     });
 
     // Плагин: пунктирные линии min/max + подписи
@@ -1544,24 +1520,24 @@ function drawRateHistoryChart(){
                 pointRadius:pointRadii,
                 pointHoverRadius:7,
                 pointBackgroundColor:pointColors,
-                pointBorderColor:'#0b0e14',
+                pointBorderColor:'#0a0a0b',
                 pointBorderWidth:2,
                 tension:0.32,
                 fill:true,
                 borderColor:function(ctx2){
                     var chart=ctx2.chart;
-                    if(!chart.chartArea)return '#60a5fa';
+                    if(!chart.chartArea)return '#f5c84c';
                     var g=chart.ctx.createLinearGradient(chart.chartArea.left,0,chart.chartArea.right,0);
-                    g.addColorStop(0,'#60a5fa');
-                    g.addColorStop(1,'#a78bfa');
+                    g.addColorStop(0,'#f5c84c');
+                    g.addColorStop(1,'#d4a017');
                     return g;
                 },
                 backgroundColor:function(ctx2){
                     var chart=ctx2.chart;
-                    if(!chart.chartArea)return 'rgba(96,165,250,0.15)';
+                    if(!chart.chartArea)return 'rgba(245,200,76,0.15)';
                     var g=chart.ctx.createLinearGradient(0,chart.chartArea.top,0,chart.chartArea.bottom);
-                    g.addColorStop(0,'rgba(96,165,250,0.28)');
-                    g.addColorStop(1,'rgba(167,139,250,0.02)');
+                    g.addColorStop(0,'rgba(245,200,76,0.28)');
+                    g.addColorStop(1,'rgba(212,160,23,0.02)');
                     return g;
                 }
             }]
@@ -2845,10 +2821,6 @@ $('settingsClearBtn').addEventListener('click',function(){clearAllDataConfirm();
 
 var hideBtn=$('hideBalanceBtn');
 if(hideBtn)hideBtn.addEventListener('click',function(e){e.stopPropagation();toggleHideBalance();});
-var qaInc=$('qaIncomeBtn');
-if(qaInc)qaInc.addEventListener('click',function(){openTxModal(-1,'income');});
-var qaExp=$('qaExpenseBtn');
-if(qaExp)qaExp.addEventListener('click',function(){openTxModal(-1,'expense');});
 var usdQuick=$('bcUsdQuick');
 if(usdQuick)usdQuick.addEventListener('click',function(){switchPage('currency');});
 
