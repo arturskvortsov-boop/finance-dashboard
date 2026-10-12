@@ -894,6 +894,7 @@ function buildDayCatGroup(catList,type){
             var realIdx=allTransactions.indexOf(tx);
             var row=document.createElement('div');
             row.className='ph-tx-item';
+            row.dataset.txIdx=realIdx;
             var timeStr=pad(tx.date.getHours())+':'+pad(tx.date.getMinutes());
             var noteText=(tx.note&&tx.note!=='-')?tx.note:'';
             row.innerHTML=
@@ -1096,6 +1097,7 @@ function buildCatGroup(monthKey,catList,type){
                     var realIdx=allTransactions.indexOf(tx);
                     var row=document.createElement('div');
                     row.className='ph-tx-item';
+                    row.dataset.txIdx=realIdx;
                     var dateStr=pad(tx.date.getDate())+'.'+pad(tx.date.getMonth()+1);
                     var noteText=(tx.note&&tx.note!=='-')?tx.note:'';
                     row.innerHTML=
@@ -3091,5 +3093,174 @@ loadData(true).then(function(loaded){
     var stale=!lastRateEntry||(Date.now()-lastRateEntry.date.getTime())>12*60*60*1000;
     if(stale)setTimeout(function(){updateRateFromAPI();},1200);
 });
+
+/* ===== LONG PRESS ON TRANSACTION ===== */
+(function(){
+    var pressTimer=null;
+    var startX=0,startY=0;
+    var moved=false;
+    var menuEl=null;
+    function hideMenu(){
+        if(!menuEl)return;
+        var m=menuEl;menuEl=null;
+        m.classList.remove('show');
+        setTimeout(function(){if(m.parentNode)m.parentNode.removeChild(m);},180);
+    }
+    function showMenu(idx,x,y){
+        hideMenu();
+        var menu=document.createElement('div');
+        menu.className='tx-context-menu';
+        menu.innerHTML=
+            '<button data-action="edit">✏️ Редактировать</button>'+
+            '<button data-action="duplicate">📋 Дублировать</button>'+
+            '<button data-action="delete" class="danger">🗑️ Удалить</button>';
+        document.body.appendChild(menu);
+        menuEl=menu;
+        var rect=menu.getBoundingClientRect();
+        var left=x-rect.width/2;
+        left=Math.max(12,Math.min(left,window.innerWidth-rect.width-12));
+        var top=y-rect.height-14;
+        if(top<12)top=y+20;
+        menu.style.left=left+'px';
+        menu.style.top=top+'px';
+        requestAnimationFrame(function(){menu.classList.add('show');});
+        menu.addEventListener('click',function(ev){
+            var btn=ev.target.closest('button');
+            if(!btn)return;
+            var action=btn.dataset.action;
+            hideMenu();
+            haptic('light');
+            if(action==='edit'){
+                if(typeof editTransaction==='function')editTransaction(idx);
+            } else if(action==='duplicate'){
+                var t=allTransactions[idx];
+                if(!t)return;
+                openTxModal(-1,t.type,{type:t.type,rub:t.rub,usd:t.usd,category:t.category,note:t.note});
+            } else if(action==='delete'){
+                deleteTransaction(idx);
+            }
+        });
+        setTimeout(function(){
+            document.addEventListener('touchstart',outsideHandler,{once:true,passive:true});
+            document.addEventListener('mousedown',outsideHandler,{once:true});
+        },50);
+    }
+    function outsideHandler(e){
+        if(!menuEl)return;
+        if(!menuEl.contains(e.target))hideMenu();
+    }
+    document.addEventListener('touchstart',function(e){
+        var item=e.target.closest('.ph-tx-item');
+        if(!item)return;
+        if(e.target.closest('.ph-tx-edit'))return;
+        moved=false;
+        startX=e.touches[0].clientX;
+        startY=e.touches[0].clientY;
+        pressTimer=setTimeout(function(){
+            pressTimer=null;
+            if(moved)return;
+            var idx=parseInt(item.dataset.txIdx,10);
+            if(isNaN(idx))return;
+            haptic('medium');
+            showMenu(idx,startX,startY);
+        },500);
+    },{passive:true});
+    document.addEventListener('touchmove',function(e){
+        if(!pressTimer)return;
+        var dx=e.touches[0].clientX-startX;
+        var dy=e.touches[0].clientY-startY;
+        if(Math.abs(dx)>8||Math.abs(dy)>8){
+            moved=true;
+            clearTimeout(pressTimer);
+            pressTimer=null;
+        }
+    },{passive:true});
+    document.addEventListener('touchend',function(){
+        if(pressTimer){clearTimeout(pressTimer);pressTimer=null;}
+    },{passive:true});
+})();
+
+/* ===== SWIPE DOWN TO CLOSE MODALS ===== */
+(function(){
+    var startY=0,startX=0,currentModal=null,dragging=false;
+    var THRESHOLD=90;
+    var closeMap={
+        txModal:function(){if(typeof closeTxModal==='function')closeTxModal();},
+        catDetailModal:function(){if(typeof closeCatDetail==='function')closeCatDetail();},
+        quickAddModal:function(){if(typeof closeQuickAddModal==='function')closeQuickAddModal();},
+        templateEditModal:function(){if(typeof closeTemplateEditModal==='function')closeTemplateEditModal();},
+        remindersListModal:function(){if(typeof closeRemindersListModal==='function')closeRemindersListModal();},
+        reminderEditModal:function(){if(typeof closeReminderEditModal==='function')closeReminderEditModal();},
+        budgetEditModal:function(){if(typeof closeBudgetEditModal==='function')closeBudgetEditModal();},
+        goalEditModal:function(){if(typeof closeGoalEditModal==='function')closeGoalEditModal();},
+        goalDepositModal:function(){if(typeof closeGoalDepositModal==='function')closeGoalDepositModal();},
+        periodHistoryModal:function(){if(typeof closePeriodHistoryModal==='function')closePeriodHistoryModal();},
+        dayDetailModal:function(){if(typeof closeDayDetailModal==='function')closeDayDetailModal();}
+    };
+    document.addEventListener('touchstart',function(e){
+        if(e.touches.length!==1)return;
+        var overlay=e.target.closest('.modal-overlay.open');
+        if(!overlay)return;
+        var modal=overlay.querySelector('.modal');
+        if(!modal)return;
+        // Игнор если тач начался внутри уже проскролленной области
+        var sc=e.target;
+        while(sc&&sc!==overlay){
+            if(sc.scrollHeight>sc.clientHeight+2&&sc.scrollTop>2)return;
+            sc=sc.parentElement;
+        }
+        startY=e.touches[0].clientY;
+        startX=e.touches[0].clientX;
+        currentModal=modal;
+        dragging=false;
+        modal.style.transition='none';
+    },{passive:true});
+    document.addEventListener('touchmove',function(e){
+        if(!currentModal||e.touches.length!==1)return;
+        var dy=e.touches[0].clientY-startY;
+        var dx=e.touches[0].clientX-startX;
+        if(!dragging){
+            if(Math.abs(dy)<10)return;
+            if(Math.abs(dx)>Math.abs(dy)){currentModal=null;return;}
+            if(dy<0)return;
+            dragging=true;
+        }
+        if(dy<0)dy=0;
+        var capped=dy*0.65;
+        currentModal.style.transform='translateY('+capped+'px)';
+        currentModal.style.opacity=String(1-Math.min(capped/400,0.4));
+    },{passive:true});
+    document.addEventListener('touchend',function(e){
+        if(!currentModal)return;
+        var modal=currentModal;
+        var overlay=modal.closest('.modal-overlay');
+        currentModal=null;
+        if(!dragging){
+            modal.style.transition='';
+            modal.style.transform='';
+            modal.style.opacity='';
+            return;
+        }
+        dragging=false;
+        var dy=e.changedTouches[0].clientY-startY;
+        modal.style.transition='transform .28s cubic-bezier(.2,.8,.3,1),opacity .28s';
+        if(dy>THRESHOLD){
+            modal.style.transform='translateY(120%)';
+            modal.style.opacity='0';
+            var id=overlay?overlay.id:'';
+            setTimeout(function(){
+                if(closeMap[id])closeMap[id]();
+                else if(overlay){overlay.classList.remove('open');unlockBackground();}
+                modal.style.transition='';
+                modal.style.transform='';
+                modal.style.opacity='';
+            },280);
+            haptic('light');
+        } else {
+            modal.style.transform='';
+            modal.style.opacity='';
+        }
+    },{passive:true});
+})();
 
 })();
