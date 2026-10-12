@@ -873,7 +873,6 @@ function buildDayCatGroup(catList,type){
         var head=document.createElement('div');
         head.className='ph-cat-head';
         head.innerHTML=
-            '<div class="ph-cat-icon">'+getCategoryEmoji(cat.label)+'</div>'+
             '<span class="ph-cat-name">'+cat.label+'</span>'+
             '<span class="ph-cat-amount '+type+'">'+(type==='income'?'+':'-')+roundRub(cat.value).toLocaleString('ru-RU')+' ₽</span>';
         item.appendChild(head);
@@ -1065,7 +1064,6 @@ function buildCatGroup(monthKey,catList,type){
         var head=document.createElement('div');
         head.className='ph-cat-head';
         head.innerHTML=
-            '<div class="ph-cat-icon">'+getCategoryEmoji(cat.label)+'</div>'+
             '<span class="ph-cat-name">'+cat.label+'</span>'+
             '<span class="ph-cat-amount '+type+'">'+(type==='income'?'+':'-')+roundRub(cat.value).toLocaleString('ru-RU')+' ₽</span>'+
             '<span class="ph-cat-chevron">▸</span>';
