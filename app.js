@@ -945,6 +945,7 @@ function groupByMonth(){
 var currentPhFilter='all';
 var expandedCategoryKey=null;
 var currentPhMonthKey=null;
+var currentPhSearch='';
 var pendingPhReopenKey=null;
 
 function renderPeriodHistory(){
@@ -991,6 +992,11 @@ function openPeriodHistoryModal(monthKey){
     currentPhMonthKey=monthKey;
     expandedCategoryKey=null;
     currentPhFilter='all';
+    currentPhSearch='';
+    var si=$('phSearchInput');
+    if(si)si.value='';
+    var sc=$('phSearchClear');
+    if(sc)sc.style.display='none';
     var btns=document.querySelectorAll('#periodHistoryModal .ph-filter-btn');
     for(var i=0;i<btns.length;i++)btns[i].classList.toggle('active',btns[i].dataset.phtype==='all');
 
@@ -1034,6 +1040,15 @@ function renderPeriodModalBody(){
         '<div class="ph-ms-item expense"><span class="ph-ms-label">Расходы</span><span class="ph-ms-value">↓ '+roundRub(s.totalExpenseRub).toLocaleString('ru-RU')+' ₽</span></div>';
     body.appendChild(summary);
 
+    var q=currentPhSearch.trim().toLowerCase();
+    if(q){
+        txs=txs.filter(function(t){
+            var cat=(t.category||'').toLowerCase();
+            var note=(t.note||'').toLowerCase();
+            var rub=String(Math.round(t.rub));
+            return cat.indexOf(q)!==-1||note.indexOf(q)!==-1||rub.indexOf(q)!==-1;
+        });
+    }
     var incCat=(currentPhFilter==='expense')?[]:aggregateByCategory(txs,'income');
     var expCat=(currentPhFilter==='income')?[]:aggregateByCategory(txs,'expense');
 
@@ -2665,6 +2680,27 @@ for(var i=0;i<phFilterBtns.length;i++){
         });
     })(phFilterBtns[i]);
 }
+var phSearchInput=$('phSearchInput');
+if(phSearchInput){
+    phSearchInput.addEventListener('input',function(){
+        currentPhSearch=this.value;
+        var sc=$('phSearchClear');
+        if(sc)sc.style.display=this.value?'block':'none';
+        expandedCategoryKey=null;
+        renderPeriodModalBody();
+    });
+}
+var phSearchClear=$('phSearchClear');
+if(phSearchClear){
+    phSearchClear.addEventListener('click',function(){
+        var si=$('phSearchInput');
+        if(si)si.value='';
+        currentPhSearch='';
+        this.style.display='none';
+        expandedCategoryKey=null;
+        renderPeriodModalBody();
+    });
+}
 var phCloseBtn=$('closePeriodHistoryModal');
 if(phCloseBtn)phCloseBtn.addEventListener('click',closePeriodHistoryModal);
 var phModalEl=$('periodHistoryModal');
@@ -3259,6 +3295,94 @@ loadData(true).then(function(loaded){
             modal.style.opacity='';
         }
     },{passive:true});
+})();
+
+/* ===== SWIPE ON TRANSACTION ===== */
+(function(){
+    var startX=0,startY=0,moved=false,dragging=false,currentRow=null,currentWrap=null,startOffset=0,lockedDir=null;
+    document.addEventListener('touchstart',function(e){
+        var wrap=e.target.closest('.ph-tx-wrap');
+        if(!wrap)return;
+        if(e.target.closest('.ph-tx-act'))return;
+        if(e.touches.length!==1)return;
+        var row=wrap.querySelector('.ph-tx-item');
+        if(!row)return;
+        currentWrap=wrap;
+        currentRow=row;
+        startX=e.touches[0].clientX;
+        startY=e.touches[0].clientY;
+        startOffset=row.classList.contains('swiped-left')?-70:row.classList.contains('swiped-right')?70:0;
+        moved=false;
+        dragging=false;
+        lockedDir=null;
+        row.style.transition='none';
+    },{passive:true});
+
+    document.addEventListener('touchmove',function(e){
+        if(!currentRow||e.touches.length!==1)return;
+        var dx=e.touches[0].clientX-startX;
+        var dy=e.touches[0].clientY-startY;
+        if(!lockedDir){
+            if(Math.abs(dx)<8&&Math.abs(dy)<8)return;
+            if(Math.abs(dy)>Math.abs(dx)){lockedDir='v';currentRow=null;currentWrap=null;return;}
+            lockedDir='h';
+            dragging=true;
+            moved=true;
+        }
+        if(!dragging)return;
+        var total=startOffset+dx;
+        total=Math.max(-70,Math.min(70,total));
+        currentRow.style.transform='translateX('+total+'px)';
+    },{passive:true});
+
+    document.addEventListener('touchend',function(e){
+        if(!currentRow){return;}
+        var row=currentRow,wrap=currentWrap;
+        currentRow=null;
+        currentWrap=null;
+        row.style.transition='';
+        if(!dragging){row.style.transform='';return;}
+        dragging=false;
+        var dx=e.changedTouches[0].clientX-startX;
+        var total=startOffset+dx;
+        row.style.transform='';
+        if(total<-40){
+            row.classList.add('swiped-left');
+            row.classList.remove('swiped-right');
+            haptic('light');
+        } else if(total>40){
+            row.classList.add('swiped-right');
+            row.classList.remove('swiped-left');
+            haptic('light');
+        } else {
+            row.classList.remove('swiped-left','swiped-right');
+        }
+    },{passive:true});
+
+    document.addEventListener('click',function(e){
+        var act=e.target.closest('.ph-tx-act');
+        if(act){
+            var wrap=act.closest('.ph-tx-wrap');
+            if(!wrap)return;
+            var idx=parseInt(wrap.dataset.txIdx,10);
+            if(isNaN(idx))return;
+            var action=act.dataset.action;
+            var row=wrap.querySelector('.ph-tx-item');
+            if(row){row.classList.remove('swiped-left','swiped-right');}
+            if(action==='edit'){
+                if(typeof editTransaction==='function')editTransaction(idx);
+            } else if(action==='delete'){
+                if(typeof deleteTransaction==='function')deleteTransaction(idx);
+            }
+            return;
+        }
+        var openRows=document.querySelectorAll('.ph-tx-item.swiped-left,.ph-tx-item.swiped-right');
+        for(var i=0;i<openRows.length;i++){
+            if(!openRows[i].closest('.ph-tx-wrap').contains(e.target)){
+                openRows[i].classList.remove('swiped-left','swiped-right');
+            }
+        }
+    });
 })();
 
 })();
