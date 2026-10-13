@@ -1791,5 +1791,43 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
     background:rgba(248,113,113,0.14)
 }
 
-
+/* ===== PERIOD HISTORY SEARCH ===== */
+.ph-search-wrap{
+    position:relative;
+    margin-bottom:10px;
+    flex-shrink:0
+}
+.ph-search-input{
+    width:100%;
+    background:var(--card-2);
+    border:1.5px solid var(--border);
+    color:var(--text);
+    padding:9px 34px 9px 12px;
+    border-radius:10px;
+    font-size:0.82rem;
+    font-family:inherit;
+    -webkit-appearance:none;
+    appearance:none
+}
+.ph-search-input:focus{
+    outline:none;
+    border-color:rgba(245,200,76,0.6);
+    box-shadow:0 0 0 3px rgba(245,200,76,0.12)
+}
+.ph-search-input::placeholder{color:var(--text-dim);font-size:0.76rem}
+.ph-search-clear{
+    position:absolute;
+    right:6px;
+    top:50%;
+    transform:translateY(-50%);
+    background:transparent;
+    border:none;
+    color:var(--text-muted);
+    font-size:0.85rem;
+    cursor:pointer;
+    padding:6px 8px;
+    font-family:inherit;
+    border-radius:6px
+}
+.ph-search-clear:active{background:rgba(255,255,255,0.06)}
 
