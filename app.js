@@ -891,6 +891,20 @@ function buildDayCatGroup(catList,type){
         for(var j=0;j<dayTxs.length;j++){
             var tx=dayTxs[j];
             var realIdx=allTransactions.indexOf(tx);
+            var wrap=document.createElement('div');
+            wrap.className='ph-tx-wrap';
+            wrap.dataset.txIdx=realIdx;
+
+            var actEdit=document.createElement('button');
+            actEdit.className='ph-tx-act edit';
+            actEdit.dataset.action='edit';
+            actEdit.textContent='✏️';
+
+            var actDel=document.createElement('button');
+            actDel.className='ph-tx-act delete';
+            actDel.dataset.action='delete';
+            actDel.textContent='🗑️';
+
             var row=document.createElement('div');
             row.className='ph-tx-item';
             row.dataset.txIdx=realIdx;
@@ -912,7 +926,11 @@ function buildDayCatGroup(catList,type){
                 });
             })(realIdx);
             row.appendChild(editBtn);
-            txList.appendChild(row);
+
+            wrap.appendChild(actEdit);
+            wrap.appendChild(actDel);
+            wrap.appendChild(row);
+            txList.appendChild(wrap);
         }
         item.appendChild(txList);
         group.appendChild(item);
@@ -1108,6 +1126,20 @@ function buildCatGroup(monthKey,catList,type){
                 for(var j=0;j<catTxs.length;j++){
                     var tx=catTxs[j];
                     var realIdx=allTransactions.indexOf(tx);
+                    var wrap=document.createElement('div');
+                    wrap.className='ph-tx-wrap';
+                    wrap.dataset.txIdx=realIdx;
+
+                    var actEdit=document.createElement('button');
+                    actEdit.className='ph-tx-act edit';
+                    actEdit.dataset.action='edit';
+                    actEdit.textContent='✏️';
+
+                    var actDel=document.createElement('button');
+                    actDel.className='ph-tx-act delete';
+                    actDel.dataset.action='delete';
+                    actDel.textContent='🗑️';
+
                     var row=document.createElement('div');
                     row.className='ph-tx-item';
                     row.dataset.txIdx=realIdx;
@@ -1120,14 +1152,13 @@ function buildCatGroup(monthKey,catList,type){
                     var editBtn=document.createElement('button');
                     editBtn.className='ph-tx-edit';
                     editBtn.textContent='✏️';
-                    (function(idx){editBtn.addEventListener('click',function(e){
-    e.stopPropagation();
-    pendingPhReopenKey=currentPhMonthKey;
-    closePeriodHistoryModal();
-    setTimeout(function(){editTransaction(idx);},180);
-});})(realIdx);
+                    (function(idx){editBtn.addEventListener('click',function(e){e.stopPropagation();pendingPhReopenKey=currentPhMonthKey;closePeriodHistoryModal();setTimeout(function(){editTransaction(idx);},180);});})(realIdx);
                     row.appendChild(editBtn);
-                    txList.appendChild(row);
+
+                    wrap.appendChild(actEdit);
+                    wrap.appendChild(actDel);
+                    wrap.appendChild(row);
+                    txList.appendChild(wrap);
                 }
             }
         }
@@ -3296,68 +3327,87 @@ loadData(true).then(function(loaded){
         }
     },{passive:true});
 })();
-
 /* ===== SWIPE ON TRANSACTION ===== */
 (function(){
-    var startX=0,startY=0,moved=false,dragging=false,currentRow=null,currentWrap=null,startOffset=0,lockedDir=null;
+    var startX=0,startY=0,currentRow=null,currentWrap=null,startOffset=0,lockedDir=null,dragging=false;
+
     document.addEventListener('touchstart',function(e){
+        if(e.touches.length!==1)return;
         var wrap=e.target.closest('.ph-tx-wrap');
         if(!wrap)return;
         if(e.target.closest('.ph-tx-act'))return;
-        if(e.touches.length!==1)return;
         var row=wrap.querySelector('.ph-tx-item');
         if(!row)return;
-        currentWrap=wrap;
-        currentRow=row;
         startX=e.touches[0].clientX;
         startY=e.touches[0].clientY;
+        currentWrap=wrap;
+        currentRow=row;
         startOffset=row.classList.contains('swiped-left')?-70:row.classList.contains('swiped-right')?70:0;
-        moved=false;
-        dragging=false;
         lockedDir=null;
+        dragging=false;
         row.style.transition='none';
-    },{passive:true});
+    },{passive:true,capture:true});
 
     document.addEventListener('touchmove',function(e){
         if(!currentRow||e.touches.length!==1)return;
         var dx=e.touches[0].clientX-startX;
         var dy=e.touches[0].clientY-startY;
         if(!lockedDir){
-            if(Math.abs(dx)<8&&Math.abs(dy)<8)return;
-            if(Math.abs(dy)>Math.abs(dx)){lockedDir='v';currentRow=null;currentWrap=null;return;}
+            if(Math.abs(dx)<6&&Math.abs(dy)<6)return;
+            if(Math.abs(dy)>Math.abs(dx)){
+                lockedDir='v';
+                currentRow.style.transition='';
+                currentRow.style.transform='';
+                currentRow=null;
+                currentWrap=null;
+                return;
+            }
             lockedDir='h';
             dragging=true;
-            moved=true;
         }
         if(!dragging)return;
+        if(lockedDir==='h'&&e.cancelable){e.preventDefault();}
         var total=startOffset+dx;
-        total=Math.max(-70,Math.min(70,total));
+        total=Math.max(-80,Math.min(80,total));
         currentRow.style.transform='translateX('+total+'px)';
-    },{passive:true});
+    },{passive:false,capture:true});
 
     document.addEventListener('touchend',function(e){
-        if(!currentRow){return;}
-        var row=currentRow,wrap=currentWrap;
+        if(!currentRow)return;
+        var row=currentRow;
+        var wasDrag=dragging;
         currentRow=null;
         currentWrap=null;
-        row.style.transition='';
-        if(!dragging){row.style.transform='';return;}
         dragging=false;
+        lockedDir=null;
+        row.style.transition='';
+        if(!wasDrag){row.style.transform='';return;}
         var dx=e.changedTouches[0].clientX-startX;
         var total=startOffset+dx;
         row.style.transform='';
         if(total<-40){
             row.classList.add('swiped-left');
             row.classList.remove('swiped-right');
-            haptic('light');
+            try{haptic('light');}catch(err){}
         } else if(total>40){
             row.classList.add('swiped-right');
             row.classList.remove('swiped-left');
-            haptic('light');
+            try{haptic('light');}catch(err){}
         } else {
             row.classList.remove('swiped-left','swiped-right');
         }
-    },{passive:true});
+    },{passive:true,capture:true});
+
+    document.addEventListener('touchcancel',function(){
+        if(currentRow){
+            currentRow.style.transition='';
+            currentRow.style.transform='';
+        }
+        currentRow=null;
+        currentWrap=null;
+        lockedDir=null;
+        dragging=false;
+    },{passive:true,capture:true});
 
     document.addEventListener('click',function(e){
         var act=e.target.closest('.ph-tx-act');
@@ -3368,7 +3418,8 @@ loadData(true).then(function(loaded){
             if(isNaN(idx))return;
             var action=act.dataset.action;
             var row=wrap.querySelector('.ph-tx-item');
-            if(row){row.classList.remove('swiped-left','swiped-right');}
+            if(row)row.classList.remove('swiped-left','swiped-right');
+            try{haptic('light');}catch(err){}
             if(action==='edit'){
                 if(typeof editTransaction==='function')editTransaction(idx);
             } else if(action==='delete'){
@@ -3378,11 +3429,11 @@ loadData(true).then(function(loaded){
         }
         var openRows=document.querySelectorAll('.ph-tx-item.swiped-left,.ph-tx-item.swiped-right');
         for(var i=0;i<openRows.length;i++){
-            if(!openRows[i].closest('.ph-tx-wrap').contains(e.target)){
+            var w=openRows[i].closest('.ph-tx-wrap');
+            if(w&&!w.contains(e.target)){
                 openRows[i].classList.remove('swiped-left','swiped-right');
             }
         }
     });
 })();
-
 })();
