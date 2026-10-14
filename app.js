@@ -3421,7 +3421,21 @@ loadData(true).then(function(loaded){
             if(row)row.classList.remove('swiped-left','swiped-right');
             try{haptic('light');}catch(err){}
             if(action==='edit'){
-                if(typeof editTransaction==='function')editTransaction(idx);
+                var phModal=$('periodHistoryModal');
+                if(phModal&&phModal.classList.contains('open')&&currentPhMonthKey){
+                    pendingPhReopenKey=currentPhMonthKey;
+                    closePeriodHistoryModal();
+                    setTimeout(function(){editTransaction(idx);},180);
+                } else {
+                    var dayModal=$('dayDetailModal');
+                    if(dayModal&&dayModal.classList.contains('open')&&currentDayKey){
+                        pendingDayReopenKey={y:currentDayKey.y,m:currentDayKey.m,d:currentDayKey.d};
+                        closeDayDetailModal();
+                        setTimeout(function(){editTransaction(idx);},180);
+                    } else {
+                        if(typeof editTransaction==='function')editTransaction(idx);
+                    }
+                }
             } else if(action==='delete'){
                 if(typeof deleteTransaction==='function')deleteTransaction(idx);
             }
