@@ -1245,15 +1245,45 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
     background:rgba(0,0,0,0.2)
 }
 .ph-cat-item.open .ph-tx-list{max-height:1200px}
+.ph-tx-wrap{
+    position:relative;
+    overflow:hidden;
+    background:var(--card-2);
+    border-top:1px solid var(--border);
+    isolation:isolate
+}
+.ph-tx-wrap:first-child{border-top:none}
+.ph-tx-act{
+    position:absolute;
+    top:0;bottom:0;
+    width:70px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:none;
+    color:#fff;
+    font-size:1.1rem;
+    cursor:pointer;
+    font-family:inherit;
+    padding:0;
+    z-index:0
+}
+.ph-tx-act.edit{left:0;background:linear-gradient(135deg,#f5c84c,#d4a017)}
+.ph-tx-act.delete{right:0;background:linear-gradient(135deg,#f87171,#ef4444)}
 .ph-tx-item{
     display:flex;
     align-items:center;
     gap:10px;
     padding:9px 12px;
-    border-top:1px solid var(--border);
-    font-size:0.72rem
+    font-size:0.72rem;
+    background:var(--card-2);
+    position:relative;
+    z-index:1;
+    transition:transform .28s cubic-bezier(.2,.8,.3,1);
+    will-change:transform
 }
-.ph-tx-item:first-child{border-top:none}
+.ph-tx-item.swiped-left{transform:translateX(-70px)}
+.ph-tx-item.swiped-right{transform:translateX(70px)}
 .ph-tx-date{
     color:var(--text-dim);
     font-size:0.68rem;
