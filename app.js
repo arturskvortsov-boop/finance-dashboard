@@ -75,6 +75,8 @@ var BUDGETS_FILE='budgets.json';
 var GOALS_FILE='goals.json';
 var TOMBSTONES_KEY='financeTombstones';
 var TOMBSTONES_FILE='tombstones.json';
+var EVENTS_KEY='financeEvents';
+var EVENTS_FILE='events.json';
 
 /* ===== THEME (only dark) ===== */
 try{
@@ -96,6 +98,10 @@ var budgets=[];
 var goals=[];
 var customReminders=[];
 var tombstones={};
+var events=[];
+var editingEventId=null;
+var currentEventIcon='📅';
+var EVENT_ICONS=['🎂','🍽','📅','🎉','📝','✈️','🏥','🎓','💼','🎁','🏖️','🎬','⚽','🎵','🚗','🏠'];
 var currentFilter='month';
 var dataLoaded=false;
 var currentUsdRate=85.00;
@@ -282,6 +288,8 @@ function saveTemplates(){try{localStorage.setItem(TEMPLATES_KEY,JSON.stringify(t
 function loadTemplates(){try{var s=localStorage.getItem(TEMPLATES_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveCustomReminders(t){try{localStorage.setItem('financeCustomReminders',JSON.stringify(t));}catch(e){}}
 function loadCustomReminders(){try{var s=localStorage.getItem('financeCustomReminders');if(s)return JSON.parse(s);}catch(e){}return [];}
+function saveEvents(){try{localStorage.setItem(EVENTS_KEY,JSON.stringify(events));}catch(e){}}
+function loadEvents(){try{var s=localStorage.getItem(EVENTS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveBudgets(){try{localStorage.setItem(BUDGETS_KEY,JSON.stringify(budgets));}catch(e){}}
 function loadBudgets(){try{var s=localStorage.getItem(BUDGETS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveGoals(){try{localStorage.setItem(GOALS_KEY,JSON.stringify(goals));}catch(e){}}
@@ -592,15 +600,39 @@ function renderCalendar(){
     var monthEnd=new Date(calendarYear,calendarMonth+1,0);
     var daysInMonth=monthEnd.getDate();
     var expenseByDay={};
+    var incomeByDay={};
+    var eventByDay={};
+    var reminderByDay={};
     var maxExpense=0;
     for(var i=0;i<allTransactions.length;i++){
         var tx=allTransactions[i];
-        if(tx.type!=='expense')continue;
         if(tx.date<monthStart||tx.date>monthEnd)continue;
         var day=tx.date.getDate();
         var rub=tx.rub;if(tx.usd>0)rub=tx.usd*currentUsdRate;
-        expenseByDay[day]=(expenseByDay[day]||0)+rub;
-        if(expenseByDay[day]>maxExpense)maxExpense=expenseByDay[day];
+        if(tx.type==='expense'){
+            expenseByDay[day]=(expenseByDay[day]||0)+rub;
+            if(expenseByDay[day]>maxExpense)maxExpense=expenseByDay[day];
+        } else if(tx.type==='income'){
+            incomeByDay[day]=(incomeByDay[day]||0)+rub;
+        }
+    }
+    for(var ei=0;ei<events.length;ei++){
+        var ev=events[ei];
+        if(!ev.date)continue;
+        var ep=ev.date.split('-');
+        if(ep.length!==3)continue;
+        var ey=parseInt(ep[0],10),em=parseInt(ep[1],10)-1,ed=parseInt(ep[2],10);
+        if(ey!==calendarYear||em!==calendarMonth)continue;
+        eventByDay[ed]=(eventByDay[ed]||0)+1;
+    }
+    for(var ri=0;ri<customReminders.length;ri++){
+        var rem=customReminders[ri];
+        if(!rem.dueAt)continue;
+        var rd=new Date(rem.dueAt);
+        if(isNaN(rd.getTime()))continue;
+        if(rd.getFullYear()!==calendarYear||rd.getMonth()!==calendarMonth)continue;
+        var rday=rd.getDate();
+        reminderByDay[rday]=(reminderByDay[rday]||0)+1;
     }
     var firstDayOfWeek=new Date(calendarYear,calendarMonth,1).getDay();
     var offset=(firstDayOfWeek===0)?6:firstDayOfWeek-1;
@@ -620,7 +652,16 @@ function renderCalendar(){
         }
         var isToday=isCurrentMonth&&today.getDate()===d;
         var cls='cal-day lvl'+level+(isToday?' today':'');
-        html+='<div class="'+cls+'" data-day="'+d+'">'+d+'</div>';
+        var dotsHtml='';
+        if(expenseByDay[d]||incomeByDay[d]||eventByDay[d]||reminderByDay[d]){
+            dotsHtml='<div class="cal-dots">';
+            if(expenseByDay[d])dotsHtml+='<span class="cal-dot cal-dot-expense"></span>';
+            if(incomeByDay[d])dotsHtml+='<span class="cal-dot cal-dot-income"></span>';
+            if(eventByDay[d])dotsHtml+='<span class="cal-dot cal-dot-event"></span>';
+            if(reminderByDay[d])dotsHtml+='<span class="cal-dot cal-dot-bell"></span>';
+            dotsHtml+='</div>';
+        }
+        html+='<div class="'+cls+'" data-day="'+d+'">'+d+dotsHtml+'</div>';
     }
     grid.innerHTML=html;
     var cells=grid.querySelectorAll('.cal-day:not(.empty)');
@@ -833,6 +874,116 @@ function loadCustomRemindersFromServer(){
     });
 }
 
+/* ===== EVENTS ===== */
+function formatEventDate(y,m,d){
+    var months=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+    return d+' '+months[m]+' '+y;
+}
+
+function openEventEditModal(id,presetDate){
+    editingEventId=id||null;
+    var title=$('eventEditTitle');
+    if(id){
+        var ev=null;
+        for(var i=0;i<events.length;i++)if(events[i].id===id){ev=events[i];break;}
+        if(!ev)return;
+        title.textContent='✏️ Редактировать событие';
+        currentEventIcon=ev.icon||'📅';
+        $('evtTitle').value=ev.title||'';
+        $('evtDate').value=ev.date||'';
+        $('evtTime').value=ev.time||'';
+        $('evtNote').value=ev.note||'';
+    } else {
+        title.textContent='📅 Новое событие';
+        currentEventIcon='📅';
+        $('evtTitle').value='';
+        var today=new Date();
+        var y=today.getFullYear();
+        var m=pad(today.getMonth()+1);
+        var d=pad(today.getDate());
+        if(presetDate){
+            $('evtDate').value=presetDate;
+        } else {
+            $('evtDate').value=y+'-'+m+'-'+d;
+        }
+        $('evtTime').value='';
+        $('evtNote').value='';
+    }
+    renderEventIconPicker();
+    $('eventEditModal').classList.add('open');
+    lockBackground();
+}
+function closeEventEditModal(){
+    $('eventEditModal').classList.remove('open');
+    editingEventId=null;
+    unlockBackground();
+}
+function renderEventIconPicker(){
+    var picker=$('evtIconPicker');
+    if(!picker)return;
+    picker.innerHTML='';
+    for(var i=0;i<EVENT_ICONS.length;i++){
+        var btn=document.createElement('button');
+        btn.type='button';
+        btn.className='evt-icon-btn'+(EVENT_ICONS[i]===currentEventIcon?' active':'');
+        btn.textContent=EVENT_ICONS[i];
+        (function(icon){btn.addEventListener('click',function(){currentEventIcon=icon;renderEventIconPicker();});})(EVENT_ICONS[i]);
+        picker.appendChild(btn);
+    }
+}
+function saveEvent(){
+    var title=$('evtTitle').value.trim();
+    var date=$('evtDate').value;
+    var time=$('evtTime').value;
+    var note=$('evtNote').value.trim();
+    if(!title){alert('Введите название события');return;}
+    if(!date){alert('Укажите дату');return;}
+    if(editingEventId){
+        for(var i=0;i<events.length;i++)if(events[i].id===editingEventId){
+            events[i].title=title;
+            events[i].icon=currentEventIcon;
+            events[i].date=date;
+            events[i].time=time;
+            events[i].note=note;
+            break;
+        }
+        $('fileStatus').textContent='✏️ Событие обновлено';
+    } else {
+        events.push({
+            id:'evt_'+Date.now()+'_'+Math.floor(Math.random()*1000),
+            title:title,
+            icon:currentEventIcon,
+            date:date,
+            time:time,
+            note:note,
+            createdAt:new Date().toISOString()
+        });
+        $('fileStatus').textContent='📅 Событие создано';
+    }
+    saveEvents();
+    scheduleSyncEvents();
+    renderCalendar();
+    if($('dayDetailModal').classList.contains('open'))renderDayDetailBody();
+    closeEventEditModal();
+    haptic('success');
+}
+function deleteEvent(id){
+    if(!confirm('Удалить событие?'))return;
+    events=events.filter(function(e){return e.id!==id;});
+    saveEvents();
+    scheduleSyncEvents();
+    renderCalendar();
+    if($('dayDetailModal').classList.contains('open'))renderDayDetailBody();
+    $('fileStatus').textContent='🗑️ Событие удалено';
+    haptic('warning');
+}
+var eventsSyncTimer=null;
+function scheduleSyncEvents(){
+    if(!getToken())return;
+    if(eventsSyncTimer)clearTimeout(eventsSyncTimer);
+    eventsSyncTimer=setTimeout(function(){syncEvents();},1500);
+}
+
 /* ===== DAY DETAIL (календарь) ===== */
 var DAY_MONTH_GEN=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 var currentDayKey=null;
@@ -857,8 +1008,9 @@ function renderDayDetailBody(){
     var body=$('dayDetailBody');
     if(!body||!currentDayKey)return;
     body.innerHTML='';
-    var start=new Date(currentDayKey.y,currentDayKey.m,currentDayKey.d,0,0,0);
-    var end=new Date(currentDayKey.y,currentDayKey.m,currentDayKey.d+1,0,0,0);
+    var y=currentDayKey.y,m=currentDayKey.m,d=currentDayKey.d;
+    var start=new Date(y,m,d,0,0,0);
+    var end=new Date(y,m,d+1,0,0,0);
     var txs=[];
     for(var i=0;i<allTransactions.length;i++){
         var t=allTransactions[i];
@@ -874,18 +1026,79 @@ function renderDayDetailBody(){
         '<div class="ph-ms-item" style="grid-column:1 / -1"><span class="ph-ms-label">Итог</span><span class="ph-ms-value" style="color:'+(net>=0?'#4ade80':'#f87171')+'">'+(net>=0?'+':'-')+roundRub(Math.abs(net)).toLocaleString('ru-RU')+' ₽</span></div>';
     body.appendChild(summary);
 
+    var dayEvents=[];
+    var dstr=y+'-'+pad(m+1)+'-'+pad(d);
+    for(var ev_i=0;ev_i<events.length;ev_i++){
+        if(events[ev_i].date===dstr)dayEvents.push(events[ev_i]);
+    }
+    dayEvents.sort(function(a,b){return (a.time||'99:99').localeCompare(b.time||'99:99');});
+
+    var dayReminders=[];
+    for(var r_i=0;r_i<customReminders.length;r_i++){
+        var r=customReminders[r_i];
+        if(!r.dueAt)continue;
+        var rd=new Date(r.dueAt);
+        if(isNaN(rd.getTime()))continue;
+        if(rd.getFullYear()===y&&rd.getMonth()===m&&rd.getDate()===d)dayReminders.push({item:r,time:rd});
+    }
+    dayReminders.sort(function(a,b){return a.time-b.time;});
+
+    if(dayEvents.length){
+        var evBlock=document.createElement('div');
+        evBlock.className='day-events-block';
+        evBlock.innerHTML='<div class="day-events-title events">📅 События</div>';
+        for(var ei=0;ei<dayEvents.length;ei++){
+            var ev=dayEvents[ei];
+            var item=document.createElement('div');
+            item.className='day-event-item';
+            item.innerHTML=
+                '<div class="day-event-icon">'+(ev.icon||'📅')+'</div>'+
+                '<div class="day-event-info">'+
+                    '<div class="day-event-title">'+(ev.title||'')+'</div>'+
+                    '<div class="day-event-time">'+(ev.time?ev.time+(ev.note?' · '+ev.note:''):(ev.note||'—'))+'</div>'+
+                '</div>'+
+                '<span class="day-event-arrow">›</span>';
+            (function(id){item.addEventListener('click',function(){openEventEditModal(id);});})(ev.id);
+            evBlock.appendChild(item);
+        }
+        body.appendChild(evBlock);
+    }
+
+    if(dayReminders.length){
+        var remBlock=document.createElement('div');
+        remBlock.className='day-events-block';
+        remBlock.innerHTML='<div class="day-events-title reminders">🔔 Напоминания</div>';
+        for(var ri2=0;ri2<dayReminders.length;ri2++){
+            var rem=dayReminders[ri2].item;
+            var rtime=dayReminders[ri2].time;
+            var ritem=document.createElement('div');
+            ritem.className='day-event-item reminder';
+            var rtimeStr=pad(rtime.getHours())+':'+pad(rtime.getMinutes());
+            ritem.innerHTML=
+                '<div class="day-event-icon">🔔</div>'+
+                '<div class="day-event-info">'+
+                    '<div class="day-event-title">'+(rem.text||'Напоминание')+'</div>'+
+                    '<div class="day-event-time">'+rtimeStr+'</div>'+
+                '</div>'+
+                '<span class="day-event-arrow">›</span>';
+            (function(id){ritem.addEventListener('click',function(){openReminderEditModal(id);});})(rem.id);
+            remBlock.appendChild(ritem);
+        }
+        body.appendChild(remBlock);
+    }
+
     var incCat=aggregateByCategory(txs,'income');
     var expCat=aggregateByCategory(txs,'expense');
 
-    if(!incCat.length&&!expCat.length){
+    if(incCat.length||expCat.length){
+        if(expCat.length)body.appendChild(buildDayCatGroup(expCat,'expense'));
+        if(incCat.length)body.appendChild(buildDayCatGroup(incCat,'income'));
+    } else if(!dayEvents.length&&!dayReminders.length){
         var empty=document.createElement('div');
         empty.className='ph-empty';
-        empty.textContent='В этот день транзакций нет';
+        empty.textContent='В этот день ничего нет';
         body.appendChild(empty);
-        return;
     }
-    if(expCat.length)body.appendChild(buildDayCatGroup(expCat,'expense'));
-    if(incCat.length)body.appendChild(buildDayCatGroup(incCat,'income'));
 }
 
 function buildDayCatGroup(catList,type){
@@ -2039,7 +2252,9 @@ function loadTombstonesFromServer(){
         return true;
     });
 }
-function syncAllExtras(){if(!getToken())return;syncTemplates();syncBudgets();syncGoals();syncTombstones();}
+function syncEvents(){if(!getToken())return Promise.resolve(false);return putJsonFile(EVENTS_FILE,events,'События ('+events.length+')').catch(function(){return false;});}
+function loadEventsFromServer(){return fetchJsonFile(EVENTS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;events=mergeById(events,data);saveEvents();return true;});}
+function syncAllExtras(){if(!getToken())return;syncTemplates();syncBudgets();syncGoals();syncTombstones();syncEvents();}
 
 /* ===== АВТОСИНХРОНИЗАЦИЯ ===== */
 function scheduleSyncExtras(){
@@ -2679,7 +2894,7 @@ function doPullRefresh(){
     Promise.resolve()
         .then(function(){return loadTombstonesFromServer();})
         .then(function(){return loadData(false);})
-        .then(function(){applyTombstones();return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer()]);})
+        .then(function(){applyTombstones();return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadEventsFromServer()]);})
         .then(function(){renderTemplatesList('settingsTemplatesList','settings');renderSettingsBudgetsList();renderSettingsGoalsList();renderCbrRate();return new Promise(function(r){setTimeout(r,300);});})
         .then(function(){
             pullRefreshing=false;
@@ -2735,7 +2950,7 @@ function doRefresh(){
     showToast('🔄 Обновление...',1500);
     loadTombstonesFromServer()
         .then(function(){return loadData(false);})
-        .then(function(){applyTombstones();return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer()]);})
+        .then(function(){applyTombstones();return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadEventsFromServer()]);})
         .then(function(){
             renderTemplatesList('settingsTemplatesList','settings');
             renderSettingsBudgetsList();
@@ -2807,6 +3022,16 @@ if(dayAddBtn){
             var dateObj=new Date(k.y,k.m,k.d);
             openTxModal(-1,null,{date:dateObj});
         },180);
+    });
+}
+var dayAddEventBtn=$('dayDetailAddEventBtn');
+if(dayAddEventBtn){
+    dayAddEventBtn.addEventListener('click',function(){
+        var k=currentDayKey;
+        if(!k)return;
+        var dateStr=k.y+'-'+pad(k.m+1)+'-'+pad(k.d);
+        closeDayDetailModal();
+        setTimeout(function(){openEventEditModal(null,dateStr);},180);
     });
 }
 var filterBtns=document.querySelectorAll('.filter-btn');
@@ -2994,6 +3219,11 @@ $('bnFabBtn').addEventListener('click',function(e){
 var fabOverlayEl=$('fabOverlay');
 if(fabOverlayEl)fabOverlayEl.addEventListener('click',function(){closeFabFan();});
 $('fabRepeat').addEventListener('click',function(){closeFabFan();setTimeout(function(){repeatLastTransaction();},150);});
+$('fabEvent').addEventListener('click',function(){closeFabFan();setTimeout(function(){openEventEditModal(null);},150);});
+
+$('closeEventEditModal').addEventListener('click',closeEventEditModal);
+$('cancelEventEditBtn').addEventListener('click',closeEventEditModal);
+$('saveEventBtn').addEventListener('click',saveEvent);
 $('fabAddTx').addEventListener('click',function(){closeFabFan();setTimeout(function(){openTxModal(-1);},150);});
 $('fabQuick').addEventListener('click',function(){closeFabFan();setTimeout(function(){openQuickAddModal();},150);});
 $('fabSync').addEventListener('click',function(){closeFabFan();setTimeout(function(){doSync();},150);});
@@ -3150,6 +3380,7 @@ budgets=loadBudgets()||[];
 goals=loadGoals()||[];
 customReminders=loadCustomReminders()||[];
 tombstones=loadTombstones();
+events=loadEvents()||[];
 
 var savedRate=loadRate();
 if(savedRate){
@@ -3172,7 +3403,7 @@ loadTombstonesFromServer().then(function(){
         $('emptyState').classList.remove('hidden');
         if(!$('fileStatus').textContent||$('fileStatus').textContent==='⏳ Загрузка...')$('fileStatus').textContent='📂 Загрузите JSON или проверьте GitHub';
     }
-    return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadCustomRemindersFromServer()]);
+    return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadCustomRemindersFromServer(),loadEventsFromServer()]);
 }).then(function(){
     applyTombstones();
     var skEl=$('skeleton');
