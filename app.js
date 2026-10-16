@@ -3488,6 +3488,8 @@ loadTombstonesFromServer().then(function(){
     var skEl=$('skeleton');
     if(skEl)skEl.classList.add('hidden');
     renderCustomReminders();
+    renderUpcomingEvents();
+    renderCalendar();
     setTimeout(drawRateHistoryChart,500);
     startFreshnessTimer();
     updateTokenStatus();
