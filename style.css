@@ -1861,3 +1861,145 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
 }
 .ph-search-clear:active{background:rgba(255,255,255,0.06)}
 
+/* ===== CALENDAR DOTS ===== */
+.cal-day{position:relative}
+.cal-dots{
+    position:absolute;
+    bottom:2px;
+    left:50%;
+    transform:translateX(-50%);
+    display:flex;
+    gap:2px;
+    pointer-events:none
+}
+.cal-dot{
+    width:4px;
+    height:4px;
+    border-radius:50%;
+    background:#9a9aa5
+}
+.cal-dot-expense{background:#f87171}
+.cal-dot-income{background:#4ade80}
+.cal-dot-event{background:#60a5fa}
+.cal-dot-bell{background:#f5c84c}
+
+.calendar-legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:10px;
+    justify-content:center
+}
+.cal-leg-dot-item{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    font-size:0.62rem;
+    color:var(--text-dim)
+}
+.cal-leg-dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    flex-shrink:0
+}
+
+/* ===== EVENT EDITOR ===== */
+.evt-icon-picker{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:4px
+}
+.evt-icon-btn{
+    width:38px;
+    height:38px;
+    border-radius:10px;
+    background:var(--card-2);
+    border:1px solid var(--border);
+    font-size:1.15rem;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+    font-family:inherit;
+    transition:all .15s
+}
+.evt-icon-btn.active{
+    border-color:var(--accent);
+    background:var(--accent-bg);
+    box-shadow:0 0 10px rgba(245,200,76,0.25)
+}
+
+/* ===== DAY MODAL: EVENTS & REMINDERS ===== */
+.day-events-block{
+    margin-bottom:16px
+}
+.day-events-title{
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    font-weight:700;
+    color:var(--text-muted);
+    margin-bottom:8px
+}
+.day-events-title.events{color:#60a5fa}
+.day-events-title.reminders{color:#f5c84c}
+.day-event-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--card-2);
+    border:1px solid var(--border);
+    border-radius:11px;
+    padding:10px 12px;
+    margin-bottom:6px;
+    cursor:pointer;
+    transition:border-color .15s
+}
+.day-event-item:active{
+    border-color:rgba(96,165,250,0.5)
+}
+.day-event-item.reminder:active{
+    border-color:rgba(245,200,76,0.5)
+}
+.day-event-icon{
+    width:32px;
+    height:32px;
+    border-radius:9px;
+    background:var(--card);
+    border:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:0.95rem;
+    flex-shrink:0
+}
+.day-event-info{flex:1;min-width:0}
+.day-event-title{
+    font-weight:600;
+    font-size:0.84rem;
+    color:var(--text);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis
+}
+.day-event-time{
+    font-size:0.66rem;
+    color:var(--text-dim);
+    margin-top:2px
+}
+.day-event-arrow{
+    color:var(--text-dim);
+    font-size:1rem;
+    flex-shrink:0
+}
+
+.day-add-actions{
+    display:flex;
+    gap:8px;
+    margin-top:14px
+}
+.day-add-actions .day-add-btn{flex:1;margin-top:0}
+
