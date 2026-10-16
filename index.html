@@ -138,11 +138,10 @@
         </div>
         <div class="calendar-grid" id="calendarGrid"></div>
         <div class="calendar-legend">
-            <span class="cal-leg-item"><span class="cal-leg-swatch" data-level="0"></span>нет</span>
-            <span class="cal-leg-item"><span class="cal-leg-swatch" data-level="1"></span>мало</span>
-            <span class="cal-leg-item"><span class="cal-leg-swatch" data-level="2"></span>средне</span>
-            <span class="cal-leg-item"><span class="cal-leg-swatch" data-level="3"></span>много</span>
-            <span class="cal-leg-item"><span class="cal-leg-swatch" data-level="4"></span>очень много</span>
+            <span class="cal-leg-dot-item"><span class="cal-leg-dot cal-dot-expense"></span>расход</span>
+            <span class="cal-leg-dot-item"><span class="cal-leg-dot cal-dot-income"></span>доход</span>
+            <span class="cal-leg-dot-item"><span class="cal-leg-dot cal-dot-event"></span>событие</span>
+            <span class="cal-leg-dot-item"><span class="cal-leg-dot cal-leg-dot-bell"></span>напоминание</span>
         </div>
     </div>
 
@@ -290,6 +289,7 @@
     <button class="fab-item" id="fabRefresh">🔄 Обновить</button>
     <button class="fab-item" id="fabSync">☁️ Синхрон</button>
     <button class="fab-item" id="fabAddTx">➕ Добавить</button>
+    <button class="fab-item" id="fabEvent">📅 Событие</button>
     <button class="fab-item" id="fabQuick">⚡ Быстрое</button>
     <button class="fab-item" id="fabRepeat">🔁 Повторить</button>
 </div>
@@ -464,12 +464,32 @@
 </div>
 </div>
 
+<div class="modal-overlay" id="eventEditModal">
+<div class="modal">
+    <div class="modal-header"><h2 id="eventEditTitle">📅 Новое событие</h2><button class="modal-close" id="closeEventEditModal">×</button></div>
+    <div class="modal-body">
+        <div class="form-row"><label>Иконка</label><div class="evt-icon-picker" id="evtIconPicker"></div></div>
+        <div class="form-row"><label>Название</label><input type="text" id="evtTitle" placeholder="Например: Ужин с Аней"></div>
+        <div class="form-row"><label>Дата</label><input type="date" id="evtDate"></div>
+        <div class="form-row"><label>Время (необязательно)</label><input type="time" id="evtTime"></div>
+        <div class="form-row"><label>Заметка (необязательно)</label><input type="text" id="evtNote" placeholder="Адрес, детали"></div>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-btn cancel" id="cancelEventEditBtn">Отмена</button>
+        <button class="modal-btn save" id="saveEventBtn">Сохранить</button>
+    </div>
+</div>
+</div>
+
 <div class="modal-overlay" id="dayDetailModal">
 <div class="modal ph-modal">
     <div class="modal-header"><h2 id="dayDetailTitle">—</h2><button class="modal-close" id="closeDayDetailModal">×</button></div>
     <div class="modal-body">
         <div class="ph-modal-scroll" id="dayDetailBody"></div>
-        <button class="day-add-btn" id="dayDetailAddBtn">➕ Добавить за этот день</button>
+        <div class="day-add-actions">
+            <button class="day-add-btn" id="dayDetailAddBtn">➕ Трата</button>
+            <button class="day-add-btn" id="dayDetailAddEventBtn">📅 Событие</button>
+        </div>
     </div>
 </div>
 </div>
