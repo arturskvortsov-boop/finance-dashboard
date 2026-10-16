@@ -2003,3 +2003,99 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
 }
 .day-add-actions .day-add-btn{flex:1;margin-top:0}
 
+/* ===== UPCOMING EVENTS BLOCK ===== */
+.events-block{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:12px 14px;
+    margin-bottom:10px
+}
+.events-block h3{
+    font-weight:600;
+    font-size:0.78rem;
+    color:var(--text-muted);
+    margin-bottom:10px;
+    text-transform:uppercase;
+    letter-spacing:0.5px
+}
+.events-list{
+    display:flex;
+    flex-direction:column;
+    gap:8px
+}
+.upcoming-event{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--card-2);
+    border:1px solid var(--border);
+    border-radius:11px;
+    padding:10px 12px;
+    cursor:pointer;
+    transition:border-color .15s,transform .12s
+}
+.upcoming-event:active{
+    transform:scale(0.98);
+    border-color:rgba(96,165,250,0.5)
+}
+.upcoming-event.is-today{
+    border-color:rgba(96,165,250,0.4);
+    background:linear-gradient(135deg,rgba(96,165,250,0.08),rgba(96,165,250,0.02))
+}
+.upcoming-event.is-tomorrow{
+    border-color:rgba(245,200,76,0.35)
+}
+.ue-icon{
+    width:36px;
+    height:36px;
+    border-radius:10px;
+    background:var(--card);
+    border:1px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.05rem;
+    flex-shrink:0
+}
+.ue-info{flex:1;min-width:0}
+.ue-title{
+    font-weight:600;
+    font-size:0.86rem;
+    color:var(--text);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis
+}
+.ue-meta{
+    font-size:0.66rem;
+    color:var(--text-dim);
+    margin-top:2px
+}
+.ue-when{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:2px;
+    flex-shrink:0
+}
+.ue-when-day{
+    font-size:0.72rem;
+    font-weight:700;
+    color:var(--text-muted)
+}
+.ue-when-day.today{color:#60a5fa}
+.ue-when-day.tomorrow{color:#f5c84c}
+.ue-when-time{
+    font-size:0.62rem;
+    color:var(--text-dim)
+}
+.ue-empty{
+    text-align:center;
+    color:var(--text-dim);
+    font-size:0.76rem;
+    padding:14px 8px;
+    line-height:1.4
+}
+
+
