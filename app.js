@@ -73,6 +73,8 @@ var TEMPLATES_FILE='templates.json';
 var REMINDERS_FILE_CUSTOM='reminders.json';
 var BUDGETS_FILE='budgets.json';
 var GOALS_FILE='goals.json';
+var TOMBSTONES_KEY='financeTombstones';
+var TOMBSTONES_FILE='tombstones.json';
 
 /* ===== THEME (only dark) ===== */
 try{
@@ -93,6 +95,7 @@ var templates=[];
 var budgets=[];
 var goals=[];
 var customReminders=[];
+var tombstones={};
 var currentFilter='month';
 var dataLoaded=false;
 var currentUsdRate=85.00;
@@ -226,10 +229,12 @@ function mergeTransactions(local, remote){
     var seen={};
     var merged=[];
     for(var i=0;i<local.length;i++){
+        if(isTombstoned(local[i]))continue;
         var k=txKey(local[i]);
         if(!seen[k]){seen[k]=true;merged.push(local[i]);}
     }
     for(var i=0;i<remote.length;i++){
+        if(isTombstoned(remote[i]))continue;
         var k=txKey(remote[i]);
         if(!seen[k]){seen[k]=true;merged.push(remote[i]);}
     }
@@ -281,6 +286,34 @@ function saveBudgets(){try{localStorage.setItem(BUDGETS_KEY,JSON.stringify(budge
 function loadBudgets(){try{var s=localStorage.getItem(BUDGETS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveGoals(){try{localStorage.setItem(GOALS_KEY,JSON.stringify(goals));}catch(e){}}
 function loadGoals(){try{var s=localStorage.getItem(GOALS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
+
+function loadTombstones(){try{var s=localStorage.getItem(TOMBSTONES_KEY);if(s){var o=JSON.parse(s);if(o&&typeof o==='object')return o;}}catch(e){}return {};}
+function saveTombstones(){try{localStorage.setItem(TOMBSTONES_KEY,JSON.stringify(tombstones));}catch(e){}}
+function addTombstone(tx){
+    if(!tx)return;
+    var k=txKey(tx);
+    tombstones[k]=Date.now();
+    var keys=Object.keys(tombstones);
+    if(keys.length>1000){
+        keys.sort(function(a,b){return (tombstones[a]||0)-(tombstones[b]||0);});
+        var excess=keys.slice(0,keys.length-1000);
+        for(var i=0;i<excess.length;i++)delete tombstones[excess[i]];
+    }
+    saveTombstones();
+}
+function isTombstoned(tx){
+    if(!tx)return false;
+    return tombstones[txKey(tx)]!==undefined;
+}
+function applyTombstones(){
+    var before=allTransactions.length;
+    allTransactions=allTransactions.filter(function(tx){return !isTombstoned(tx);});
+    if(allTransactions.length!==before){
+        saveTransactions(allTransactions);
+        return true;
+    }
+    return false;
+}
 
 function markSynced(){
     try{localStorage.setItem(LAST_SYNC_KEY,String(Date.now()));}catch(e){}
@@ -1885,9 +1918,11 @@ function editTransaction(i){openTxModal(i);}
 function deleteTransaction(i){
     var tx=allTransactions[i];if(!tx)return;
     if(!confirm('Удалить транзакцию?\n'+tx.category+'\n'+tx.rub+' ₽'))return;
+    addTombstone(tx);
     allTransactions.splice(i,1);saveTransactions(allTransactions);updateWithFilter(currentFilter);
     $('fileStatus').textContent='🗑️ Удалено';
     scheduleAutoSync();
+    syncTombstones();
     haptic('warning');
 }
 function repeatLastTransaction(){
@@ -1986,7 +2021,25 @@ function syncGoals(){if(!getToken())return Promise.resolve(false);return putJson
 function loadTemplatesFromServer(){return fetchJsonFile(TEMPLATES_FILE).then(function(data){if(!data||!Array.isArray(data))return false;templates=mergeById(templates,data);saveTemplates();return true;});}
 function loadBudgetsFromServer(){return fetchJsonFile(BUDGETS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;budgets=mergeBudgets(budgets,data);saveBudgets();return true;});}
 function loadGoalsFromServer(){return fetchJsonFile(GOALS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;goals=mergeById(goals,data);saveGoals();return true;});}
-function syncAllExtras(){if(!getToken())return;syncTemplates();syncBudgets();syncGoals();}
+function syncTombstones(){
+    if(!getToken())return Promise.resolve(false);
+    return putJsonFile(TOMBSTONES_FILE,tombstones,'Tombstones ('+Object.keys(tombstones).length+')').catch(function(){return false;});
+}
+function loadTombstonesFromServer(){
+    return fetchJsonFile(TOMBSTONES_FILE).then(function(data){
+        if(!data||typeof data!=='object')return false;
+        var changed=false;
+        for(var k in data){
+            if(data.hasOwnProperty(k)&&tombstones[k]===undefined){
+                tombstones[k]=data[k];
+                changed=true;
+            }
+        }
+        if(changed)saveTombstones();
+        return true;
+    });
+}
+function syncAllExtras(){if(!getToken())return;syncTemplates();syncBudgets();syncGoals();syncTombstones();}
 
 /* ===== АВТОСИНХРОНИЗАЦИЯ ===== */
 function scheduleSyncExtras(){
@@ -2004,7 +2057,9 @@ function silentSync(){
     if(!getToken())return;
     if(!allTransactions.length)return;
     var token=getToken();
+    window.__syncing=true;
         showSyncProgress();
+    applyTombstones();
     var sorted=allTransactions.slice().sort(function(a,b){return a.date-b.date;});
     var lines=[];
     for(var i=0;i<sorted.length;i++){
@@ -2027,7 +2082,7 @@ function silentSync(){
             })
             .then(function(r){if(r.status===409&&retriesLeft>0){return new Promise(function(resolve){setTimeout(resolve,600);}).then(function(){return attempt(retriesLeft-1);});}if(!r.ok)throw new Error('PUT: '+r.status);return r.json();});
     }
-    return attempt(4).then(function(){markSynced();var fs=$('fileStatus');if(fs)fs.textContent='☁️ Сохранено: '+allTransactions.length;hideSyncProgress();}).catch(function(e){var fs=$('fileStatus');if(fs)fs.textContent='⚠️ '+e.message;hideSyncProgress();});
+    return attempt(4).then(function(){window.__syncing=false;markSynced();var fs=$('fileStatus');if(fs)fs.textContent='☁️ Сохранено: '+allTransactions.length;hideSyncProgress();}).catch(function(e){window.__syncing=false;var fs=$('fileStatus');if(fs)fs.textContent='⚠️ '+e.message;hideSyncProgress();});
     function showSyncProgress(){
     var el=$('syncProgress');
     if(!el)return;
@@ -2622,8 +2677,9 @@ function doPullRefresh(){
     var ind=$('pullIndicator');
     if(ind){ind.classList.add('visible','spinning','ready');ind.style.transform='translateY(0)';var txt=$('pullText');if(txt)txt.textContent='Обновление...';}
     Promise.resolve()
+        .then(function(){return loadTombstonesFromServer();})
         .then(function(){return loadData(false);})
-        .then(function(){return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer()]);})
+        .then(function(){applyTombstones();return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer()]);})
         .then(function(){renderTemplatesList('settingsTemplatesList','settings');renderSettingsBudgetsList();renderSettingsGoalsList();renderCbrRate();return new Promise(function(r){setTimeout(r,300);});})
         .then(function(){
             pullRefreshing=false;
@@ -2677,8 +2733,9 @@ function doSync(){
 }
 function doRefresh(){
     showToast('🔄 Обновление...',1500);
-    loadData(false)
-        .then(function(){return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer()]);})
+    loadTombstonesFromServer()
+        .then(function(){return loadData(false);})
+        .then(function(){applyTombstones();return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer()]);})
         .then(function(){
             renderTemplatesList('settingsTemplatesList','settings');
             renderSettingsBudgetsList();
@@ -3092,6 +3149,7 @@ templates=loadTemplates()||[];
 budgets=loadBudgets()||[];
 goals=loadGoals()||[];
 customReminders=loadCustomReminders()||[];
+tombstones=loadTombstones();
 
 var savedRate=loadRate();
 if(savedRate){
@@ -3106,7 +3164,9 @@ renderSettingsBudgetsList();
 renderSettingsGoalsList();
 updateBottomNav('dashboard');
 
-loadData(true).then(function(loaded){
+loadTombstonesFromServer().then(function(){
+    return loadData(true);
+}).then(function(loaded){
     if(!loaded){
         $('dashboard').classList.add('hidden');
         $('emptyState').classList.remove('hidden');
@@ -3114,6 +3174,7 @@ loadData(true).then(function(loaded){
     }
     return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadCustomRemindersFromServer()]);
 }).then(function(){
+    applyTombstones();
     var skEl=$('skeleton');
     if(skEl)skEl.classList.add('hidden');
     renderCustomReminders();
