@@ -963,6 +963,7 @@ function saveEvent(){
     saveEvents();
     scheduleSyncEvents();
     renderCalendar();
+    renderUpcomingEvents();
     if($('dayDetailModal').classList.contains('open'))renderDayDetailBody();
     closeEventEditModal();
     haptic('success');
@@ -973,6 +974,7 @@ function deleteEvent(id){
     saveEvents();
     scheduleSyncEvents();
     renderCalendar();
+    renderUpcomingEvents();
     if($('dayDetailModal').classList.contains('open'))renderDayDetailBody();
     $('fileStatus').textContent='🗑️ Событие удалено';
     haptic('warning');
@@ -982,6 +984,82 @@ function scheduleSyncEvents(){
     if(!getToken())return;
     if(eventsSyncTimer)clearTimeout(eventsSyncTimer);
     eventsSyncTimer=setTimeout(function(){syncEvents();},1500);
+}
+
+function renderUpcomingEvents(){
+    var block=$('eventsBlock');
+    var list=$('eventsList');
+    if(!block||!list)return;
+    if(!events.length){block.classList.add('hidden');return;}
+
+    var now=new Date();
+    var today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    var horizon=new Date(today.getTime()+90*24*60*60*1000);
+
+    var upcoming=[];
+    for(var i=0;i<events.length;i++){
+        var ev=events[i];
+        if(!ev.date)continue;
+        var parts=ev.date.split('-');
+        if(parts.length!==3)continue;
+        var evDate=new Date(parseInt(parts[0],10),parseInt(parts[1],10)-1,parseInt(parts[2],10));
+        if(evDate<today||evDate>horizon)continue;
+        upcoming.push({ev:ev,date:evDate});
+    }
+
+    if(!upcoming.length){block.classList.add('hidden');return;}
+    block.classList.remove('hidden');
+
+    upcoming.sort(function(a,b){
+        var diff=a.date-b.date;
+        if(diff!==0)return diff;
+        var at=a.ev.time||'99:99';
+        var bt=b.ev.time||'99:99';
+        return at.localeCompare(bt);
+    });
+
+    var top=upcoming.slice(0,5);
+    list.innerHTML='';
+
+    for(var j=0;j<top.length;j++){
+        var item=top[j];
+        var ev=item.ev;
+        var evDate=item.date;
+        var diffDays=Math.round((evDate-today)/(24*60*60*1000));
+
+        var whenLabel;
+        var whenClass='';
+        if(diffDays===0){whenLabel='Сегодня';whenClass='today';}
+        else if(diffDays===1){whenLabel='Завтра';whenClass='tomorrow';}
+        else if(diffDays<7){
+            var wd=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][evDate.getDay()];
+            whenLabel=wd+', '+pad(evDate.getDate())+'.'+pad(evDate.getMonth()+1);
+        } else {
+            whenLabel=pad(evDate.getDate())+'.'+pad(evDate.getMonth()+1);
+        }
+
+        var card=document.createElement('div');
+        card.className='upcoming-event';
+        if(diffDays===0)card.classList.add('is-today');
+        if(diffDays===1)card.classList.add('is-tomorrow');
+
+        var meta=ev.note||'';
+        if(diffDays>0)meta=(diffDays===1?'через день':'через '+diffDays+' дн')+(meta?' · '+meta:'');
+
+        card.innerHTML=
+            '<div class="ue-icon">'+(ev.icon||'📅')+'</div>'+
+            '<div class="ue-info">'+
+                '<div class="ue-title">'+(ev.title||'Событие')+'</div>'+
+                '<div class="ue-meta">'+(meta||'—')+'</div>'+
+            '</div>'+
+            '<div class="ue-when">'+
+                '<span class="ue-when-day '+whenClass+'">'+whenLabel+'</span>'+
+                (ev.time?'<span class="ue-when-time">'+ev.time+'</span>':'')+
+            '</div>';
+
+        (function(id){card.addEventListener('click',function(){openEventEditModal(id);});})(ev.id);
+        list.appendChild(card);
+    }
 }
 
 /* ===== DAY DETAIL (календарь) ===== */
@@ -1534,6 +1612,7 @@ function renderDashboard(txs,period){
     drawBalanceHistoryChart(txs,period);
     renderBudgets();
     renderGoals();
+    renderUpcomingEvents();
     renderCalendar();
     renderCustomReminders();
     renderPeriodHistory();
