@@ -7,23 +7,21 @@
       {
         "id": "itm_1792223532291_0",
         "text": "молоко",
-        "done": true,
+        "done": false,
         "createdAt": "2026-10-17T07:52:12.000Z",
-        "completedAt": "2026-10-17T10:34:54.015Z"
+        "completedAt": null
       },
       {
         "id": "itm_1792223532291_1",
         "text": "хлеб",
-        "done": true,
-        "createdAt": "2026-10-17T07:52:12.000Z",
-        "completedAt": "2026-10-17T10:34:54.927Z"
+        "done": false,
+        "createdAt": "2026-10-17T07:52:12.000Z"
       },
       {
         "id": "itm_1792223532291_2",
         "text": "яйца",
-        "done": true,
-        "createdAt": "2026-10-17T07:52:12.000Z",
-        "completedAt": "2026-10-17T10:34:55.597Z"
+        "done": false,
+        "createdAt": "2026-10-17T07:52:12.000Z"
       }
     ],
     "createdAt": "2026-10-17T07:52:12.000Z"
