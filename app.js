@@ -77,6 +77,8 @@ var TOMBSTONES_KEY='financeTombstones';
 var TOMBSTONES_FILE='tombstones.json';
 var EVENTS_KEY='financeEvents';
 var EVENTS_FILE='events.json';
+var LISTS_KEY='financeLists';
+var LISTS_FILE='lists.json';
 
 /* ===== THEME (only dark) ===== */
 try{
@@ -102,6 +104,11 @@ var events=[];
 var editingEventId=null;
 var currentEventIcon='📅';
 var EVENT_ICONS=['🎂','🍽','📅','🎉','📝','✈️','🏥','🎓','💼','🎁','🏖️','🎬','⚽','🎵','🚗','🏠'];
+var lists=[];
+var editingListId=null;
+var currentListId=null;
+var currentListIcon='🛒';
+var LIST_ICONS=['🛒','📋','💡','🎁','📚','🏠','✈️','🔧','🎯','💊','🌱','🎵','🧺','🎒','🍳','📌'];
 var currentFilter='month';
 var dataLoaded=false;
 var currentUsdRate=85.00;
@@ -290,6 +297,8 @@ function saveCustomReminders(t){try{localStorage.setItem('financeCustomReminders
 function loadCustomReminders(){try{var s=localStorage.getItem('financeCustomReminders');if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveEvents(){try{localStorage.setItem(EVENTS_KEY,JSON.stringify(events));}catch(e){}}
 function loadEvents(){try{var s=localStorage.getItem(EVENTS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
+function saveLists(){try{localStorage.setItem(LISTS_KEY,JSON.stringify(lists));}catch(e){}}
+function loadLists(){try{var s=localStorage.getItem(LISTS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveBudgets(){try{localStorage.setItem(BUDGETS_KEY,JSON.stringify(budgets));}catch(e){}}
 function loadBudgets(){try{var s=localStorage.getItem(BUDGETS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveGoals(){try{localStorage.setItem(GOALS_KEY,JSON.stringify(goals));}catch(e){}}
@@ -873,6 +882,284 @@ function loadCustomRemindersFromServer(){
         return true;
     });
 }
+
+/* ===== LISTS ===== */
+function listsGetCurrent(){
+    for(var i=0;i<lists.length;i++)if(lists[i].id===currentListId)return lists[i];
+    return null;
+}
+
+function renderLists(){
+    var block=$('listsBlock');
+    var grid=$('listsGrid');
+    if(!block||!grid)return;
+    if(!lists.length){block.classList.add('hidden');return;}
+    block.classList.remove('hidden');
+    grid.innerHTML='';
+    var sorted=lists.slice().sort(function(a,b){return (a.createdAt||'').localeCompare(b.createdAt||'');});
+    for(var i=0;i<sorted.length;i++){
+        var lst=sorted[i];
+        var items=lst.items||[];
+        var doneCount=0;
+        for(var j=0;j<items.length;j++)if(items[j].done)doneCount++;
+        var total=items.length;
+        var pct=total>0?Math.round(doneCount/total*100):0;
+        var card=document.createElement('div');
+        card.className='list-card'+(total>0&&doneCount===total?' done':'');
+        card.innerHTML=
+            '<div class="list-card-top">'+
+                '<div class="list-card-icon">'+(lst.icon||'📝')+'</div>'+
+                '<div class="list-card-name">'+(lst.name||'Список')+'</div>'+
+            '</div>'+
+            '<div class="list-card-bar"><div class="list-card-bar-fill" style="width:'+pct+'%"></div></div>'+
+            '<div class="list-card-progress">'+
+                '<span>'+(total===0?'Пусто':doneCount+' из '+total)+'</span>'+
+                (total>0&&doneCount===total?'<span style="color:#4ade80;font-weight:700">✓ всё</span>':(total>0?'<span>'+pct+'%</span>':''))+
+            '</div>';
+        (function(id){card.addEventListener('click',function(){openListModal(id);});})(lst.id);
+        grid.appendChild(card);
+    }
+}
+
+function openListModal(id){
+    currentListId=id;
+    var lst=listsGetCurrent();
+    if(!lst){closeListModal();return;}
+    var title=$('listModalTitle');
+    if(title)title.textContent=(lst.icon||'📝')+' '+(lst.name||'Список');
+    renderListItems();
+    $('listModal').classList.add('open');
+    lockBackground();
+    setTimeout(function(){
+        var inp=$('listAddInput');
+        if(inp)inp.focus();
+    },300);
+}
+
+function closeListModal(){
+    $('listModal').classList.remove('open');
+    currentListId=null;
+    unlockBackground();
+}
+
+function renderListItems(){
+    var container=$('listItemsContainer');
+    if(!container||!currentListId)return;
+    var lst=listsGetCurrent();
+    if(!lst){container.innerHTML='';return;}
+    var items=lst.items||[];
+    container.innerHTML='';
+
+    var doneCount=0;
+    for(var i=0;i<items.length;i++)if(items[i].done)doneCount++;
+
+    var fill=$('listProgressFill');
+    var txt=$('listProgressText');
+    if(fill){
+        var pct=items.length>0?Math.round(doneCount/items.length*100):0;
+        fill.style.width=pct+'%';
+        fill.classList.toggle('all-done',items.length>0&&doneCount===items.length);
+    }
+    if(txt)txt.textContent=doneCount+' / '+items.length;
+
+    if(!items.length){
+        var empty=document.createElement('div');
+        empty.className='list-empty';
+        empty.textContent='Список пуст. Добавь первый пункт ниже.';
+        container.appendChild(empty);
+        return;
+    }
+
+    // Сортировка: невыполненные сверху, выполненные внизу
+    var sortedItems=items.slice().sort(function(a,b){
+        if(a.done===b.done)return (a.createdAt||'').localeCompare(b.createdAt||'');
+        return a.done?1:-1;
+    });
+
+    for(var j=0;j<sortedItems.length;j++){
+        var item=sortedItems[j];
+        var wrap=document.createElement('div');
+        wrap.className='list-check-item';
+        wrap.dataset.itemId=item.id;
+
+        var delBtn=document.createElement('button');
+        delBtn.className='list-item-del';
+        delBtn.dataset.action='delete';
+        delBtn.textContent='🗑️';
+
+        var row=document.createElement('div');
+        row.className='list-check-row'+(item.done?' done':'');
+        row.dataset.itemId=item.id;
+        row.innerHTML=
+            '<div class="list-checkbox"></div>'+
+            '<div class="list-item-text">'+escapeHtml(item.text||'')+'</div>';
+
+        (function(id){
+            row.addEventListener('click',function(e){
+                if(row.classList.contains('swiped-left')){row.classList.remove('swiped-left');return;}
+                toggleListItem(id);
+            });
+        })(item.id);
+
+        wrap.appendChild(delBtn);
+        wrap.appendChild(row);
+        container.appendChild(wrap);
+    }
+}
+
+function escapeHtml(s){
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function addListItem(){
+    var inp=$('listAddInput');
+    if(!inp)return;
+    var text=inp.value.trim();
+    if(!text)return;
+    var lst=listsGetCurrent();
+    if(!lst)return;
+    if(!lst.items)lst.items=[];
+    lst.items.push({
+        id:'itm_'+Date.now()+'_'+Math.floor(Math.random()*1000),
+        text:text,
+        done:false,
+        createdAt:new Date().toISOString()
+    });
+    inp.value='';
+    saveLists();
+    scheduleSyncLists();
+    renderListItems();
+    renderLists();
+    haptic('light');
+}
+
+function toggleListItem(itemId){
+    var lst=listsGetCurrent();
+    if(!lst||!lst.items)return;
+    for(var i=0;i<lst.items.length;i++){
+        if(lst.items[i].id===itemId){
+            lst.items[i].done=!lst.items[i].done;
+            lst.items[i].completedAt=lst.items[i].done?new Date().toISOString():null;
+            break;
+        }
+    }
+    saveLists();
+    scheduleSyncLists();
+    renderListItems();
+    renderLists();
+    haptic('light');
+}
+
+function deleteListItem(itemId){
+    var lst=listsGetCurrent();
+    if(!lst||!lst.items)return;
+    lst.items=lst.items.filter(function(it){return it.id!==itemId;});
+    saveLists();
+    scheduleSyncLists();
+    renderListItems();
+    renderLists();
+    haptic('warning');
+}
+
+function openListEditModal(id){
+    editingListId=id||null;
+    var title=$('listEditTitle');
+    var delBtn=$('listDeleteBtn');
+    if(id){
+        var lst=null;
+        for(var i=0;i<lists.length;i++)if(lists[i].id===id){lst=lists[i];break;}
+        if(!lst)return;
+        title.textContent='✏️ Редактировать список';
+        currentListIcon=lst.icon||'🛒';
+        $('listNameInput').value=lst.name||'';
+        if(delBtn)delBtn.classList.remove('hidden');
+    } else {
+        title.textContent='📝 Новый список';
+        currentListIcon='🛒';
+        $('listNameInput').value='';
+        if(delBtn)delBtn.classList.add('hidden');
+    }
+    renderListIconPicker();
+    $('listEditModal').classList.add('open');
+}
+
+function closeListEditModal(){
+    $('listEditModal').classList.remove('open');
+    editingListId=null;
+}
+
+function renderListIconPicker(){
+    var picker=$('listIconPicker');
+    if(!picker)return;
+    picker.innerHTML='';
+    for(var i=0;i<LIST_ICONS.length;i++){
+        var btn=document.createElement('button');
+        btn.type='button';
+        btn.className='evt-icon-btn'+(LIST_ICONS[i]===currentListIcon?' active':'');
+        btn.textContent=LIST_ICONS[i];
+        (function(icon){btn.addEventListener('click',function(){currentListIcon=icon;renderListIconPicker();});})(LIST_ICONS[i]);
+        picker.appendChild(btn);
+    }
+}
+
+function saveList(){
+    var name=$('listNameInput').value.trim();
+    if(!name){alert('Введите название списка');return;}
+    if(editingListId){
+        for(var i=0;i<lists.length;i++)if(lists[i].id===editingListId){
+            lists[i].name=name;
+            lists[i].icon=currentListIcon;
+            break;
+        }
+        $('fileStatus').textContent='✏️ Список обновлён';
+    } else {
+        var newList={
+            id:'lst_'+Date.now()+'_'+Math.floor(Math.random()*1000),
+            name:name,
+            icon:currentListIcon,
+            items:[],
+            createdAt:new Date().toISOString()
+        };
+        lists.push(newList);
+        $('fileStatus').textContent='📝 Список создан';
+    }
+    saveLists();
+    scheduleSyncLists();
+    renderLists();
+    if(currentListId){
+        var lst=listsGetCurrent();
+        if(lst){
+            var t=$('listModalTitle');
+            if(t)t.textContent=(lst.icon||'📝')+' '+(lst.name||'Список');
+        }
+    }
+    closeListEditModal();
+    haptic('success');
+}
+
+function deleteList(){
+    if(!editingListId)return;
+    var lst=null;
+    for(var i=0;i<lists.length;i++)if(lists[i].id===editingListId){lst=lists[i];break;}
+    if(!lst)return;
+    if(!confirm('Удалить список «'+lst.name+'» со всеми пунктами?'))return;
+    lists=lists.filter(function(l){return l.id!==editingListId;});
+    saveLists();
+    scheduleSyncLists();
+    renderLists();
+    if(currentListId===editingListId){closeListModal();}
+    closeListEditModal();
+    $('fileStatus').textContent='🗑️ Список удалён';
+    haptic('warning');
+}
+
+var listsSyncTimer=null;
+function scheduleSyncLists(){
+    if(!getToken())return;
+    if(listsSyncTimer)clearTimeout(listsSyncTimer);
+    listsSyncTimer=setTimeout(function(){syncLists();},1500);
+}
+
 
 /* ===== EVENTS ===== */
 function formatEventDate(y,m,d){
@@ -1613,6 +1900,7 @@ function renderDashboard(txs,period){
     renderBudgets();
     renderGoals();
     renderUpcomingEvents();
+    renderLists();
     renderCalendar();
     renderCustomReminders();
     renderPeriodHistory();
@@ -2333,7 +2621,9 @@ function loadTombstonesFromServer(){
 }
 function syncEvents(){if(!getToken())return Promise.resolve(false);return putJsonFile(EVENTS_FILE,events,'События ('+events.length+')').catch(function(){return false;});}
 function loadEventsFromServer(){return fetchJsonFile(EVENTS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;events=mergeById(events,data);saveEvents();return true;});}
-function syncAllExtras(){if(!getToken())return;syncTemplates();syncBudgets();syncGoals();syncTombstones();syncEvents();}
+function syncLists(){if(!getToken())return Promise.resolve(false);return putJsonFile(LISTS_FILE,lists,'Списки ('+lists.length+')').catch(function(){return false;});}
+function loadListsFromServer(){return fetchJsonFile(LISTS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;lists=mergeById(lists,data);saveLists();return true;});}
+function syncAllExtras(){if(!getToken())return;syncTemplates();syncBudgets();syncGoals();syncTombstones();syncEvents();syncLists();}
 
 /* ===== АВТОСИНХРОНИЗАЦИЯ ===== */
 function scheduleSyncExtras(){
@@ -2973,7 +3263,7 @@ function doPullRefresh(){
     Promise.resolve()
         .then(function(){return loadTombstonesFromServer();})
         .then(function(){return loadData(false);})
-        .then(function(){applyTombstones();return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadEventsFromServer()]);})
+        .then(function(){applyTombstones();return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadEventsFromServer(),loadListsFromServer()]);})
         .then(function(){renderTemplatesList('settingsTemplatesList','settings');renderSettingsBudgetsList();renderSettingsGoalsList();renderCbrRate();return new Promise(function(r){setTimeout(r,300);});})
         .then(function(){
             pullRefreshing=false;
@@ -3029,7 +3319,7 @@ function doRefresh(){
     showToast('🔄 Обновление...',1500);
     loadTombstonesFromServer()
         .then(function(){return loadData(false);})
-        .then(function(){applyTombstones();return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadEventsFromServer()]);})
+        .then(function(){applyTombstones();return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadEventsFromServer(),loadListsFromServer()]);})
         .then(function(){
             renderTemplatesList('settingsTemplatesList','settings');
             renderSettingsBudgetsList();
@@ -3298,8 +3588,19 @@ $('bnFabBtn').addEventListener('click',function(e){
 var fabOverlayEl=$('fabOverlay');
 if(fabOverlayEl)fabOverlayEl.addEventListener('click',function(){closeFabFan();});
 $('fabRepeat').addEventListener('click',function(){closeFabFan();setTimeout(function(){repeatLastTransaction();},150);});
-$('fabEvent').addEventListener('click',function(){closeFabFan();setTimeout(function(){openEventEditModal(null);},150);});
+$('fabList').addEventListener('click',function(){closeFabFan();setTimeout(function(){openListEditModal(null);},150);});
 
+$('closeListModal').addEventListener('click',closeListModal);
+$('listModal').addEventListener('click',function(e){if(e.target===this)closeListModal();});
+$('listEditBtn').addEventListener('click',function(){var lst=listsGetCurrent();if(lst)openListEditModal(lst.id);});
+$('listAddBtn').addEventListener('click',addListItem);
+$('listAddInput').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addListItem();}});
+
+$('listsAddBtn').addEventListener('click',function(){openListEditModal(null);});
+$('closeListEditModal').addEventListener('click',closeListEditModal);
+$('cancelListEditBtn').addEventListener('click',closeListEditModal);
+$('saveListBtn').addEventListener('click',saveList);
+$('listDeleteBtn').addEventListener('click',deleteList);
 $('closeEventEditModal').addEventListener('click',closeEventEditModal);
 $('cancelEventEditBtn').addEventListener('click',closeEventEditModal);
 $('saveEventBtn').addEventListener('click',saveEvent);
@@ -3460,6 +3761,7 @@ goals=loadGoals()||[];
 customReminders=loadCustomReminders()||[];
 tombstones=loadTombstones();
 events=loadEvents()||[];
+lists=loadLists()||[];
 
 var savedRate=loadRate();
 if(savedRate){
@@ -3482,7 +3784,7 @@ loadTombstonesFromServer().then(function(){
         $('emptyState').classList.remove('hidden');
         if(!$('fileStatus').textContent||$('fileStatus').textContent==='⏳ Загрузка...')$('fileStatus').textContent='📂 Загрузите JSON или проверьте GitHub';
     }
-    return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadCustomRemindersFromServer(),loadEventsFromServer()]);
+    return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadCustomRemindersFromServer(),loadEventsFromServer(),loadListsFromServer()]);
 }).then(function(){
     applyTombstones();
     var skEl=$('skeleton');
@@ -3490,6 +3792,7 @@ loadTombstonesFromServer().then(function(){
     renderCustomReminders();
     renderUpcomingEvents();
     renderCalendar();
+    renderLists();
     setTimeout(drawRateHistoryChart,500);
     startFreshnessTimer();
     updateTokenStatus();
@@ -3700,6 +4003,89 @@ loadTombstonesFromServer().then(function(){
         }
     },{passive:true});
 })();
+
+/* ===== SWIPE ON LIST ITEM ===== */
+(function(){
+    var startX=0,startY=0,currentRow=null,lockedDir=null,dragging=false;
+    document.addEventListener('touchstart',function(e){
+        if(e.touches.length!==1)return;
+        var row=e.target.closest('.list-check-row');
+        if(!row)return;
+        if(e.target.closest('.list-item-del'))return;
+        startX=e.touches[0].clientX;
+        startY=e.touches[0].clientY;
+        currentRow=row;
+        lockedDir=null;
+        dragging=false;
+        row.style.transition='none';
+    },{passive:true,capture:true});
+    document.addEventListener('touchmove',function(e){
+        if(!currentRow||e.touches.length!==1)return;
+        var dx=e.touches[0].clientX-startX;
+        var dy=e.touches[0].clientY-startY;
+        if(!lockedDir){
+            if(Math.abs(dx)<6&&Math.abs(dy)<6)return;
+            if(Math.abs(dy)>Math.abs(dx)){
+                lockedDir='v';
+                currentRow.style.transition='';
+                currentRow.style.transform='';
+                currentRow=null;
+                return;
+            }
+            lockedDir='h';
+            dragging=true;
+        }
+        if(!dragging)return;
+        if(lockedDir==='h'&&e.cancelable){e.preventDefault();}
+        var total=dx;
+        total=Math.max(-80,Math.min(0,total));
+        currentRow.style.transform='translateX('+total+'px)';
+    },{passive:false,capture:true});
+    document.addEventListener('touchend',function(e){
+        if(!currentRow)return;
+        var row=currentRow;
+        var wasDrag=dragging;
+        currentRow=null;
+        dragging=false;
+        lockedDir=null;
+        row.style.transition='';
+        if(!wasDrag){row.style.transform='';return;}
+        var dx=e.changedTouches[0].clientX-startX;
+        row.style.transform='';
+        if(dx<-40){
+            row.classList.add('swiped-left');
+            try{haptic('light');}catch(err){}
+        } else {
+            row.classList.remove('swiped-left');
+        }
+    },{passive:true,capture:true});
+    document.addEventListener('touchcancel',function(){
+        if(currentRow){currentRow.style.transition='';currentRow.style.transform='';}
+        currentRow=null;
+        lockedDir=null;
+        dragging=false;
+    },{passive:true,capture:true});
+    document.addEventListener('click',function(e){
+        var del=e.target.closest('.list-item-del');
+        if(del){
+            var wrap=del.closest('.list-check-item');
+            if(!wrap)return;
+            var itemId=wrap.dataset.itemId;
+            var row=wrap.querySelector('.list-check-row');
+            if(row)row.classList.remove('swiped-left');
+            if(itemId)deleteListItem(itemId);
+            try{haptic('light');}catch(err){}
+            return;
+        }
+        var openRows=document.querySelectorAll('.list-check-row.swiped-left');
+        for(var i=0;i<openRows.length;i++){
+            if(!openRows[i].contains(e.target)){
+                openRows[i].classList.remove('swiped-left');
+            }
+        }
+    });
+})();
+
 /* ===== SWIPE ON TRANSACTION ===== */
 (function(){
     var startX=0,startY=0,currentRow=null,currentWrap=null,startOffset=0,lockedDir=null,dragging=false;
