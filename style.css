@@ -2358,7 +2358,8 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
     position:relative;
     line-height:1.35;
     transition:color .3s;
-    word-break:break-word
+    word-break:break-word;
+    padding-right: 10px; /* Чтобы текст не прилипал к краю при свайпе */
 }
 .list-item-text::before{
     content:'';
