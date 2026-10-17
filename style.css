@@ -2267,49 +2267,47 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
 }
 
 /* Чек-лист */
-.list-check-item{
-    position:relative;
-    overflow:hidden;
-    border-radius:10px;
-    margin-bottom:6px;
-    isolation:isolate;
-    background:var(--card-2)
-}
-.list-check-item:last-child{margin-bottom:0}
-
-.list-item-del{
-    position:absolute;
-    top:0;bottom:0;
-    right:0;
-    width:64px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border:none;
-    background:linear-gradient(135deg,#ef4444,#b91c1c);
-    color:#fff;
-    font-size:1rem;
-    cursor:pointer;
-    font-family:inherit;
-    padding:0;
-    z-index:0
-}
-
 .list-check-row{
     display:flex;
     align-items:center;
     gap:12px;
-    padding:12px 14px;
+    padding:12px 10px 12px 14px;
     background:var(--card-2);
     border:1px solid var(--border);
     border-radius:10px;
+    margin-bottom:6px;
     cursor:pointer;
-    position:relative;
-    z-index:1;
-    transition:transform .28s cubic-bezier(.2,.8,.3,1),background .2s;
-    will-change:transform;
+    transition:background .2s;
     user-select:none
 }
+.list-check-row:active{
+    background:rgba(255,255,255,0.04)
+}
+.list-check-row:last-child{
+    margin-bottom:0
+}
+
+.list-item-del-inline{
+    background:transparent;
+    border:none;
+    color:var(--text-dim);
+    font-size:1.1rem;
+    cursor:pointer;
+    padding:4px 8px;
+    margin-left:4px;
+    flex-shrink:0;
+    transition:color .2s,transform .1s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:8px
+}
+.list-item-del-inline:active{
+    transform:scale(0.85);
+    color:var(--red);
+    background:rgba(248,113,113,0.1)
+}
+
 .list-check-row.swiped-left{
     transform:translateX(-70px)
 }
