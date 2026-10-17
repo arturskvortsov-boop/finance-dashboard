@@ -971,7 +971,6 @@ function renderListItems(){
         return;
     }
 
-    // Сортировка: невыполненные сверху, выполненные внизу
     var sortedItems=items.slice().sort(function(a,b){
         if(a.done===b.done)return (a.createdAt||'').localeCompare(b.createdAt||'');
         return a.done?1:-1;
@@ -979,37 +978,26 @@ function renderListItems(){
 
     for(var j=0;j<sortedItems.length;j++){
         var item=sortedItems[j];
-        var wrap=document.createElement('div');
-        wrap.className='list-check-item';
-        wrap.dataset.itemId=item.id;
-
-        var delBtn=document.createElement('button');
-        delBtn.className='list-item-del';
-        delBtn.dataset.action='delete';
-        delBtn.textContent='🗑️';
-
         var row=document.createElement('div');
         row.className='list-check-row'+(item.done?' done':'');
         row.dataset.itemId=item.id;
+        
         row.innerHTML=
             '<div class="list-checkbox"></div>'+
-            '<div class="list-item-text">'+escapeHtml(item.text||'')+'</div>';
+            '<div class="list-item-text">'+escapeHtml(item.text||'')+'</div>'+
+            '<button class="list-item-del-inline" data-action="delete">🗑️</button>';
 
         (function(id){
             row.addEventListener('click',function(e){
-                var wasSwiped = row.classList.contains('swiped-left');
-                if(wasSwiped){
-                    row.classList.remove('swiped-left');
-                    // Если свайп открыт и кликнули не на чекбокс — просто закрываем свайп
-                    if(!e.target.closest('.list-checkbox')) return;
+                if(e.target.closest('.list-item-del-inline')){
+                    deleteListItem(id);
+                    return;
                 }
                 toggleListItem(id);
             });
         })(item.id);
 
-        wrap.appendChild(delBtn);
-        wrap.appendChild(row);
-        container.appendChild(wrap);
+        container.appendChild(row);
     }
 }
 
@@ -4043,88 +4031,6 @@ loadTombstonesFromServer().then(function(){
     },{passive:true});
 })();
 
-/* ===== SWIPE ON LIST ITEM ===== */
-(function(){
-    var startX=0,startY=0,currentRow=null,lockedDir=null,dragging=false;
-    document.addEventListener('touchstart',function(e){
-        if(e.touches.length!==1)return;
-        var row=e.target.closest('.list-check-row');
-        if(!row)return;
-        // Игнорируем клик по корзине или чекбоксу
-        if(e.target.closest('.list-item-del') || e.target.closest('.list-checkbox'))return;
-        startX=e.touches[0].clientX;
-        startY=e.touches[0].clientY;
-        currentRow=row;
-        lockedDir=null;
-        dragging=false;
-        row.style.transition='none';
-    },{passive:true,capture:true});
-    document.addEventListener('touchmove',function(e){
-        if(!currentRow||e.touches.length!==1)return;
-        var dx=e.touches[0].clientX-startX;
-        var dy=e.touches[0].clientY-startY;
-        if(!lockedDir){
-            if(Math.abs(dx)<15&&Math.abs(dy)<15)return;
-            if(Math.abs(dy)>Math.abs(dx)){
-                lockedDir='v';
-                currentRow.style.transition='';
-                currentRow.style.transform='';
-                currentRow=null;
-                return;
-            }
-            lockedDir='h';
-            dragging=true;
-        }
-        if(!dragging)return;
-        if(lockedDir==='h'&&e.cancelable){e.preventDefault();}
-        var total=dx;
-        total=Math.max(-80,Math.min(0,total));
-        currentRow.style.transform='translateX('+total+'px)';
-    },{passive:false,capture:true});
-    document.addEventListener('touchend',function(e){
-        if(!currentRow)return;
-        var row=currentRow;
-        var wasDrag=dragging;
-        currentRow=null;
-        dragging=false;
-        lockedDir=null;
-        row.style.transition='';
-        if(!wasDrag){row.style.transform='';return;}
-        var dx=e.changedTouches[0].clientX-startX;
-        row.style.transform='';
-        if(dx<-55){
-            row.classList.add('swiped-left');
-            try{haptic('light');}catch(err){}
-        } else {
-            row.classList.remove('swiped-left');
-        }
-    },{passive:true,capture:true});
-    document.addEventListener('touchcancel',function(){
-        if(currentRow){currentRow.style.transition='';currentRow.style.transform='';}
-        currentRow=null;
-        lockedDir=null;
-        dragging=false;
-    },{passive:true,capture:true});
-    document.addEventListener('click',function(e){
-        var del=e.target.closest('.list-item-del');
-        if(del){
-            var wrap=del.closest('.list-check-item');
-            if(!wrap)return;
-            var itemId=wrap.dataset.itemId;
-            var row=wrap.querySelector('.list-check-row');
-            if(row)row.classList.remove('swiped-left');
-            if(itemId)deleteListItem(itemId);
-            try{haptic('light');}catch(err){}
-            return;
-        }
-        var openRows=document.querySelectorAll('.list-check-row.swiped-left');
-        for(var i=0;i<openRows.length;i++){
-            if(!openRows[i].contains(e.target)){
-                openRows[i].classList.remove('swiped-left');
-            }
-        }
-    });
-})();
 
 /* ===== SWIPE ON TRANSACTION ===== */
 (function(){
