@@ -499,7 +499,7 @@ body.fab-open .top-strip{
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1200;display:flex;justify-content:center;align-items:center;padding:16px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .3s ease,visibility .3s ease}
 .modal-overlay.open{opacity:1;visibility:visible;pointer-events:auto}
 .modal{
-    background:linear-gradient(180deg,#171c26,#131821);
+    background:linear-gradient(180deg,#1e1e23,#16161a);
     border:1.5px solid rgba(252,211,77,0.55);
     border-radius:18px;
     width:100%;
