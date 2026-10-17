@@ -36,9 +36,9 @@
       {
         "id": "itm_1792269155733_957",
         "text": "Носки",
-        "done": true,
+        "done": false,
         "createdAt": "2026-10-17T20:32:35.733Z",
-        "completedAt": "2026-10-17T20:32:42.452Z"
+        "completedAt": null
       }
     ],
     "createdAt": "2026-10-17T20:32:29.259Z"
