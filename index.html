@@ -127,6 +127,14 @@
         <div id="eventsList"></div>
     </div>
 
+    <div class="lists-block hidden" id="listsBlock">
+        <div class="lists-head">
+            <h3>📝 Мои списки</h3>
+            <button class="lists-add-btn" id="listsAddBtn">+ Список</button>
+        </div>
+        <div class="lists-grid" id="listsGrid"></div>
+    </div>
+
     <div class="period-history-block hidden" id="periodHistoryBlock">
         <h3>📂 История периодов</h3>
         <div class="period-history-list" id="periodHistoryList"></div>
@@ -295,6 +303,7 @@
     <button class="fab-item" id="fabSync">☁️ Синхрон</button>
     <button class="fab-item" id="fabAddTx">➕ Добавить</button>
     <button class="fab-item" id="fabEvent">📅 Событие</button>
+    <button class="fab-item" id="fabList">📝 Список</button>
     <button class="fab-item" id="fabQuick">⚡ Быстрое</button>
     <button class="fab-item" id="fabRepeat">🔁 Повторить</button>
 </div>
@@ -482,6 +491,49 @@
     <div class="modal-footer">
         <button class="modal-btn cancel" id="cancelEventEditBtn">Отмена</button>
         <button class="modal-btn save" id="saveEventBtn">Сохранить</button>
+    </div>
+</div>
+</div>
+
+<div class="modal-overlay" id="listModal">
+<div class="modal ph-modal">
+    <div class="modal-header">
+        <h2 id="listModalTitle">📝 Список</h2>
+        <div class="list-modal-head-actions">
+            <button class="list-edit-btn" id="listEditBtn" title="Переименовать">✏️</button>
+            <button class="modal-close" id="closeListModal">×</button>
+        </div>
+    </div>
+    <div class="modal-body">
+        <div class="list-progress">
+            <div class="list-progress-bar"><div class="list-progress-fill" id="listProgressFill"></div></div>
+            <span class="list-progress-text" id="listProgressText">0 / 0</span>
+        </div>
+        <div class="ph-modal-scroll" id="listItemsScroll">
+            <div id="listItemsContainer"></div>
+        </div>
+        <div class="list-add-row">
+            <input type="text" id="listAddInput" class="list-add-input" placeholder="Добавить пункт..." autocomplete="off">
+            <button class="list-add-submit" id="listAddBtn">+</button>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="modal-overlay" id="listEditModal">
+<div class="modal">
+    <div class="modal-header">
+        <h2 id="listEditTitle">📝 Новый список</h2>
+        <button class="modal-close" id="closeListEditModal">×</button>
+    </div>
+    <div class="modal-body">
+        <div class="form-row"><label>Иконка</label><div class="evt-icon-picker" id="listIconPicker"></div></div>
+        <div class="form-row"><label>Название списка</label><input type="text" id="listNameInput" placeholder="Например: Покупки"></div>
+        <button class="list-delete-btn hidden" id="listDeleteBtn">🗑️ Удалить список</button>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-btn cancel" id="cancelListEditBtn">Отмена</button>
+        <button class="modal-btn save" id="saveListBtn">Сохранить</button>
     </div>
 </div>
 </div>
