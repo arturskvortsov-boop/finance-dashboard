@@ -7,9 +7,9 @@
       {
         "id": "itm_1792223532291_0",
         "text": "молоко",
-        "done": true,
+        "done": false,
         "createdAt": "2026-10-17T07:52:12.000Z",
-        "completedAt": "2026-10-17T20:31:05.500Z"
+        "completedAt": null
       },
       {
         "id": "itm_1792223532291_1",
