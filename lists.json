@@ -14,9 +14,9 @@
       {
         "id": "itm_1792223532291_1",
         "text": "хлеб",
-        "done": false,
+        "done": true,
         "createdAt": "2026-10-17T07:52:12.000Z",
-        "completedAt": null
+        "completedAt": "2026-10-17T20:16:21.635Z"
       },
       {
         "id": "itm_1792223532291_2",
