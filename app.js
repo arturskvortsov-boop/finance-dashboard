@@ -997,7 +997,12 @@ function renderListItems(){
 
         (function(id){
             row.addEventListener('click',function(e){
-                if(row.classList.contains('swiped-left')){row.classList.remove('swiped-left');return;}
+                var wasSwiped = row.classList.contains('swiped-left');
+                if(wasSwiped){
+                    row.classList.remove('swiped-left');
+                    // Если свайп открыт и кликнули не на чекбокс — просто закрываем свайп
+                    if(!e.target.closest('.list-checkbox')) return;
+                }
                 toggleListItem(id);
             });
         })(item.id);
@@ -4045,7 +4050,8 @@ loadTombstonesFromServer().then(function(){
         if(e.touches.length!==1)return;
         var row=e.target.closest('.list-check-row');
         if(!row)return;
-        if(e.target.closest('.list-item-del'))return;
+        // Игнорируем клик по корзине или чекбоксу
+        if(e.target.closest('.list-item-del') || e.target.closest('.list-checkbox'))return;
         startX=e.touches[0].clientX;
         startY=e.touches[0].clientY;
         currentRow=row;
@@ -4058,7 +4064,7 @@ loadTombstonesFromServer().then(function(){
         var dx=e.touches[0].clientX-startX;
         var dy=e.touches[0].clientY-startY;
         if(!lockedDir){
-            if(Math.abs(dx)<6&&Math.abs(dy)<6)return;
+            if(Math.abs(dx)<15&&Math.abs(dy)<15)return;
             if(Math.abs(dy)>Math.abs(dx)){
                 lockedDir='v';
                 currentRow.style.transition='';
@@ -4086,7 +4092,7 @@ loadTombstonesFromServer().then(function(){
         if(!wasDrag){row.style.transform='';return;}
         var dx=e.changedTouches[0].clientX-startX;
         row.style.transform='';
-        if(dx<-40){
+        if(dx<-55){
             row.classList.add('swiped-left');
             try{haptic('light');}catch(err){}
         } else {
