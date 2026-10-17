@@ -2281,14 +2281,14 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
     position:absolute;
     top:0;bottom:0;
     right:0;
-    width:70px;
+    width:64px;
     display:flex;
     align-items:center;
     justify-content:center;
     border:none;
-    background:linear-gradient(135deg,#f87171,#ef4444);
+    background:linear-gradient(135deg,#ef4444,#b91c1c);
     color:#fff;
-    font-size:1.05rem;
+    font-size:1rem;
     cursor:pointer;
     font-family:inherit;
     padding:0;
@@ -2318,9 +2318,9 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
 }
 
 .list-checkbox{
-    width:22px;
-    height:22px;
-    border-radius:7px;
+    width:20px;
+    height:20px;
+    border-radius:6px;
     border:2px solid var(--border-soft);
     background:transparent;
     display:flex;
@@ -2332,19 +2332,19 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
 }
 .list-checkbox::after{
     content:'';
-    width:11px;
-    height:6px;
-    border-left:2.5px solid #0b0e14;
-    border-bottom:2.5px solid #0b0e14;
+    width:9px;
+    height:5px;
+    border-left:2px solid #0b0e14;
+    border-bottom:2px solid #0b0e14;
     transform:rotate(-45deg) scale(0);
     transition:transform .25s cubic-bezier(.34,1.56,.64,1);
     position:absolute;
-    top:5px
+    top:4px
 }
 .list-check-row.done .list-checkbox{
     background:linear-gradient(135deg,#f5c84c,#d4a017);
     border-color:#f5c84c;
-    box-shadow:0 0 12px rgba(245,200,76,0.4)
+    box-shadow:none
 }
 .list-check-row.done .list-checkbox::after{
     transform:rotate(-45deg) scale(1)
@@ -2369,7 +2369,7 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
     height:1.5px;
     width:0;
     background:var(--text-dim);
-    transition:width .35s cubic-bezier(.2,.8,.3,1);
+    transition:width .35s cubic-bezier(.2,.8,.3,1), opacity .2s ease;
     transform:translateY(-50%)
 }
 .list-check-row.done .list-item-text{
@@ -2377,6 +2377,9 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
 }
 .list-check-row.done .list-item-text::before{
     width:100%
+}
+.list-check-row.swiped-left .list-item-text::before{
+    opacity:0
 }
 
 .list-add-row{
