@@ -103,6 +103,7 @@ var tombstones={};
 var events=[];
 var editingEventId=null;
 var currentEventIcon='📅';
+var pendingEventReopenDay=null;
 var EVENT_ICONS=['🎂','🍽','📅','🎉','📝','✈️','🏥','🎓','💼','🎁','🏖️','🎬','⚽','🎵','🚗','🏠'];
 var lists=[];
 var editingListId=null;
@@ -1170,11 +1171,13 @@ function formatEventDate(y,m,d){
 function openEventEditModal(id,presetDate){
     editingEventId=id||null;
     var title=$('eventEditTitle');
+    var delBtn=$('eventDeleteBtn');
     if(id){
         var ev=null;
         for(var i=0;i<events.length;i++)if(events[i].id===id){ev=events[i];break;}
         if(!ev)return;
         title.textContent='✏️ Редактировать событие';
+        if(delBtn)delBtn.classList.remove('hidden');
         currentEventIcon=ev.icon||'📅';
         $('evtTitle').value=ev.title||'';
         $('evtDate').value=ev.date||'';
@@ -1183,6 +1186,7 @@ function openEventEditModal(id,presetDate){
     } else {
         title.textContent='📅 Новое событие';
         currentEventIcon='📅';
+        if(delBtn)delBtn.classList.add('hidden');
         $('evtTitle').value='';
         var today=new Date();
         var y=today.getFullYear();
@@ -1203,7 +1207,13 @@ function openEventEditModal(id,presetDate){
 function closeEventEditModal(){
     $('eventEditModal').classList.remove('open');
     editingEventId=null;
-    unlockBackground();
+    if(pendingEventReopenDay){
+        var k=pendingEventReopenDay;
+        pendingEventReopenDay=null;
+        setTimeout(function(){openDayDetailModal(k.y,k.m,k.d);},180);
+    } else {
+        unlockBackground();
+    }
 }
 function renderEventIconPicker(){
     var picker=$('evtIconPicker');
@@ -1263,6 +1273,10 @@ function deleteEvent(id){
     renderCalendar();
     renderUpcomingEvents();
     if($('dayDetailModal').classList.contains('open'))renderDayDetailBody();
+    if(editingEventId===id){
+        pendingEventReopenDay=null;
+        closeEventEditModal();
+    }
     $('fileStatus').textContent='🗑️ Событие удалено';
     haptic('warning');
 }
@@ -1344,7 +1358,18 @@ function renderUpcomingEvents(){
                 (ev.time?'<span class="ue-when-time">'+ev.time+'</span>':'')+
             '</div>';
 
-        (function(id){card.addEventListener('click',function(){openEventEditModal(id);});})(ev.id);
+        (function(id){
+            card.addEventListener('click',function(){
+                var dd=$('dayDetailModal');
+                if(dd&&dd.classList.contains('open')&&currentDayKey){
+                    pendingEventReopenDay={y:currentDayKey.y,m:currentDayKey.m,d:currentDayKey.d};
+                    closeDayDetailModal();
+                    setTimeout(function(){openEventEditModal(id);},180);
+                } else {
+                    openEventEditModal(id);
+                }
+            });
+        })(ev.id);
         list.appendChild(card);
     }
 }
@@ -1423,7 +1448,13 @@ function renderDayDetailBody(){
                     '<div class="day-event-time">'+(ev.time?ev.time+(ev.note?' · '+ev.note:''):(ev.note||'—'))+'</div>'+
                 '</div>'+
                 '<span class="day-event-arrow">›</span>';
-            (function(id){item.addEventListener('click',function(){openEventEditModal(id);});})(ev.id);
+            (function(id){
+                item.addEventListener('click',function(){
+                    pendingEventReopenDay={y:y,m:m,d:d};
+                    closeDayDetailModal();
+                    setTimeout(function(){openEventEditModal(id);},180);
+                });
+            })(ev.id);
             evBlock.appendChild(item);
         }
         body.appendChild(evBlock);
@@ -3604,6 +3635,9 @@ $('listDeleteBtn').addEventListener('click',deleteList);
 $('closeEventEditModal').addEventListener('click',closeEventEditModal);
 $('cancelEventEditBtn').addEventListener('click',closeEventEditModal);
 $('saveEventBtn').addEventListener('click',saveEvent);
+$('eventDeleteBtn').addEventListener('click',function(){
+    if(editingEventId)deleteEvent(editingEventId);
+});
 $('fabAddTx').addEventListener('click',function(){closeFabFan();setTimeout(function(){openTxModal(-1);},150);});
 $('fabQuick').addEventListener('click',function(){closeFabFan();setTimeout(function(){openQuickAddModal();},150);});
 $('fabSync').addEventListener('click',function(){closeFabFan();setTimeout(function(){doSync();},150);});
