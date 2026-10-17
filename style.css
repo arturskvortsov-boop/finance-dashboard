@@ -448,10 +448,10 @@ body.fab-open .top-strip{
     background:linear-gradient(135deg,#1f2633,#181d28);
     border:1.5px solid rgba(252,211,77,0.65);
     border-radius:999px;
-    padding:9px 14px;
+    padding:7px 10px;
     color:#f2f5fa;
     font-family:inherit;
-    font-size:0.72rem;
+    font-size:0.66rem;
     font-weight:600;
     cursor:pointer;
     white-space:nowrap;
@@ -2450,19 +2450,19 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
 }
 
 /* ===== FAB с 7 кнопками — пересчёт углов ===== */
-.fab-item:nth-child(1){ --tx: -165px; --ty: -55px; }
-.fab-item:nth-child(2){ --tx: -120px; --ty: -105px; }
-.fab-item:nth-child(3){ --tx: -55px;  --ty: -140px; }
-.fab-item:nth-child(4){ --tx: 55px;   --ty: -140px; }
-.fab-item:nth-child(5){ --tx: 120px;  --ty: -105px; }
-.fab-item:nth-child(6){ --tx: 165px;  --ty: -55px; }
-.fab-item:nth-child(7){ --tx: 0;      --ty: -160px; }
+.fab-item:nth-child(1){ --tx: -140px; --ty: -30px; }
+.fab-item:nth-child(2){ --tx: -110px; --ty: -105px; }
+.fab-item:nth-child(3){ --tx: -65px;  --ty: -180px; }
+.fab-item:nth-child(4){ --tx: 65px;   --ty: -180px; }
+.fab-item:nth-child(5){ --tx: 110px;  --ty: -105px; }
+.fab-item:nth-child(6){ --tx: 140px;  --ty: -30px; }
+.fab-item:nth-child(7){ --tx: 0;      --ty: -255px; }
 
-.fab-fan.open .fab-item:nth-child(1){ transition-delay:.22s }
-.fab-fan.open .fab-item:nth-child(2){ transition-delay:.19s }
-.fab-fan.open .fab-item:nth-child(3){ transition-delay:.16s }
+.fab-fan.open .fab-item:nth-child(1){ transition-delay:.25s }
+.fab-fan.open .fab-item:nth-child(2){ transition-delay:.21s }
+.fab-fan.open .fab-item:nth-child(3){ transition-delay:.17s }
 .fab-fan.open .fab-item:nth-child(4){ transition-delay:.13s }
-.fab-fan.open .fab-item:nth-child(5){ transition-delay:.10s }
-.fab-fan.open .fab-item:nth-child(6){ transition-delay:.07s }
-.fab-fan.open .fab-item:nth-child(7){ transition-delay:.04s }
+.fab-fan.open .fab-item:nth-child(5){ transition-delay:.09s }
+.fab-fan.open .fab-item:nth-child(6){ transition-delay:.05s }
+.fab-fan.open .fab-item:nth-child(7){ transition-delay:.01s }
 
