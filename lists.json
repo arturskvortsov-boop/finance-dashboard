@@ -9,23 +9,38 @@
         "text": "молоко",
         "done": true,
         "createdAt": "2026-10-17T07:52:12.000Z",
-        "completedAt": "2026-10-17T20:24:14.712Z"
+        "completedAt": "2026-10-17T20:32:15.964Z"
       },
       {
         "id": "itm_1792223532291_1",
         "text": "хлеб",
         "done": true,
         "createdAt": "2026-10-17T07:52:12.000Z",
-        "completedAt": "2026-10-17T20:20:34.507Z"
+        "completedAt": "2026-10-17T20:29:10.413Z"
       },
       {
         "id": "itm_1792223532291_2",
         "text": "яйца",
         "done": true,
         "createdAt": "2026-10-17T07:52:12.000Z",
-        "completedAt": "2026-10-17T20:20:35.407Z"
+        "completedAt": "2026-10-17T20:29:10.130Z"
       }
     ],
     "createdAt": "2026-10-17T07:52:12.000Z"
+  },
+  {
+    "id": "lst_1792269149259_262",
+    "name": "В дорогу",
+    "icon": "🛒",
+    "items": [
+      {
+        "id": "itm_1792269155733_957",
+        "text": "Носки",
+        "done": false,
+        "createdAt": "2026-10-17T20:32:35.733Z",
+        "completedAt": null
+      }
+    ],
+    "createdAt": "2026-10-17T20:32:29.259Z"
   }
 ]
