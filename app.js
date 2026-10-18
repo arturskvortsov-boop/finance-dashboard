@@ -2109,15 +2109,24 @@ function drawBalanceHistoryChart(txs,period){
             plugins:{
                 legend:{display:false},
                 tooltip:{
-                    backgroundColor:'#1c2230',
-                    borderColor:'#2c3444',
+                    backgroundColor:'#1e1e23',
+                    borderColor:'rgba(245,200,76,0.3)',
                     borderWidth:1,
-                    titleColor:'#94a3b8',
-                    bodyColor:'#f2f5fa',
-                    bodyFont:{size:11},
-                    titleFont:{size:10},
-                    padding:10,
+                    titleColor:'#9a9aa5',
+                    bodyColor:'#f2f2f4',
+                    bodyFont:{
+                        size:12,
+                        weight:'600',
+                        family:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'
+                    },
+                    titleFont:{
+                        size:11,
+                        weight:'500',
+                        family:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'
+                    },
+                    padding:12,
                     cornerRadius:10,
+                    bodySpacing:6,
                     callbacks:{
                         label:function(ctx){return ctx.dataset.label+': '+roundRub(ctx.parsed.y).toLocaleString('ru-RU')+' ₽';},
                         afterBody:function(items){if(!items.length)return '';var inc=cumIncome[items[0].dataIndex];var exp=cumExpense[items[0].dataIndex];return 'Баланс: '+roundRub(inc-exp).toLocaleString('ru-RU')+' ₽';}
@@ -2125,8 +2134,24 @@ function drawBalanceHistoryChart(txs,period){
                 }
             },
             scales:{
-                y:{grid:{color:theme.grid},ticks:{color:theme.textMuted,font:{size:9},callback:function(v){if(Math.abs(v)>=1000000)return (v/1000000).toFixed(1)+'M';if(Math.abs(v)>=1000)return (v/1000).toFixed(0)+'k';return v;}}},
-                x:{grid:{display:false},ticks:{color:theme.textMuted,maxTicksLimit:6,maxRotation:0,autoSkip:true,font:{size:9}}}
+                y:{
+                    grid:{color:theme.grid},
+                    ticks:{
+                        color:theme.textMuted,
+                        font:{size:11,family:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'},
+                        callback:function(v){if(Math.abs(v)>=1000000)return (v/1000000).toFixed(1)+'M';if(Math.abs(v)>=1000)return (v/1000).toFixed(0)+'k';return v;}
+                    }
+                },
+                x:{
+                    grid:{display:false},
+                    ticks:{
+                        color:theme.textMuted,
+                        maxTicksLimit:6,
+                        maxRotation:0,
+                        autoSkip:true,
+                        font:{size:11,family:'-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif'}
+                    }
+                }
             }
         }
     });
