@@ -3174,7 +3174,7 @@ function clearAllDataConfirm(){
 }
 
 /* ===== BOTTOM NAV ===== */
-var navPages=['dashboard','currency','settings'];
+var navPages=['dashboard','helper','settings'];
 function updateBottomNav(page){
     var tabs=document.querySelectorAll('.bn-tab[data-page]');
     for(var i=0;i<tabs.length;i++)tabs[i].classList.toggle('active',tabs[i].dataset.page===page);
@@ -3183,7 +3183,10 @@ function switchPage(page,direction){
     var currentPage='';
     var tabs=document.querySelectorAll('.bn-tab[data-page]');
     for(var i=0;i<tabs.length;i++)if(tabs[i].classList.contains('active'))currentPage=tabs[i].dataset.page;
-    if($('bnHomeBtn')&&$('bnHomeBtn').classList.contains('active'))currentPage='dashboard';
+    if($('bnFinanceBtn')&&$('bnFinanceBtn').classList.contains('active'))currentPage='dashboard';
+
+    // Управление цветами
+    document.body.setAttribute('data-mode', page==='dashboard'?'finance':page==='helper'?'helper':'settings');
     if(currentPage===page&&!direction)return;
     if(!direction&&currentPage){
         var oi=navPages.indexOf(currentPage),ni=navPages.indexOf(page);
@@ -3191,7 +3194,7 @@ function switchPage(page,direction){
     }
     if(!direction)direction='left';
     updateBottomNav(page);
-    var pgMap={dashboard:$('pageDashboard'),currency:$('pageCurrency'),settings:$('pageSettings')};
+    var pgMap={dashboard:$('pageDashboard'),helper:$('pageHelper'),settings:$('pageSettings')};
     var next=pgMap[page];if(!next)return;
     for(var k in pgMap){
         if(!pgMap.hasOwnProperty(k))continue;
@@ -3202,11 +3205,10 @@ function switchPage(page,direction){
     next.classList.add('active');
     next.classList.add(direction==='left'?'page-enter-right':'page-enter-left');
     void next.offsetWidth;
-    if(page==='currency'){
-        setTimeout(function(){
-            if(rateHistoryChart){try{rateHistoryChart.resize();}catch(e){}}
-            animateCurrencyNumbers();renderRateFreshness();renderCbrRate();
-        },80);
+    if(page==='helper'){
+        renderCalendar();
+        renderLists();
+        renderUpcomingEvents();
     } else if(page==='settings'){
         updateTokenStatus();renderSettingsStats();
         renderTemplatesList('settingsTemplatesList','settings');
@@ -3585,11 +3587,15 @@ $('settingsClearBtn').addEventListener('click',function(){clearAllDataConfirm();
 var hideBtn=$('hideBalanceBtn');
 if(hideBtn)hideBtn.addEventListener('click',function(e){e.stopPropagation();toggleHideBalance();});
 var usdQuick=$('bcUsdQuick');
-if(usdQuick)usdQuick.addEventListener('click',function(){switchPage('currency');});
+if(usdQuick)usdQuick.addEventListener('click',function(){$('rateModal').classList.add('open');lockBackground();});
+$('openRateModalBtn').addEventListener('click',function(){$('rateModal').classList.add('open');lockBackground();setTimeout(function(){if(rateHistoryChart)rateHistoryChart.resize();},200);});
+$('closeRateModal').addEventListener('click',function(){$('rateModal').classList.remove('open');unlockBackground();});
+$('rateModal').addEventListener('click',function(e){if(e.target===this){this.classList.remove('open');unlockBackground();}});
 
 
 
-$('bnHomeBtn').addEventListener('click',function(){switchPage('dashboard');});
+$('bnFinanceBtn').addEventListener('click',function(){switchPage('dashboard');});
+$('bnHelperBtn').addEventListener('click',function(){switchPage('helper');});
 var bnTabs=document.querySelectorAll('.bn-tab[data-page]');
 for(var i=0;i<bnTabs.length;i++){
     (function(t){t.addEventListener('click',function(){switchPage(this.dataset.page);});})(bnTabs[i]);
@@ -3802,6 +3808,7 @@ renderTemplatesList('settingsTemplatesList','settings');
 renderSettingsBudgetsList();
 renderSettingsGoalsList();
 updateBottomNav('dashboard');
+document.body.setAttribute('data-mode','finance');
 
 loadTombstonesFromServer().then(function(){
     return loadData(true);
