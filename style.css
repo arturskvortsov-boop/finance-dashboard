@@ -2549,5 +2549,102 @@ body[data-mode="helper"] .lists-head h3 {
     color: #60a5fa;
 }
 
+/* ===== HELPER MODE THEME (Синий стиль) ===== */
 
+/* Модалки в Помощнике */
+body[data-mode="helper"] .modal {
+    border-color: rgba(96, 165, 250, 0.55);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 40px rgba(96, 165, 250, 0.15), 0 1px 0 rgba(255,255,255,0.06) inset;
+}
+body[data-mode="helper"] .modal-header {
+    border-bottom-color: rgba(96, 165, 250, 0.15);
+    background: linear-gradient(180deg, rgba(96, 165, 250, 0.05), transparent);
+}
+body[data-mode="helper"] .modal::before {
+    background: linear-gradient(90deg, transparent, #60a5fa, transparent);
+}
+body[data-mode="helper"] .modal-close {
+    background: rgba(96, 165, 250, 0.08);
+    border-color: rgba(96, 165, 250, 0.25);
+    color: #60a5fa;
+}
+body[data-mode="helper"] .modal-close:active {
+    background: rgba(96, 165, 250, 0.18);
+    border-color: #60a5fa;
+    box-shadow: 0 0 12px rgba(96, 165, 250, 0.4);
+}
+body[data-mode="helper"] .modal-btn.save {
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    box-shadow: 0 6px 20px rgba(96, 165, 250, 0.4), 0 1px 0 rgba(255,255,255,0.3) inset;
+}
+body[data-mode="helper"] .modal-btn.cancel:active {
+    border-color: #60a5fa;
+    color: #60a5fa;
+}
+body[data-mode="helper"] .form-row input:focus,
+body[data-mode="helper"] .form-row select:focus {
+    border-color: rgba(96, 165, 250, 0.65);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.12);
+}
+
+/* Кнопки внутри модалки дня */
+body[data-mode="helper"] .day-add-btn {
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.18), rgba(59, 130, 246, 0.1));
+    border-color: rgba(96, 165, 250, 0.55);
+    color: #60a5fa;
+}
+body[data-mode="helper"] .day-add-btn:active {
+    background: linear-gradient(135deg, rgba(96, 165, 250, 0.3), rgba(59, 130, 246, 0.2));
+}
+
+/* FAB кнопка в Помощнике */
+body[data-mode="helper"] .bn-fab {
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    box-shadow: 0 6px 22px rgba(96, 165, 250, 0.5), 0 0 0 1px rgba(255,255,255,0.15) inset;
+}
+body[data-mode="helper"] .bn-fab.open {
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    box-shadow: 0 12px 44px rgba(96, 165, 250, 0.85), 0 0 0 2px rgba(255,255,255,0.3) inset;
+}
+
+/* ===== FAB "СОЛНЦЕ" (Перемещение в центр) ===== */
+.fab-fan {
+    position: fixed;
+    left: 0; right: 0; top: 0; bottom: 0;
+    z-index: 960;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.fab-fan.open { pointer-events: auto; }
+
+.bn-fab.open {
+    right: auto;
+    bottom: auto;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(45deg) scale(1.3);
+    z-index: 970;
+}
+
+/* Лучики вокруг солнца (360 градусов) */
+.fab-item {
+    left: 50%;
+    top: 50%;
+    bottom: auto;
+    transform: translate(-50%, -50%) translate(0, 0) scale(0.4);
+}
+.fab-fan.open .fab-item {
+    transform: translate(-50%, -50%) translate(var(--tx,0), var(--ty,0)) scale(1);
+}
+
+/* Позиции для 7 кнопок (радиус ~130px) */
+.fab-item:nth-child(1){ --tx: 0px;    --ty: -130px; } /* 12 часов */
+.fab-item:nth-child(2){ --tx: 101px;  --ty: -81px;  } /* 2 часа */
+.fab-item:nth-child(3){ --tx: 125px;  --ty: 35px;   } /* 4 часа */
+.fab-item:nth-child(4){ --tx: 50px;   --ty: 120px;  } /* 6 часов */
+.fab-item:nth-child(5){ --tx: -50px;  --ty: 120px;  } /* 8 часов */
+.fab-item:nth-child(6){ --tx: -125px; --ty: 35px;   } /* 10 часов */
+.fab-item:nth-child(7){ --tx: -101px; --ty: -81px;  } /* 11 часов */
 
