@@ -2507,3 +2507,47 @@ body[data-mode="settings"] .bn-tab.active { color: #9a9aa5; box-shadow: 0 0 12px
     background:rgba(245,200,76,0.2);
     box-shadow:0 0 10px rgba(245,200,76,0.2);
 }
+/* ===== HELPER PAGE CUSTOM THEME ===== */
+body[data-mode="helper"] {
+    --accent: #60a5fa;
+    --accent-2: #3b82f6;
+    --accent-bg: rgba(96, 165, 250, 0.14);
+}
+
+/* Перекрашиваем кнопку добавления списка */
+body[data-mode="helper"] .lists-add-btn {
+    background: rgba(96, 165, 250, 0.1);
+    border-color: rgba(96, 165, 250, 0.4);
+    color: #60a5fa;
+}
+
+/* Перекрашиваем полоску прогресса у карточек списков */
+body[data-mode="helper"] .list-card-bar-fill {
+    background: linear-gradient(90deg, #60a5fa, #3b82f6);
+}
+
+/* Перекрашиваем рамку сегодняшнего дня в календаре */
+body[data-mode="helper"] .cal-day.today {
+    border-color: #60a5fa;
+    color: #60a5fa;
+}
+
+/* Перекрашиваем прогресс-бар внутри открытого списка */
+body[data-mode="helper"] .list-progress-fill {
+    background: linear-gradient(90deg, #60a5fa, #3b82f6);
+}
+
+/* Иконки в открытом списке */
+body[data-mode="helper"] .list-check-row.done .list-checkbox {
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    border-color: #60a5fa;
+}
+
+/* Заголовки событий и списков */
+body[data-mode="helper"] .events-block h3,
+body[data-mode="helper"] .lists-head h3 {
+    color: #60a5fa;
+}
+
+
+
