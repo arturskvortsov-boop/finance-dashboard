@@ -2772,3 +2772,18 @@ body[data-mode="helper"] .bn-fab.open { background: linear-gradient(135deg, #60a
 .fab-item:nth-child(5){ --tx: -60px;  --ty: 125px;  }
 .fab-item:nth-child(6){ --tx: -135px; --ty: 30px;   }
 .fab-item:nth-child(7){ --tx: -110px; --ty: -85px;  }
+
+/* Делаем строку транзакции непрозрачной, чтобы не просвечивали кнопки свайпа */
+.ph-tx-item {
+    background: var(--card-2) !important;
+    position: relative;
+    z-index: 2;
+}
+.ph-tx-act {
+    z-index: 1;
+}
+
+/* В Помощнике задаем сплошной цвет для строк, чтобы убрать эффект стекла на них */
+body[data-mode="helper"] .ph-tx-item {
+    background: #19243c !important;
+}
