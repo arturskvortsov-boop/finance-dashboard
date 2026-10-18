@@ -3561,10 +3561,17 @@ $('saveTokenBtn').addEventListener('click',function(){
     $('fileStatus').textContent='✅ Токен сохранён';
 });
 
-$('refreshRateChartBtn').addEventListener('click',function(e){e.preventDefault();drawRateHistoryChart();showToast('🔄 График обновлён');});
-$('fetchRateBtn').addEventListener('click',function(e){e.preventDefault();updateRateFromAPI();});
-$('usdRateInput').addEventListener('keydown',function(e){if(e.key==='Enter')setRate(parseFloat(this.value));});
-$('updateRateBtn').addEventListener('click',function(){setRate(parseFloat($('usdRateInput').value));});
+var refreshRateChartBtn=$('refreshRateChartBtn');
+if(refreshRateChartBtn)refreshRateChartBtn.addEventListener('click',function(e){e.preventDefault();drawRateHistoryChart();showToast('🔄 График обновлён');});
+
+var fetchRateBtn=$('fetchRateBtn');
+if(fetchRateBtn)fetchRateBtn.addEventListener('click',function(e){e.preventDefault();updateRateFromAPI();});
+
+var usdRateInput=$('usdRateInput');
+if(usdRateInput)usdRateInput.addEventListener('keydown',function(e){if(e.key==='Enter')setRate(parseFloat(this.value));});
+
+var updateRateBtn=$('updateRateBtn');
+if(updateRateBtn)updateRateBtn.addEventListener('click',function(){setRate(parseFloat($('usdRateInput').value));});
 
 $('settingsTokenBtn').addEventListener('click',function(){
     $('githubTokenInput').value=getToken();
