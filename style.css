@@ -124,7 +124,6 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 /* ===== BALANCE HISTORY CHART ===== */
 .balance-chart-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:10px;min-width:0;position:relative}
 .balance-chart-box h3{font-weight:500;font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px}
-#balanceHistoryChart{height:180px!important;width:100%!important}
 .balance-chart-empty{height:180px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:0.75rem}
 
 /* ===== COLLAPSIBLE / TX HISTORY ===== */
@@ -2451,34 +2450,6 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
     line-height:1.4
 }
 
-/* ===== FAB с 7 кнопками — пересчёт углов ===== */
-.fab-item:nth-child(1){ --tx: -140px; --ty: -30px; }
-.fab-item:nth-child(2){ --tx: -110px; --ty: -105px; }
-.fab-item:nth-child(3){ --tx: -65px;  --ty: -180px; }
-.fab-item:nth-child(4){ --tx: 65px;   --ty: -180px; }
-.fab-item:nth-child(5){ --tx: 110px;  --ty: -105px; }
-.fab-item:nth-child(6){ --tx: 140px;  --ty: -30px; }
-.fab-item:nth-child(7){ --tx: 0;      --ty: -255px; }
-
-.fab-fan.open .fab-item:nth-child(1){ transition-delay:.25s }
-.fab-fan.open .fab-item:nth-child(2){ transition-delay:.21s }
-.fab-fan.open .fab-item:nth-child(3){ transition-delay:.17s }
-.fab-fan.open .fab-item:nth-child(4){ transition-delay:.13s }
-.fab-fan.open .fab-item:nth-child(5){ transition-delay:.09s }
-.fab-fan.open .fab-item:nth-child(6){ transition-delay:.05s }
-.fab-fan.open .fab-item:nth-child(7){ transition-delay:.01s }
-
-/* Акценты вкладок */
-body[data-mode="finance"] .bn-tab.active { color: #f5c84c; box-shadow: 0 0 12px rgba(245,200,76,0.35),0 0 0 1px rgba(245,200,76,0.4) inset; background: linear-gradient(135deg,rgba(245,200,76,0.22),rgba(212,160,23,0.14)); }
-body[data-mode="helper"] .bn-tab.active { color: #60a5fa; box-shadow: 0 0 12px rgba(96,165,250,0.35),0 0 0 1px rgba(96,165,250,0.4) inset; background: linear-gradient(135deg,rgba(96,165,250,0.22),rgba(59,130,246,0.14)); }
-body[data-mode="settings"] .bn-tab.active { color: #9a9aa5; box-shadow: 0 0 12px rgba(154,154,165,0.35),0 0 0 1px rgba(154,154,165,0.4) inset; background: linear-gradient(135deg,rgba(154,154,165,0.22),rgba(107,107,117,0.14)); }
-
-/* Оформление накопительного графика в компактном виде */
-.balance-chart-box.compact { padding: 10px; }
-.balance-chart-box.compact h3 { font-size: 0.7rem; margin-bottom: 4px; }
-.balance-chart-box.compact .chart-legend-custom { margin-bottom: 4px; font-size: 0.65rem; }
-.balance-chart-box.compact #balanceHistoryChart { height: 100px !important; }
-
 /* ===== RATE BUTTON IN BALANCE CARD ===== */
 .bc-rate-action{
     display:flex;
@@ -2648,3 +2619,156 @@ body[data-mode="helper"] .bn-fab.open {
 .fab-item:nth-child(6){ --tx: -125px; --ty: 35px;   } /* 10 часов */
 .fab-item:nth-child(7){ --tx: -101px; --ty: -81px;  } /* 11 часов */
 
+/* =======================================================
+   ИСПРАВЛЕНИЕ РАЗМЕРА ГРАФИКА (чтобы текст не плющило)
+   ======================================================= */
+.balance-chart-box.compact {
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+}
+.balance-chart-box.compact canvas {
+    width: 100% !important;
+    height: 100% !important;
+    flex: 1;
+}
+
+/* =======================================================
+   СУПЕР-РЕДИЗАЙН "ПОМОЩНИК" (Стиль Матовое Стекло)
+   ======================================================= */
+body[data-mode="helper"] {
+    --bg: #070b14;
+    --card: rgba(18, 28, 48, 0.65);
+    --card-2: rgba(26, 39, 64, 0.8);
+    --border: rgba(96, 165, 250, 0.2);
+    --text: #f0f4f8;
+    --text-muted: #8ba3c7;
+    --text-dim: #5b7396;
+    --accent: #60a5fa;
+    --accent-2: #3b82f6;
+    background: radial-gradient(circle at 50% 0%, #101d36 0%, var(--bg) 100%) !important;
+}
+
+/* Карточки превращаются в матовое стекло */
+body[data-mode="helper"] .events-block,
+body[data-mode="helper"] .lists-block,
+body[data-mode="helper"] .calendar-block {
+    background: var(--card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Заголовки без капслока, крупнее */
+body[data-mode="helper"] .events-block h3,
+body[data-mode="helper"] .lists-head h3 {
+    text-transform: none;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #60a5fa;
+    letter-spacing: -0.2px;
+}
+
+/* Идеально круглые дни в календаре */
+body[data-mode="helper"] .cal-day {
+    border-radius: 50%;
+    aspect-ratio: 1;
+    border: 1px solid var(--border);
+    background: var(--card-2);
+}
+body[data-mode="helper"] .cal-day.lvl0 {
+    background: transparent;
+    border-color: transparent;
+}
+body[data-mode="helper"] .cal-day.today {
+    border-color: #60a5fa;
+    color: #60a5fa;
+    box-shadow: 0 0 15px rgba(96, 165, 250, 0.3);
+}
+
+/* Карточки списков и кнопки */
+body[data-mode="helper"] .list-card {
+    border-radius: 20px;
+    background: var(--card-2);
+    border: 1px solid var(--border);
+}
+body[data-mode="helper"] .lists-add-btn {
+    border-radius: 50px;
+    text-transform: none;
+    font-weight: 600;
+    padding: 8px 16px;
+}
+body[data-mode="helper"] .list-card-bar-fill,
+body[data-mode="helper"] .list-progress-fill {
+    background: linear-gradient(90deg, #60a5fa, #3b82f6);
+    border-radius: 50px;
+}
+body[data-mode="helper"] .list-check-row.done .list-checkbox {
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    border-color: #60a5fa;
+    border-radius: 50%;
+}
+
+/* Модалки в Помощнике */
+body[data-mode="helper"] .modal {
+    border-color: rgba(96, 165, 250, 0.4);
+    background: linear-gradient(180deg, #111b2e, #0a111f);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 40px rgba(96, 165, 250, 0.1);
+}
+body[data-mode="helper"] .modal-btn.save {
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+}
+body[data-mode="helper"] .day-add-btn {
+    background: rgba(96, 165, 250, 0.1);
+    border-color: rgba(96, 165, 250, 0.4);
+    color: #60a5fa;
+    border-radius: 50px;
+}
+
+/* =======================================================
+   КНОПКА FAB В ВИДЕ СОЛНЦА (В ЦЕНТРЕ ЭКРАНА)
+   ======================================================= */
+body[data-mode="helper"] .bn-fab { background: linear-gradient(135deg, #60a5fa, #3b82f6); box-shadow: 0 6px 22px rgba(96, 165, 250, 0.5); }
+body[data-mode="helper"] .bn-fab.open { background: linear-gradient(135deg, #60a5fa, #3b82f6); box-shadow: 0 12px 44px rgba(96, 165, 250, 0.85); }
+
+.fab-fan {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: 960;
+    pointer-events: none;
+}
+.fab-fan.open { pointer-events: auto; }
+
+.bn-fab.open {
+    position: fixed;
+    left: 50%; top: 50%;
+    right: auto; bottom: auto;
+    transform: translate(-50%, -50%) rotate(45deg) scale(1.4);
+    z-index: 970;
+}
+
+.fab-item {
+    position: absolute;
+    left: 50%; top: 50%;
+    bottom: auto;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+    pointer-events: none;
+    transition: opacity .3s ease, transform .4s cubic-bezier(.34,1.4,.5,1);
+}
+.fab-fan.open .fab-item {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, -50%) translate(var(--tx,0), var(--ty,0)) scale(1);
+}
+
+/* 7 кнопок по кругу (радиус 140px) */
+.fab-item:nth-child(1){ --tx: 0px;    --ty: -140px; }
+.fab-item:nth-child(2){ --tx: 110px;  --ty: -85px;  }
+.fab-item:nth-child(3){ --tx: 135px;  --ty: 30px;   }
+.fab-item:nth-child(4){ --tx: 60px;   --ty: 125px;  }
+.fab-item:nth-child(5){ --tx: -60px;  --ty: 125px;  }
+.fab-item:nth-child(6){ --tx: -135px; --ty: 30px;   }
+.fab-item:nth-child(7){ --tx: -110px; --ty: -85px;  }
