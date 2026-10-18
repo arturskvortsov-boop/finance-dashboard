@@ -238,6 +238,11 @@
         <div class="form-row"><label>Категория</label><select id="txCategory"></select></div>
         <div class="form-row"><label>Комментарий</label><input type="text" id="txNote" placeholder="Необязательно"></div>
         <div class="form-row"><label>Дата и время</label><input type="datetime-local" id="txDateTime"></div>
+        <div class="form-row hidden" id="saveAsTemplateRow">
+            <label class="checkbox-row"><input type="checkbox" id="saveAsTemplate"><span>🔁 Сохранить как шаблон</span></label>
+        </div>
+        <div class="form-row hidden" id="templateNameRow"><label>Название шаблона</label><input type="text" id="txTemplateName" placeholder="Например: Ипотека"></div>
+        <div class="form-row hidden" id="templateDayRow"><label>День месяца (1-31, необязательно)</label><input type="number" id="txTemplateDay" placeholder="Например: 5" min="1" max="31"></div>
     </div>
     <div class="modal-footer"><button class="modal-btn cancel" id="cancelTxBtn">Отмена</button><button class="modal-btn save" id="saveTxBtn">Сохранить</button></div>
 </div>
@@ -323,6 +328,144 @@
             <button class="day-add-btn" id="dayDetailAddBtn">➕ Трата</button>
             <button class="day-add-btn" id="dayDetailAddEventBtn">📅 Событие</button>
         </div>
+    </div>
+</div>
+</div>
+
+<!-- ВОССТАНОВЛЕННЫЕ МОДАЛКИ -->
+<div class="modal-overlay" id="catDetailModal">
+<div class="modal cat-detail-modal">
+    <div class="modal-header"><h2 id="catDetailTitle">Расходы</h2><button class="modal-close" id="closeCatDetailModal">×</button></div>
+    <div class="modal-body">
+        <div class="cat-detail-top">
+            <div class="cat-donut-wrap"><canvas id="catDetailDonut"></canvas>
+                <div class="cat-donut-center"><div class="cdc-amount" id="catDetailTotal">0 ₽</div><div class="cdc-label" id="catDetailTotalLabel">всего</div></div>
+            </div>
+            <div class="cat-detail-top-info">
+                <div class="cdt-label">БОЛЬШЕ ВСЕГО</div>
+                <div class="cdt-category" id="catDetailTopCat">—</div>
+                <div class="cdt-desc" id="catDetailTopDesc">—</div>
+            </div>
+        </div>
+        <div class="cat-detail-list" id="catDetailList"></div>
+    </div>
+</div>
+</div>
+
+<div class="modal-overlay" id="quickAddModal">
+<div class="modal">
+    <div class="modal-header"><h2>⚡ Быстрое добавление</h2><button class="modal-close" id="closeQuickAddModal">×</button></div>
+    <div class="modal-body">
+        <div class="templates-list" id="quickAddTemplatesList"></div>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-btn cancel" id="cancelQuickAddBtn">Закрыть</button>
+        <button class="modal-btn save" id="newTemplateFromQuickBtn">➕ Новый шаблон</button>
+    </div>
+</div>
+</div>
+
+<div class="modal-overlay" id="templateEditModal">
+<div class="modal">
+    <div class="modal-header"><h2 id="templateEditTitle">🔁 Новый шаблон</h2><button class="modal-close" id="closeTemplateEditModal">×</button></div>
+    <div class="modal-body">
+        <div class="form-row"><label>Тип</label><div class="type-toggle"><button class="type-btn active" data-type="income">💰 Доход</button><button class="type-btn" data-type="expense">💸 Расход</button></div></div>
+        <div class="form-row"><label>Название шаблона</label><input type="text" id="tplName" placeholder="Например: Ипотека"></div>
+        <div class="form-row"><label>Сумма в рублях</label><input type="number" id="tplRub" placeholder="0" step="0.01"></div>
+        <div class="form-row"><label>Сумма в долларах (необязательно)</label><input type="number" id="tplUsd" placeholder="0" step="0.01"></div>
+        <div class="form-row"><label>Категория</label><select id="tplCategory"></select></div>
+        <div class="form-row"><label>Комментарий</label><input type="text" id="tplNote" placeholder="Необязательно"></div>
+        <div class="form-row"><label>День месяца (1-31, необязательно)</label><input type="number" id="tplDay" placeholder="Например: 5" min="1" max="31"></div>
+    </div>
+    <div class="modal-footer"><button class="modal-btn cancel" id="cancelTemplateEditBtn">Отмена</button><button class="modal-btn save" id="saveTemplateBtn">Сохранить</button></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="remindersListModal">
+<div class="modal reminders-list-modal">
+    <div class="modal-header">
+        <h2>🔔 Напоминания</h2>
+        <button class="modal-close" id="closeRemindersListModal">×</button>
+    </div>
+    <div class="modal-body">
+        <button class="rem-add-btn" id="remAddBtn">➕ Добавить напоминание</button>
+        <div class="rem-list" id="remindersListContainer"></div>
+    </div>
+</div>
+</div>
+
+<div class="modal-overlay" id="reminderEditModal">
+<div class="modal">
+    <div class="modal-header"><h2 id="reminderEditTitle">🔔 Новое напоминание</h2><button class="modal-close" id="closeReminderEditModal">×</button></div>
+    <div class="modal-body">
+        <div class="form-row"><label>Текст напоминания</label><input type="text" id="reminderText" placeholder="Например: Позвонить маме"></div>
+        <div class="form-row"><label>Дата</label><input type="date" id="reminderDate"></div>
+        <div class="form-row"><label>Время</label><input type="time" id="reminderTime" value="10:00"></div>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-btn cancel" id="cancelReminderEditBtn">Отмена</button>
+        <button class="modal-btn save" id="saveReminderBtn">Сохранить</button>
+    </div>
+</div>
+</div>
+
+<div class="modal-overlay" id="budgetEditModal">
+<div class="modal">
+    <div class="modal-header"><h2 id="budgetEditTitle">🎯 Новый бюджет</h2><button class="modal-close" id="closeBudgetEditModal">×</button></div>
+    <div class="modal-body">
+        <div class="form-row"><label>Категория расходов</label><select id="budgetCategory"></select></div>
+        <div class="form-row"><label>Лимит в рублях (на месяц)</label><input type="number" id="budgetLimit" placeholder="Например: 30000" step="100"></div>
+    </div>
+    <div class="modal-footer"><button class="modal-btn cancel" id="cancelBudgetEditBtn">Отмена</button><button class="modal-btn save" id="saveBudgetBtn">Сохранить</button></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="goalEditModal">
+<div class="modal">
+    <div class="modal-header"><h2 id="goalEditTitle">🏆 Новая цель</h2><button class="modal-close" id="closeGoalEditModal">×</button></div>
+    <div class="modal-body">
+        <div class="form-row"><label>Иконка</label><div class="goal-icon-picker" id="goalIconPicker"></div></div>
+        <div class="form-row"><label>Название цели</label><input type="text" id="goalName" placeholder="Например: На машину"></div>
+        <div class="form-row"><label>Целевая сумма (₽)</label><input type="number" id="goalTarget" placeholder="500000" step="1000"></div>
+        <div class="form-row"><label>Уже накоплено (₽)</label><input type="number" id="goalSaved" placeholder="0" step="1000"></div>
+        <div class="form-row"><label>Срок (необязательно)</label><input type="date" id="goalDeadline"></div>
+    </div>
+    <div class="modal-footer"><button class="modal-btn cancel" id="cancelGoalEditBtn">Отмена</button><button class="modal-btn save" id="saveGoalBtn">Сохранить</button></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="goalDepositModal">
+<div class="modal">
+    <div class="modal-header"><h2 id="goalDepositTitle">➕ Пополнить цель</h2><button class="modal-close" id="closeGoalDepositModal">×</button></div>
+    <div class="modal-body">
+        <div class="settings-row" style="border-bottom:none;padding-bottom:0;margin-bottom:10px">
+            <span class="label">Сейчас накоплено</span>
+            <span class="value" id="goalDepositCurrent">0 ₽</span>
+        </div>
+        <div class="form-row"><label>Добавить к накопленному (₽)</label><input type="number" id="goalDepositAmount" placeholder="10000" step="1000"></div>
+        <div class="settings-hint">Отрицательное число — уменьшить.</div>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-btn cancel" id="cancelGoalDepositBtn">Отмена</button>
+        <button class="modal-btn save" id="saveGoalDepositBtn">Пополнить</button>
+    </div>
+</div>
+</div>
+
+<div class="modal-overlay" id="periodHistoryModal">
+<div class="modal ph-modal">
+    <div class="modal-header"><h2 id="phModalTitle">Месяц</h2><button class="modal-close" id="closePeriodHistoryModal">×</button></div>
+    <div class="modal-body">
+        <div class="ph-filters">
+            <button class="ph-filter-btn active" data-phtype="all">Все</button>
+            <button class="ph-filter-btn" data-phtype="income">💰 Доходы</button>
+            <button class="ph-filter-btn" data-phtype="expense">💸 Расходы</button>
+        </div>
+        <div class="ph-search-wrap">
+            <input type="text" id="phSearchInput" class="ph-search-input" placeholder="Поиск по категории, заметке, сумме" autocomplete="off">
+            <button class="ph-search-clear" id="phSearchClear" style="display:none">✕</button>
+        </div>
+        <div class="ph-modal-scroll" id="phModalBody"></div>
     </div>
 </div>
 </div>
