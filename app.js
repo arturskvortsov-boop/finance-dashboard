@@ -28,7 +28,6 @@ try{
     try{if(tg.setHeaderColor)tg.setHeaderColor('#0a0a0b');}catch(e){}
     try{if(tg.setBottomBarColor)tg.setBottomBarColor('#0a0a0b');}catch(e){}
     try{if(tg.setBackgroundColor)tg.setBackgroundColor('#0a0a0b');}catch(e){}
-    // Fullscreen только на мобильных (iOS/Android), не на десктопе
     try{
         var tgPlatform=tg.platform||'';
         var isMobileTg=(tgPlatform==='ios'||tgPlatform==='android'||tgPlatform==='android_x');
@@ -80,7 +79,6 @@ var EVENTS_FILE='events.json';
 var LISTS_KEY='financeLists';
 var LISTS_FILE='lists.json';
 
-/* ===== THEME (only dark) ===== */
 try{
     var mc=document.querySelector('meta[name="theme-color"]');
     if(mc)mc.setAttribute('content','#0a0a0b');
@@ -1154,7 +1152,6 @@ function scheduleSyncLists(){
     listsSyncTimer=setTimeout(function(){syncLists();},1500);
 }
 
-
 /* ===== EVENTS ===== */
 function formatEventDate(y,m,d){
     var months=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
@@ -1811,8 +1808,6 @@ function buildCatGroup(monthKey,catList,type){
     return group;
 }
 
-
-
 /* ===== DASHBOARD ===== */
 function renderDashboard(txs,period){
     if(!txs.length){
@@ -1830,12 +1825,12 @@ function renderDashboard(txs,period){
     var d=calc(dS),w=calc(wS),m=calc(mS);
 
     animateValue($('totalBalanceRubDisplay'),sAll.netRub,' ₽',0,false,600);
-    $('totalBalanceUsdDisplay').textContent=roundUsd(sAll.netUsd).toFixed(2)+' $';
+    if($('totalBalanceUsdDisplay'))$('totalBalanceUsdDisplay').textContent=roundUsd(sAll.netUsd).toFixed(2)+' $';
     if($('usdDetails'))$('usdDetails').textContent='↑ $'+Math.round(s.totalIncomeUsdEq)+' · ↓ $'+Math.round(s.totalExpenseUsdEq);
     if($('currencyHeroUsd'))$('currencyHeroUsd').textContent=roundUsd(sAll.netUsd).toFixed(2)+' $';
     if($('rateInfoSmall'))$('rateInfoSmall').textContent=currentUsdRate.toFixed(2)+' ₽';
 
-        if($('totalIncomeRubOnly'))$('totalIncomeRubOnly').textContent=roundRub(s.rubIncome).toLocaleString('ru-RU')+' ₽';
+    if($('totalIncomeRubOnly'))$('totalIncomeRubOnly').textContent=roundRub(s.rubIncome).toLocaleString('ru-RU')+' ₽';
     if($('totalExpenseRubOnly'))$('totalExpenseRubOnly').textContent=roundRub(s.rubExpense).toLocaleString('ru-RU')+' ₽';
     if($('totalIncomeUsd'))$('totalIncomeUsd').textContent=Math.round(s.totalIncomeUsdEq).toLocaleString('ru-RU')+' $';
     if($('totalExpenseUsd'))$('totalExpenseUsd').textContent=Math.round(s.totalExpenseUsdEq).toLocaleString('ru-RU')+' $';
@@ -1893,14 +1888,14 @@ function renderDashboard(txs,period){
         data:{labels:incCat.map(function(x){return x.label;}),datasets:[{data:incCat.map(function(x){return x.value;}),backgroundColor:COLORS.slice(0,incCat.length),borderColor:theme.card,borderWidth:2}]},
         options:{responsive:true,maintainAspectRatio:false,cutout:'62%',animation:{animateRotate:true,animateScale:true,duration:900,easing:'easeOutQuart'},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var t=0;for(var i=0;i<c.dataset.data.length;i++)t+=c.dataset.data[i];return c.label+': '+roundRub(c.parsed).toLocaleString('ru-RU')+' ₽ ('+((c.parsed/t)*100).toFixed(1)+'%)';}}}}}
     });
-    var incList=$('incomeCategoryList');incList.innerHTML='';
+    var incList=$('incomeCategoryList');if(incList)incList.innerHTML='';
     var incTotal=0;
     for(var i=0;i<incCat.length;i++)incTotal+=incCat[i].value;
     for(var i=0;i<incCat.length;i++){
         var pct=incTotal?((incCat[i].value/incTotal)*100).toFixed(1):0;
         var dd=document.createElement('div');dd.className='cat-item';
         dd.innerHTML='<span>'+incCat[i].label+'</span><span class="value">'+roundRub(incCat[i].value).toLocaleString('ru-RU')+' ₽ · '+pct+'%</span>';
-        incList.appendChild(dd);
+        if(incList)incList.appendChild(dd);
     }
     var expCat=aggregateByCategory(txs,'expense');
     var expEmpty=$('expenseEmpty'); if(expEmpty)expEmpty.style.display=expCat.length?'none':'flex';
@@ -1909,14 +1904,14 @@ function renderDashboard(txs,period){
         data:{labels:expCat.map(function(x){return x.label;}),datasets:[{data:expCat.map(function(x){return x.value;}),backgroundColor:COLORS.slice(0,expCat.length),borderColor:theme.card,borderWidth:2}]},
         options:{responsive:true,maintainAspectRatio:false,cutout:'62%',animation:{animateRotate:true,animateScale:true,duration:900,easing:'easeOutQuart'},plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){var t=0;for(var i=0;i<c.dataset.data.length;i++)t+=c.dataset.data[i];return c.label+': '+roundRub(c.parsed).toLocaleString('ru-RU')+' ₽ ('+((c.parsed/t)*100).toFixed(1)+'%)';}}}}}
     });
-    var expList=$('expenseCategoryList');expList.innerHTML='';
+    var expList=$('expenseCategoryList');if(expList)expList.innerHTML='';
     var expTotal=0;
     for(var i=0;i<expCat.length;i++)expTotal+=expCat[i].value;
     for(var i=0;i<expCat.length;i++){
         var pct=expTotal?((expCat[i].value/expTotal)*100).toFixed(1):0;
         var dd=document.createElement('div');dd.className='cat-item';
         dd.innerHTML='<span>'+expCat[i].label+'</span><span class="value">'+roundRub(expCat[i].value).toLocaleString('ru-RU')+' ₽ · '+pct+'%</span>';
-        expList.appendChild(dd);
+        if(expList)expList.appendChild(dd);
     }
 
     renderInsights(txs,period);
@@ -1954,7 +1949,7 @@ function updateWithFilter(period){
         var f=filterTransactions(allTransactions,period);
         renderDashboard(f,period);
         var names={day:'за сегодня',week:'за последние 7 дней',month:'за текущий месяц',all:'за всё время'};
-        $('periodLabel').textContent=names[period]||'';
+        if($('periodLabel'))$('periodLabel').textContent=names[period]||'';
         if(dash){
             dash.classList.remove('fade-in-content');
             void dash.offsetWidth;
@@ -1990,20 +1985,18 @@ function drawBalanceHistoryChart(txs,period){
 
     period=period||currentFilter;
 
-    // Строим накопительный график от самой первой транзакции в базе до сегодня
     var all=allTransactions.slice().sort(function(a,b){return a.date-b.date;});
     if(!all.length){if(emptyEl)emptyEl.style.display='flex';c.style.display='none';return;}
 
     var firstDate=all[0].date;
     var now=new Date();
 
-    // Определяем шаг: день / неделя / месяц — в зависимости от длительности
     var totalDays=Math.max(1,Math.ceil((now-firstDate)/(1000*60*60*24)));
     var step='day';
     if(totalDays>90)step='week';
     if(totalDays>730)step='month';
 
-    var buckets=[]; // {label, start, end}
+    var buckets=[]; 
 
     function monthNamesShort(m){return ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'][m];}
 
@@ -2016,7 +2009,6 @@ function drawBalanceHistoryChart(txs,period){
         }
     } else if(step==='week'){
         var d=new Date(firstDate.getFullYear(),firstDate.getMonth(),firstDate.getDate());
-        // Округляем до начала недели (пн)
         var dow=d.getDay();var shift=(dow===0)?6:dow-1;d.setDate(d.getDate()-shift);
         while(d<=now){
             var end=new Date(d);end.setDate(end.getDate()+7);
@@ -2032,12 +2024,10 @@ function drawBalanceHistoryChart(txs,period){
         }
     }
 
-    // Считаем кумулятивно
     var cumIncome=[],cumExpense=[],labels=[];
     var runI=0,runE=0;
     var idx=0;
 
-    // Первая точка — 0 перед началом всех транзакций
     labels.push('0');
     cumIncome.push(0);
     cumExpense.push(0);
@@ -2170,14 +2160,12 @@ function drawRateHistoryChart(){
 
     var values=rateHistory.map(function(x){return x.rate;});
 
-    // Только дата DD.MM — время остаётся в тултипе
     var labels=[];
     for(var i=0;i<rateHistory.length;i++){
         var d=rateHistory[i].date;
         labels.push(pad(d.getDate())+'.'+pad(d.getMonth()+1));
     }
 
-    // min / max
     var minVal=Infinity,maxVal=-Infinity,minIdx=0,maxIdx=0;
     for(var i=0;i<values.length;i++){
         if(values[i]<minVal){minVal=values[i];minIdx=i;}
@@ -2185,7 +2173,6 @@ function drawRateHistoryChart(){
     }
     var lastIdx=values.length-1;
 
-    // Точки: обычные = 0, последняя = 5, min/max = 4
     var pointRadii=values.map(function(v,i){
         if(i===lastIdx)return 5;
         if(i===minIdx||i===maxIdx)return 4;
@@ -2197,7 +2184,6 @@ function drawRateHistoryChart(){
         return '#f5c84c';
     });
 
-    // Плагин: пунктирные линии min/max + подписи
     var minMaxPlugin={
         id:'rateMinMax',
         afterDatasetsDraw:function(chart){
@@ -2208,7 +2194,6 @@ function drawRateHistoryChart(){
             ctx2.setLineDash([4,4]);
             ctx2.lineWidth=1;
 
-            // min line
             var yMin=yScale.getPixelForValue(minVal);
             ctx2.strokeStyle='rgba(248,113,113,0.55)';
             ctx2.beginPath();
@@ -2221,7 +2206,6 @@ function drawRateHistoryChart(){
             ctx2.textAlign='left';
             ctx2.fillText('min '+minVal.toFixed(2),chartArea.left+4,yMin-4);
 
-            // max line
             ctx2.setLineDash([4,4]);
             var yMax=yScale.getPixelForValue(maxVal);
             ctx2.strokeStyle='rgba(74,222,128,0.55)';
@@ -2463,7 +2447,7 @@ function loadRateHistoryFromServer(showStatus){
 
 function fillCategories(type,selectId){
     var list=type==='income'?CATEGORIES_INCOME:CATEGORIES_EXPENSE;
-    var sel=$(selectId);sel.innerHTML='';
+    var sel=$(selectId);if(!sel)return;sel.innerHTML='';
     for(var i=0;i<list.length;i++){
         var o=document.createElement('option');o.value=list[i];o.textContent=list[i];sel.appendChild(o);
     }
@@ -2587,12 +2571,12 @@ function openCategoryDetail(type){
         data:{labels:catList.map(function(x){return x.label;}),datasets:[{data:catList.map(function(x){return x.value;}),backgroundColor:colors,borderColor:theme.card,borderWidth:2}]},
         options:{responsive:true,maintainAspectRatio:true,cutout:'65%',plugins:{legend:{display:false},tooltip:{enabled:false}}}
     });
-    var listEl=$('catDetailList');listEl.innerHTML='';
+    var listEl=$('catDetailList');if(listEl)listEl.innerHTML='';
     for(var i=0;i<catList.length;i++){
         var x=catList[i];var pct=(x.value/total)*100;
         var item=document.createElement('div');item.className='cdl-item';
         item.innerHTML='<div class="cdl-row"><div class="cdl-left"><span class="cdl-dot" style="background:'+colors[i]+'"></span><span class="cdl-name">'+x.label+'</span></div><div class="cdl-right"><span class="cdl-amount">'+roundRub(x.value).toLocaleString('ru-RU')+' ₽</span><span class="cdl-percent">'+pct.toFixed(1)+'%</span></div></div><div class="cdl-bar"><div class="cdl-bar-fill" style="width:'+pct+'%;background:'+colors[i]+'"></div></div>';
-        listEl.appendChild(item);
+        if(listEl)listEl.appendChild(item);
     }
     $('catDetailModal').classList.add('open');
     lockBackground();
@@ -2691,7 +2675,7 @@ function silentSync(){
     if(!allTransactions.length)return;
     var token=getToken();
     window.__syncing=true;
-        showSyncProgress();
+    showSyncProgress();
     applyTombstones();
     var sorted=allTransactions.slice().sort(function(a,b){return a.date-b.date;});
     var lines=[];
@@ -2716,7 +2700,8 @@ function silentSync(){
             .then(function(r){if(r.status===409&&retriesLeft>0){return new Promise(function(resolve){setTimeout(resolve,600);}).then(function(){return attempt(retriesLeft-1);});}if(!r.ok)throw new Error('PUT: '+r.status);return r.json();});
     }
     return attempt(4).then(function(){window.__syncing=false;markSynced();var fs=$('fileStatus');if(fs)fs.textContent='☁️ Сохранено: '+allTransactions.length;hideSyncProgress();}).catch(function(e){window.__syncing=false;var fs=$('fileStatus');if(fs)fs.textContent='⚠️ '+e.message;hideSyncProgress();});
-    function showSyncProgress(){
+}
+function showSyncProgress(){
     var el=$('syncProgress');
     if(!el)return;
     el.classList.remove('done');
@@ -2728,7 +2713,6 @@ function hideSyncProgress(){
     el.classList.remove('active');
     el.classList.add('done');
     setTimeout(function(){el.classList.remove('done');},900);
-}
 }
 
 /* ===== SETTINGS ===== */
@@ -3210,7 +3194,6 @@ function switchPage(page,direction){
     for(var i=0;i<tabs.length;i++)if(tabs[i].classList.contains('active'))currentPage=tabs[i].dataset.page;
     if($('bnFinanceBtn')&&$('bnFinanceBtn').classList.contains('active'))currentPage='dashboard';
 
-    // Управление цветами
     document.body.setAttribute('data-mode', page==='dashboard'?'finance':page==='helper'?'helper':'settings');
     if(currentPage===page&&!direction)return;
     if(!direction&&currentPage){
@@ -3263,7 +3246,6 @@ function closeFabFan(){
     fan.classList.remove('open');
     fab.classList.remove('open');
 }
-
 
 /* ===== PULL TO REFRESH ===== */
 var pullStartY=0,pullActive=false,pullY=0,pullRefreshing=false;
@@ -3381,7 +3363,7 @@ function doRefresh(){
 }
 
 /* ===== EVENTS ===== */
-/* FAB hint — раз в 45 сек лёгкая пульсация, если юзер не открывал */
+/* FAB hint */
 var lastFabTouch=Date.now();
 setInterval(function(){
     if(document.body.classList.contains('fab-open'))return;
@@ -3624,8 +3606,6 @@ $('openRateModalBtn').addEventListener('click',function(){$('rateModal').classLi
 $('closeRateModal').addEventListener('click',function(){$('rateModal').classList.remove('open');unlockBackground();});
 $('rateModal').addEventListener('click',function(e){if(e.target===this){this.classList.remove('open');unlockBackground();}});
 
-
-
 $('bnFinanceBtn').addEventListener('click',function(){switchPage('dashboard');});
 $('bnHelperBtn').addEventListener('click',function(){switchPage('helper');});
 var bnTabs=document.querySelectorAll('.bn-tab[data-page]');
@@ -3673,7 +3653,6 @@ $('fabAddTx').addEventListener('click',function(){closeFabFan();setTimeout(funct
 $('fabQuick').addEventListener('click',function(){closeFabFan();setTimeout(function(){openQuickAddModal();},150);});
 $('fabSync').addEventListener('click',function(){closeFabFan();setTimeout(function(){doSync();},150);});
 $('fabRefresh').addEventListener('click',function(){closeFabFan();setTimeout(function(){doRefresh();},150);});
-
 
 var swipeStartX=0,swipeStartY=0,swipeActive=false;
 document.addEventListener('touchstart',function(e){
@@ -4010,7 +3989,6 @@ loadTombstonesFromServer().then(function(){
         if(!overlay)return;
         var modal=overlay.querySelector('.modal');
         if(!modal)return;
-        // Игнор если тач начался внутри уже проскролленной области
         var sc=e.target;
         while(sc&&sc!==overlay){
             if(sc.scrollHeight>sc.clientHeight+2&&sc.scrollTop>2)return;
@@ -4069,7 +4047,6 @@ loadTombstonesFromServer().then(function(){
         }
     },{passive:true});
 })();
-
 
 /* ===== SWIPE ON TRANSACTION ===== */
 (function(){
