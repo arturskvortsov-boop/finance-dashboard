@@ -2105,16 +2105,20 @@ function drawBalanceHistoryChart(txs,period){
             interaction:{mode:'index',intersect:false},
             plugins:{
                 legend:{display:false},
-                 tooltip:{
-                    backgroundColor:'#1e1e23',
-                    borderColor:'rgba(245,200,76,0.3)',
+                tooltip:{
+                    backgroundColor:'rgba(18, 28, 48, 0.95)',
+                    borderColor:'rgba(96, 165, 250, 0.4)',
                     borderWidth:1,
-                    titleColor:'#9a9aa5',
-                    titleFont:{
-                        size:11,
-                        weight:'600',
-                        family:"-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-                    },
+                    titleColor:'#8ba3c7',
+                    bodyColor:'#f0f4f8',
+                    padding:14,
+                    cornerRadius:10,
+                    bodySpacing:8,
+                    callbacks:{
+                        label:function(ctx){return ctx.dataset.label+': '+roundRub(ctx.parsed.y).toLocaleString('ru-RU')+' ₽';},
+                        afterBody:function(items){if(!items.length)return '';var inc=cumIncome[items[0].dataIndex];var exp=cumExpense[items[0].dataIndex];return '\nБаланс: '+roundRub(inc-exp).toLocaleString('ru-RU')+' ₽';}
+                    }
+                },
                     titleMarginBottom: 8,
                     bodyColor:'#f2f2f4',
                     bodyFont:{
