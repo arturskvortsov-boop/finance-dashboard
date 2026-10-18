@@ -26,6 +26,10 @@
 
 <div class="page active" id="pageDashboard">
 
+<div class="finance-top-actions">
+    <button class="rate-modal-btn" id="openRateModalBtn">💵 Курс валют</button>
+</div>
+
 <div class="filter-bar" id="filterBar">
     <button class="filter-btn disabled" data-period="day">День</button>
     <button class="filter-btn disabled" data-period="week">Неделя</button>
@@ -101,8 +105,8 @@
         <div class="top-cat-list" id="topCatList"></div>
     </div>
 
-        <div class="balance-chart-box">
-        <h3>📈 Накопительно</h3>
+<div class="balance-chart-box compact">
+    <h3>📈 Накопительно</h3>
         <div class="chart-legend-custom">
             <span class="cl-item"><span class="cl-dot cl-dot-income"></span>Доход</span>
             <span class="cl-item"><span class="cl-dot cl-dot-expense"></span>Расход</span>
@@ -164,50 +168,41 @@
 <div id="emptyState" class="empty-state">⏳ Загрузите JSON-файл для отображения аналитики</div>
 </div>
 
-<div class="page" id="pageCurrency">
+<div class="page" id="pageHelper">
+    <div class="helper-weather-card" id="weatherWidget">
+        <!-- Сюда вставим погоду позже -->
+    </div>
 
-    <div class="rate-hero">
-        <div class="rate-hero-label">💵 Курс USD / RUB</div>
-        <div class="rate-hero-value" id="rateInfo">— ₽</div>
-        <div class="rate-hero-delta" id="rateChangeInfo">+0.00%</div>
-        <div class="rate-hero-cbr">
-            <span class="rhc-label">🏦 ЦБ РФ</span>
-            <span class="rhc-value" id="cbrRateValue">— ₽</span>
-            <span class="rhc-diff" id="cbrRateDiff">—</span>
+    <div class="events-block hidden" id="eventsBlock">
+        <h3>📅 Ближайшие события</h3>
+        <div id="eventsList"></div>
+    </div>
+
+    <div class="lists-block hidden" id="listsBlock">
+        <div class="lists-head">
+            <h3>📝 Мои списки</h3>
+            <button class="lists-add-btn" id="listsAddBtn">+ Список</button>
         </div>
-        <div class="rate-hero-updated" id="cbrUpdated"></div>
-        <span id="cbrMarketValue" style="display:none"></span>
+        <div class="lists-grid" id="listsGrid"></div>
     </div>
 
-    <div class="custom-rate-card">
-        <div class="custom-rate-label">⚙️ Свой курс</div>
-        <div class="custom-rate-row">
-            <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
-            <button class="custom-rate-apply" id="updateRateBtn">Применить</button>
+    <div class="calendar-block" id="calendarBlock">
+        <div class="calendar-header">
+            <button class="cal-nav" id="calPrev">◀</button>
+            <div class="cal-title" id="calTitle">—</div>
+            <button class="cal-nav" id="calNext">▶</button>
         </div>
-        <button class="custom-rate-online" id="fetchRateBtn">🔄 Обновить онлайн</button>
-        <div class="custom-rate-freshness" id="rateFreshness"></div>
-    </div>
-
-    <div class="currency-hero">
-        <div class="ch-label">💰 Эквивалент баланса</div>
-        <div class="ch-amount" id="currencyHeroUsd">0 $</div>
-        <div class="ch-details" id="usdDetails">↑ $0 · ↓ $0</div>
-    </div>
-
-    <div class="rate-diff-row">
-        <span class="rdr-label">📈 Курсовая разница</span>
-        <span class="rdr-value" id="rateProfit">0 ₽</span>
-    </div>
-
-    <div class="rate-chart-box">
-        <div class="rate-chart-header">
-            <h3>📊 История курса USD/RUB</h3>
-            <button class="rate-chart-refresh-btn" id="refreshRateChartBtn">Обновить</button>
+        <div class="calendar-weekdays">
+            <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
         </div>
-        <canvas id="rateHistoryChart"></canvas>
+        <div class="calendar-grid" id="calendarGrid"></div>
+        <div class="calendar-legend">
+            <span class="cal-leg-dot-item"><span class="cal-leg-dot cal-dot-expense"></span>расход</span>
+            <span class="cal-leg-dot-item"><span class="cal-leg-dot cal-dot-income"></span>доход</span>
+            <span class="cal-leg-dot-item"><span class="cal-leg-dot cal-dot-event"></span>событие</span>
+            <span class="cal-leg-dot-item"><span class="cal-leg-dot cal-leg-dot-bell"></span>напоминание</span>
+        </div>
     </div>
-
 </div>
 
 <div class="page" id="pageSettings">
@@ -287,8 +282,8 @@
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
     <div class="bn-pill">
-        <button class="bn-tab active" id="bnHomeBtn" data-page="dashboard"><span class="bn-emoji">🏠</span><span>Главная</span></button>
-        <button class="bn-tab" data-page="currency"><span class="bn-emoji">💵</span><span>Валюта</span></button>
+        <button class="bn-tab active" id="bnFinanceBtn" data-page="dashboard"><span class="bn-emoji">💰</span><span>Финансы</span></button>
+        <button class="bn-tab" id="bnHelperBtn" data-page="helper"><span class="bn-emoji">📅</span><span>Помощник</span></button>
         <button class="bn-tab" data-page="settings"><span class="bn-emoji">⚙️</span><span>Настройки</span></button>
     </div>
 </div>
@@ -308,6 +303,31 @@
     <button class="fab-item" id="fabRepeat">🔁 Повторить</button>
 </div>
 
+<div class="modal-overlay" id="rateModal">
+<div class="modal">
+    <div class="modal-header"><h2>💵 Валюта и Курс</h2><button class="modal-close" id="closeRateModal">×</button></div>
+    <div class="modal-body">
+        <!-- Сюда перенесём контент со старой вкладки Валюта -->
+        <div class="rate-hero">
+            <div class="rate-hero-label">Текущий курс USD / RUB</div>
+            <div class="rate-hero-value" id="rateInfo">— ₽</div>
+            <div class="rate-hero-delta" id="rateChangeInfo">+0.00%</div>
+        </div>
+        <div class="custom-rate-row" style="margin-top:15px;">
+            <input type="number" id="usdRateInput" step="0.01" value="85.00" placeholder="Курс">
+            <button class="custom-rate-apply" id="updateRateBtn">ОК</button>
+        </div>
+        <button class="custom-rate-online" id="fetchRateBtn" style="margin-top:8px;margin-bottom:15px;">🔄 Обновить онлайн</button>
+        
+        <div class="rate-chart-box" style="margin-bottom:0;">
+            <div class="rate-chart-header">
+                <h3>📊 История курса</h3>
+            </div>
+            <canvas id="rateHistoryChart"></canvas>
+        </div>
+    </div>
+</div>
+</div>
 
 <div class="modal-overlay" id="txModal">
 <div class="modal">
