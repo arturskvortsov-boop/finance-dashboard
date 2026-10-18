@@ -538,7 +538,7 @@ function getChartTheme(){
 /* ===== INSIGHTS ===== */
 function renderInsights(txs,period){
     var block=$('insightsBlock'),grid=$('insightGrid'),topList=$('topCatList');
-    if(!block)return;
+    if(!block || !grid)return;
     if(!txs.length){block.style.display='none';return;}
     block.style.display='block';
     var s=computeStats(txs);
@@ -1835,13 +1835,13 @@ function renderDashboard(txs,period){
     if($('currencyHeroUsd'))$('currencyHeroUsd').textContent=roundUsd(sAll.netUsd).toFixed(2)+' $';
     $('rateInfoSmall').textContent=currentUsdRate.toFixed(2)+' ₽';
 
-    $('totalIncomeRubOnly').textContent=roundRub(s.rubIncome).toLocaleString('ru-RU')+' ₽';
-    $('totalExpenseRubOnly').textContent=roundRub(s.rubExpense).toLocaleString('ru-RU')+' ₽';
+        if($('totalIncomeRubOnly'))$('totalIncomeRubOnly').textContent=roundRub(s.rubIncome).toLocaleString('ru-RU')+' ₽';
+    if($('totalExpenseRubOnly'))$('totalExpenseRubOnly').textContent=roundRub(s.rubExpense).toLocaleString('ru-RU')+' ₽';
     if($('totalIncomeUsd'))$('totalIncomeUsd').textContent=Math.round(s.totalIncomeUsdEq).toLocaleString('ru-RU')+' $';
     if($('totalExpenseUsd'))$('totalExpenseUsd').textContent=Math.round(s.totalExpenseUsdEq).toLocaleString('ru-RU')+' $';
     if($('balanceUsd'))$('balanceUsd').textContent=roundUsd(sAll.netUsd).toFixed(2)+' $';
-    $('netIncome').textContent=roundRub(sAll.netRub).toLocaleString('ru-RU')+' ₽';
-    $('recordCount').textContent=txs.length;
+    if($('netIncome'))$('netIncome').textContent=roundRub(sAll.netRub).toLocaleString('ru-RU')+' ₽';
+    if($('recordCount'))$('recordCount').textContent=txs.length;
 
     var rateDiff=0;
     for(var i=0;i<allTransactions.length;i++){if(allTransactions[i].usd>0)rateDiff+=allTransactions[i].usd*currentUsdRate-allTransactions[i].rub;}
@@ -1858,7 +1858,7 @@ function renderDashboard(txs,period){
     var monthEnd=new Date(now.getFullYear(),now.getMonth()+1,0);
     var monthTxs=allTransactions.filter(function(tx){return tx.date>=monthStart&&tx.date<=monthEnd;});
     var ms=computeStats(monthTxs);
-    $('periodDisplay').textContent=monthStart.toLocaleDateString('ru-RU')+' — '+monthEnd.toLocaleDateString('ru-RU');
+    if($('periodDisplay'))$('periodDisplay').textContent=monthStart.toLocaleDateString('ru-RU')+' — '+monthEnd.toLocaleDateString('ru-RU');
 
     var prevMonthStart=new Date(now.getFullYear(),now.getMonth()-1,1);
     var prevMonthEnd=new Date(now.getFullYear(),now.getMonth(),0);
@@ -1879,8 +1879,8 @@ function renderDashboard(txs,period){
         var arrow=up?'▲':'▼';
         return ' <span style="font-size:0.66rem;color:'+color+';opacity:0.85;font-weight:600">'+arrow+Math.abs(pct).toFixed(0)+'%</span>';
     }
-    $('monthIncomeDisplay').innerHTML='↑ '+roundRub(ms.totalIncomeRub).toLocaleString('ru-RU')+fmtComparePct(ms.totalIncomeRub,prevInc,false);
-    $('monthExpenseDisplay').innerHTML='↓ '+roundRub(ms.totalExpenseRub).toLocaleString('ru-RU')+fmtComparePct(ms.totalExpenseRub,prevExp,true);
+    if($('monthIncomeDisplay'))$('monthIncomeDisplay').innerHTML='↑ '+roundRub(ms.totalIncomeRub).toLocaleString('ru-RU')+fmtComparePct(ms.totalIncomeRub,prevInc,false);
+    if($('monthExpenseDisplay'))$('monthExpenseDisplay').innerHTML='↓ '+roundRub(ms.totalExpenseRub).toLocaleString('ru-RU')+fmtComparePct(ms.totalExpenseRub,prevExp,true);
 
     var theme=getChartTheme();
     if(expensePieChart){expensePieChart.destroy();expensePieChart=null;}
