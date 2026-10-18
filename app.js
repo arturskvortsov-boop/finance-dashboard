@@ -1833,7 +1833,7 @@ function renderDashboard(txs,period){
     $('totalBalanceUsdDisplay').textContent=roundUsd(sAll.netUsd).toFixed(2)+' $';
     if($('usdDetails'))$('usdDetails').textContent='↑ $'+Math.round(s.totalIncomeUsdEq)+' · ↓ $'+Math.round(s.totalExpenseUsdEq);
     if($('currencyHeroUsd'))$('currencyHeroUsd').textContent=roundUsd(sAll.netUsd).toFixed(2)+' $';
-    $('rateInfoSmall').textContent=currentUsdRate.toFixed(2)+' ₽';
+    if($('rateInfoSmall'))$('rateInfoSmall').textContent=currentUsdRate.toFixed(2)+' ₽';
 
         if($('totalIncomeRubOnly'))$('totalIncomeRubOnly').textContent=roundRub(s.rubIncome).toLocaleString('ru-RU')+' ₽';
     if($('totalExpenseRubOnly'))$('totalExpenseRubOnly').textContent=roundRub(s.rubExpense).toLocaleString('ru-RU')+' ₽';
