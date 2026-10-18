@@ -2261,6 +2261,7 @@ function drawRateHistoryChart(){
             plugins:{
                 legend:{display:false},
                 tooltip:{
+                    yAlign: 'top',
                     backgroundColor:'#1c2230',
                     borderColor:'rgba(252,211,77,0.45)',
                     borderWidth:1.5,
