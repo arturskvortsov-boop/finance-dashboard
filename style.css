@@ -2468,3 +2468,37 @@ body.fab-open .bn-bell{opacity:0;pointer-events:none;transform:scale(0.5)}
 .fab-fan.open .fab-item:nth-child(6){ transition-delay:.05s }
 .fab-fan.open .fab-item:nth-child(7){ transition-delay:.01s }
 
+/* ===== FINANCE & HELPER TABS ===== */
+.finance-top-actions{
+    display:flex;
+    justify-content:center;
+    margin-bottom:10px
+}
+.rate-modal-btn{
+    padding:6px 14px;
+    border-radius:20px;
+    background:var(--card-2);
+    border:1px solid var(--border);
+    color:var(--text-muted);
+    font-family:inherit;
+    font-size:0.72rem;
+    font-weight:600;
+    cursor:pointer;
+    transition:all .2s
+}
+.rate-modal-btn:active{transform:scale(0.96);border-color:var(--accent);color:var(--accent)}
+
+/* Акценты вкладок */
+body[data-mode="finance"] .bn-tab.active { color: #f5c84c; box-shadow: 0 0 12px rgba(245,200,76,0.35),0 0 0 1px rgba(245,200,76,0.4) inset; background: linear-gradient(135deg,rgba(245,200,76,0.22),rgba(212,160,23,0.14)); }
+body[data-mode="helper"] .bn-tab.active { color: #60a5fa; box-shadow: 0 0 12px rgba(96,165,250,0.35),0 0 0 1px rgba(96,165,250,0.4) inset; background: linear-gradient(135deg,rgba(96,165,250,0.22),rgba(59,130,246,0.14)); }
+body[data-mode="settings"] .bn-tab.active { color: #9a9aa5; box-shadow: 0 0 12px rgba(154,154,165,0.35),0 0 0 1px rgba(154,154,165,0.4) inset; background: linear-gradient(135deg,rgba(154,154,165,0.22),rgba(107,107,117,0.14)); }
+
+/* Оформление накопительного графика в компактном виде */
+.balance-chart-box.compact { padding: 10px; }
+.balance-chart-box.compact h3 { font-size: 0.7rem; margin-bottom: 4px; }
+.balance-chart-box.compact .chart-legend-custom { margin-bottom: 4px; font-size: 0.65rem; }
+.balance-chart-box.compact #balanceHistoryChart { height: 100px !important; }
+
+
+
+
