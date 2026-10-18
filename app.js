@@ -1831,7 +1831,7 @@ function renderDashboard(txs,period){
 
     animateValue($('totalBalanceRubDisplay'),sAll.netRub,' ₽',0,false,600);
     $('totalBalanceUsdDisplay').textContent=roundUsd(sAll.netUsd).toFixed(2)+' $';
-    $('usdDetails').textContent='↑ $'+Math.round(s.totalIncomeUsdEq)+' · ↓ $'+Math.round(s.totalExpenseUsdEq);
+    if($('usdDetails'))$('usdDetails').textContent='↑ $'+Math.round(s.totalIncomeUsdEq)+' · ↓ $'+Math.round(s.totalExpenseUsdEq);
     if($('currencyHeroUsd'))$('currencyHeroUsd').textContent=roundUsd(sAll.netUsd).toFixed(2)+' $';
     $('rateInfoSmall').textContent=currentUsdRate.toFixed(2)+' ₽';
 
