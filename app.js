@@ -2118,22 +2118,6 @@ function drawBalanceHistoryChart(txs,period){
                         label:function(ctx){return ctx.dataset.label+': '+roundRub(ctx.parsed.y).toLocaleString('ru-RU')+' ₽';},
                         afterBody:function(items){if(!items.length)return '';var inc=cumIncome[items[0].dataIndex];var exp=cumExpense[items[0].dataIndex];return '\nБаланс: '+roundRub(inc-exp).toLocaleString('ru-RU')+' ₽';}
                     }
-                },
-                    titleMarginBottom: 8,
-                    bodyColor:'#f2f2f4',
-                    bodyFont:{
-                        size:12,
-                        weight:'400',
-                        family:"-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-                    },
-                    padding:14,
-                    cornerRadius:10,
-                    bodySpacing:6,
-                    boxPadding: 6,
-                    callbacks:{
-                        label:function(ctx){return ctx.dataset.label+': '+roundRub(ctx.parsed.y).toLocaleString('ru-RU')+' ₽';},
-                        afterBody:function(items){if(!items.length)return '';var inc=cumIncome[items[0].dataIndex];var exp=cumExpense[items[0].dataIndex];return 'Баланс: '+roundRub(inc-exp).toLocaleString('ru-RU')+' ₽';}
-                    }
                 }
             },
             scales:{
