@@ -2844,3 +2844,83 @@ body.tg-webapp.tg-fullscreen {
     -webkit-backdrop-filter: blur(2px);
     transition: background 0.3s;
 }
+
+/* =======================================================
+   ЖЕСТКИЕ ФИКСЫ ДЛЯ ВСЕХ ВИЗУАЛЬНЫХ БАГОВ
+   ======================================================= */
+
+/* 1. ФИКС БАЛАНСА (Чтобы "805 850 ₽" не переносилось на две строки) */
+.bc-row-1 {
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+}
+.balance-card .bc-amount {
+    font-size: 1.6rem !important;
+    white-space: nowrap !important;
+    word-break: keep-all !important;
+    letter-spacing: -0.5px !important;
+}
+.bc-hide-btn {
+    width: 32px !important;
+    height: 32px !important;
+    flex-shrink: 0 !important;
+}
+
+/* 2. ФИКС ГРАФИКА (Чтобы даты снизу не обрезались, а подсказка вылетала вверх) */
+.balance-chart-box.compact {
+    height: 260px !important;
+    padding-bottom: 30px !important; /* Место для дат снизу */
+    overflow: visible !important; 
+}
+.balance-chart-box.compact canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* 3. ФИКС КАЛЕНДАРЯ В ПОМОЩНИКЕ (Чтобы кружочки не распирало) */
+body[data-mode="helper"] .calendar-grid {
+    gap: 4px !important;
+}
+body[data-mode="helper"] .cal-day {
+    border-radius: 50% !important;
+    aspect-ratio: 1 !important;
+    font-size: 0.8rem !important;
+    margin: 0 auto !important;
+    width: 100% !important;
+    max-width: 42px !important; /* Ограничиваем размер кружка */
+}
+
+/* 4. ФИКС ТЕКСТА В МОДАЛКАХ И СПИСКАХ (Скрин с ипотекой и расходами) */
+.cat-detail-modal .cdt-category {
+    font-size: 1rem !important;
+    white-space: normal !important;
+    line-height: 1.3 !important;
+}
+.ph-cat-name {
+    font-size: 0.85rem !important;
+    line-height: 1.2 !important;
+}
+.ph-cat-amount {
+    font-size: 0.85rem !important;
+}
+.ph-cat-group-title {
+    font-size: 0.7rem !important;
+    margin-bottom: 6px !important;
+}
+
+/* 5. ФИКС НИЖНЕГО МЕНЮ (Чтобы текст не слипался) */
+.bn-tab {
+    font-size: 0.6rem !important;
+    padding: 4px 2px !important;
+}
+.bn-tab .bn-emoji {
+    font-size: 1.1rem !important;
+    margin-bottom: 2px !important;
+}
+
+/* 6. ФИКС ШАПКИ В TELEGRAM (Чтобы контент не уезжал под кнопки) */
+body.tg-webapp.tg-fullscreen {
+    padding-top: calc(85px + env(safe-area-inset-top, 0px)) !important;
+}
