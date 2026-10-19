@@ -1178,6 +1178,84 @@ function scheduleSyncLists(){
     listsSyncTimer=setTimeout(function(){syncLists();},1500);
 }
 
+/* ===== WEATHER ===== */
+function getWeatherInfo(code) {
+    if (code === 0) return { icon: '☀️', desc: 'Ясно' };
+    if (code === 1 || code === 2) return { icon: '🌤️', desc: 'Малооблачно' };
+    if (code === 3) return { icon: '☁️', desc: 'Пасмурно' };
+    if (code === 45 || code === 48) return { icon: '🌫️', desc: 'Туман' };
+    if (code >= 51 && code <= 57) return { icon: '🌦️', desc: 'Морось' };
+    if (code >= 61 && code <= 67) return { icon: '🌧️', desc: 'Дождь' };
+    if (code >= 71 && code <= 77) return { icon: '🌨️', desc: 'Снег' };
+    if (code >= 80 && code <= 82) return { icon: '🌦️', desc: 'Ливень' };
+    if (code >= 85 && code <= 86) return { icon: '🌨️', desc: 'Снегопад' };
+    if (code >= 95 && code <= 99) return { icon: '⛈️', desc: 'Гроза' };
+    return { icon: '🌡️', desc: 'Неизвестно' };
+}
+
+function fetchWeather() {
+    var widget = $('weatherWidget');
+    if (!widget) return;
+    widget.classList.remove('hidden');
+    if($('weatherIcon')) $('weatherIcon').textContent = '⏳';
+    if($('weatherDesc')) $('weatherDesc').textContent = 'Определяем геопозицию...';
+    if($('weatherTemp')) $('weatherTemp').textContent = '—°';
+    if($('weatherFeels')) $('weatherFeels').textContent = '— м/с';
+    
+    var apiUrl = 'https://api.open-meteo.com/v1/forecast?current_weather=true';
+    
+    function loadWeather(lat, lon) {
+        fetch(apiUrl + '&latitude=' + lat + '&longitude=' + lon)
+            .then(function(r){ return r.json(); })
+            .then(function(data){
+                if (!data || !data.current_weather) return;
+                var cw = data.current_weather;
+                var temp = Math.round(cw.temperature);
+                var wind = Math.round(cw.windspeed);
+                var info = getWeatherInfo(cw.weathercode);
+                
+                if($('weatherIcon')) $('weatherIcon').textContent = info.icon;
+                if($('weatherTemp')) $('weatherTemp').textContent = (temp > 0 ? '+' : '') + temp + '°';
+                if($('weatherDesc')) $('weatherDesc').textContent = info.desc;
+                if($('weatherFeels')) $('weatherFeels').textContent = 'Ветер ' + wind + ' м/с';
+            })
+            .catch(function(e){ console.log('Ошибка API погоды', e); });
+    }
+
+    // 1. Пытаемся получить точные координаты (GPS/Telegram)
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(pos) {
+                // Успех: загружаем по точным координатам
+                loadWeather(pos.coords.latitude, pos.coords.longitude);
+            },
+            function(err) {
+                // Ошибка (отказ или нет GPS): фоллбэк на IP
+                fetch('https://ipapi.co/json/')
+                    .then(function(r){ return r.json(); })
+                    .then(function(data){
+                        if (data && data.latitude && data.longitude) {
+                            loadWeather(data.latitude, data.longitude);
+                        } else {
+                            throw new Error('IP Fail');
+                        }
+                    })
+                    .catch(function(){
+                        if($('weatherDesc')) $('weatherDesc').textContent = 'Гео заблокировано';
+                    });
+            },
+            { timeout: 5000, maximumAge: 600000 } // Ждем 5 сек, кэш на 10 мин
+        );
+    } else {
+        // Если геолокации нет вообще
+        fetch('https://ipapi.co/json/')
+            .then(function(r){ return r.json(); })
+            .then(function(data){
+                if (data && data.latitude && data.longitude) loadWeather(data.latitude, data.longitude);
+            });
+    }
+}
+
 /* ===== EVENTS ===== */
 function formatEventDate(y,m,d){
     var months=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
@@ -3261,6 +3339,7 @@ function switchPage(page,direction){
         renderCalendar();
         renderLists();
         renderUpcomingEvents();
+        fetchWeather();
     } else if(page==='settings'){
         updateTokenStatus();renderSettingsStats();
         renderTemplatesList('settingsTemplatesList','settings');
