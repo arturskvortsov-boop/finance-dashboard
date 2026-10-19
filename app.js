@@ -115,6 +115,7 @@ var currentListId=null;
 var currentListIcon='🛒';
 var LIST_ICONS=['🛒','📋','💡','🎁','📚','🏠','✈️','🔧','🎯','💊','🌱','🎵','🧺','🎒','🍳','📌'];
 var currentFilter='month';
+var currentAuthorFilter = 'all';
 var dataLoaded=false;
 var currentUsdRate=85.00;
 var expensePieChart=null,incomePieChart=null,rateHistoryChart=null,catDetailDonut=null,balanceHistoryChart=null;
@@ -1455,6 +1456,17 @@ var closeWeatherBtn = $('closeWeatherModal');
 if (closeWeatherBtn) closeWeatherBtn.addEventListener('click', closeWeatherModal);
 var weatherModalEl = $('weatherModal');
 if (weatherModalEl) weatherModalEl.addEventListener('click', function(e) { if (e.target === this) closeWeatherModal(); });
+var authorFilterBtns=document.querySelectorAll('#authorFilterBar .filter-btn');
+for(var i=0;i<authorFilterBtns.length;i++){
+    (function(btn){
+        btn.addEventListener('click',function(){
+            for(var j=0;j<authorFilterBtns.length;j++)authorFilterBtns[j].classList.remove('active');
+            this.classList.add('active');
+            currentAuthorFilter=this.dataset.author;
+            if(dataLoaded)updateWithFilter(currentFilter);
+        });
+    })(authorFilterBtns[i]);
+}
 
 /* ===== EVENTS ===== */
 function formatEventDate(y,m,d){
@@ -1477,6 +1489,11 @@ function openEventEditModal(id,presetDate){
         $('evtDate').value=ev.date||'';
         $('evtTime').value=ev.time||'';
         $('evtNote').value=ev.note||'';
+                var author = ev.author || currentUserName;
+        var authorBtns = document.querySelectorAll('#evtAuthorToggle .type-btn');
+        for(var i=0;i<authorBtns.length;i++) {
+            authorBtns[i].classList.toggle('active', authorBtns[i].textContent.includes(author));
+        }
     } else {
         title.textContent='📅 Новое событие';
         currentEventIcon='📅';
@@ -1493,6 +1510,10 @@ function openEventEditModal(id,presetDate){
         }
         $('evtTime').value='';
         $('evtNote').value='';
+                var defaultBtns = document.querySelectorAll('#evtAuthorToggle .type-btn');
+        for(var i=0;i<defaultBtns.length;i++) {
+            defaultBtns[i].classList.toggle('active', defaultBtns[i].dataset.author==='me');
+        }
     }
     renderEventIconPicker();
     $('eventEditModal').classList.add('open');
@@ -1527,6 +1548,8 @@ function saveEvent(){
     var date=$('evtDate').value;
     var time=$('evtTime').value;
     var note=$('evtNote').value.trim();
+        var activeAuthorBtn = document.querySelector('#evtAuthorToggle .type-btn.active');
+    var authorName = activeAuthorBtn ? activeAuthorBtn.textContent.replace('👨 ','').replace('👩 ','').trim() : currentUserName;
     if(!title){alert('Введите название события');return;}
     if(!date){alert('Укажите дату');return;}
     if(editingEventId){
@@ -1536,6 +1559,7 @@ function saveEvent(){
             events[i].date=date;
             events[i].time=time;
             events[i].note=note;
+            events[i].author=authorName;
             break;
         }
         $('fileStatus').textContent='✏️ Событие обновлено';
@@ -1547,6 +1571,7 @@ function saveEvent(){
             date:date,
             time:time,
             note:note,
+            author:authorName,
             createdAt:new Date().toISOString()
         });
         $('fileStatus').textContent='📅 Событие создано';
@@ -1644,7 +1669,7 @@ function renderUpcomingEvents(){
         card.innerHTML=
             '<div class="ue-icon">'+(ev.icon||'📅')+'</div>'+
             '<div class="ue-info">'+
-                '<div class="ue-title">'+(ev.title||'Событие')+'</div>'+
+                '<div class="ue-title">'+(ev.author === partnerName ? '👩 ' : '👨 ')+(ev.title||'Событие')+'</div>'+
                 '<div class="ue-meta">'+(meta||'—')+'</div>'+
             '</div>'+
             '<div class="ue-when">'+
@@ -2262,6 +2287,13 @@ function updateWithFilter(period){
     var dash=$('dashboard');
     var doRender=function(){
         var f=filterTransactions(allTransactions,period);
+        if (currentAuthorFilter !== 'all') {
+            var targetAuthor = (currentAuthorFilter === 'me') ? currentUserName : partnerName;
+            f = f.filter(function(tx) {
+                var a = tx.author || currentUserName;
+                return a === targetAuthor;
+            });
+        }
         renderDashboard(f,period);
         var names={day:'за сегодня',week:'за последние 7 дней',month:'за текущий месяц',all:'за всё время'};
         if($('periodLabel'))$('periodLabel').textContent=names[period]||'';
