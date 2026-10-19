@@ -2986,6 +2986,13 @@ body.tg-webapp.tg-fullscreen {
     background-color: #0a0a0b !important;
 }
 
+/* =======================================================
+   ЖЕСТКИЙ ОТСТУП СВЕРХУ ДЛЯ TELEGRAM
+   ======================================================= */
+body.tg-webapp.tg-fullscreen .container {
+    padding-top: calc(15px + env(safe-area-inset-top, 0px)) !important;
+}
+
 /* Финальный фикс: сбрасываем все отступы и ставим минимальный безопасный */
 body.tg-webapp.tg-fullscreen {
     padding-top: 0 !important;
