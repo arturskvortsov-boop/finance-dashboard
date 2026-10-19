@@ -2109,6 +2109,7 @@ function drawBalanceHistoryChart(txs,period){
             plugins:{
                 legend:{display:false},
                 tooltip:{
+                    yAlign: 'bottom', 
                     backgroundColor:'rgba(18, 28, 48, 0.95)',
                     borderColor:'rgba(96, 165, 250, 0.4)',
                     borderWidth:1,
@@ -2258,6 +2259,9 @@ function drawRateHistoryChart(){
         options:{
             responsive:true,
             maintainAspectRatio:false,
+            layout: {
+                padding: { top: 30, right: 15, bottom: 30, left: 5 }
+            },
             interaction:{mode:'index',intersect:false},
             layout:{padding: { top: 10, right: 10, bottom: 10, left: 5 }},
             animation:{duration:900,easing:'easeOutQuart'},
