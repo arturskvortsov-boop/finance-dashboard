@@ -2102,6 +2102,9 @@ function drawBalanceHistoryChart(txs,period){
         options:{
             responsive:true,
             maintainAspectRatio:false,
+            layout: {
+                padding: { top: 10, right: 10, bottom: 10, left: 10 }
+            },
             interaction:{mode:'index',intersect:false},
             plugins:{
                 legend:{display:false},
@@ -2256,7 +2259,7 @@ function drawRateHistoryChart(){
             responsive:true,
             maintainAspectRatio:false,
             interaction:{mode:'index',intersect:false},
-            layout:{padding:{top:10,right:8,bottom:4,left:0}},
+            layout:{padding: { top: 10, right: 10, bottom: 10, left: 5 }},
             animation:{duration:900,easing:'easeOutQuart'},
             plugins:{
                 legend:{display:false},
@@ -3194,6 +3197,18 @@ function switchPage(page,direction){
     if($('bnFinanceBtn')&&$('bnFinanceBtn').classList.contains('active'))currentPage='dashboard';
 
     document.body.setAttribute('data-mode', page==='dashboard'?'finance':page==='helper'?'helper':'settings');
+    
+    if(window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.setHeaderColor) {
+        try {
+            if(page === 'helper') {
+                window.Telegram.WebApp.setHeaderColor('#070b14');
+                window.Telegram.WebApp.setBackgroundColor('#070b14');
+            } else {
+                window.Telegram.WebApp.setHeaderColor('#0a0a0b');
+                window.Telegram.WebApp.setBackgroundColor('#0a0a0b');
+            }
+        } catch(e) {}
+    }
     if(currentPage===page&&!direction)return;
     if(!direction&&currentPage){
         var oi=navPages.indexOf(currentPage),ni=navPages.indexOf(page);
@@ -3621,6 +3636,14 @@ var bnFabBtn=$('bnFabBtn'); if(bnFabBtn)bnFabBtn.addEventListener('click',functi
 });
 var fabOverlayEl=$('fabOverlay');
 if(fabOverlayEl)fabOverlayEl.addEventListener('click',function(){closeFabFan();});
+var fabFanEl = $('fabFan');
+if(fabFanEl) {
+    fabFanEl.addEventListener('click', function(e) {
+        if (e.target === fabFanEl) {
+            closeFabFan();
+        }
+    });
+}
 var fabRepeat=$('fabRepeat'); if(fabRepeat)fabRepeat.addEventListener('click',function(){closeFabFan();setTimeout(function(){repeatLastTransaction();},150);});
 var fabList=$('fabList'); if(fabList)fabList.addEventListener('click',function(){closeFabFan();setTimeout(function(){openListEditModal(null);},150);});
 
