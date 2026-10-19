@@ -2787,3 +2787,58 @@ body[data-mode="helper"] .bn-fab.open { background: linear-gradient(135deg, #60a
 body[data-mode="helper"] .ph-tx-item {
     background: #19243c !important;
 }
+
+/* =======================================================
+   ИСПРАВЛЕНИЕ ФОНА И TELEGRAM
+   ======================================================= */
+html, body {
+    background-color: var(--bg) !important;
+    background-image: none;
+}
+body[data-mode="helper"] {
+    background: radial-gradient(circle at 50% 0%, #101d36 0%, var(--bg) 100%) !important;
+}
+body[data-mode="finance"] {
+    background: var(--bg) !important;
+}
+
+/* Убираем черную полосу сверху в Telegram */
+body.tg-webapp.tg-fullscreen {
+    padding-top: calc(20px + env(safe-area-inset-top, 0px)) !important;
+}
+
+/* =======================================================
+   ИСПРАВЛЕНИЕ ГРАФИКА (Чтобы 0 и подсказка не вылезали)
+   ======================================================= */
+.balance-chart-box.compact {
+    height: 220px; /* Чуть увеличили высоту */
+    display: flex;
+    flex-direction: column;
+    padding: 15px 10px 10px 10px; /* Добавили внутренние отступы */
+    overflow: visible !important; /* Разрешаем подсказке вылезать за пределы */
+}
+.balance-chart-box.compact canvas {
+    width: 100% !important;
+    height: 100% !important;
+    flex: 1;
+}
+
+/* =======================================================
+   КРАСИВЫЙ FAB (Кнопки одинакового размера)
+   ======================================================= */
+.fab-item {
+    padding: 12px 20px; /* Одинаковый размер */
+    font-size: 0.8rem;
+    min-width: 120px; /* Фиксированная ширина, чтобы не было разнобоя */
+    justify-content: flex-start;
+}
+.fab-item span { margin-right: 8px; } /* Отступ для эмодзи */
+
+/* Оверлей для закрытия FAB по клику в пустоту */
+.fab-fan.open {
+    pointer-events: auto;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    transition: background 0.3s;
+}
