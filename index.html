@@ -129,7 +129,10 @@
         <div class="weather-left">
             <span class="weather-icon" id="weatherIcon">⏳</span>
             <div class="weather-info">
-                <span class="weather-city" id="weatherCity" style="cursor:pointer; border-bottom:1px dashed rgba(96,165,250,0.5);">Город</span>
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span class="weather-city" id="weatherCity">Город</span>
+                    <span id="weatherCityEdit" style="cursor:pointer; font-size:0.8rem; opacity:0.7;">✏️</span>
+                </div>
                 <span class="weather-desc" id="weatherDesc">Загрузка...</span>
             </div>
         </div>
@@ -480,6 +483,18 @@
             <button class="ph-search-clear" id="phSearchClear" style="display:none">✕</button>
         </div>
         <div class="ph-modal-scroll" id="phModalBody"></div>
+    </div>
+</div>
+</div>
+
+<div class="modal-overlay" id="weatherModal">
+<div class="modal ph-modal" style="border-color:rgba(96,165,250,0.4); background:linear-gradient(180deg, #111b2e, #0a111f);">
+    <div class="modal-header" style="border-bottom-color:rgba(96,165,250,0.15);">
+        <h2 id="weatherModalTitle" style="color:#60a5fa;">🌤 Погода</h2>
+        <button class="modal-close" id="closeWeatherModal" style="border-color:rgba(96,165,250,0.25); color:#60a5fa;">×</button>
+    </div>
+    <div class="modal-body">
+        <div class="ph-modal-scroll" id="weatherForecastList" style="padding-right:0;"></div>
     </div>
 </div>
 </div>
