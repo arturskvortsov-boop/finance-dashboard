@@ -49,7 +49,7 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .bc-top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap}
 .bc-row-1{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;min-width:0;flex:1}
 .balance-card .bc-label{color:var(--text-muted);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;font-weight:500}
-.balance-card .bc-amount{font-size:1.7rem;font-weight:700;color:var(--text);line-height:1.1;word-break:break-all}
+.balance-card .bc-amount{font-size:1.5rem;font-weight:700;color:var(--text);line-height:1.1;white-space:nowrap;word-break:normal}
 .bc-hide-btn{background:transparent;border:1px solid var(--border);color:var(--text-muted);width:34px;height:34px;border-radius:10px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;font-family:inherit;transition:all .15s;flex-shrink:0}
 .bc-hide-btn.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
 .balance-card .bc-hidden{filter:blur(8px);user-select:none;transition:filter .25s ease;pointer-events:none}
@@ -119,7 +119,7 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
     flex: 1;
 }
 
-/* ===== RATE CHART (Currency page) ===== */
+/* ===== RATE CHART ===== */
 .rate-chart-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px 6px;margin-bottom:8px;min-width:0}
 .rate-chart-header{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
 .rate-chart-header h3{font-weight:600;font-size:0.72rem;color:var(--text-muted);margin-bottom:0;text-transform:uppercase;letter-spacing:0.6px}
@@ -131,7 +131,7 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .hidden{display:none!important}
 .footer{margin-top:14px;text-align:center;font-size:0.62rem;color:var(--text-dim);border-top:1px solid var(--border);padding-top:10px;word-break:break-word}
 
-/* ===== CURRENCY HERO / RATE ===== */
+/* ===== CURRENCY HERO ===== */
 .currency-hero{background:linear-gradient(135deg,var(--card) 0%,var(--card-2) 100%);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:8px;text-align:center;position:relative;overflow:hidden}
 .currency-hero::before{content:'';position:absolute;top:-60%;right:-30%;width:240px;height:240px;background:radial-gradient(circle,rgba(245,200,76,.15),transparent 70%);pointer-events:none}
 .currency-hero .ch-label{font-size:0.66rem;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);font-weight:600;margin-bottom:8px;position:relative}
@@ -151,7 +151,6 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .settings-btn.success{border-color:var(--green);color:var(--green);background:var(--green-bg)}
 .settings-btn.danger{border-color:var(--red);color:var(--red);background:var(--red-bg)}
 .settings-btn.neutral{border-color:var(--border-soft);color:var(--text-muted)}
-.settings-hint{color:var(--text-dim);font-size:0.7rem;margin-top:8px;line-height:1.4}
 
 /* ===== TEMPLATES / BUDGETS / GOALS ===== */
 .templates-list{display:flex;flex-direction:column;gap:8px}
@@ -234,8 +233,6 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .bn-tab .bn-emoji{font-size:1.15rem;line-height:1;display:inline-block;transition:transform .2s}
 .bn-tab.active{background:linear-gradient(135deg,rgba(252,211,77,0.22),rgba(251,191,36,0.14));color:#fcd34d;box-shadow:0 0 12px rgba(252,211,77,0.35),0 0 0 1px rgba(252,211,77,0.4) inset;position:relative;overflow:hidden}
 .bn-tab:active{transform:scale(0.95)}
-.bn-tab.active .bn-emoji{animation:navPop .42s cubic-bezier(.34,1.56,.64,1)}
-@keyframes navPop{0%{transform:scale(1)}50%{transform:scale(1.28)}100%{transform:scale(1)}}
 
 .bn-fab{position:fixed;right:12px;bottom:calc(90px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#f5c84c,#d4a017);border:none;display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#0b0e14;cursor:pointer;font-family:inherit;padding:0;flex-shrink:0;box-shadow:0 6px 22px rgba(245,200,76,0.5),0 0 0 1px rgba(255,255,255,0.15) inset;transition:transform .5s cubic-bezier(.34,1.4,.5,1),box-shadow .35s,right .5s cubic-bezier(.34,1.4,.5,1),bottom .5s cubic-bezier(.34,1.4,.5,1),background .35s;font-weight:400;line-height:1;z-index:965}
 .bn-fab:active{transform:scale(0.92)}
