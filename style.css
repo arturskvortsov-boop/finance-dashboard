@@ -3050,3 +3050,46 @@ body.tg-webapp.tg-fullscreen .container {
 body.tg-webapp.tg-fullscreen .container {
     padding-top: calc(20px + env(safe-area-inset-top, 0px)) !important;
 }
+
+/* =======================================================
+   ПРЕМИАЛЬНЫЙ СТИЛЬ КНОПОК FAB-МЕНЮ
+   ======================================================= */
+.fab-item {
+    /* Убираем неоновое свечение */
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6) !important; 
+    /* Делаем фон менее прозрачным, чтобы текст читался */
+    background: rgba(26, 31, 42, 0.85) !important; 
+    /* Тонкая, аккуратная рамка вместо толстой желтой */
+    border: 1px solid rgba(255, 255, 255, 0.12) !important; 
+    /* Чуть уменьшаем отступы внутри кнопки */
+    padding: 10px 18px !important;
+    /* Делаем текст чуть более воздушным */
+    font-weight: 500 !important;
+    color: #e2e8f0 !important;
+    letter-spacing: 0.3px !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Эффект при нажатии (когда палец касается кнопки) */
+.fab-item:active {
+    background: rgba(245, 200, 76, 0.2) !important;
+    border-color: rgba(245, 200, 76, 0.8) !important;
+    color: #f5c84c !important;
+    transform: translate(-50%, -50%) translate(var(--tx,0), var(--ty,0)) scale(0.95) !important;
+}
+
+/* В Помощнике (синяя тема) нажатие будет синим */
+body[data-mode="helper"] .fab-item:active {
+    background: rgba(96, 165, 250, 0.2) !important;
+    border-color: rgba(96, 165, 250, 0.8) !important;
+    color: #60a5fa !important;
+}
+
+/* Чуть-чуть отодвинем кнопки друг от друга, чтобы они не слипались */
+.fab-item:nth-child(1){ --tx: 0px;    --ty: -145px; } /* Обновить */
+.fab-item:nth-child(2){ --tx: 115px;  --ty: -90px;  } /* Синхрон */
+.fab-item:nth-child(3){ --tx: 140px;  --ty: 30px;   } /* Добавить */
+.fab-item:nth-child(4){ --tx: 65px;   --ty: 130px;  } /* Событие */
+.fab-item:nth-child(5){ --tx: -65px;  --ty: 130px;  } /* Список */
+.fab-item:nth-child(6){ --tx: -140px; --ty: 30px;   } /* Быстрое */
+.fab-item:nth-child(7){ --tx: -115px; --ty: -90px;  } /* Повторить */
