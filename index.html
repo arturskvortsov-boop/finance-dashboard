@@ -155,6 +155,14 @@
         <div class="lists-grid" id="listsGrid"></div>
     </div>
 
+    <div class="notes-block hidden" id="notesBlock">
+        <div class="lists-head">
+            <h3>📝 Мои заметки</h3>
+            <button class="lists-add-btn" id="notesAddBtn">+ Заметка</button>
+        </div>
+        <div class="notes-grid" id="notesGrid"></div>
+    </div>
+
     <div class="calendar-block" id="calendarBlock">
         <div class="calendar-header">
             <button class="cal-nav" id="calPrev">◀</button>
@@ -495,6 +503,27 @@
     </div>
     <div class="modal-body">
         <div class="ph-modal-scroll" id="weatherForecastList" style="padding-right:0;"></div>
+    </div>
+</div>
+</div>
+
+<div class="modal-overlay" id="noteEditModal">
+<div class="modal">
+    <div class="modal-header">
+        <h2 id="noteEditTitle">📝 Новая заметка</h2>
+        <button class="modal-close" id="closeNoteEditModal">×</button>
+    </div>
+    <div class="modal-body">
+        <div class="form-row"><label>Заголовок</label><input type="text" id="noteTitleInput" placeholder="Например: Пароли"></div>
+        <div class="form-row">
+            <label>Текст</label>
+            <textarea id="noteTextInput" class="note-textarea" placeholder="Введите текст заметки..." rows="6"></textarea>
+        </div>
+        <button class="list-delete-btn hidden" id="noteDeleteBtn">🗑️ Удалить заметку</button>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-btn cancel" id="cancelNoteEditBtn">Отмена</button>
+        <button class="modal-btn save" id="saveNoteBtn">Сохранить</button>
     </div>
 </div>
 </div>
