@@ -3048,5 +3048,5 @@ body.tg-webapp.tg-fullscreen .container {
 
 /* Чтобы контент в Телеграме не залезал под шапку */
 body.tg-webapp.tg-fullscreen .container {
-    padding-top: calc(70px + env(safe-area-inset-top, 0px)) !important;
+    padding-top: calc(20px + env(safe-area-inset-top, 0px)) !important;
 }
