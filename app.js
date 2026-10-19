@@ -3329,6 +3329,7 @@ function hidePullIndicator(){
     var ind=$('pullIndicator');
     if(!ind)return;
     ind.classList.remove('visible','ready','spinning');
+    ind.style.transform=''; // Очищаем любые старые сдвиги
 }
 function doPullRefresh(){
     if(pullRefreshing)return;
