@@ -4572,6 +4572,30 @@ loadTombstonesFromServer().then(function(){
             }
         }
     });
+    // Переключатель автора в транзакциях
+var txAuthorBtns = document.querySelectorAll('#txAuthorToggle .type-btn');
+for(var i=0;i<txAuthorBtns.length;i++){
+    (function(btn){
+        btn.addEventListener('click', function(){
+            for(var j=0;j<txAuthorBtns.length;j++) txAuthorBtns[j].classList.remove('active');
+            this.classList.add('active');
+            haptic('light');
+        });
+    })(txAuthorBtns[i]);
+}
+
+// Переключатель автора в событиях
+var evtAuthorBtns = document.querySelectorAll('#evtAuthorToggle .type-btn');
+for(var i=0;i<evtAuthorBtns.length;i++){
+    (function(btn){
+        btn.addEventListener('click', function(){
+            for(var j=0;j<evtAuthorBtns.length;j++) evtAuthorBtns[j].classList.remove('active');
+            this.classList.add('active');
+            haptic('light');
+        });
+    })(evtAuthorBtns[i]);
+}
+
 })();
 
 })();
