@@ -3119,3 +3119,55 @@ body[data-mode="helper"] .fab-item:active {
 .weather-right { display: flex; flex-direction: column; align-items: flex-end; }
 .weather-temp { font-size: 1.6rem; font-weight: 800; color: #60a5fa; line-height: 1.1; letter-spacing: -0.5px;}
 .weather-feels { font-size: 0.65rem; color: var(--text-dim); margin-top: 2px; }
+
+/* ===== WEATHER FORECAST MODAL ===== */
+.weather-hour-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 10px;
+    border-bottom: 1px solid rgba(96, 165, 250, 0.1);
+}
+.weather-hour-row:last-child { border-bottom: none; }
+
+.weather-hour-time {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #8ba3c7;
+    width: 60px;
+}
+.weather-hour-icon {
+    font-size: 1.4rem;
+    width: 40px;
+    text-align: center;
+}
+.weather-hour-desc {
+    flex: 1;
+    font-size: 0.78rem;
+    color: #5b7396;
+    margin-left: 10px;
+}
+.weather-hour-temp {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #60a5fa;
+    margin-right: 15px;
+}
+.weather-hour-wind {
+    font-size: 0.7rem;
+    color: #8ba3c7;
+    width: 60px;
+    text-align: right;
+}
+
+/* Виджет при нажатии */
+.weather-widget:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+}
+#weatherCityEdit {
+    transition: transform 0.2s;
+}
+#weatherCityEdit:active {
+    transform: scale(1.2);
+}
