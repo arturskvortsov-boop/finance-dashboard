@@ -1197,10 +1197,41 @@ function fetchWeather() {
     var widget = $('weatherWidget');
     if (!widget) return;
 
-    if ($('weatherIcon')) $('weatherIcon').textContent = '⏳';
-    if ($('weatherDesc')) $('weatherDesc').textContent = 'Загрузка...';
+    var cityEl = $('weatherCity');
+
+    // Если нажать на город, можно ввести свой
+    if (cityEl && !cityEl.dataset.listener) {
+        cityEl.dataset.listener = 'true';
+        cityEl.onclick = function() {
+            var newCity = prompt('Введите название города:', cityEl.textContent);
+            if (newCity && newCity.trim() !== '') {
+                cityEl.textContent = 'Поиск...';
+                fetch('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(newCity) + '&count=1&language=ru&format=json')
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (data.results && data.results.length > 0) {
+                            var res = data.results[0];
+                            localStorage.setItem('weatherLat', res.latitude);
+                            localStorage.setItem('weatherLon', res.longitude);
+                            localStorage.setItem('weatherCity', res.name);
+                            cityEl.textContent = res.name;
+                            loadWeather(res.latitude, res.longitude);
+                        } else {
+                            alert('Город не найден');
+                            cityEl.textContent = localStorage.getItem('weatherCity') || 'Город';
+                        }
+                    }).catch(function() {
+                        alert('Ошибка поиска');
+                        cityEl.textContent = localStorage.getItem('weatherCity') || 'Город';
+                    });
+            }
+        };
+    }
 
     function loadWeather(lat, lon) {
+        if ($('weatherIcon')) $('weatherIcon').textContent = '⏳';
+        if ($('weatherDesc')) $('weatherDesc').textContent = 'Загрузка...';
+        
         fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&current_weather=true')
             .then(function(r) { return r.json(); })
             .then(function(data) {
@@ -1216,22 +1247,52 @@ function fetchWeather() {
                 if ($('weatherFeels')) $('weatherFeels').textContent = 'Ветер ' + wind + ' м/с';
             })
             .catch(function(e) {
-                if ($('weatherDesc')) $('weatherDesc').textContent = 'Ошибка сети';
+                if ($('weatherDesc')) $('weatherDesc').textContent = 'Нет сети';
             });
     }
+
+    // 1. Проверяем, сохранен ли город в памяти
+    var savedLat = localStorage.getItem('weatherLat');
+    var savedLon = localStorage.getItem('weatherLon');
+    var savedCity = localStorage.getItem('weatherCity');
+
+    if (savedLat && savedLon && savedCity) {
+        if (cityEl) cityEl.textContent = savedCity;
+        loadWeather(savedLat, savedLon);
+        return; // Если город сохранен, дальше не идем
+    }
+
+    // 2. Если не сохранен, ставим дефолт (Москва) и пробуем GPS
+    if (cityEl) cityEl.textContent = 'Москва';
+    loadWeather(55.7558, 37.6173);
 
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             function(pos) {
+                // Если GPS сработал, сохраняем координаты (город пока "Мой город")
+                localStorage.setItem('weatherLat', pos.coords.latitude);
+                localStorage.setItem('weatherLon', pos.coords.longitude);
+                localStorage.setItem('weatherCity', 'Мой город');
+                if (cityEl) cityEl.textContent = 'Мой город';
                 loadWeather(pos.coords.latitude, pos.coords.longitude);
             },
             function(err) {
-                loadWeather(55.7558, 37.6173); // Резерв: Москва
+                // Если GPS запрещен, пробуем по IP
+                fetch('https://ipapi.co/json/')
+                    .then(function(r){ return r.json(); })
+                    .then(function(data){
+                        if (data && data.latitude && data.longitude) {
+                            localStorage.setItem('weatherLat', data.latitude);
+                            localStorage.setItem('weatherLon', data.longitude);
+                            var ipCity = data.city || data.region || 'Мой город';
+                            localStorage.setItem('weatherCity', ipCity);
+                            if (cityEl) cityEl.textContent = ipCity;
+                            loadWeather(data.latitude, data.longitude);
+                        }
+                    }).catch(function(){});
             },
-            { timeout: 5000 }
+            { timeout: 4000 }
         );
-    } else {
-        loadWeather(55.7558, 37.6173); // Резерв: Москва
     }
 }
 
