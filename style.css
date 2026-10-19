@@ -2954,3 +2954,7 @@ body[data-mode="finance"].tg-webapp,
 body.tg-webapp.tg-fullscreen {
     background-color: #0a0a0b !important;
 }
+
+body.tg-webapp.tg-fullscreen {
+    padding-top: calc(95px + env(safe-area-inset-top, 0px)) !important;
+}
