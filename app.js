@@ -956,9 +956,14 @@ function renderNotes(){
     var block=$('notesBlock');
     var grid=$('notesGrid');
     if(!block||!grid)return;
-    if(!notes.length){block.classList.add('hidden');return;}
-    block.classList.remove('hidden');
+    block.classList.remove('hidden'); // Всегда показываем блок
+    
     grid.innerHTML='';
+    if(!notes.length){
+        grid.innerHTML = '<div style="text-align:center; color:var(--text-dim); font-size:0.8rem; padding:10px;">Заметок пока нет. Нажми «+ Заметка».</div>';
+        return;
+    }
+    
     var sorted=notes.slice().sort(function(a,b){return (b.createdAt||'').localeCompare(a.createdAt||'');});
     for(var i=0;i<sorted.length;i++){
         var n=sorted[i];
@@ -3532,6 +3537,7 @@ function switchPage(page,direction){
     if(page==='helper'){
         try { renderCalendar(); } catch(e) { console.log('Ошибка календаря:', e); }
         try { renderLists(); } catch(e) { console.log('Ошибка списков:', e); }
+        try { renderNotes(); } catch(e) { console.log('Ошибка заметок:', e); } // <-- ДОБАВИЛИ ЭТУ СТРОКУ
         try { renderUpcomingEvents(); } catch(e) { console.log('Ошибка событий:', e); }
         try { fetchWeather(); } catch(e) { console.log('Ошибка погоды:', e); }
     } else if(page==='settings'){
