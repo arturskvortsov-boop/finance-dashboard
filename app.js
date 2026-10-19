@@ -107,6 +107,8 @@ var pendingEventReopenDay=null;
 var EVENT_ICONS=['🎂','🍽','📅','🎉','📝','✈️','🏥','🎓','💼','🎁','🏖️','🎬','⚽','🎵','🚗','🏠'];
 var lists=[];
 var notes=[];
+var currentUserName = 'Артур';
+var partnerName = 'Лера';
 var editingNoteId=null;
 var editingListId=null;
 var currentListId=null;
@@ -186,7 +188,9 @@ function parseLine(line){
         var dateObj=new Date(+dm[3],+dm[2]-1,+dm[1],+dm[4],+dm[5]);
         var as=amtP.split('->');
         if(as.length!==2)return null;
-        return {type:type,date:dateObj,dateStr:dm[3]+'-'+dm[2]+'-'+dm[1],usd:parseNumber(as[0]),rub:parseNumber(as[1]),category:normalizeCategory(catP),note:noteP};
+                // 6-й элемент (p[5]) — это автор. Если его нет, ставим текущего пользователя.
+        var author = p[5] ? p[5].trim() : currentUserName;
+        return {type:type,date:dateObj,dateStr:dm[3]+'-'+dm[2]+'-'+dm[1],usd:parseNumber(as[0]),rub:parseNumber(as[1]),category:normalizeCategory(catP),note:noteP,author:author};
     }catch(e){return null;}
 }
 
@@ -239,7 +243,7 @@ function filterTransactions(txs,period){
 }
 
 function txKey(tx){
-    return tx.type+'|'+tx.date.toISOString()+'|'+tx.rub+'|'+tx.usd+'|'+(tx.category||'')+'|'+(tx.note||'');
+    return tx.type+'|'+tx.date.toISOString()+'|'+tx.rub+'|'+tx.usd+'|'+(tx.category||'')+'|'+(tx.note||'')+'|'+(tx.author||currentUserName);
 }
 function mergeTransactions(local, remote){
     var seen={};
@@ -1842,9 +1846,11 @@ function buildDayCatGroup(catList,type){
             row.dataset.txIdx=realIdx;
             var timeStr=pad(tx.date.getHours())+':'+pad(tx.date.getMinutes());
             var noteText=(tx.note&&tx.note!=='-')?tx.note:'';
+            var isPartner = (tx.author === partnerName);
+            var authorIcon = isPartner ? '<span class="tx-author-icon">👩</span>' : '<span class="tx-author-icon">👨</span>';
             row.innerHTML=
                 '<span class="ph-tx-date">'+timeStr+'</span>'+
-                '<span class="ph-tx-note">'+(noteText||'—')+'</span>'+
+                '<span class="ph-tx-note">'+authorIcon+(noteText||'—')+'</span>'+
                 '<span class="ph-tx-amount '+type+'">'+(type==='income'?'+':'-')+roundRub(tx.rub).toLocaleString('ru-RU')+' ₽</span>';
             var editBtn=document.createElement('button');
             editBtn.className='ph-tx-edit';
@@ -2077,9 +2083,11 @@ function buildCatGroup(monthKey,catList,type){
                     row.dataset.txIdx=realIdx;
                     var dateStr=pad(tx.date.getDate())+'.'+pad(tx.date.getMonth()+1);
                     var noteText=(tx.note&&tx.note!=='-')?tx.note:'';
+                    var isPartner = (tx.author === partnerName);
+                    var authorIcon = isPartner ? '<span class="tx-author-icon">👩</span>' : '<span class="tx-author-icon">👨</span>';
                     row.innerHTML=
                         '<span class="ph-tx-date">'+dateStr+'</span>'+
-                        '<span class="ph-tx-note">'+(noteText||'—')+'</span>'+
+                        '<span class="ph-tx-note">'+authorIcon+(noteText||'—')+'</span>'+
                         '<span class="ph-tx-amount '+type+'">'+(type==='income'?'+':'-')+roundRub(tx.rub).toLocaleString('ru-RU')+' ₽</span>';
                     var editBtn=document.createElement('button');
                     editBtn.className='ph-tx-edit';
@@ -2769,6 +2777,7 @@ function openTxModal(editIdx,presetType,presetData){
     if($('saveAsTemplate'))$('saveAsTemplate').checked=false;
     if($('txTemplateName'))$('txTemplateName').value='';
     if($('txTemplateDay'))$('txTemplateDay').value='';
+    
     if(editingIndex>=0){
         var tx=allTransactions[editingIndex];
         title.textContent='✏️ Редактировать';
@@ -2786,6 +2795,12 @@ function openTxModal(editIdx,presetType,presetData){
             for(var i=0;i<opts.length;i++)if(opts[i].value===tx.category){exists=true;break;}
             if(!exists){var o=document.createElement('option');o.value=tx.category;o.textContent=tx.category;$('txCategory').appendChild(o);}
             $('txCategory').value=tx.category;
+        }
+        // Устанавливаем автора при редактировании
+        var author = tx.author || currentUserName;
+        var authorBtns = document.querySelectorAll('#txAuthorToggle .type-btn');
+        for(var i=0;i<authorBtns.length;i++) {
+            authorBtns[i].classList.toggle('active', authorBtns[i].textContent.includes(author));
         }
     } else {
         title.textContent='➕ Новая транзакция';
@@ -2812,10 +2827,16 @@ function openTxModal(editIdx,presetType,presetData){
         }
         baseDate.setMinutes(baseDate.getMinutes()-baseDate.getTimezoneOffset());
         $('txDateTime').value=baseDate.toISOString().slice(0,16);
+        // По умолчанию ставим "Артур"
+        var defaultBtns = document.querySelectorAll('#txAuthorToggle .type-btn');
+        for(var i=0;i<defaultBtns.length;i++) {
+            defaultBtns[i].classList.toggle('active', defaultBtns[i].dataset.author==='me');
+        }
     }
     $('txModal').classList.add('open');
     lockBackground();
 }
+
 function closeTxModal(){
     $('txModal').classList.remove('open');
     editingIndex=-1;
@@ -2995,7 +3016,7 @@ function silentSync(){
         var typeLabel=tx.type==='income'?'🟢 ДОХОД':'🔴 РАСХОД';
         var usdLabel=tx.usd>0?tx.usd+' Долларов 🇺🇸':'0 Долларов 🇺🇸';
         var rubLabel=tx.rub+' Рублей 🇷🇺';
-        lines.push(typeLabel+' | '+dateStr+' | '+usdLabel+'  -> '+rubLabel+' | '+tx.category+' | '+(tx.note||'-'));
+                lines.push(typeLabel+' | '+dateStr+' | '+usdLabel+'  -> '+rubLabel+' | '+tx.category+' | '+(tx.note||'-')+' | '+(tx.author||currentUserName));
     }
     var newText=lines.join('\n');
     var updatedJson=JSON.stringify({text:newText});
@@ -3652,7 +3673,7 @@ function doSync(){
                 var typeLabel=tx.type==='income'?'🟢 ДОХОД':'🔴 РАСХОД';
                 var usdLabel=tx.usd>0?tx.usd+' Долларов 🇺🇸':'0 Долларов 🇺🇸';
                 var rubLabel=tx.rub+' Рублей 🇷🇺';
-                lines.push(typeLabel+' | '+dateStr+' | '+usdLabel+'  -> '+rubLabel+' | '+tx.category+' | '+(tx.note||'-'));
+                        lines.push(typeLabel+' | '+dateStr+' | '+usdLabel+'  -> '+rubLabel+' | '+tx.category+' | '+(tx.note||'-')+' | '+(tx.author||currentUserName));
             }
             var newText=lines.join('\n');
             var updatedJson=JSON.stringify({text:newText});
@@ -3829,7 +3850,9 @@ if(saveTxBtn)saveTxBtn.addEventListener('click',function(){
     var typeLabel=currentTxType==='income'?'🟢 ДОХОД':'🔴 РАСХОД';
     var usdLabel=usd>0?usd+' Долларов 🇺🇸':'0 Долларов 🇺🇸';
     var rubLabel=rub+' Рублей 🇷🇺';
-    var line=typeLabel+' | '+dateStr+' | '+usdLabel+'  -> '+rubLabel+' | '+category+' | '+note;
+    var activeAuthorBtn = document.querySelector('#txAuthorToggle .type-btn.active');
+    var authorName = activeAuthorBtn ? activeAuthorBtn.textContent.replace('👨 ','').replace('👩 ','').trim() : currentUserName;
+    var line=typeLabel+' | '+dateStr+' | '+usdLabel+'  -> '+rubLabel+' | '+category+' | '+note+' | '+authorName;
     var newTx=parseLine(line);
     if(!newTx){alert('Ошибка при разборе');return;}
     if(editingIndex>=0){allTransactions[editingIndex]=newTx;$('fileStatus').textContent='✏️ Отредактировано';}
@@ -4141,6 +4164,17 @@ tombstones=loadTombstones();
 events=loadEvents()||[];
 lists=loadLists()||[];
 notes=loadNotes()||[];
+try {
+    if(localStorage.getItem('myName')) currentUserName = localStorage.getItem('myName');
+    if(localStorage.getItem('partnerName')) partnerName = localStorage.getItem('partnerName');
+} catch(e) {}
+// Обновляем текст на кнопках
+setTimeout(function() {
+    if($('btnAuthorMe')) $('btnAuthorMe').textContent = '👨 ' + currentUserName;
+    if($('btnAuthorPartner')) $('btnAuthorPartner').textContent = '👩 ' + partnerName;
+    if($('btnEvtAuthorMe')) $('btnEvtAuthorMe').textContent = '👨 ' + currentUserName;
+    if($('btnEvtAuthorPartner')) $('btnEvtAuthorPartner').textContent = '👩 ' + partnerName;
+}, 500);
 
 var savedRate=loadRate();
 if(savedRate){
