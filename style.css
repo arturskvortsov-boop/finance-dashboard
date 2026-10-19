@@ -2993,10 +2993,60 @@ body.tg-webapp.tg-fullscreen .container {
     padding-top: calc(15px + env(safe-area-inset-top, 0px)) !important;
 }
 
-/* Финальный фикс: сбрасываем все отступы и ставим минимальный безопасный */
-body.tg-webapp.tg-fullscreen {
-    padding-top: 0 !important;
+/* =======================================================
+   ФИНАЛЬНЫЙ ФИКС ПУЛ-ИНДИКАТОРА (ЦЕНТР ЭКРАНА + РАЗМЫТИЕ)
+   ======================================================= */
+#pullIndicator {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 99999 !important;
+    
+    /* Эффект размытия и затемнения */
+    background: rgba(0, 0, 0, 0.75) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    
+    /* Скрываем по умолчанию */
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: opacity 0.3s ease, visibility 0.3s ease !important;
+    
+    /* Сбрасываем любые сдвиги */
+    transform: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
+
+#pullIndicator.visible {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+#pullIndicator .pull-spinner {
+    font-size: 3rem !important;
+    margin-bottom: 15px !important;
+    color: #f2f2f4 !important;
+    transform: none !important;
+}
+
+#pullIndicator .pull-text {
+    font-size: 1.1rem !important;
+    color: #f2f2f4 !important;
+    font-weight: 600 !important;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.8) !important;
+}
+
+/* Чтобы контент в Телеграме не залезал под шапку */
 body.tg-webapp.tg-fullscreen .container {
-    padding-top: calc(70px + env(safe-area-inset-top, 0px)) !important; /* 70px ровно под кнопки */
+    padding-top: calc(70px + env(safe-area-inset-top, 0px)) !important;
 }
