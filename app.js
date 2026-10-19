@@ -78,6 +78,8 @@ var EVENTS_KEY='financeEvents';
 var EVENTS_FILE='events.json';
 var LISTS_KEY='financeLists';
 var LISTS_FILE='lists.json';
+var NOTES_KEY='financeNotes';
+var NOTES_FILE='notes.json';
 
 try{
     var mc=document.querySelector('meta[name="theme-color"]');
@@ -104,6 +106,8 @@ var currentEventIcon='📅';
 var pendingEventReopenDay=null;
 var EVENT_ICONS=['🎂','🍽','📅','🎉','📝','✈️','🏥','🎓','💼','🎁','🏖️','🎬','⚽','🎵','🚗','🏠'];
 var lists=[];
+var notes=[];
+var editingNoteId=null;
 var editingListId=null;
 var currentListId=null;
 var currentListIcon='🛒';
@@ -324,6 +328,8 @@ function saveEvents(){try{localStorage.setItem(EVENTS_KEY,JSON.stringify(events)
 function loadEvents(){try{var s=localStorage.getItem(EVENTS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveLists(){try{localStorage.setItem(LISTS_KEY,JSON.stringify(lists));}catch(e){}}
 function loadLists(){try{var s=localStorage.getItem(LISTS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
+function saveNotes(){try{localStorage.setItem(NOTES_KEY,JSON.stringify(notes));}catch(e){}}
+function loadNotes(){try{var s=localStorage.getItem(NOTES_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveBudgets(){try{localStorage.setItem(BUDGETS_KEY,JSON.stringify(budgets));}catch(e){}}
 function loadBudgets(){try{var s=localStorage.getItem(BUDGETS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveGoals(){try{localStorage.setItem(GOALS_KEY,JSON.stringify(goals));}catch(e){}}
@@ -944,6 +950,77 @@ function renderLists(){
         (function(id){card.addEventListener('click',function(){openListModal(id);});})(lst.id);
         grid.appendChild(card);
     }
+}
+
+function renderNotes(){
+    var block=$('notesBlock');
+    var grid=$('notesGrid');
+    if(!block||!grid)return;
+    if(!notes.length){block.classList.add('hidden');return;}
+    block.classList.remove('hidden');
+    grid.innerHTML='';
+    var sorted=notes.slice().sort(function(a,b){return (b.createdAt||'').localeCompare(a.createdAt||'');});
+    for(var i=0;i<sorted.length;i++){
+        var n=sorted[i];
+        var card=document.createElement('div');
+        card.className='note-card';
+        var preview=n.text?n.text.replace(/\n/g,' '):'';
+        card.innerHTML=
+            '<div class="note-card-title">'+(n.title||'Без названия')+'</div>'+
+            '<div class="note-card-preview">'+(preview||'Пусто')+'</div>';
+        (function(id){card.addEventListener('click',function(){openNoteEditModal(id);});})(n.id);
+        grid.appendChild(card);
+    }
+}
+
+function openNoteEditModal(id){
+    editingNoteId=id||null;
+    var title=$('noteEditTitle');
+    var delBtn=$('noteDeleteBtn');
+    if(id){
+        var n=null;for(var i=0;i<notes.length;i++)if(notes[i].id===id){n=notes[i];break;}
+        if(!n)return;
+        title.textContent='✏️ Редактировать заметку';
+        $('noteTitleInput').value=n.title||'';
+        $('noteTextInput').value=n.text||'';
+        if(delBtn)delBtn.classList.remove('hidden');
+    } else {
+        title.textContent='📝 Новая заметка';
+        $('noteTitleInput').value='';
+        $('noteTextInput').value='';
+        if(delBtn)delBtn.classList.add('hidden');
+    }
+    $('noteEditModal').classList.add('open');
+    lockBackground();
+}
+
+function closeNoteEditModal(){
+    $('noteEditModal').classList.remove('open');
+    editingNoteId=null;
+    unlockBackground();
+}
+
+function saveNote(){
+    var title=$('noteTitleInput').value.trim();
+    var text=$('noteTextInput').value.trim();
+    if(!title&&!text){alert('Введите заголовок или текст');return;}
+    if(editingNoteId){
+        for(var i=0;i<notes.length;i++)if(notes[i].id===editingNoteId){
+            notes[i].title=title;notes[i].text=text;notes[i].updatedAt=new Date().toISOString();break;
+        }
+        $('fileStatus').textContent='✏️ Заметка обновлена';
+    } else {
+        notes.push({id:'note_'+Date.now()+'_'+Math.floor(Math.random()*1000),title:title,text:text,createdAt:new Date().toISOString()});
+        $('fileStatus').textContent='📝 Заметка создана';
+    }
+    saveNotes();syncNotes();renderNotes();closeNoteEditModal();haptic('success');
+}
+
+function deleteNote(){
+    if(!editingNoteId)return;
+    if(!confirm('Удалить заметку?'))return;
+    notes=notes.filter(function(n){return n.id!==editingNoteId;});
+    saveNotes();syncNotes();renderNotes();closeNoteEditModal();$('fileStatus').textContent='🗑️ Заметка удалена';haptic('warning');
 }
 
 function openListModal(id){
@@ -2880,7 +2957,10 @@ function syncEvents(){if(!getToken())return Promise.resolve(false);return putJso
 function loadEventsFromServer(){return fetchJsonFile(EVENTS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;events=mergeById(events,data);saveEvents();return true;});}
 function syncLists(){if(!getToken())return Promise.resolve(false);return putJsonFile(LISTS_FILE,lists,'Списки ('+lists.length+')').catch(function(){return false;});}
 function loadListsFromServer(){return fetchJsonFile(LISTS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;lists=mergeLists(lists,data);saveLists();return true;});}
-function syncAllExtras(){if(!getToken())return;syncTemplates();syncBudgets();syncGoals();syncTombstones();syncEvents();syncLists();}
+function syncAllExtras(){if(!getToken())return;syncTemplates();syncBudgets();syncGoals();syncTombstones();syncEvents();syncLists();syncNotes();}
+function syncNotes(){if(!getToken())return Promise.resolve(false);return putJsonFile(NOTES_FILE,notes,'Заметки ('+notes.length+')').catch(function(){return false;});}
+function loadNotesFromServer(){return fetchJsonFile(NOTES_FILE).then(function(data){if(!data||!Array.isArray(data))return false;notes=mergeById(notes,data);saveNotes();return true;});}
+
 
 /* ===== АВТОСИНХРОНИЗАЦИЯ ===== */
 function scheduleSyncExtras(){
@@ -3891,6 +3971,16 @@ var fabQuick=$('fabQuick'); if(fabQuick)fabQuick.addEventListener('click',functi
 var fabSync=$('fabSync'); if(fabSync)fabSync.addEventListener('click',function(){closeFabFan();setTimeout(function(){doSync();},150);});
 var fabRefresh=$('fabRefresh'); if(fabRefresh)fabRefresh.addEventListener('click',function(){closeFabFan();setTimeout(function(){doRefresh();},150);});
 var fabEvent=$('fabEvent'); if(fabEvent)fabEvent.addEventListener('click',function(){closeFabFan();setTimeout(function(){openEventEditModal(null);},150);});
+var notesAddBtn=$('notesAddBtn');
+if(notesAddBtn)notesAddBtn.addEventListener('click',function(){openNoteEditModal(null);});
+var closeNoteEditModalBtn=$('closeNoteEditModal');
+if(closeNoteEditModalBtn)closeNoteEditModalBtn.addEventListener('click',closeNoteEditModal);
+var cancelNoteEditBtn=$('cancelNoteEditBtn');
+if(cancelNoteEditBtn)cancelNoteEditBtn.addEventListener('click',closeNoteEditModal);
+var saveNoteBtn=$('saveNoteBtn');
+if(saveNoteBtn)saveNoteBtn.addEventListener('click',saveNote);
+var noteDeleteBtn=$('noteDeleteBtn');
+if(noteDeleteBtn)noteDeleteBtn.addEventListener('click',deleteNote);
 
 var swipeStartX=0,swipeStartY=0,swipeActive=false;
 document.addEventListener('touchstart',function(e){
@@ -4044,6 +4134,7 @@ customReminders=loadCustomReminders()||[];
 tombstones=loadTombstones();
 events=loadEvents()||[];
 lists=loadLists()||[];
+notes=loadNotes()||[];
 
 var savedRate=loadRate();
 if(savedRate){
@@ -4067,7 +4158,7 @@ loadTombstonesFromServer().then(function(){
         $('emptyState').classList.remove('hidden');
         if(!$('fileStatus').textContent||$('fileStatus').textContent==='⏳ Загрузка...')$('fileStatus').textContent='📂 Загрузите JSON или проверьте GitHub';
     }
-    return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadCustomRemindersFromServer(),loadEventsFromServer(),loadListsFromServer()]);
+    return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadCustomRemindersFromServer(),loadEventsFromServer(),loadListsFromServer(),loadNotesFromServer()]);
 }).then(function(){
     applyTombstones();
     var skEl=$('skeleton');
@@ -4076,6 +4167,7 @@ loadTombstonesFromServer().then(function(){
     renderUpcomingEvents();
     renderCalendar();
     renderLists();
+    renderNotes();
     setTimeout(drawRateHistoryChart,500);
     startFreshnessTimer();
     updateTokenStatus();
