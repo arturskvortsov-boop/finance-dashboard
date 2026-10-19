@@ -661,8 +661,39 @@ body.fab-open .top-strip{
 @media (max-width:600px){.period-label{margin-left:0;width:100%;text-align:center}.cat-detail-top{flex-direction:column;text-align:center;gap:12px}.cat-detail-top-info{text-align:center}}
 
 /* ===== PULL TO REFRESH ===== */
-.pull-indicator{position:fixed;top:0;left:0;right:0;height:70px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;z-index:800;pointer-events:none;opacity:0;transform:translateY(-70px);transition:opacity .2s,transform .15s}
-.pull-indicator.visible{opacity:1}
+.pull-indicator{
+    position:fixed;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    z-index:3000;
+    pointer-events:none;
+    opacity:0;
+    background:rgba(0,0,0,0);
+    backdrop-filter:blur(0px);
+    -webkit-backdrop-filter:blur(0px);
+    transition:opacity .3s, background .3s, backdrop-filter .3s;
+}
+.pull-indicator.visible{
+    opacity:1;
+    background:rgba(0,0,0,0.75);
+    backdrop-filter:blur(6px);
+    -webkit-backdrop-filter:blur(6px);
+}
+.pull-indicator .pull-spinner{
+    font-size:2.5rem;
+    line-height:1;
+    transition:transform .2s;
+}
+.pull-indicator .pull-text{
+    font-size:1rem;
+    color:#f2f2f4;
+    font-weight:600;
+    text-shadow:0 2px 4px rgba(0,0,0,0.5);
+}
 .pull-spinner{font-size:1.5rem;line-height:1;transition:transform .2s}
 .pull-indicator.spinning .pull-spinner{animation:pullSpin .9s linear infinite}
 @keyframes pullSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
@@ -2955,9 +2986,10 @@ body.tg-webapp.tg-fullscreen {
     background-color: #0a0a0b !important;
 }
 
-/* =======================================================
-   ЖЕСТКИЙ ОТСТУП СВЕРХУ ДЛЯ TELEGRAM
-   ======================================================= */
+/* Финальный фикс: сбрасываем все отступы и ставим минимальный безопасный */
+body.tg-webapp.tg-fullscreen {
+    padding-top: 0 !important;
+}
 body.tg-webapp.tg-fullscreen .container {
-    padding-top: calc(15px + env(safe-area-inset-top, 0px)) !important;
+    padding-top: calc(70px + env(safe-area-inset-top, 0px)) !important; /* 70px ровно под кнопки */
 }
