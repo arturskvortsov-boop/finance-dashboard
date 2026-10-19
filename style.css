@@ -29,7 +29,7 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .top-strip #fileStatus{color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}
 .top-strip #dataFreshness{color:var(--text-dim);white-space:nowrap;flex-shrink:0}
 
-/* ===== PAGES ===== */
+/* ===== PAGES & ANIMATIONS ===== */
 .page{display:none}
 .page.active{display:block}
 .page.page-enter-right{animation:pageInRight .45s cubic-bezier(.25,.8,.35,1) both}
@@ -49,7 +49,7 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .bc-top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap}
 .bc-row-1{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap;min-width:0;flex:1}
 .balance-card .bc-label{color:var(--text-muted);font-size:0.75rem;text-transform:uppercase;letter-spacing:0.5px;font-weight:500}
-.balance-card .bc-amount{font-size:1.5rem;font-weight:700;color:var(--text);line-height:1.1;white-space:nowrap;word-break:normal}
+.balance-card .bc-amount{font-size:1.5rem;font-weight:700;color:var(--text);line-height:1.1;white-space:nowrap;word-break:normal;}
 .bc-hide-btn{background:transparent;border:1px solid var(--border);color:var(--text-muted);width:34px;height:34px;border-radius:10px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;font-family:inherit;transition:all .15s;flex-shrink:0}
 .bc-hide-btn.active{background:var(--accent-bg);border-color:var(--accent);color:var(--accent)}
 .balance-card .bc-hidden{filter:blur(8px);user-select:none;transition:filter .25s ease;pointer-events:none}
@@ -105,19 +105,8 @@ body.modal-locked{overflow:hidden;position:fixed;width:100%;left:0;right:0}
 .balance-chart-box h3{font-weight:500;font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.4px}
 .balance-chart-empty{height:180px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:0.75rem}
 
-/* ИСПРАВЛЕНИЕ ГРАФИКА */
-.balance-chart-box.compact {
-    height: 260px !important; 
-    display: flex;
-    flex-direction: column;
-    padding: 10px 10px 15px 10px !important; 
-    overflow: visible !important; 
-}
-.balance-chart-box.compact canvas {
-    width: 100% !important;
-    height: 100% !important;
-    flex: 1;
-}
+.balance-chart-box.compact { height: 260px !important; display: flex; flex-direction: column; padding: 10px 10px 15px 10px !important; overflow: visible !important; }
+.balance-chart-box.compact canvas { width: 100% !important; height: 100% !important; flex: 1; }
 
 /* ===== RATE CHART ===== */
 .rate-chart-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px 6px;margin-bottom:8px;min-width:0}
