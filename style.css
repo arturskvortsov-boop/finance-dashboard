@@ -2924,3 +2924,34 @@ body[data-mode="helper"] .cal-day {
 body.tg-webapp.tg-fullscreen {
     padding-top: calc(85px + env(safe-area-inset-top, 0px)) !important;
 }
+
+/* =======================================================
+   ФИКС ЦВЕТА ФОНА В TELEGRAM (Убираем градиент и швы)
+   ======================================================= */
+
+/* 1. Убираем светлый градиент в Помощнике, делаем сплошной цвет */
+body[data-mode="helper"],
+body[data-mode="helper"].tg-webapp,
+body[data-mode="helper"].tg-webapp.tg-fullscreen {
+    background-color: #070b14 !important;
+    background-image: none !important;
+}
+
+/* 2. Делаем такой же сплошной цвет для Финансов */
+body[data-mode="finance"],
+body.tg-webapp,
+body.tg-webapp.tg-fullscreen {
+    background-color: #0a0a0b !important;
+    background-image: none !important;
+}
+
+/* 3. Убираем прозрачность контейнера, чтобы не было просветов */
+body.tg-webapp .container,
+body.tg-webapp.tg-fullscreen .container {
+    background-color: transparent !important;
+}
+
+/* 4. Фикс шапки Телеграма (чтобы контент не залезал под кнопки) */
+body.tg-webapp.tg-fullscreen {
+    padding-top: calc(70px + env(safe-area-inset-top, 0px)) !important;
+}
