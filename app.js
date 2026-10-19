@@ -260,6 +260,32 @@ function mergeById(local,remote){
     for(var i=0;i<remote.length;i++){if(remote[i].id&&!seen[remote[i].id]){seen[remote[i].id]=true;merged.push(remote[i]);}}
     return merged;
 }
+function mergeLists(local, remote) {
+    var map = {};
+    for (var i = 0; i < local.length; i++) {
+        map[local[i].id] = local[i];
+    }
+    for (var i = 0; i < remote.length; i++) {
+        var r = remote[i];
+        if (!map[r.id]) {
+            map[r.id] = r;
+        } else {
+            var l = map[r.id];
+            var itemMap = {};
+            if (l.items) for (var j = 0; j < l.items.length; j++) itemMap[l.items[j].id] = l.items[j];
+            if (r.items) for (var j = 0; j < r.items.length; j++) itemMap[r.items[j].id] = r.items[j];
+            var mergedItems = [];
+            for (var k in itemMap) mergedItems.push(itemMap[k]);
+            
+            l.name = r.name || l.name;
+            l.icon = r.icon || l.icon;
+            l.items = mergedItems;
+        }
+    }
+    var res = [];
+    for (var k in map) res.push(map[k]);
+    return res;
+}
 function mergeBudgets(local,remote){
     var seen={};
     var merged=[];
@@ -2661,7 +2687,7 @@ function loadTombstonesFromServer(){
 function syncEvents(){if(!getToken())return Promise.resolve(false);return putJsonFile(EVENTS_FILE,events,'События ('+events.length+')').catch(function(){return false;});}
 function loadEventsFromServer(){return fetchJsonFile(EVENTS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;events=mergeById(events,data);saveEvents();return true;});}
 function syncLists(){if(!getToken())return Promise.resolve(false);return putJsonFile(LISTS_FILE,lists,'Списки ('+lists.length+')').catch(function(){return false;});}
-function loadListsFromServer(){return fetchJsonFile(LISTS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;lists=mergeById(lists,data);saveLists();return true;});}
+function loadListsFromServer(){return fetchJsonFile(LISTS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;lists=mergeLists(lists,data);saveLists();return true;});}
 function syncAllExtras(){if(!getToken())return;syncTemplates();syncBudgets();syncGoals();syncTombstones();syncEvents();syncLists();}
 
 /* ===== АВТОСИНХРОНИЗАЦИЯ ===== */
