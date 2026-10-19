@@ -3171,3 +3171,88 @@ body[data-mode="helper"] .fab-item:active {
 #weatherCityEdit:active {
     transform: scale(1.2);
 }
+
+/* ===== NOTES BLOCK ===== */
+.notes-block {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+}
+.notes-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+}
+.note-card {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    cursor: pointer;
+    transition: border-color .15s, transform .12s;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.note-card:active {
+    transform: scale(0.98);
+    border-color: rgba(96, 165, 250, 0.4);
+}
+.note-card-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.note-card-preview {
+    font-size: 0.76rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.note-textarea {
+    background: var(--card-2);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-family: inherit;
+    width: 100%;
+    resize: vertical;
+    min-height: 120px;
+    -webkit-appearance: none;
+    appearance: none;
+}
+.note-textarea:focus {
+    outline: none;
+    border-color: rgba(252,211,77,0.65);
+    box-shadow: 0 0 0 3px rgba(252,211,77,0.12);
+}
+
+/* Синий стиль для заметок в Помощнике */
+body[data-mode="helper"] .notes-block {
+    background: var(--card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+body[data-mode="helper"] .notes-block .lists-head h3 {
+    text-transform: none;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #60a5fa;
+}
+body[data-mode="helper"] .note-card {
+    border-radius: 16px;
+}
+body[data-mode="helper"] .note-card:active {
+    border-color: #60a5fa;
+}
