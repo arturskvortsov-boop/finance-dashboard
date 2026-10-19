@@ -3314,7 +3314,6 @@ document.addEventListener('touchmove',function(e){
     var ind=$('pullIndicator');
     if(!ind)return;
     ind.classList.add('visible');
-    ind.style.transform='translateY('+(capped-PULL_MAX)+'px)';
     var txt=$('pullText');
     if(dy>=PULL_THRESHOLD*2){ind.classList.add('ready');if(txt)txt.textContent='Отпустите для обновления';}
     else{ind.classList.remove('ready');if(txt)txt.textContent='Потяните вниз...';}
@@ -3329,14 +3328,13 @@ document.addEventListener('touchend',function(e){
 function hidePullIndicator(){
     var ind=$('pullIndicator');
     if(!ind)return;
-    ind.classList.remove('visible','ready');
-    ind.style.transform='translateY(-70px)';
+    ind.classList.remove('visible','ready','spinning');
 }
 function doPullRefresh(){
     if(pullRefreshing)return;
     pullRefreshing=true;
     var ind=$('pullIndicator');
-    if(ind){ind.classList.add('visible','spinning','ready');ind.style.transform='translateY(0)';var txt=$('pullText');if(txt)txt.textContent='Обновление...';}
+    if(ind){ind.classList.add('visible','spinning','ready');var txt=$('pullText');if(txt)txt.textContent='Обновление...';}
     Promise.resolve()
         .then(function(){return loadTombstonesFromServer();})
         .then(function(){return loadData(false);})
