@@ -1196,16 +1196,23 @@ function getWeatherInfo(code) {
 function fetchWeather() {
     var widget = $('weatherWidget');
     if (!widget) return;
+    
+    // Делаем виджет кликабельным для открытия прогноза
+    widget.onclick = function(e) {
+        if (e.target.id === 'weatherCityEdit') return; // Игнорируем клик по карандашу
+        openWeatherModal();
+    };
 
-    var cityEl = $('weatherCity');
-
-    // Если нажать на город, можно ввести свой
-    if (cityEl && !cityEl.dataset.listener) {
-        cityEl.dataset.listener = 'true';
-        cityEl.onclick = function() {
-            var newCity = prompt('Введите название города:', cityEl.textContent);
+    // Обработчик нажатия на карандаш (смена города)
+    var editBtn = $('weatherCityEdit');
+    if (editBtn && !editBtn.dataset.listener) {
+        editBtn.dataset.listener = 'true';
+        editBtn.onclick = function(e) {
+            e.stopPropagation();
+            var currentCity = $('weatherCity').textContent;
+            var newCity = prompt('Введите название города:', currentCity);
             if (newCity && newCity.trim() !== '') {
-                cityEl.textContent = 'Поиск...';
+                $('weatherDesc').textContent = 'Поиск...';
                 fetch('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(newCity) + '&count=1&language=ru&format=json')
                     .then(function(r) { return r.json(); })
                     .then(function(data) {
@@ -1214,21 +1221,21 @@ function fetchWeather() {
                             localStorage.setItem('weatherLat', res.latitude);
                             localStorage.setItem('weatherLon', res.longitude);
                             localStorage.setItem('weatherCity', res.name);
-                            cityEl.textContent = res.name;
-                            loadWeather(res.latitude, res.longitude);
+                            $('weatherCity').textContent = res.name;
+                            loadCurrentWeather(res.latitude, res.longitude);
                         } else {
                             alert('Город не найден');
-                            cityEl.textContent = localStorage.getItem('weatherCity') || 'Город';
+                            $('weatherCity').textContent = localStorage.getItem('weatherCity') || 'Город';
                         }
                     }).catch(function() {
                         alert('Ошибка поиска');
-                        cityEl.textContent = localStorage.getItem('weatherCity') || 'Город';
+                        $('weatherCity').textContent = localStorage.getItem('weatherCity') || 'Город';
                     });
             }
         };
     }
 
-    function loadWeather(lat, lon) {
+    function loadCurrentWeather(lat, lon) {
         if ($('weatherIcon')) $('weatherIcon').textContent = '⏳';
         if ($('weatherDesc')) $('weatherDesc').textContent = 'Загрузка...';
         
@@ -1251,33 +1258,29 @@ function fetchWeather() {
             });
     }
 
-    // 1. Проверяем, сохранен ли город в памяти
     var savedLat = localStorage.getItem('weatherLat');
     var savedLon = localStorage.getItem('weatherLon');
     var savedCity = localStorage.getItem('weatherCity');
 
     if (savedLat && savedLon && savedCity) {
-        if (cityEl) cityEl.textContent = savedCity;
-        loadWeather(savedLat, savedLon);
-        return; // Если город сохранен, дальше не идем
+        if ($('weatherCity')) $('weatherCity').textContent = savedCity;
+        loadCurrentWeather(savedLat, savedLon);
+        return;
     }
 
-    // 2. Если не сохранен, ставим дефолт (Москва) и пробуем GPS
-    if (cityEl) cityEl.textContent = 'Москва';
-    loadWeather(55.7558, 37.6173);
+    if ($('weatherCity')) $('weatherCity').textContent = 'Москва';
+    loadCurrentWeather(55.7558, 37.6173);
 
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             function(pos) {
-                // Если GPS сработал, сохраняем координаты (город пока "Мой город")
                 localStorage.setItem('weatherLat', pos.coords.latitude);
                 localStorage.setItem('weatherLon', pos.coords.longitude);
                 localStorage.setItem('weatherCity', 'Мой город');
-                if (cityEl) cityEl.textContent = 'Мой город';
-                loadWeather(pos.coords.latitude, pos.coords.longitude);
+                if ($('weatherCity')) $('weatherCity').textContent = 'Мой город';
+                loadCurrentWeather(pos.coords.latitude, pos.coords.longitude);
             },
             function(err) {
-                // Если GPS запрещен, пробуем по IP
                 fetch('https://ipapi.co/json/')
                     .then(function(r){ return r.json(); })
                     .then(function(data){
@@ -1286,8 +1289,8 @@ function fetchWeather() {
                             localStorage.setItem('weatherLon', data.longitude);
                             var ipCity = data.city || data.region || 'Мой город';
                             localStorage.setItem('weatherCity', ipCity);
-                            if (cityEl) cityEl.textContent = ipCity;
-                            loadWeather(data.latitude, data.longitude);
+                            if ($('weatherCity')) $('weatherCity').textContent = ipCity;
+                            loadCurrentWeather(data.latitude, data.longitude);
                         }
                     }).catch(function(){});
             },
@@ -1296,6 +1299,76 @@ function fetchWeather() {
     }
 }
 
+/* ===== ПОЧАСОВОЙ ПРОГНОЗ ===== */
+function openWeatherModal() {
+    var lat = localStorage.getItem('weatherLat') || 55.7558;
+    var lon = localStorage.getItem('weatherLon') || 37.6173;
+    var city = localStorage.getItem('weatherCity') || 'Москва';
+    
+    var title = $('weatherModalTitle');
+    if (title) title.textContent = '🌤 ' + city + ' — Прогноз';
+    
+    var list = $('weatherForecastList');
+    if (list) list.innerHTML = '<div style="text-align:center; padding:20px; color:#60a5fa;">Загрузка прогноза...</div>';
+    
+    var modal = $('weatherModal');
+    if (modal) modal.classList.add('open');
+    
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&hourly=temperature_2m,weathercode,windspeed_10m&timezone=auto')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (!data || !data.hourly || !data.hourly.time) return;
+            
+            var now = new Date();
+            var currentHourStr = now.toISOString().slice(0, 13) + ':00';
+            var startIndex = 0;
+            
+            // Ищем текущий час, чтобы начать прогноз с него
+            for (var i = 0; i < data.hourly.time.length; i++) {
+                if (data.hourly.time[i].indexOf(currentHourStr) === 0) {
+                    startIndex = i;
+                    break;
+                }
+            }
+            
+            var html = '';
+            // Берем следующие 24 часа
+            for (var i = startIndex; i < startIndex + 24 && i < data.hourly.time.length; i++) {
+                var timeStr = data.hourly.time[i];
+                var temp = Math.round(data.hourly.temperature_2m[i]);
+                var wind = Math.round(data.hourly.windspeed_10m[i]);
+                var code = data.hourly.weathercode[i];
+                var info = getWeatherInfo(code);
+                
+                // Форматируем время (ЧЧ:ММ)
+                var hour = timeStr.slice(11, 16);
+                if (i === startIndex) hour = 'Сейчас';
+                
+                html += '<div class="weather-hour-row">' +
+                            '<div class="weather-hour-time">' + hour + '</div>' +
+                            '<div class="weather-hour-icon">' + info.icon + '</div>' +
+                            '<div class="weather-hour-desc">' + info.desc + '</div>' +
+                            '<div class="weather-hour-temp">' + (temp > 0 ? '+' : '') + temp + '°</div>' +
+                            '<div class="weather-hour-wind">' + wind + ' м/с</div>' +
+                        '</div>';
+            }
+            
+            if (list) list.innerHTML = html;
+        })
+        .catch(function(e) {
+            if (list) list.innerHTML = '<div style="text-align:center; padding:20px; color:#f87171;">Ошибка загрузки</div>';
+        });
+}
+
+function closeWeatherModal() {
+    var modal = $('weatherModal');
+    if (modal) modal.classList.remove('open');
+}
+
+var closeWeatherBtn = $('closeWeatherModal');
+if (closeWeatherBtn) closeWeatherBtn.addEventListener('click', closeWeatherModal);
+var weatherModalEl = $('weatherModal');
+if (weatherModalEl) weatherModalEl.addEventListener('click', function(e) { if (e.target === this) closeWeatherModal(); });
 
 /* ===== EVENTS ===== */
 function formatEventDate(y,m,d){
