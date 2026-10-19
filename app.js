@@ -1196,65 +1196,45 @@ function getWeatherInfo(code) {
 function fetchWeather() {
     var widget = $('weatherWidget');
     if (!widget) return;
-    widget.classList.remove('hidden');
-    if($('weatherIcon')) $('weatherIcon').textContent = '⏳';
-    if($('weatherDesc')) $('weatherDesc').textContent = 'Определяем геопозицию...';
-    if($('weatherTemp')) $('weatherTemp').textContent = '—°';
-    if($('weatherFeels')) $('weatherFeels').textContent = '— м/с';
-    
-    var apiUrl = 'https://api.open-meteo.com/v1/forecast?current_weather=true';
-    
+
+    if ($('weatherIcon')) $('weatherIcon').textContent = '⏳';
+    if ($('weatherDesc')) $('weatherDesc').textContent = 'Загрузка...';
+
     function loadWeather(lat, lon) {
-        fetch(apiUrl + '&latitude=' + lat + '&longitude=' + lon)
-            .then(function(r){ return r.json(); })
-            .then(function(data){
+        fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&current_weather=true')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
                 if (!data || !data.current_weather) return;
                 var cw = data.current_weather;
                 var temp = Math.round(cw.temperature);
                 var wind = Math.round(cw.windspeed);
                 var info = getWeatherInfo(cw.weathercode);
-                
-                if($('weatherIcon')) $('weatherIcon').textContent = info.icon;
-                if($('weatherTemp')) $('weatherTemp').textContent = (temp > 0 ? '+' : '') + temp + '°';
-                if($('weatherDesc')) $('weatherDesc').textContent = info.desc;
-                if($('weatherFeels')) $('weatherFeels').textContent = 'Ветер ' + wind + ' м/с';
+
+                if ($('weatherIcon')) $('weatherIcon').textContent = info.icon;
+                if ($('weatherTemp')) $('weatherTemp').textContent = (temp > 0 ? '+' : '') + temp + '°';
+                if ($('weatherDesc')) $('weatherDesc').textContent = info.desc;
+                if ($('weatherFeels')) $('weatherFeels').textContent = 'Ветер ' + wind + ' м/с';
             })
-            .catch(function(e){ console.log('Ошибка API погоды', e); });
+            .catch(function(e) {
+                if ($('weatherDesc')) $('weatherDesc').textContent = 'Ошибка сети';
+            });
     }
 
-    // 1. Пытаемся получить точные координаты (GPS/Telegram)
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             function(pos) {
-                // Успех: загружаем по точным координатам
                 loadWeather(pos.coords.latitude, pos.coords.longitude);
             },
             function(err) {
-                // Ошибка (отказ или нет GPS): фоллбэк на IP
-                fetch('https://ipapi.co/json/')
-                    .then(function(r){ return r.json(); })
-                    .then(function(data){
-                        if (data && data.latitude && data.longitude) {
-                            loadWeather(data.latitude, data.longitude);
-                        } else {
-                            throw new Error('IP Fail');
-                        }
-                    })
-                    .catch(function(){
-                        if($('weatherDesc')) $('weatherDesc').textContent = 'Гео заблокировано';
-                    });
+                loadWeather(55.7558, 37.6173); // Резерв: Москва
             },
-            { timeout: 5000, maximumAge: 600000 } // Ждем 5 сек, кэш на 10 мин
+            { timeout: 5000 }
         );
     } else {
-        // Если геолокации нет вообще
-        fetch('https://ipapi.co/json/')
-            .then(function(r){ return r.json(); })
-            .then(function(data){
-                if (data && data.latitude && data.longitude) loadWeather(data.latitude, data.longitude);
-            });
+        loadWeather(55.7558, 37.6173); // Резерв: Москва
     }
 }
+
 
 /* ===== EVENTS ===== */
 function formatEventDate(y,m,d){
@@ -3336,10 +3316,10 @@ function switchPage(page,direction){
     next.classList.add(direction==='left'?'page-enter-right':'page-enter-left');
     void next.offsetWidth;
     if(page==='helper'){
-        renderCalendar();
-        renderLists();
-        renderUpcomingEvents();
-        fetchWeather();
+        try { renderCalendar(); } catch(e) { console.log('Ошибка календаря:', e); }
+        try { renderLists(); } catch(e) { console.log('Ошибка списков:', e); }
+        try { renderUpcomingEvents(); } catch(e) { console.log('Ошибка событий:', e); }
+        try { fetchWeather(); } catch(e) { console.log('Ошибка погоды:', e); }
     } else if(page==='settings'){
         updateTokenStatus();renderSettingsStats();
         renderTemplatesList('settingsTemplatesList','settings');
@@ -4295,4 +4275,5 @@ loadTombstonesFromServer().then(function(){
         }
     });
 })();
+
 })();
