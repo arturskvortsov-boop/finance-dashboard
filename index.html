@@ -258,6 +258,13 @@
     <div class="modal-header"><h2 id="txModalTitle">➕ Новая транзакция</h2><button class="modal-close" id="closeTxModal">×</button></div>
     <div class="modal-body">
         <div class="form-row"><label>Тип</label><div class="type-toggle"><button class="type-btn active" data-type="income">💰 Доход</button><button class="type-btn" data-type="expense">💸 Расход</button></div></div>
+                <div class="form-row" id="txAuthorRow">
+            <label>Кто вносит</label>
+            <div class="type-toggle" id="txAuthorToggle">
+                <button class="type-btn active" data-author="me" id="btnAuthorMe">👨 Артур</button>
+                <button class="type-btn" data-author="partner" id="btnAuthorPartner">👩 Лера</button>
+            </div>
+        </div>
         <div class="form-row"><label>Сумма в рублях</label><input type="number" id="txRub" placeholder="0" step="0.01"></div>
         <div class="form-row"><label>Сумма в долларах (необязательно)</label><input type="number" id="txUsd" placeholder="0" step="0.01"></div>
         <div class="form-row"><label>Категория</label><select id="txCategory"></select></div>
@@ -288,6 +295,13 @@
     <div class="modal-header"><h2 id="eventEditTitle">📅 Новое событие</h2><button class="modal-close" id="closeEventEditModal">×</button></div>
     <div class="modal-body">
         <div class="form-row"><label>Иконка</label><div class="evt-icon-picker" id="evtIconPicker"></div></div>
+                <div class="form-row" id="evtAuthorRow">
+            <label>Кто добавляет</label>
+            <div class="type-toggle" id="evtAuthorToggle">
+                <button class="type-btn active" data-author="me" id="btnEvtAuthorMe">👨 Артур</button>
+                <button class="type-btn" data-author="partner" id="btnEvtAuthorPartner">👩 Лера</button>
+            </div>
+        </div>
         <div class="form-row"><label>Название</label><input type="text" id="evtTitle" placeholder="Например: Ужин"></div>
         <div class="form-row"><label>Дата</label><input type="date" id="evtDate"></div>
         <div class="form-row"><label>Время (необязательно)</label><input type="time" id="evtTime"></div>
