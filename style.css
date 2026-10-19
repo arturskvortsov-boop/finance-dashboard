@@ -2955,6 +2955,9 @@ body.tg-webapp.tg-fullscreen {
     background-color: #0a0a0b !important;
 }
 
-body.tg-webapp.tg-fullscreen {
-    padding-top: calc(95px + env(safe-area-inset-top, 0px)) !important;
+/* =======================================================
+   ЖЕСТКИЙ ОТСТУП СВЕРХУ ДЛЯ TELEGRAM
+   ======================================================= */
+body.tg-webapp.tg-fullscreen .container {
+    padding-top: calc(60px + env(safe-area-inset-top, 0px)) !important;
 }
