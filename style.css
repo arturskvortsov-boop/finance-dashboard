@@ -3256,3 +3256,21 @@ body[data-mode="helper"] .note-card {
 body[data-mode="helper"] .note-card:active {
     border-color: #60a5fa;
 }
+
+/* ===== AUTHOR STYLES ===== */
+.type-btn.active[data-author="me"] {
+    background: rgba(96,165,250,0.12);
+    border-color: #60a5fa;
+    color: #60a5fa;
+}
+.type-btn.active[data-author="partner"] {
+    background: rgba(244,114,182,0.12);
+    border-color: #f472b6;
+    color: #f472b6;
+}
+
+.tx-author-icon {
+    font-size: 0.8rem;
+    margin-right: 4px;
+    opacity: 0.8;
+}
