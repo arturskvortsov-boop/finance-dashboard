@@ -3093,3 +3093,29 @@ body[data-mode="helper"] .fab-item:active {
 .fab-item:nth-child(5){ --tx: -65px;  --ty: 130px;  } /* Список */
 .fab-item:nth-child(6){ --tx: -140px; --ty: 30px;   } /* Быстрое */
 .fab-item:nth-child(7){ --tx: -115px; --ty: -90px;  } /* Повторить */
+
+/* ===== WEATHER WIDGET ===== */
+.weather-widget {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--card);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 14px 20px;
+    margin-bottom: 10px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.weather-left { display: flex; align-items: center; gap: 14px; }
+.weather-icon { font-size: 2rem; line-height: 1; }
+.weather-info { display: flex; flex-direction: column; }
+.weather-city { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+.weather-desc { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+
+.weather-right { display: flex; flex-direction: column; align-items: flex-end; }
+.weather-temp { font-size: 1.6rem; font-weight: 800; color: #60a5fa; line-height: 1.1; letter-spacing: -0.5px;}
+.weather-feels { font-size: 0.65rem; color: var(--text-dim); margin-top: 2px; }
