@@ -170,6 +170,18 @@
         <div class="notes-grid" id="notesGrid"></div>
     </div>
 
+        <div class="notes-block" id="debtsBlock">
+        <div class="lists-head">
+            <h3>⚖️ Долги</h3>
+            <button class="lists-add-btn" id="debtsAddBtn">+ Долг</button>
+        </div>
+        <div style="display:flex; gap:10px; margin-bottom:10px; font-size:0.8rem; font-weight:600;">
+            <div style="color:#4ade80;">Мне должны: <span id="totalLent">0</span> ₽</div>
+            <div style="color:#f87171; margin-left:auto;">Я должен: <span id="totalOwe">0</span> ₽</div>
+        </div>
+        <div class="notes-grid" id="debtsGrid"></div>
+    </div>
+
     <div class="notes-block" id="wishesBlock">
         <div class="lists-head">
             <h3>🎁 Хотелки</h3>
@@ -605,6 +617,35 @@
     <div class="modal-footer">
         <button class="modal-btn cancel" id="cancelWishEditBtn">Отмена</button>
         <button class="modal-btn save" id="saveWishBtn">Сохранить</button>
+    </div>
+</div>
+</div>
+
+<div class="modal-overlay" id="debtEditModal">
+<div class="modal">
+    <div class="modal-header">
+        <h2 id="debtEditTitle">⚖️ Новый долг</h2>
+        <button class="modal-close" id="closeDebtEditModal">×</button>
+    </div>
+    <div class="modal-body">
+        <div class="form-row">
+            <label>Тип долга</label>
+            <div class="type-toggle" id="debtTypeToggle">
+                <button class="type-btn active" data-type="lent" style="border-color:#4ade80; color:#4ade80; background:rgba(74,222,128,0.1);">Мне должны</button>
+                <button class="type-btn" data-type="owe" style="border-color:#f87171; color:#f87171; background:rgba(248,113,113,0.1);">Я должен</button>
+            </div>
+        </div>
+        <div class="form-row"><label>Кому / Кто</label><input type="text" id="debtPersonInput" placeholder="Например: Петя"></div>
+        <div class="form-row"><label>Сумма (₽)</label><input type="number" id="debtAmountInput" placeholder="5000" step="100"></div>
+        <div class="form-row"><label>Заметка (необязательно)</label><input type="text" id="debtNoteInput" placeholder="Например: на ремонт"></div>
+        <div class="form-row" id="debtStatusRow" style="display:none;">
+            <label class="checkbox-row"><input type="checkbox" id="debtPaidCheckbox"><span>Долг закрыт ✅</span></label>
+        </div>
+        <button class="list-delete-btn hidden" id="debtDeleteBtn">🗑️ Удалить долг</button>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-btn cancel" id="cancelDebtEditBtn">Отмена</button>
+        <button class="modal-btn save" id="saveDebtBtn">Сохранить</button>
     </div>
 </div>
 </div>
