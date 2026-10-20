@@ -32,50 +32,58 @@
       {
         "id": "itm_1792441874062_765",
         "text": "Картошка",
-        "done": false,
-        "createdAt": "2026-10-19T20:31:14.062Z"
+        "done": true,
+        "createdAt": "2026-10-19T20:31:14.062Z",
+        "completedAt": "2026-10-20T10:19:30.130Z"
       },
       {
         "id": "itm_1792441885841_929",
         "text": "Морковка",
-        "done": false,
-        "createdAt": "2026-10-19T20:31:25.841Z"
+        "done": true,
+        "createdAt": "2026-10-19T20:31:25.841Z",
+        "completedAt": "2026-10-20T10:19:31.141Z"
       },
       {
         "id": "itm_1792441888724_373",
         "text": "Лук",
-        "done": false,
-        "createdAt": "2026-10-19T20:31:28.724Z"
+        "done": true,
+        "createdAt": "2026-10-19T20:31:28.724Z",
+        "completedAt": "2026-10-20T10:19:31.746Z"
       },
       {
         "id": "itm_1792441895887_655",
         "text": "Свекла",
-        "done": false,
-        "createdAt": "2026-10-19T20:31:35.887Z"
+        "done": true,
+        "createdAt": "2026-10-19T20:31:35.887Z",
+        "completedAt": "2026-10-20T10:19:32.380Z"
       },
       {
         "id": "itm_1792441904460_621",
         "text": "Помидоры",
-        "done": false,
-        "createdAt": "2026-10-19T20:31:44.460Z"
+        "done": true,
+        "createdAt": "2026-10-19T20:31:44.460Z",
+        "completedAt": "2026-10-20T10:19:33.097Z"
       },
       {
         "id": "itm_1792441911411_291",
         "text": "Огурцы",
-        "done": false,
-        "createdAt": "2026-10-19T20:31:51.411Z"
+        "done": true,
+        "createdAt": "2026-10-19T20:31:51.411Z",
+        "completedAt": "2026-10-20T10:19:33.780Z"
       },
       {
         "id": "itm_1792441920241_270",
         "text": "Лимон",
-        "done": false,
-        "createdAt": "2026-10-19T20:32:00.241Z"
+        "done": true,
+        "createdAt": "2026-10-19T20:32:00.241Z",
+        "completedAt": "2026-10-20T10:19:34.743Z"
       },
       {
         "id": "itm_1792441923496_603",
         "text": "Бананы",
-        "done": false,
-        "createdAt": "2026-10-19T20:32:03.496Z"
+        "done": true,
+        "createdAt": "2026-10-19T20:32:03.496Z",
+        "completedAt": "2026-10-20T10:19:35.598Z"
       },
       {
         "id": "itm_1792441930104_454",
@@ -86,8 +94,9 @@
       {
         "id": "itm_1792441938886_580",
         "text": "Болгарский перец",
-        "done": false,
-        "createdAt": "2026-10-19T20:32:18.886Z"
+        "done": true,
+        "createdAt": "2026-10-19T20:32:18.886Z",
+        "completedAt": "2026-10-20T10:19:36.865Z"
       },
       {
         "id": "itm_1792441954724_289",
