@@ -451,9 +451,25 @@
 <div class="modal">
     <div class="modal-header"><h2 id="reminderEditTitle">🔔 Новое напоминание</h2><button class="modal-close" id="closeReminderEditModal">×</button></div>
     <div class="modal-body">
-        <div class="form-row"><label>Текст напоминания</label><input type="text" id="reminderText" placeholder="Например: Позвонить маме"></div>
-        <div class="form-row"><label>Дата</label><input type="date" id="reminderDate"></div>
-        <div class="form-row"><label>Время</label><input type="time" id="reminderTime" value="10:00"></div>
+        <div class="form-row"><label>Текст напоминания</label><input type="text" id="reminderText" placeholder="Например: Оплатить ипотеку"></div>
+        
+        <div class="form-row">
+            <label>Частота</label>
+            <select id="reminderRepeatType" class="form-row select">
+                <option value="single">Однократно (в конкретную дату)</option>
+                <option value="daily">Каждый день</option>
+                <option value="monthly">Каждый месяц (в это число)</option>
+            </select>
+        </div>
+
+        <div class="form-row"><label>Дата начала</label><input type="date" id="reminderDate"></div>
+        
+        <div class="form-row" id="reminderEndDateRow" style="display:none;">
+            <label>Дата окончания (необязательно)</label>
+            <input type="date" id="reminderEndDate">
+        </div>
+
+        <div class="form-row"><label>Время (через запятую)</label><input type="text" id="reminderTime" placeholder="Например: 10:00, 21:00"></div>
     </div>
     <div class="modal-footer">
         <button class="modal-btn cancel" id="cancelReminderEditBtn">Отмена</button>
