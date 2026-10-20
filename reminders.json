@@ -5,5 +5,20 @@
     "dueAt": "2026-10-22T07:00:00.000Z",
     "status": "pending",
     "createdAt": "2026-10-19T20:43:29.675Z"
+  },
+  {
+    "id": "rem_1792528694334_393",
+    "text": "Оплатить ипотеку",
+    "dueAt": "2026-11-01T07:00:00.000Z",
+    "startDate": "2026-11-01",
+    "endDate": "",
+    "repeatType": "monthly",
+    "times": [
+      "10:00",
+      "21:00"
+    ],
+    "daysOfMonth": [],
+    "status": "pending",
+    "createdAt": "2026-10-20T20:38:14.334Z"
   }
 ]
