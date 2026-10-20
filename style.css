@@ -3598,3 +3598,43 @@ body[data-mode="helper"] .list-card-icon {
 .fab-fan.open .fab-item {
     transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1) !important;
 }
+
+/* =======================================================
+   ИСПРАВЛЕНИЕ ВЫЛЕЗАЮЩЕГО ТЕКСТА И ОТСТУПОВ СНИЗУ
+   ======================================================= */
+
+/* 1. Запрещаем странице ехать вбок из-за длинного текста */
+html, body, .container {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+}
+
+/* 2. Фиксим карточку заметок, чтобы текст обрезался троеточием, а не растягивал экран */
+.notes-grid {
+    width: 100% !important;
+    min-width: 0 !important;
+}
+.note-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+}
+.note-card-preview {
+    display: block !important;
+    width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+/* 3. Добавляем место снизу (в Помощнике), чтобы последние карточки (Хотелки) не залезали под кнопки */
+body[data-mode="helper"] {
+    padding-bottom: calc(250px + env(safe-area-inset-bottom, 0px)) !important;
+}
+body[data-mode="helper"] .container {
+    padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+
