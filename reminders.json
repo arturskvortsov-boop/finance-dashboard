@@ -33,19 +33,5 @@
     ],
     "status": "pending",
     "createdAt": "2026-10-20T19:09:17.635Z"
-  },
-  {
-    "id": "rem_1792523456725_180",
-    "text": "Ипот",
-    "dueAt": "2026-10-20T19:12:00.000Z",
-    "startDate": "2026-10-20",
-    "endDate": "2026-10-22",
-    "repeatType": "monthly",
-    "times": [
-      "22:12",
-      "22:14"
-    ],
-    "status": "pending",
-    "createdAt": "2026-10-20T19:10:56.725Z"
   }
 ]
