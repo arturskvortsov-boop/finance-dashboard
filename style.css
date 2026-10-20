@@ -3565,23 +3565,36 @@ body[data-mode="helper"] .list-card-icon {
 .weather-hour-wind { font-size: 0.75rem !important; color: #64748b !important; width: 60px !important; text-align: right !important; }
 
 /* =======================================================
-   ИДЕАЛЬНЫЙ КРУГ FAB-КНОПОК (ЦЕНТРИРОВАННЫЙ ТЕКСТ)
+   ИДЕАЛЬНЫЙ КРУГ FAB-КНОПОК (МАТЕМАТИЧЕСКИЙ РАСЧЕТ)
    ======================================================= */
+
+/* 1. Уменьшаем кнопки и делаем их одинаковыми, чтобы влезли в круг */
 .fab-item {
-    min-width: 135px !important; /* Фиксированная ширина */
-    padding: 10px 12px !important;
-    font-size: 0.75rem !important;
-    justify-content: center !important; /* Центрируем текст и иконку */
+    min-width: 110px !important;
+    max-width: 110px !important;
+    padding: 10px 0 !important; /* Убираем боковые отступы, чтобы текст влез */
+    font-size: 0.72rem !important;
+    justify-content: center !important;
     align-items: center !important;
     text-align: center !important;
-    gap: 8px !important;
+    white-space: nowrap !important;
+    border-radius: 12px !important;
 }
 
-/* Радиус 150px, 7 точек по кругу (математически точно) */
-.fab-item:nth-child(1){ --tx: 0px;    --ty: -150px; } /* Обновить (Верх) */
-.fab-item:nth-child(2){ --tx: 117px;  --ty: -93px;  } /* Синхрон (Верх-Право) */
-.fab-item:nth-child(3){ --tx: 146px;  --ty: -33px;  } /* Добавить (Право) */
-.fab-item:nth-child(4){ --tx: 65px;   --ty: 135px;  } /* Событие (Низ-Право) */
-.fab-item:nth-child(5){ --tx: -65px;  --ty: 135px;  } /* Список (Низ-Лево) */
-.fab-item:nth-child(6){ --tx: -146px; --ty: -33px;  } /* Быстрое (Лево) */
-.fab-item:nth-child(7){ --tx: -117px; --ty: -93px;  } /* Повторить (Верх-Лево) */
+/* Убираем лишний отступ у иконок внутри кнопок */
+.fab-item span { margin-right: 4px !important; }
+
+/* 2. Точные координаты по кругу (Радиус 140px). 
+   Расстояние между нижними кнопками 122px, ширина кнопки 110px - зазора хватит с головой. */
+.fab-item:nth-child(1){ --tx: 0px;    --ty: -140px; } /* Обновить (Верх) */
+.fab-item:nth-child(2){ --tx: 109px;  --ty: -87px;  } /* Синхрон (Верх-Право) */
+.fab-item:nth-child(3){ --tx: 136px;  --ty: 31px;   } /* Добавить (Право) */
+.fab-item:nth-child(4){ --tx: 61px;   --ty: 126px;  } /* Событие (Низ-Право) */
+.fab-item:nth-child(5){ --tx: -61px;  --ty: 126px;  } /* Список (Низ-Лево) */
+.fab-item:nth-child(6){ --tx: -136px; --ty: 31px;   } /* Быстрое (Лево) */
+.fab-item:nth-child(7){ --tx: -109px; --ty: -87px;  } /* Повторить (Верх-Лево) */
+
+/* 3. Фикс анимации, чтобы они не дергались */
+.fab-fan.open .fab-item {
+    transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1) !important;
+}
