@@ -1145,8 +1145,12 @@ function renderSubscriptions(){
     var block=$('subscriptionsBlock');
     var grid=$('subsGrid');
     if(!block||!grid)return;
-    if(!subscriptions.length){ block.classList.add('hidden'); return; }
     block.classList.remove('hidden');
+    
+    if(!subscriptions.length){
+        grid.innerHTML = '<div style="text-align:center; color:var(--text-dim); font-size:0.8rem; padding:10px;">Подписок пока нет. Нажми «+ Подписка».</div>';
+        return;
+    }
     grid.innerHTML='';
 
     var now=new Date();
