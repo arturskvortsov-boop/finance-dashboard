@@ -219,26 +219,79 @@
 
 <!-- ===== НАСТРОЙКИ ===== -->
 <div class="page" id="pageSettings">
+
+    <!-- Блок 1: Профиль и данные -->
     <div class="settings-section">
-        <h3>📊 Данные</h3>
-        <div class="settings-row"><span class="label">Транзакций</span><span class="value" id="settingsTxCount">0</span></div>
-        <div class="settings-row"><span class="label">Записей курса</span><span class="value" id="settingsRateCount">0</span></div>
-        <div class="settings-row"><span class="label">Последняя синхронизация</span><span class="value" id="settingsLastSync">—</span></div>
+        <h3>👤 Профиль</h3>
+        <div class="settings-row">
+            <span class="label">ID пользователя</span>
+            <span class="value" id="settingsUserId" style="font-size:0.7rem;font-family:monospace">—</span>
+        </div>
+        <div class="settings-row">
+            <span class="label">Транзакций</span>
+            <span class="value" id="settingsTxCount">0</span>
+        </div>
+        <div class="settings-row">
+            <span class="label">Записей курса</span>
+            <span class="value" id="settingsRateCount">0</span>
+        </div>
+    </div>
+
+    <!-- Блок 2: Данные и Синхронизация -->
+    <div class="settings-section">
+        <h3>☁️ Данные и Синхронизация</h3>
+        <div class="settings-row">
+            <span class="label">Последняя синхронизация</span>
+            <span class="value" id="settingsLastSync">—</span>
+        </div>
+        <div class="settings-row">
+            <span class="label">Статус токена</span>
+            <span class="value" id="tokenStatus">—</span>
+        </div>
         <div class="settings-actions">
-            <button class="settings-btn success" id="settingsExportBtn">💾 Экспорт JSON</button>
-            <button class="settings-btn success" id="settingsExportCsvBtn">📊 Экспорт CSV</button>
-            <button class="settings-btn primary" id="settingsImportBtn">📥 Импорт JSON</button>
+            <button class="settings-btn primary" id="settingsTokenBtn">🔑 Токен</button>
+            <button class="settings-btn neutral" id="settingsClearTokenBtn">🗑️ Удалить токен</button>
+        </div>
+        <div class="settings-actions">
+            <button class="settings-btn success" id="settingsExportBtn">💾 JSON</button>
+            <button class="settings-btn success" id="settingsExportCsvBtn">📊 CSV</button>
+            <button class="settings-btn primary" id="settingsImportBtn">📥 Импорт</button>
         </div>
         <input type="file" id="settingsImportInput" accept="application/json,.json" style="display:none">
     </div>
+
+    <!-- Блок 3: Финансовые инструменты -->
     <div class="settings-section">
-        <h3>🔑 GitHub-токен</h3>
-        <div class="settings-row"><span class="label">Статус</span><span class="value" id="tokenStatus">—</span></div>
+        <h3>⚙️ Финансовые инструменты</h3>
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span class="label">Регулярные платежи</span>
+            <button class="lists-add-btn" id="settingsNewTemplateBtn">+ Создать</button>
+        </div>
+        <div class="templates-list" id="settingsTemplatesList"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; margin-top:15px;">
+            <span class="label">Бюджеты на месяц</span>
+            <button class="lists-add-btn" id="settingsAddBudgetBtn">+ Добавить</button>
+        </div>
+        <div id="settingsBudgetsList"></div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; margin-top:15px;">
+            <span class="label">Цели накоплений</span>
+            <button class="lists-add-btn" id="settingsAddGoalBtn">+ Новая</button>
+        </div>
+        <div id="settingsGoalsList"></div>
+    </div>
+
+    <!-- Блок 4: Опасная зона -->
+    <div class="settings-section">
+        <h3>⚠️ Опасная зона</h3>
+        <div class="settings-danger-text">Все данные будут удалены. Это действие нельзя отменить.</div>
         <div class="settings-actions">
-            <button class="settings-btn primary" id="settingsTokenBtn">🔑 Ввести / изменить</button>
-            <button class="settings-btn neutral" id="settingsClearTokenBtn">🗑️ Удалить</button>
+            <button class="settings-btn danger" id="settingsClearBtn" style="width:100%;">🗑️ Очистить все данные</button>
         </div>
     </div>
+
 </div>
 
 <div class="footer">Данные из stats2.json · Синхронизация с GitHub · Курс из rate.json</div>
