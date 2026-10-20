@@ -3384,3 +3384,11 @@ body[data-mode="helper"] .list-card-icon {
     background: rgba(96, 165, 250, 0.15) !important;
     border: 1px solid rgba(96, 165, 250, 0.3) !important;
 }
+
+/* Жесткий отступ между событиями */
+.upcoming-event {
+    margin-bottom: 12px !important;
+}
+.upcoming-event:last-child {
+    margin-bottom: 0 !important;
+}
