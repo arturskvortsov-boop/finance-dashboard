@@ -3350,3 +3350,37 @@ body[data-mode="helper"] .wish-card {
 #wishesBlock {
     display: block !important;
 }
+
+/* ===== ФИКС ВИЗУАЛА СОБЫТИЙ И СПИСКОВ ===== */
+
+/* 1. Отступы между событиями, чтобы не слипались */
+.events-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px !important; /* Увеличили отступ */
+}
+
+/* 2. Цвета событий (Артур - синий, Лера - розовый) */
+.upcoming-event[data-author="partner"] {
+    border-left: 3px solid #f472b6 !important;
+    background: linear-gradient(90deg, rgba(244,114,182,0.08) 0%, var(--card-2) 100%) !important;
+}
+.upcoming-event[data-author="me"] {
+    border-left: 3px solid #60a5fa !important;
+    background: linear-gradient(90deg, rgba(96,165,250,0.08) 0%, var(--card-2) 100%) !important;
+}
+
+/* 3. Красивая подложка для эмодзи (чтобы выделялись) */
+.ue-icon, .day-event-icon, .list-card-icon {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-radius: 50% !important; /* Делаем круглыми */
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    font-size: 1.1rem !important;
+}
+
+/* Для Помощника делаем синюю подложку */
+body[data-mode="helper"] .ue-icon, 
+body[data-mode="helper"] .list-card-icon {
+    background: rgba(96, 165, 250, 0.15) !important;
+    border: 1px solid rgba(96, 165, 250, 0.3) !important;
+}
