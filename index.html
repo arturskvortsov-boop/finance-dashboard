@@ -59,8 +59,9 @@
     <div class="bc-row-3" style="justify-content:center">
         <span class="bc-usd-quick" id="bcUsdQuick">💵 Эквивалент: <strong id="totalBalanceUsdDisplay">0 $</strong> · 1 USD = <strong id="rateInfoSmall">— ₽</strong> →</span>
     </div>
-    <div class="bc-rate-action">
-        <button class="bc-rate-btn" id="openRateModalBtn">💵 Управление курсом</button>
+    <div class="bc-rate-action" style="display:flex; gap:8px; justify-content:center;">
+        <button class="bc-rate-btn" id="openRateModalBtn" style="flex:1;">💵 Курс</button>
+        <button class="bc-rate-btn" id="openTemplatesBtn" style="flex:1; border-color:rgba(96,165,250,0.4); color:#60a5fa; background:rgba(96,165,250,0.1);">⚡ Шаблоны</button>
     </div>
 </div>
 
@@ -467,6 +468,10 @@
         <div class="form-row" id="reminderEndDateRow" style="display:none;">
             <label>Дата окончания (необязательно)</label>
             <input type="date" id="reminderEndDate">
+        </div>
+                <div class="form-row" id="reminderDaysRow" style="display:none;">
+            <label>Дни месяца (например: 1-4 или 1,2,3)</label>
+            <input type="text" id="reminderDays" placeholder="1-4">
         </div>
 
         <div class="form-row"><label>Время (через запятую)</label><input type="text" id="reminderTime" placeholder="Например: 10:00, 21:00"></div>
