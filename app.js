@@ -80,6 +80,8 @@ var LISTS_KEY='financeLists';
 var LISTS_FILE='lists.json';
 var NOTES_KEY='financeNotes';
 var NOTES_FILE='notes.json';
+var WISHES_KEY='financeWishes';
+var WISHES_FILE='wishes.json';
 
 try{
     var mc=document.querySelector('meta[name="theme-color"]');
@@ -110,6 +112,8 @@ var notes=[];
 var currentUserName = 'Артур';
 var partnerName = 'Лера';
 var editingNoteId=null;
+var wishes=[];
+var editingWishId=null;
 var editingListId=null;
 var currentListId=null;
 var currentListIcon='🛒';
@@ -335,6 +339,8 @@ function saveLists(){try{localStorage.setItem(LISTS_KEY,JSON.stringify(lists));}
 function loadLists(){try{var s=localStorage.getItem(LISTS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveNotes(){try{localStorage.setItem(NOTES_KEY,JSON.stringify(notes));}catch(e){}}
 function loadNotes(){try{var s=localStorage.getItem(NOTES_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
+function saveWishes(){try{localStorage.setItem(WISHES_KEY,JSON.stringify(wishes));}catch(e){}}
+function loadWishes(){try{var s=localStorage.getItem(WISHES_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveBudgets(){try{localStorage.setItem(BUDGETS_KEY,JSON.stringify(budgets));}catch(e){}}
 function loadBudgets(){try{var s=localStorage.getItem(BUDGETS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveGoals(){try{localStorage.setItem(GOALS_KEY,JSON.stringify(goals));}catch(e){}}
@@ -981,6 +987,122 @@ function renderNotes(){
         (function(id){card.addEventListener('click',function(){openNoteEditModal(id);});})(n.id);
         grid.appendChild(card);
     }
+}
+function renderWishes(){
+    var block=$('wishesBlock');
+    var grid=$('wishesGrid');
+    if(!block||!grid)return;
+    block.classList.remove('hidden');
+    
+    if(!wishes.length){
+        grid.innerHTML = '<div style="text-align:center; color:var(--text-dim); font-size:0.8rem; padding:10px;">Хотелок пока нет. Нажми «+ Хотелка».</div>';
+        return;
+    }
+    
+    var sorted=wishes.slice().sort(function(a,b){return (a.bought===b.bought)?0:(a.bought?1:-1);});
+    grid.innerHTML='';
+    for(var i=0;i<sorted.length;i++){
+        var w=sorted[i];
+        var card=document.createElement('div');
+        card.className='wish-card'+(w.bought?' bought':'');
+        
+        var authorIcon = (w.author === partnerName) ? '👩' : '👨';
+        var authorText = (w.author === partnerName) ? partnerName : currentUserName;
+        
+        var html = '<div class="wish-top">' +
+                   '<div class="wish-title">'+w.title+'</div>' +
+                   '<div class="wish-price">'+(w.price ? roundRub(w.price).toLocaleString('ru-RU')+' ₽' : '')+'</div>' +
+                   '</div>' +
+                   '<div class="wish-author">'+authorIcon+' '+authorText+'</div>';
+                   
+        if(w.note) html += '<div><span class="wish-note">'+w.note+'</span></div>';
+        if(w.url) html += '<div><a href="'+w.url+'" target="_blank" class="wish-link" onclick="event.stopPropagation()">🔗 Ссылка</a></div>';
+        
+        card.innerHTML = html;
+        (function(id){card.addEventListener('click',function(){openWishEditModal(id);});})(w.id);
+        grid.appendChild(card);
+    }
+}
+
+function openWishEditModal(id){
+    editingWishId=id||null;
+    var title=$('wishEditTitle');
+    var delBtn=$('wishDeleteBtn');
+    var statusRow=$('wishStatusRow');
+    
+    if(id){
+        var w=null;for(var i=0;i<wishes.length;i++)if(wishes[i].id===id){w=wishes[i];break;}
+        if(!w)return;
+        title.textContent='✏️ Редактировать';
+        $('wishTitleInput').value=w.title||'';
+        $('wishPriceInput').value=w.price||'';
+        $('wishUrlInput').value=w.url||'';
+        $('wishNoteInput').value=w.note||'';
+        $('wishBoughtCheckbox').checked=!!w.bought;
+        if(delBtn)delBtn.classList.remove('hidden');
+        if(statusRow)statusRow.style.display='flex';
+        
+        var author = w.author || currentUserName;
+        var authorBtns = document.querySelectorAll('#wishAuthorToggle .type-btn');
+        for(var i=0;i<authorBtns.length;i++) authorBtns[i].classList.toggle('active', authorBtns[i].textContent.includes(author));
+    } else {
+        title.textContent='🎁 Новая хотелка';
+        $('wishTitleInput').value='';
+        $('wishPriceInput').value='';
+        $('wishUrlInput').value='';
+        $('wishNoteInput').value='';
+        $('wishBoughtCheckbox').checked=false;
+        if(delBtn)delBtn.classList.add('hidden');
+        if(statusRow)statusRow.style.display='none';
+        
+        var defaultBtns = document.querySelectorAll('#wishAuthorToggle .type-btn');
+        for(var i=0;i<defaultBtns.length;i++) defaultBtns[i].classList.toggle('active', defaultBtns[i].dataset.author==='me');
+    }
+    $('wishEditModal').classList.add('open');
+    lockBackground();
+}
+
+function closeWishEditModal(){
+    $('wishEditModal').classList.remove('open');
+    editingWishId=null;
+    unlockBackground();
+}
+
+function saveWish(){
+    var title=$('wishTitleInput').value.trim();
+    var price=parseFloat($('wishPriceInput').value)||0;
+    var url=$('wishUrlInput').value.trim();
+    var note=$('wishNoteInput').value.trim();
+    var isBought=$('wishBoughtCheckbox').checked;
+    
+    if(!title){alert('Введите название');return;}
+    
+    var activeBtn = document.querySelector('#wishAuthorToggle .type-btn.active');
+    var author = activeBtn ? activeBtn.textContent.replace('👨 ','').replace('👩 ','').trim() : currentUserName;
+    
+    if(editingWishId){
+        for(var i=0;i<wishes.length;i++)if(wishes[i].id===editingWishId){
+            wishes[i].title=title;
+            wishes[i].price=price;
+            wishes[i].url=url;
+            wishes[i].note=note;
+            wishes[i].author=author;
+            wishes[i].bought=isBought;
+            break;
+        }
+        $('fileStatus').textContent='✏️ Хотелка обновлена';
+    } else {
+        wishes.push({id:'wish_'+Date.now(), title:title, price:price, url:url, note:note, author:author, bought:isBought, createdAt:new Date().toISOString()});
+        $('fileStatus').textContent='🎁 Хотелка добавлена';
+    }
+    saveWishes();syncWishes();renderWishes();closeWishEditModal();haptic('success');
+}
+
+function deleteWish(){
+    if(!editingWishId)return;
+    if(!confirm('Удалить хотелку?'))return;
+    wishes=wishes.filter(function(w){return w.id!==editingWishId;});
+    saveWishes();syncWishes();renderWishes();closeWishEditModal();$('fileStatus').textContent='🗑️ Удалено';haptic('warning');
 }
 
 function openNoteEditModal(id){
@@ -3015,9 +3137,11 @@ function syncEvents(){if(!getToken())return Promise.resolve(false);return putJso
 function loadEventsFromServer(){return fetchJsonFile(EVENTS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;events=mergeById(events,data);saveEvents();return true;});}
 function syncLists(){if(!getToken())return Promise.resolve(false);return putJsonFile(LISTS_FILE,lists,'Списки ('+lists.length+')').catch(function(){return false;});}
 function loadListsFromServer(){return fetchJsonFile(LISTS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;lists=mergeLists(lists,data);saveLists();return true;});}
-function syncAllExtras(){if(!getToken())return;syncTemplates();syncBudgets();syncGoals();syncTombstones();syncEvents();syncLists();syncNotes();}
+function syncAllExtras(){if(!getToken())return;syncTemplates();syncBudgets();syncGoals();syncTombstones();syncEvents();syncLists();syncNotes();syncWishes();}
 function syncNotes(){if(!getToken())return Promise.resolve(false);return putJsonFile(NOTES_FILE,notes,'Заметки ('+notes.length+')').catch(function(){return false;});}
 function loadNotesFromServer(){return fetchJsonFile(NOTES_FILE).then(function(data){if(!data||!Array.isArray(data))return false;notes=mergeById(notes,data);saveNotes();return true;});}
+function syncWishes(){if(!getToken())return Promise.resolve(false);return putJsonFile(WISHES_FILE,wishes,'Хотелки ('+wishes.length+')').catch(function(){return false;});}
+function loadWishesFromServer(){return fetchJsonFile(WISHES_FILE).then(function(data){if(!data||!Array.isArray(data))return false;wishes=mergeById(wishes,data);saveWishes();return true;});}
 
 
 /* ===== АВТОСИНХРОНИЗАЦИЯ ===== */
@@ -3593,6 +3717,7 @@ function switchPage(page,direction){
         try { renderNotes(); } catch(e) { console.log('Ошибка заметок:', e); } // <-- ДОБАВИЛИ ЭТУ СТРОКУ
         try { renderUpcomingEvents(); } catch(e) { console.log('Ошибка событий:', e); }
         try { fetchWeather(); } catch(e) { console.log('Ошибка погоды:', e); }
+        try { renderWishes(); } catch(e) {}
     } else if(page==='settings'){
         updateTokenStatus();renderSettingsStats();
         renderTemplatesList('settingsTemplatesList','settings');
@@ -4196,6 +4321,7 @@ tombstones=loadTombstones();
 events=loadEvents()||[];
 lists=loadLists()||[];
 notes=loadNotes()||[];
+wishes=loadWishes()||[];
 try {
     if(localStorage.getItem('myName')) currentUserName = localStorage.getItem('myName');
     if(localStorage.getItem('partnerName')) partnerName = localStorage.getItem('partnerName');
@@ -4230,7 +4356,7 @@ loadTombstonesFromServer().then(function(){
         $('emptyState').classList.remove('hidden');
         if(!$('fileStatus').textContent||$('fileStatus').textContent==='⏳ Загрузка...')$('fileStatus').textContent='📂 Загрузите JSON или проверьте GitHub';
     }
-    return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadCustomRemindersFromServer(),loadEventsFromServer(),loadListsFromServer(),loadNotesFromServer()]);
+return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadCustomRemindersFromServer(),loadEventsFromServer(),loadListsFromServer(),loadNotesFromServer(),loadWishesFromServer()]);
 }).then(function(){
     applyTombstones();
     var skEl=$('skeleton');
@@ -4240,6 +4366,7 @@ loadTombstonesFromServer().then(function(){
     renderCalendar();
     renderLists();
     renderNotes();
+    renderWishes();
     setTimeout(drawRateHistoryChart,500);
     startFreshnessTimer();
     updateTokenStatus();
@@ -4594,6 +4721,30 @@ for(var i=0;i<evtAuthorBtns.length;i++){
             haptic('light');
         });
     })(evtAuthorBtns[i]);
+}
+
+// Обработчики хотелок
+var wishesAddBtn=$('wishesAddBtn');
+if(wishesAddBtn)wishesAddBtn.addEventListener('click',function(){openWishEditModal(null);});
+var closeWishEditModalBtn=$('closeWishEditModal');
+if(closeWishEditModalBtn)closeWishEditModalBtn.addEventListener('click',closeWishEditModal);
+var cancelWishEditBtn=$('cancelWishEditBtn');
+if(cancelWishEditBtn)cancelWishEditBtn.addEventListener('click',closeWishEditModal);
+var saveWishBtn=$('saveWishBtn');
+if(saveWishBtn)saveWishBtn.addEventListener('click',saveWish);
+var wishDeleteBtn=$('wishDeleteBtn');
+if(wishDeleteBtn)wishDeleteBtn.addEventListener('click',deleteWish);
+
+// Переключатель автора в хотелках
+var wishAuthorBtns = document.querySelectorAll('#wishAuthorToggle .type-btn');
+for(var i=0;i<wishAuthorBtns.length;i++){
+    (function(btn){
+        btn.addEventListener('click', function(){
+            for(var j=0;j<wishAuthorBtns.length;j++) wishAuthorBtns[j].classList.remove('active');
+            this.classList.add('active');
+            haptic('light');
+        });
+    })(wishAuthorBtns[i]);
 }
 
 })();
