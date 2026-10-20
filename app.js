@@ -1890,6 +1890,7 @@ function openWeatherModal() {
     
     var modal = $('weatherModal');
     if (modal) modal.classList.add('open');
+    lockBackground(); // <--- Блокируем фон
     
     fetch('https://wttr.in/' + lat + ',' + lon + '?format=j1')
         .then(function(r) { return r.json(); })
@@ -5169,6 +5170,34 @@ var saveSubBtn=$('saveSubBtn');
 if(saveSubBtn)saveSubBtn.addEventListener('click',saveSubscription);
 var subDeleteBtn=$('subDeleteBtn');
 if(subDeleteBtn)subDeleteBtn.addEventListener('click',deleteSubscription);
+
+// Обработчик нажатия на виджет погоды (открывает прогноз)
+var weatherWidgetEl = $('weatherWidget');
+if (weatherWidgetEl) {
+    weatherWidgetEl.addEventListener('click', function(e) {
+        // Если кликнули на карандаш, не открываем прогноз
+        if (e.target.id === 'weatherCityEdit') return;
+        openWeatherModal();
+    });
+}
+
+// Закрытие модалки погоды
+var closeWeatherModalBtn = $('closeWeatherModal');
+if (closeWeatherModalBtn) {
+    closeWeatherModalBtn.addEventListener('click', function(){ 
+        $('weatherModal').classList.remove('open'); 
+        unlockBackground();
+    });
+}
+var weatherModalEl = $('weatherModal');
+if (weatherModalEl) {
+    weatherModalEl.addEventListener('click', function(e) { 
+        if (e.target === this) {
+            this.classList.remove('open'); 
+            unlockBackground();
+        }
+    });
+}
 
 })();
 
