@@ -82,6 +82,8 @@ var NOTES_KEY='financeNotes';
 var NOTES_FILE='notes.json';
 var WISHES_KEY='financeWishes';
 var WISHES_FILE='wishes.json';
+var DEBTS_KEY='financeDebts';
+var DEBTS_FILE='debts.json';
 
 try{
     var mc=document.querySelector('meta[name="theme-color"]');
@@ -113,6 +115,8 @@ var currentUserName = 'Артур';
 var partnerName = 'Лера';
 var editingNoteId=null;
 var wishes=[];
+var debts=[];
+var editingDebtId=null;
 var editingWishId=null;
 var editingListId=null;
 var currentListId=null;
@@ -342,6 +346,8 @@ function saveNotes(){try{localStorage.setItem(NOTES_KEY,JSON.stringify(notes));}
 function loadNotes(){try{var s=localStorage.getItem(NOTES_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveWishes(){try{localStorage.setItem(WISHES_KEY,JSON.stringify(wishes));}catch(e){}}
 function loadWishes(){try{var s=localStorage.getItem(WISHES_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
+function saveDebts(){try{localStorage.setItem(DEBTS_KEY,JSON.stringify(debts));}catch(e){}}
+function loadDebts(){try{var s=localStorage.getItem(DEBTS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveBudgets(){try{localStorage.setItem(BUDGETS_KEY,JSON.stringify(budgets));}catch(e){}}
 function loadBudgets(){try{var s=localStorage.getItem(BUDGETS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveGoals(){try{localStorage.setItem(GOALS_KEY,JSON.stringify(goals));}catch(e){}}
@@ -1080,6 +1086,142 @@ function renderWishes(){
         (function(id){card.addEventListener('click',function(){openWishEditModal(id);});})(w.id);
         grid.appendChild(card);
     }
+}
+
+function renderDebts(){
+    var block=$('debtsBlock');
+    var grid=$('debtsGrid');
+    if(!block||!grid)return;
+    block.classList.remove('hidden');
+    
+    if(!debts.length){
+        grid.innerHTML = '<div style="text-align:center; color:var(--text-dim); font-size:0.8rem; padding:10px;">Долгов нет.</div>';
+        if($('totalLent')) $('totalLent').textContent = '0';
+        if($('totalOwe')) $('totalOwe').textContent = '0';
+        return;
+    }
+    
+    var totalLent = 0;
+    var totalOwe = 0;
+    
+    var sorted = debts.slice().sort(function(a,b){ return (a.paid === b.paid) ? 0 : (a.paid ? 1 : -1); });
+    grid.innerHTML = '';
+    
+    for(var i=0; i<sorted.length; i++){
+        var d = sorted[i];
+        if(!d.paid) {
+            if(d.type === 'lent') totalLent += d.amount;
+            if(d.type === 'owe') totalOwe += d.amount;
+        }
+        
+        var card = document.createElement('div');
+        card.className = 'debt-card type-' + d.type + (d.paid ? ' paid' : '');
+        
+        var typeLabel = d.type === 'lent' ? 'Мне должны' : 'Я должен';
+        var sign = d.type === 'lent' ? '+' : '-';
+        
+        card.innerHTML = 
+            '<div class="debt-info">' +
+                '<div class="debt-person">' + (d.person || 'Без имени') + '</div>' +
+                '<div class="debt-note">' + typeLabel + (d.note ? ' · ' + d.note : '') + '</div>' +
+            '</div>' +
+            '<div class="debt-amount">' + sign + roundRub(d.amount).toLocaleString('ru-RU') + ' ₽</div>';
+            
+        (function(id){ card.addEventListener('click', function(){ openDebtEditModal(id); }); })(d.id);
+        grid.appendChild(card);
+    }
+    
+    if($('totalLent')) $('totalLent').textContent = roundRub(totalLent).toLocaleString('ru-RU');
+    if($('totalOwe')) $('totalOwe').textContent = roundRub(totalOwe).toLocaleString('ru-RU');
+}
+
+function openDebtEditModal(id){
+    editingDebtId = id || null;
+    var title = $('debtEditTitle');
+    var delBtn = $('debtDeleteBtn');
+    var statusRow = $('debtStatusRow');
+    
+    if(id){
+        var d=null; for(var i=0;i<debts.length;i++) if(debts[i].id===id){d=debts[i];break;}
+        if(!d)return;
+        title.textContent='✏️ Редактировать долг';
+        $('debtPersonInput').value = d.person || '';
+        $('debtAmountInput').value = d.amount || '';
+        $('debtNoteInput').value = d.note || '';
+        $('debtPaidCheckbox').checked = !!d.paid;
+        if(delBtn)delBtn.classList.remove('hidden');
+        if(statusRow)statusRow.style.display='flex';
+        
+        var btns = document.querySelectorAll('#debtTypeToggle .type-btn');
+        for(var i=0;i<btns.length;i++) btns[i].classList.toggle('active', btns[i].dataset.type === d.type);
+        
+        // Восстанавливаем цвета кнопок
+        if(btns[0]) { btns[0].style.borderColor = '#4ade80'; btns[0].style.color = '#4ade80'; btns[0].style.background = 'rgba(74,222,128,0.1)'; }
+        if(btns[1]) { btns[1].style.borderColor = '#f87171'; btns[1].style.color = '#f87171'; btns[1].style.background = 'rgba(248,113,113,0.1)'; }
+        
+    } else {
+        title.textContent='⚖️ Новый долг';
+        $('debtPersonInput').value = '';
+        $('debtAmountInput').value = '';
+        $('debtNoteInput').value = '';
+        $('debtPaidCheckbox').checked = false;
+        if(delBtn)delBtn.classList.add('hidden');
+        if(statusRow)statusRow.style.display='none';
+        
+        var btns = document.querySelectorAll('#debtTypeToggle .type-btn');
+        for(var i=0;i<btns.length;i++) {
+            btns[i].classList.toggle('active', btns[i].dataset.type === 'lent');
+            if(btns[i].dataset.type === 'lent') {
+                btns[i].style.borderColor = '#4ade80'; btns[i].style.color = '#4ade80'; btns[i].style.background = 'rgba(74,222,128,0.15)';
+            } else {
+                btns[i].style.borderColor = 'var(--border)'; btns[i].style.color = 'var(--text-muted)'; btns[i].style.background = 'transparent';
+            }
+        }
+    }
+    $('debtEditModal').classList.add('open');
+    lockBackground();
+}
+
+function closeDebtEditModal(){
+    $('debtEditModal').classList.remove('open');
+    editingDebtId=null;
+    unlockBackground();
+}
+
+function saveDebt(){
+    var person = $('debtPersonInput').value.trim();
+    var amount = parseFloat($('debtAmountInput').value)||0;
+    var note = $('debtNoteInput').value.trim();
+    var paid = $('debtPaidCheckbox').checked;
+    
+    if(!person){alert('Введите имя');return;}
+    if(amount<=0){alert('Введите сумму');return;}
+    
+    var activeBtn = document.querySelector('#debtTypeToggle .type-btn.active');
+    var type = activeBtn ? activeBtn.dataset.type : 'lent';
+    
+    if(editingDebtId){
+        for(var i=0;i<debts.length;i++)if(debts[i].id===editingDebtId){
+            debts[i].person=person;
+            debts[i].amount=amount;
+            debts[i].note=note;
+            debts[i].type=type;
+            debts[i].paid=paid;
+            break;
+        }
+        $('fileStatus').textContent='✏️ Долг обновлен';
+    } else {
+        debts.push({id:'debt_'+Date.now(), person:person, amount:amount, note:note, type:type, paid:paid, createdAt:new Date().toISOString()});
+        $('fileStatus').textContent='⚖️ Долг добавлен';
+    }
+    saveDebts();syncDebts();renderDebts();closeDebtEditModal();haptic('success');
+}
+
+function deleteDebt(){
+    if(!editingDebtId)return;
+    if(!confirm('Удалить долг?'))return;
+    debts=debts.filter(function(d){return d.id!==editingDebtId;});
+    saveDebts();syncDebts();renderDebts();closeDebtEditModal();$('fileStatus').textContent='🗑️ Удалено';haptic('warning');
 }
 
 function openWishEditModal(id){
@@ -3221,11 +3363,13 @@ function syncEvents(){if(!getToken())return Promise.resolve(false);return putJso
 function loadEventsFromServer(){return fetchJsonFile(EVENTS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;events=mergeById(events,data);saveEvents();return true;});}
 function syncLists(){if(!getToken())return Promise.resolve(false);return putJsonFile(LISTS_FILE,lists,'Списки ('+lists.length+')').catch(function(){return false;});}
 function loadListsFromServer(){return fetchJsonFile(LISTS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;lists=mergeLists(lists,data);saveLists();return true;});}
-function syncAllExtras(){if(!getToken())return;syncTemplates();syncBudgets();syncGoals();syncTombstones();syncEvents();syncLists();syncNotes();syncWishes();}
+function syncAllExtras(){if(!getToken())return;syncTemplates();syncBudgets();syncGoals();syncTombstones();syncEvents();syncLists();syncNotes();syncWishes();syncDebts();}
 function syncNotes(){if(!getToken())return Promise.resolve(false);return putJsonFile(NOTES_FILE,notes,'Заметки ('+notes.length+')').catch(function(){return false;});}
 function loadNotesFromServer(){return fetchJsonFile(NOTES_FILE).then(function(data){if(!data||!Array.isArray(data))return false;notes=mergeById(notes,data);saveNotes();return true;});}
 function syncWishes(){if(!getToken())return Promise.resolve(false);return putJsonFile(WISHES_FILE,wishes,'Хотелки ('+wishes.length+')').catch(function(){return false;});}
 function loadWishesFromServer(){return fetchJsonFile(WISHES_FILE).then(function(data){if(!data||!Array.isArray(data))return false;wishes=mergeById(wishes,data);saveWishes();return true;});}
+function syncDebts(){if(!getToken())return Promise.resolve(false);return putJsonFile(DEBTS_FILE,debts,'Долги ('+debts.length+')').catch(function(){return false;});}
+function loadDebtsFromServer(){return fetchJsonFile(DEBTS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;debts=mergeById(debts,data);saveDebts();return true;});}
 
 
 /* ===== АВТОСИНХРОНИЗАЦИЯ ===== */
@@ -3798,10 +3942,11 @@ function switchPage(page,direction){
     if(page==='helper'){
         try { renderCalendar(); } catch(e) { console.log('Ошибка календаря:', e); }
         try { renderLists(); } catch(e) { console.log('Ошибка списков:', e); }
-        try { renderNotes(); } catch(e) { console.log('Ошибка заметок:', e); } // <-- ДОБАВИЛИ ЭТУ СТРОКУ
+        try { renderNotes(); } catch(e) { console.log('Ошибка заметок:', e); }
+        try { renderWishes(); } catch(e) { console.log('Ошибка хотелок:', e); }
+        try { renderDebts(); } catch(e) { console.log('Ошибка долгов:', e); }
         try { renderUpcomingEvents(); } catch(e) { console.log('Ошибка событий:', e); }
         try { fetchWeather(); } catch(e) { console.log('Ошибка погоды:', e); }
-        try { renderWishes(); } catch(e) {}
     } else if(page==='settings'){
         updateTokenStatus();renderSettingsStats();
         renderTemplatesList('settingsTemplatesList','settings');
@@ -4406,6 +4551,8 @@ events=loadEvents()||[];
 lists=loadLists()||[];
 notes=loadNotes()||[];
 wishes=loadWishes()||[];
+debts=loadDebts()||[];
+
 try {
     if(localStorage.getItem('myName')) currentUserName = localStorage.getItem('myName');
     if(localStorage.getItem('partnerName')) partnerName = localStorage.getItem('partnerName');
@@ -4440,7 +4587,7 @@ loadTombstonesFromServer().then(function(){
         $('emptyState').classList.remove('hidden');
         if(!$('fileStatus').textContent||$('fileStatus').textContent==='⏳ Загрузка...')$('fileStatus').textContent='📂 Загрузите JSON или проверьте GitHub';
     }
-return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadCustomRemindersFromServer(),loadEventsFromServer(),loadListsFromServer(),loadNotesFromServer(),loadWishesFromServer()]);
+return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadCustomRemindersFromServer(),loadEventsFromServer(),loadListsFromServer(),loadNotesFromServer(),loadWishesFromServer(),loadDebtsFromServer()]);
 }).then(function(){
     applyTombstones();
     var skEl=$('skeleton');
@@ -4831,6 +4978,42 @@ for(var i=0;i<wishAuthorBtns.length;i++){
             haptic('light');
         });
     })(wishAuthorBtns[i]);
+}
+
+// Обработчики долгов
+var debtsAddBtn=$('debtsAddBtn');
+if(debtsAddBtn)debtsAddBtn.addEventListener('click',function(){openDebtEditModal(null);});
+var closeDebtEditModalBtn=$('closeDebtEditModal');
+if(closeDebtEditModalBtn)closeDebtEditModalBtn.addEventListener('click',closeDebtEditModal);
+var cancelDebtEditBtn=$('cancelDebtEditBtn');
+if(cancelDebtEditBtn)cancelDebtEditBtn.addEventListener('click',closeDebtEditModal);
+var saveDebtBtn=$('saveDebtBtn');
+if(saveDebtBtn)saveDebtBtn.addEventListener('click',saveDebt);
+var debtDeleteBtn=$('debtDeleteBtn');
+if(debtDeleteBtn)debtDeleteBtn.addEventListener('click',deleteDebt);
+
+// Переключатель типа долга
+var debtTypeBtns = document.querySelectorAll('#debtTypeToggle .type-btn');
+for(var i=0;i<debtTypeBtns.length;i++){
+    (function(btn){
+        btn.addEventListener('click', function(){
+            for(var j=0;j<debtTypeBtns.length;j++) {
+                debtTypeBtns[j].classList.remove('active');
+                if(debtTypeBtns[j].dataset.type === 'lent') {
+                    debtTypeBtns[j].style.borderColor = 'var(--border)'; debtTypeBtns[j].style.color = 'var(--text-muted)'; debtTypeBtns[j].style.background = 'transparent';
+                } else {
+                    debtTypeBtns[j].style.borderColor = 'var(--border)'; debtTypeBtns[j].style.color = 'var(--text-muted)'; debtTypeBtns[j].style.background = 'transparent';
+                }
+            }
+            this.classList.add('active');
+            if(this.dataset.type === 'lent') {
+                this.style.borderColor = '#4ade80'; this.style.color = '#4ade80'; this.style.background = 'rgba(74,222,128,0.15)';
+            } else {
+                this.style.borderColor = '#f87171'; this.style.color = '#f87171'; this.style.background = 'rgba(248,113,113,0.15)';
+            }
+            haptic('light');
+        });
+    })(debtTypeBtns[i]);
 }
 
 })();
