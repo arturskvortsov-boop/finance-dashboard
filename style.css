@@ -3286,3 +3286,67 @@ body[data-mode="helper"] .note-card:active {
     border-color: #f472b6;
     color: #f472b6;
 }
+
+/* ===== WISHES BLOCK ===== */
+.wish-card {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px;
+    cursor: pointer;
+    transition: border-color .15s, opacity .2s;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.wish-card:active { transform: scale(0.98); }
+.wish-card.bought { opacity: 0.5; }
+.wish-card.bought .wish-title { text-decoration: line-through; color: var(--text-dim); }
+
+.wish-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+}
+.wish-title {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text);
+    line-height: 1.2;
+}
+.wish-price {
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #f5c84c;
+    white-space: nowrap;
+}
+.wish-author {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+.wish-note {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    background: rgba(255,255,255,0.04);
+    padding: 4px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-top: 4px;
+}
+.wish-link {
+    font-size: 0.75rem;
+    color: #60a5fa;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 4px;
+    word-break: break-all;
+}
+
+body[data-mode="helper"] .wish-card {
+    border-radius: 20px;
+}
+#wishesBlock {
+    display: block !important;
+}
