@@ -3529,30 +3529,6 @@ body[data-mode="helper"] .list-card-icon {
 .settings-btn.danger { border-color: rgba(248,113,113,0.4); color: #f87171; background: rgba(248,113,113,0.1); }
 .settings-btn.neutral { border-color: var(--border); color: var(--text-muted); }
 
-/* =======================================================
-   РЕДИЗАЙН FAB-КНОПОК (Идеальный круг)
-   ======================================================= */
-.fab-item {
-    min-width: 140px !important;
-    padding: 10px 16px !important;
-    font-size: 0.78rem !important;
-    justify-content: flex-start !important;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.1) inset !important;
-    background: rgba(26, 31, 42, 0.95) !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-}
-
-/* Идеальное расположение по кругу (радиус 150px) */
-.fab-item:nth-child(1){ --tx: 0px;    --ty: -150px; } /* 12 часов */
-.fab-item:nth-child(2){ --tx: 118px;  --ty: -92px;  } /* 2 часа */
-.fab-item:nth-child(3){ --tx: 142px;  --ty: 40px;   } /* 4 часа */
-.fab-item:nth-child(4){ --tx: 60px;   --ty: 135px;  } /* 6 часов */
-.fab-item:nth-child(5){ --tx: -60px;  --ty: 135px;  } /* 8 часов */
-.fab-item:nth-child(6){ --tx: -142px; --ty: 40px;   } /* 10 часов */
-.fab-item:nth-child(7){ --tx: -118px; --ty: -92px;  } /* 11 часов */
-
 /* Делаем иконку в кнопке чуть ярче */
 .fab-item span {
     font-size: 1.1rem;
@@ -3587,3 +3563,25 @@ body[data-mode="helper"] .list-card-icon {
 .weather-hour-desc { flex: 1 !important; font-size: 0.8rem !important; color: #94a3b8 !important; margin-left: 10px !important; }
 .weather-hour-temp { font-size: 1.1rem !important; font-weight: 800 !important; color: #60a5fa !important; margin-right: 15px !important; }
 .weather-hour-wind { font-size: 0.75rem !important; color: #64748b !important; width: 60px !important; text-align: right !important; }
+
+/* =======================================================
+   ИДЕАЛЬНЫЙ КРУГ FAB-КНОПОК (ЦЕНТРИРОВАННЫЙ ТЕКСТ)
+   ======================================================= */
+.fab-item {
+    min-width: 135px !important; /* Фиксированная ширина */
+    padding: 10px 12px !important;
+    font-size: 0.75rem !important;
+    justify-content: center !important; /* Центрируем текст и иконку */
+    align-items: center !important;
+    text-align: center !important;
+    gap: 8px !important;
+}
+
+/* Радиус 150px, 7 точек по кругу (математически точно) */
+.fab-item:nth-child(1){ --tx: 0px;    --ty: -150px; } /* Обновить (Верх) */
+.fab-item:nth-child(2){ --tx: 117px;  --ty: -93px;  } /* Синхрон (Верх-Право) */
+.fab-item:nth-child(3){ --tx: 146px;  --ty: -33px;  } /* Добавить (Право) */
+.fab-item:nth-child(4){ --tx: 65px;   --ty: 135px;  } /* Событие (Низ-Право) */
+.fab-item:nth-child(5){ --tx: -65px;  --ty: 135px;  } /* Список (Низ-Лево) */
+.fab-item:nth-child(6){ --tx: -146px; --ty: -33px;  } /* Быстрое (Лево) */
+.fab-item:nth-child(7){ --tx: -117px; --ty: -93px;  } /* Повторить (Верх-Лево) */
