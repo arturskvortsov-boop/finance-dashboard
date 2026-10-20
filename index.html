@@ -169,6 +169,14 @@
         <div class="notes-grid" id="notesGrid"></div>
     </div>
 
+    <div class="notes-block" id="wishesBlock">
+        <div class="lists-head">
+            <h3>🎁 Хотелки</h3>
+            <button class="lists-add-btn" id="wishesAddBtn">+ Хотелка</button>
+        </div>
+        <div class="notes-grid" id="wishesGrid"></div>
+    </div>
+
     <div class="calendar-block" id="calendarBlock">
         <div class="calendar-header">
             <button class="cal-nav" id="calPrev">◀</button>
@@ -544,6 +552,38 @@
     <div class="modal-footer">
         <button class="modal-btn cancel" id="cancelNoteEditBtn">Отмена</button>
         <button class="modal-btn save" id="saveNoteBtn">Сохранить</button>
+    </div>
+</div>
+</div>
+
+<div class="modal-overlay" id="wishEditModal">
+<div class="modal">
+    <div class="modal-header">
+        <h2 id="wishEditTitle">🎁 Новая хотелка</h2>
+        <button class="modal-close" id="closeWishEditModal">×</button>
+    </div>
+    <div class="modal-body">
+        <div class="form-row" id="wishAuthorRow">
+            <label>Кто хочет</label>
+            <div class="type-toggle" id="wishAuthorToggle">
+                <button class="type-btn active" data-author="me" id="btnWishAuthorMe">👨 Артур</button>
+                <button class="type-btn" data-author="partner" id="btnWishAuthorPartner">👩 Лера</button>
+            </div>
+        </div>
+        <div class="form-row"><label>Что хотим</label><input type="text" id="wishTitleInput" placeholder="Например: Наушники Sony"></div>
+        <div class="form-row"><label>Цена (₽)</label><input type="number" id="wishPriceInput" placeholder="15000" step="100"></div>
+        <div class="form-row"><label>Ссылка на товар (необязательно)</label><input type="url" id="wishUrlInput" placeholder="https://..."></div>
+        <div class="form-row"><label>Детали (цвет, размер)</label><input type="text" id="wishNoteInput" placeholder="Черные, 42 размер"></div>
+        
+        <div class="form-row" id="wishStatusRow" style="display:none;">
+            <label class="checkbox-row"><input type="checkbox" id="wishBoughtCheckbox"><span>Уже куплено ✅</span></label>
+        </div>
+        
+        <button class="list-delete-btn hidden" id="wishDeleteBtn">🗑️ Удалить хотелку</button>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-btn cancel" id="cancelWishEditBtn">Отмена</button>
+        <button class="modal-btn save" id="saveWishBtn">Сохранить</button>
     </div>
 </div>
 </div>
