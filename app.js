@@ -844,8 +844,10 @@ function openReminderEditModal(id){
     var title=$('reminderEditTitle');
     var typeSelect = $('reminderRepeatType');
     
+    // Обработчик смены типа (показываем/скрываем поля)
     typeSelect.onchange = function(){
         $('reminderEndDateRow').style.display = (this.value === 'single') ? 'none' : 'block';
+        $('reminderDaysRow').style.display = (this.value === 'monthly') ? 'block' : 'none';
     };
 
     if(id){
@@ -853,21 +855,27 @@ function openReminderEditModal(id){
         if(!r)return;
         title.textContent='✏️ Редактировать';
         $('reminderText').value=r.text||'';
-        typeSelect.value = r.repeatType || 'single';
-        $('reminderEndDateRow').style.display = (typeSelect.value === 'single') ? 'none' : 'block';
         
-        var d=new Date(r.dueAt || r.startDate);
+        typeSelect.value = r.repeatType || 'single';
+        // Вручную вызываем onchange, чтобы поля появились
+        typeSelect.onchange(); 
+        
+        var d=new Date(r.startDate || r.dueAt);
         $('reminderDate').value = d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
         $('reminderEndDate').value = r.endDate || '';
+        $('reminderDays').value = r.daysOfMonth ? r.daysOfMonth.join(',') : '';
         $('reminderTime').value = r.times ? r.times.join(', ') : (pad(d.getHours())+':'+pad(d.getMinutes()));
     } else {
         title.textContent='🔔 Новое напоминание';
         $('reminderText').value='';
+        
         typeSelect.value = 'single';
-        $('reminderEndDateRow').style.display = 'none';
+        typeSelect.onchange(); // Скрываем лишние поля
+        
         var today=new Date();
         $('reminderDate').value=today.getFullYear()+'-'+pad(today.getMonth()+1)+'-'+pad(today.getDate());
         $('reminderEndDate').value='';
+        $('reminderDays').value='';
         $('reminderTime').value='10:00';
     }
     $('reminderEditModal').classList.add('open');
@@ -885,43 +893,63 @@ function saveCustomReminder(){
     var endDate=$('reminderEndDate').value;
     var timeStr=$('reminderTime').value.trim();
     var type=$('reminderRepeatType').value;
+    var daysStr=$('reminderDays').value.trim();
 
     if(!text){alert('Введите текст напоминания');return;}
     if(!date){alert('Укажите дату начала');return;}
     if(!timeStr){alert('Укажите время (например 10:00)');return;}
 
+    // 1. Парсим времена (например "10:00, 21:00")
     var times = timeStr.split(',').map(function(t){ return t.trim(); }).filter(function(t){ return /^\d{2}:\d{2}$/.test(t); });
     if(!times.length){alert('Неверный формат времени');return;}
 
+    // 2. Парсим дни месяца (например "1-4" или "1,2,3")
+    var daysOfMonth = [];
+    if(type === 'monthly' && daysStr) {
+        if(daysStr.indexOf('-') !== -1) {
+            var parts = daysStr.split('-');
+            var start = parseInt(parts[0]);
+            var end = parseInt(parts[1]);
+            for(var d=start; d<=end; d++) daysOfMonth.push(d);
+        } else {
+            daysOfMonth = daysStr.split(',').map(function(d){ return parseInt(d.trim()); }).filter(function(d){ return !isNaN(d); });
+        }
+    }
+
+    // 3. Собираем первый dueAt для совместимости
     var firstTime = times[0];
     var localString = date + 'T' + firstTime + ':00';
     var due = new Date(localString);
 
+    // 4. Сохраняем
     if(editingReminderId){
         for(var i=0;i<customReminders.length;i++)if(customReminders[i].id===editingReminderId){
-            customReminders[i].text=text;
-            customReminders[i].dueAt=due.toISOString();
-            customReminders[i].startDate=date;
-            customReminders[i].endDate=endDate;
-            customReminders[i].repeatType=type;
-            customReminders[i].times=times;
+            customReminders[i].text = text;
+            customReminders[i].dueAt = due.toISOString();
+            customReminders[i].startDate = date;
+            customReminders[i].endDate = endDate;
+            customReminders[i].repeatType = type;
+            customReminders[i].times = times;
+            customReminders[i].daysOfMonth = daysOfMonth;
             break;
         }
         $('fileStatus').textContent='✏️ Напоминание обновлено';
     } else {
         customReminders.push({
             id:'rem_'+Date.now()+'_'+Math.floor(Math.random()*1000),
-            text:text,
-            dueAt:due.toISOString(),
+            text: text,
+            dueAt: due.toISOString(),
             startDate: date,
             endDate: endDate,
             repeatType: type,
             times: times,
-            status:'pending',
-            createdAt:new Date().toISOString()
+            daysOfMonth: daysOfMonth,
+            status: 'pending',
+            createdAt: new Date().toISOString()
         });
         $('fileStatus').textContent='🔔 Напоминание создано';
     }
+    
     saveCustomReminders(customReminders);
     renderCustomReminders();
     scheduleSyncCustomReminders();
@@ -1248,11 +1276,16 @@ function renderListItems(){
         row.innerHTML=
             '<div class="list-checkbox"></div>'+
             '<div class="list-item-text">'+escapeHtml(item.text||'')+'</div>'+
+            '<button class="list-item-del-inline" data-action="edit" style="color:#60a5fa; font-size:0.9rem; margin-right:2px;">✏️</button>'+
             '<button class="list-item-del-inline" data-action="delete">🗑️</button>';
 
         (function(id){
             row.addEventListener('click',function(e){
-                if(e.target.closest('.list-item-del-inline')){
+                if(e.target.closest('button[data-action="edit"]')){
+                    editListItem(id);
+                    return;
+                }
+                if(e.target.closest('button[data-action="delete"]')){
                     deleteListItem(id);
                     return;
                 }
@@ -1287,7 +1320,8 @@ function addListItem(){
     scheduleSyncLists();
     renderListItems();
     renderLists();
-    haptic('light');
+    haptic('success');
+    showToast('✅ Добавлено: ' + text, 1500);
 }
 
 function toggleListItem(itemId){
@@ -1305,6 +1339,25 @@ function toggleListItem(itemId){
     renderListItems();
     renderLists();
     haptic('light');
+}
+
+function editListItem(itemId){
+    var lst=listsGetCurrent();
+    if(!lst||!lst.items)return;
+    var item=null;
+    for(var i=0;i<lst.items.length;i++) if(lst.items[i].id===itemId){ item=lst.items[i]; break; }
+    if(!item) return;
+    
+    var newText = prompt('Редактировать пункт:', item.text);
+    if(newText !== null && newText.trim() !== ''){
+        item.text = newText.trim();
+        saveLists();
+        scheduleSyncLists();
+        renderListItems();
+        renderLists();
+        haptic('success');
+        showToast('✏️ Пункт обновлен');
+    }
 }
 
 function deleteListItem(itemId){
@@ -1812,6 +1865,7 @@ function renderUpcomingEvents(){
 
         var card=document.createElement('div');
         card.className='upcoming-event';
+                card.dataset.author = (ev.author === partnerName) ? 'partner' : 'me';
         if(diffDays===0)card.classList.add('is-today');
         if(diffDays===1)card.classList.add('is-tomorrow');
 
@@ -4764,6 +4818,8 @@ var saveWishBtn=$('saveWishBtn');
 if(saveWishBtn)saveWishBtn.addEventListener('click',saveWish);
 var wishDeleteBtn=$('wishDeleteBtn');
 if(wishDeleteBtn)wishDeleteBtn.addEventListener('click',deleteWish);
+var openTemplatesBtn = $('openTemplatesBtn');
+if(openTemplatesBtn) openTemplatesBtn.addEventListener('click', function(){ openQuickAddModal(); });
 
 // Переключатель автора в хотелках
 var wishAuthorBtns = document.querySelectorAll('#wishAuthorToggle .type-btn');
