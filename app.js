@@ -1756,15 +1756,13 @@ function getWeatherInfo(code) {
     return { icon: '🌡️', desc: 'Неизвестно' };
 }
 
+/* ===== WEATHER ===== */
 function fetchWeather() {
     var widget = $('weatherWidget');
     if (!widget) return;
-    
-    // Делаем виджет кликабельным для открытия прогноза
-    widget.onclick = function(e) {
-        if (e.target.id === 'weatherCityEdit') return; // Игнорируем клик по карандашу
-        openWeatherModal();
-    };
+
+    if ($('weatherIcon')) $('weatherIcon').textContent = '⏳';
+    if ($('weatherDesc')) $('weatherDesc').textContent = 'Загрузка...';
 
     // Обработчик нажатия на карандаш (смена города)
     var editBtn = $('weatherCityEdit');
@@ -1785,35 +1783,45 @@ function fetchWeather() {
                             localStorage.setItem('weatherLon', res.longitude);
                             localStorage.setItem('weatherCity', res.name);
                             $('weatherCity').textContent = res.name;
-                            loadCurrentWeather(res.latitude, res.longitude);
+                            loadWeather(res.latitude, res.longitude, res.name);
                         } else {
                             alert('Город не найден');
-                            $('weatherCity').textContent = localStorage.getItem('weatherCity') || 'Город';
+                            $('weatherCity').textContent = localStorage.getItem('weatherCity') || 'Мой город';
                         }
                     }).catch(function() {
                         alert('Ошибка поиска');
-                        $('weatherCity').textContent = localStorage.getItem('weatherCity') || 'Город';
+                        $('weatherCity').textContent = localStorage.getItem('weatherCity') || 'Мой город';
                     });
             }
         };
     }
 
-    function loadCurrentWeather(lat, lon) {
-        if ($('weatherIcon')) $('weatherIcon').textContent = '⏳';
-        if ($('weatherDesc')) $('weatherDesc').textContent = 'Загрузка...';
-        
-        fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&current_weather=true')
+    function loadWeather(lat, lon, cityName) {
+        fetch('https://wttr.in/' + lat + ',' + lon + '?format=j1')
             .then(function(r) { return r.json(); })
             .then(function(data) {
-                if (!data || !data.current_weather) return;
-                var cw = data.current_weather;
-                var temp = Math.round(cw.temperature);
-                var wind = Math.round(cw.windspeed);
-                var info = getWeatherInfo(cw.weathercode);
+                if (!data || !data.current_condition || !data.current_condition[0]) return;
+                var cw = data.current_condition[0];
+                
+                var actualCity = data.nearest_area[0].areaName[0].value;
+                if (cityName && cityName !== 'Мой город') actualCity = cityName;
+                if ($('weatherCity')) $('weatherCity').textContent = actualCity;
 
-                if ($('weatherIcon')) $('weatherIcon').textContent = info.icon;
+                var temp = Math.round(cw.temp_C);
+                var wind = Math.round(cw.windspeedKmph / 3.6); 
+                var desc = cw.weatherDesc[0].value;
+                var icon = '🌡️';
+                
+                if (desc.indexOf('Sunny') > -1 || desc.indexOf('Clear') > -1) icon = '☀️';
+                else if (desc.indexOf('Partly') > -1) icon = '🌤️';
+                else if (desc.indexOf('Cloudy') > -1 || desc.indexOf('Overcast') > -1) icon = '☁️';
+                else if (desc.indexOf('Rain') > -1 || desc.indexOf('drizzle') > -1) icon = '🌧️';
+                else if (desc.indexOf('Snow') > -1) icon = '🌨️';
+                else if (desc.indexOf('Thunder') > -1) icon = '⛈️';
+
+                if ($('weatherIcon')) $('weatherIcon').textContent = icon;
                 if ($('weatherTemp')) $('weatherTemp').textContent = (temp > 0 ? '+' : '') + temp + '°';
-                if ($('weatherDesc')) $('weatherDesc').textContent = info.desc;
+                if ($('weatherDesc')) $('weatherDesc').textContent = desc;
                 if ($('weatherFeels')) $('weatherFeels').textContent = 'Ветер ' + wind + ' м/с';
             })
             .catch(function(e) {
@@ -1827,12 +1835,9 @@ function fetchWeather() {
 
     if (savedLat && savedLon && savedCity) {
         if ($('weatherCity')) $('weatherCity').textContent = savedCity;
-        loadCurrentWeather(savedLat, savedLon);
+        loadWeather(savedLat, savedLon, savedCity);
         return;
     }
-
-    if ($('weatherCity')) $('weatherCity').textContent = 'Москва';
-    loadCurrentWeather(55.7558, 37.6173);
 
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
@@ -1841,7 +1846,7 @@ function fetchWeather() {
                 localStorage.setItem('weatherLon', pos.coords.longitude);
                 localStorage.setItem('weatherCity', 'Мой город');
                 if ($('weatherCity')) $('weatherCity').textContent = 'Мой город';
-                loadCurrentWeather(pos.coords.latitude, pos.coords.longitude);
+                loadWeather(pos.coords.latitude, pos.coords.longitude, 'Мой город');
             },
             function(err) {
                 fetch('https://ipapi.co/json/')
@@ -1853,12 +1858,21 @@ function fetchWeather() {
                             var ipCity = data.city || data.region || 'Мой город';
                             localStorage.setItem('weatherCity', ipCity);
                             if ($('weatherCity')) $('weatherCity').textContent = ipCity;
-                            loadCurrentWeather(data.latitude, data.longitude);
+                            loadWeather(data.latitude, data.longitude, ipCity);
+                        } else {
+                            throw new Error('IP fail');
                         }
-                    }).catch(function(){});
+                    })
+                    .catch(function(){
+                        if ($('weatherCity')) $('weatherCity').textContent = 'Москва';
+                        loadWeather(55.7558, 37.6173, 'Москва');
+                    });
             },
-            { timeout: 4000 }
+            { timeout: 4000, enableHighAccuracy: false }
         );
+    } else {
+        if ($('weatherCity')) $('weatherCity').textContent = 'Москва';
+        loadWeather(55.7558, 37.6173, 'Москва');
     }
 }
 
@@ -1877,45 +1891,40 @@ function openWeatherModal() {
     var modal = $('weatherModal');
     if (modal) modal.classList.add('open');
     
-    fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&hourly=temperature_2m,weathercode,windspeed_10m&timezone=auto')
+    fetch('https://wttr.in/' + lat + ',' + lon + '?format=j1')
         .then(function(r) { return r.json(); })
         .then(function(data) {
-            if (!data || !data.hourly || !data.hourly.time) return;
-            
-            var now = new Date();
-            var currentHourStr = now.toISOString().slice(0, 13) + ':00';
-            var startIndex = 0;
-            
-            // Ищем текущий час, чтобы начать прогноз с него
-            for (var i = 0; i < data.hourly.time.length; i++) {
-                if (data.hourly.time[i].indexOf(currentHourStr) === 0) {
-                    startIndex = i;
-                    break;
-                }
-            }
-            
+            if (!data || !data.weather || !data.weather[0] || !data.weather[0].hourly) return;
+            var hours = data.weather[0].hourly; 
             var html = '';
-            // Берем следующие 24 часа
-            for (var i = startIndex; i < startIndex + 24 && i < data.hourly.time.length; i++) {
-                var timeStr = data.hourly.time[i];
-                var temp = Math.round(data.hourly.temperature_2m[i]);
-                var wind = Math.round(data.hourly.windspeed_10m[i]);
-                var code = data.hourly.weathercode[i];
-                var info = getWeatherInfo(code);
+            
+            for (var i = 0; i < hours.length; i++) {
+                var h = hours[i];
+                var timeNum = parseInt(h.time) / 100; 
+                var displayHour = (timeNum < 10 ? '0' : '') + timeNum + ':00';
+                if (timeNum === 0) displayHour = '00:00';
                 
-                // Форматируем время (ЧЧ:ММ)
-                var hour = timeStr.slice(11, 16);
-                if (i === startIndex) hour = 'Сейчас';
+                var temp = h.tempC;
+                var wind = Math.round(h.windspeedKmph / 3.6);
+                var desc = h.weatherDesc[0].value;
                 
+                var icon = '🌡️';
+                if (desc.indexOf('Sunny') > -1 || desc.indexOf('Clear') > -1) icon = '☀️';
+                else if (desc.indexOf('Partly') > -1) icon = '🌤️';
+                else if (desc.indexOf('Cloudy') > -1 || desc.indexOf('Overcast') > -1) icon = '☁️';
+                else if (desc.indexOf('Rain') > -1 || desc.indexOf('drizzle') > -1) icon = '🌧️';
+                else if (desc.indexOf('Snow') > -1) icon = '🌨️';
+                else if (desc.indexOf('Thunder') > -1) icon = '⛈️';
+
+                var label = (i === 0) ? 'Сейчас' : displayHour;
                 html += '<div class="weather-hour-row">' +
-                            '<div class="weather-hour-time">' + hour + '</div>' +
-                            '<div class="weather-hour-icon">' + info.icon + '</div>' +
-                            '<div class="weather-hour-desc">' + info.desc + '</div>' +
+                            '<div class="weather-hour-time">' + label + '</div>' +
+                            '<div class="weather-hour-icon">' + icon + '</div>' +
+                            '<div class="weather-hour-desc">' + desc + '</div>' +
                             '<div class="weather-hour-temp">' + (temp > 0 ? '+' : '') + temp + '°</div>' +
                             '<div class="weather-hour-wind">' + wind + ' м/с</div>' +
                         '</div>';
             }
-            
             if (list) list.innerHTML = html;
         })
         .catch(function(e) {
