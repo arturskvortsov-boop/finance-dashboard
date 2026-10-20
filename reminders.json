@@ -26,7 +26,7 @@
     "dueAt": "2026-11-01T07:00:00.000Z",
     "startDate": "2026-11-01",
     "endDate": "2026-11-04",
-    "repeatType": "daily",
+    "repeatType": "monthly",
     "times": [
       "10:00",
       "21:00"
