@@ -121,6 +121,14 @@
         <div id="goalsList"></div>
     </div>
 
+        <div class="notes-block hidden" id="subscriptionsBlock">
+        <div class="lists-head">
+            <h3>💳 Подписки</h3>
+            <button class="lists-add-btn" id="subsAddBtn">+ Подписка</button>
+        </div>
+        <div class="notes-grid" id="subsGrid"></div>
+    </div>
+
     <div class="period-history-block hidden" id="periodHistoryBlock">
         <h3>📂 История периодов</h3>
         <div class="period-history-list" id="periodHistoryList"></div>
@@ -646,6 +654,25 @@
     <div class="modal-footer">
         <button class="modal-btn cancel" id="cancelDebtEditBtn">Отмена</button>
         <button class="modal-btn save" id="saveDebtBtn">Сохранить</button>
+    </div>
+</div>
+</div>
+
+<div class="modal-overlay" id="subEditModal">
+<div class="modal">
+    <div class="modal-header">
+        <h2 id="subEditTitle">💳 Новая подписка</h2>
+        <button class="modal-close" id="closeSubEditModal">×</button>
+    </div>
+    <div class="modal-body">
+        <div class="form-row"><label>Название</label><input type="text" id="subNameInput" placeholder="Например: Netflix"></div>
+        <div class="form-row"><label>Сумма (₽)</label><input type="number" id="subAmountInput" placeholder="1200" step="10"></div>
+        <div class="form-row"><label>День списания (1-31)</label><input type="number" id="subDayInput" placeholder="15" min="1" max="31"></div>
+        <button class="list-delete-btn hidden" id="subDeleteBtn">🗑️ Удалить подписку</button>
+    </div>
+    <div class="modal-footer">
+        <button class="modal-btn cancel" id="cancelSubEditBtn">Отмена</button>
+        <button class="modal-btn save" id="saveSubBtn">Сохранить</button>
     </div>
 </div>
 </div>
