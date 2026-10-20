@@ -3392,3 +3392,26 @@ body[data-mode="helper"] .list-card-icon {
 .upcoming-event:last-child {
     margin-bottom: 0 !important;
 }
+
+/* ===== DEBTS BLOCK ===== */
+.debt-card {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: border-color .15s;
+}
+.debt-card:active { transform: scale(0.98); }
+.debt-card.paid { opacity: 0.5; text-decoration: line-through; }
+.debt-card.type-lent { border-left: 4px solid #4ade80; }
+.debt-card.type-owe { border-left: 4px solid #f87171; }
+.debt-info { flex: 1; }
+.debt-person { font-weight: 700; font-size: 0.9rem; color: var(--text); }
+.debt-note { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; }
+.debt-amount { font-weight: 800; font-size: 1rem; white-space: nowrap; margin-left: 10px; }
+.debt-card.type-lent .debt-amount { color: #4ade80; }
+.debt-card.type-owe .debt-amount { color: #f87171; }
