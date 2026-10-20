@@ -84,6 +84,8 @@ var WISHES_KEY='financeWishes';
 var WISHES_FILE='wishes.json';
 var DEBTS_KEY='financeDebts';
 var DEBTS_FILE='debts.json';
+var SUBS_KEY='financeSubs';
+var SUBS_FILE='subscriptions.json';
 
 try{
     var mc=document.querySelector('meta[name="theme-color"]');
@@ -116,6 +118,8 @@ var partnerName = 'Лера';
 var editingNoteId=null;
 var wishes=[];
 var debts=[];
+var subscriptions=[];
+var editingSubId=null;
 var editingDebtId=null;
 var editingWishId=null;
 var editingListId=null;
@@ -348,6 +352,8 @@ function saveWishes(){try{localStorage.setItem(WISHES_KEY,JSON.stringify(wishes)
 function loadWishes(){try{var s=localStorage.getItem(WISHES_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveDebts(){try{localStorage.setItem(DEBTS_KEY,JSON.stringify(debts));}catch(e){}}
 function loadDebts(){try{var s=localStorage.getItem(DEBTS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
+function saveSubs(){try{localStorage.setItem(SUBS_KEY,JSON.stringify(subscriptions));}catch(e){}}
+function loadSubs(){try{var s=localStorage.getItem(SUBS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveBudgets(){try{localStorage.setItem(BUDGETS_KEY,JSON.stringify(budgets));}catch(e){}}
 function loadBudgets(){try{var s=localStorage.getItem(BUDGETS_KEY);if(s)return JSON.parse(s);}catch(e){}return [];}
 function saveGoals(){try{localStorage.setItem(GOALS_KEY,JSON.stringify(goals));}catch(e){}}
@@ -1133,6 +1139,125 @@ function renderDebts(){
     
     if($('totalLent')) $('totalLent').textContent = roundRub(totalLent).toLocaleString('ru-RU');
     if($('totalOwe')) $('totalOwe').textContent = roundRub(totalOwe).toLocaleString('ru-RU');
+}
+
+function renderSubscriptions(){
+    var block=$('subscriptionsBlock');
+    var grid=$('subsGrid');
+    if(!block||!grid)return;
+    if(!subscriptions.length){ block.classList.add('hidden'); return; }
+    block.classList.remove('hidden');
+    grid.innerHTML='';
+
+    var now=new Date();
+    var currentYYYYMM = now.getFullYear() + '-' + pad(now.getMonth()+1);
+    var todayDay = now.getDate();
+
+    var sorted = subscriptions.slice().sort(function(a,b){ return a.day - b.day; });
+
+    for(var i=0; i<sorted.length; i++){
+        var s = sorted[i];
+        var isPaid = (s.lastPaid === currentYYYYMM);
+        var isUrgent = (!isPaid && todayDay >= (s.day - 3)); // Подсветить, если осталось 3 дня
+
+        var card = document.createElement('div');
+        card.className = 'sub-card ' + (isPaid ? 'paid' : (isUrgent ? 'unpaid' : ''));
+        
+        var statusText = isPaid ? 'Оплачено' : ('Списание ' + s.day + '-го числа');
+        var payBtnHtml = isPaid 
+            ? '<button class="sub-pay-btn done">✅</button>' 
+            : '<button class="sub-pay-btn" onclick="paySubscription(event, \''+s.id+'\')">Оплатить</button>';
+
+        card.innerHTML = 
+            '<div class="sub-info">' +
+                '<div class="sub-name">' + s.name + '</div>' +
+                '<div class="sub-meta">' + statusText + '</div>' +
+            '</div>' +
+            '<div style="display:flex; align-items:center;">' +
+                '<div class="sub-amount">' + roundRub(s.amount).toLocaleString('ru-RU') + ' ₽</div>' +
+                payBtnHtml +
+            '</div>';
+
+        (function(id){ card.addEventListener('click', function(e){ 
+            if(e.target.tagName !== 'BUTTON') openSubEditModal(id); 
+        }); })(s.id);
+        
+        grid.appendChild(card);
+    }
+}
+
+function paySubscription(e, id){
+    e.stopPropagation();
+    var now = new Date();
+    var currentYYYYMM = now.getFullYear() + '-' + pad(now.getMonth()+1);
+    for(var i=0;i<subscriptions.length;i++){
+        if(subscriptions[i].id === id){
+            subscriptions[i].lastPaid = currentYYYYMM;
+            break;
+        }
+    }
+    saveSubs(); syncSubs(); renderSubscriptions(); haptic('success'); showToast('✅ Подписка оплачена');
+}
+
+function openSubEditModal(id){
+    editingSubId = id || null;
+    var title = $('subEditTitle');
+    var delBtn = $('subDeleteBtn');
+    
+    if(id){
+        var s=null; for(var i=0;i<subscriptions.length;i++) if(subscriptions[i].id===id){s=subscriptions[i];break;}
+        if(!s)return;
+        title.textContent='✏️ Редактировать подписку';
+        $('subNameInput').value = s.name || '';
+        $('subAmountInput').value = s.amount || '';
+        $('subDayInput').value = s.day || '';
+        if(delBtn)delBtn.classList.remove('hidden');
+    } else {
+        title.textContent='💳 Новая подписка';
+        $('subNameInput').value = '';
+        $('subAmountInput').value = '';
+        $('subDayInput').value = '';
+        if(delBtn)delBtn.classList.add('hidden');
+    }
+    $('subEditModal').classList.add('open');
+    lockBackground();
+}
+
+function closeSubEditModal(){
+    $('subEditModal').classList.remove('open');
+    editingSubId=null;
+    unlockBackground();
+}
+
+function saveSubscription(){
+    var name = $('subNameInput').value.trim();
+    var amount = parseFloat($('subAmountInput').value)||0;
+    var day = parseInt($('subDayInput').value)||1;
+    
+    if(!name){alert('Введите название');return;}
+    if(amount<=0){alert('Введите сумму');return;}
+    if(day<1 || day>31){alert('День должен быть от 1 до 31');return;}
+    
+    if(editingSubId){
+        for(var i=0;i<subscriptions.length;i++)if(subscriptions[i].id===editingSubId){
+            subscriptions[i].name=name;
+            subscriptions[i].amount=amount;
+            subscriptions[i].day=day;
+            break;
+        }
+        $('fileStatus').textContent='✏️ Подписка обновлена';
+    } else {
+        subscriptions.push({id:'sub_'+Date.now(), name:name, amount:amount, day:day, lastPaid:'', createdAt:new Date().toISOString()});
+        $('fileStatus').textContent='💳 Подписка добавлена';
+    }
+    saveSubs();syncSubs();renderSubscriptions();closeSubEditModal();haptic('success');
+}
+
+function deleteSubscription(){
+    if(!editingSubId)return;
+    if(!confirm('Удалить подписку?'))return;
+    subscriptions=subscriptions.filter(function(s){return s.id!==editingSubId;});
+    saveSubs();syncSubs();renderSubscriptions();closeSubEditModal();$('fileStatus').textContent='🗑️ Удалено';haptic('warning');
 }
 
 function openDebtEditModal(id){
@@ -2605,6 +2730,7 @@ function renderDashboard(txs,period){
     drawBalanceHistoryChart(txs,period);
     renderBudgets();
     renderGoals();
+    renderSubscriptions();
     renderUpcomingEvents();
     renderLists();
     renderCalendar();
@@ -3363,13 +3489,15 @@ function syncEvents(){if(!getToken())return Promise.resolve(false);return putJso
 function loadEventsFromServer(){return fetchJsonFile(EVENTS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;events=mergeById(events,data);saveEvents();return true;});}
 function syncLists(){if(!getToken())return Promise.resolve(false);return putJsonFile(LISTS_FILE,lists,'Списки ('+lists.length+')').catch(function(){return false;});}
 function loadListsFromServer(){return fetchJsonFile(LISTS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;lists=mergeLists(lists,data);saveLists();return true;});}
-function syncAllExtras(){if(!getToken())return;syncTemplates();syncBudgets();syncGoals();syncTombstones();syncEvents();syncLists();syncNotes();syncWishes();syncDebts();}
+function syncAllExtras(){if(!getToken())return;syncTemplates();syncBudgets();syncGoals();syncTombstones();syncEvents();syncLists();syncNotes();syncWishes();syncDebts();syncSubs();}
 function syncNotes(){if(!getToken())return Promise.resolve(false);return putJsonFile(NOTES_FILE,notes,'Заметки ('+notes.length+')').catch(function(){return false;});}
 function loadNotesFromServer(){return fetchJsonFile(NOTES_FILE).then(function(data){if(!data||!Array.isArray(data))return false;notes=mergeById(notes,data);saveNotes();return true;});}
 function syncWishes(){if(!getToken())return Promise.resolve(false);return putJsonFile(WISHES_FILE,wishes,'Хотелки ('+wishes.length+')').catch(function(){return false;});}
 function loadWishesFromServer(){return fetchJsonFile(WISHES_FILE).then(function(data){if(!data||!Array.isArray(data))return false;wishes=mergeById(wishes,data);saveWishes();return true;});}
 function syncDebts(){if(!getToken())return Promise.resolve(false);return putJsonFile(DEBTS_FILE,debts,'Долги ('+debts.length+')').catch(function(){return false;});}
 function loadDebtsFromServer(){return fetchJsonFile(DEBTS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;debts=mergeById(debts,data);saveDebts();return true;});}
+function syncSubs(){if(!getToken())return Promise.resolve(false);return putJsonFile(SUBS_FILE,subscriptions,'Подписки ('+subscriptions.length+')').catch(function(){return false;});}
+function loadSubsFromServer(){return fetchJsonFile(SUBS_FILE).then(function(data){if(!data||!Array.isArray(data))return false;subscriptions=mergeById(subscriptions,data);saveSubs();return true;});}
 
 
 /* ===== АВТОСИНХРОНИЗАЦИЯ ===== */
@@ -4552,6 +4680,7 @@ lists=loadLists()||[];
 notes=loadNotes()||[];
 wishes=loadWishes()||[];
 debts=loadDebts()||[];
+subscriptions=loadSubs()||[];
 
 try {
     if(localStorage.getItem('myName')) currentUserName = localStorage.getItem('myName');
@@ -4587,7 +4716,7 @@ loadTombstonesFromServer().then(function(){
         $('emptyState').classList.remove('hidden');
         if(!$('fileStatus').textContent||$('fileStatus').textContent==='⏳ Загрузка...')$('fileStatus').textContent='📂 Загрузите JSON или проверьте GitHub';
     }
-return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadCustomRemindersFromServer(),loadEventsFromServer(),loadListsFromServer(),loadNotesFromServer(),loadWishesFromServer(),loadDebtsFromServer()]);
+return Promise.all([loadRateHistoryFromServer(false),loadTemplatesFromServer(),loadBudgetsFromServer(),loadGoalsFromServer(),loadCustomRemindersFromServer(),loadEventsFromServer(),loadListsFromServer(),loadNotesFromServer(),loadWishesFromServer(),loadDebtsFromServer(),loadSubsFromServer()]);
 }).then(function(){
     applyTombstones();
     var skEl=$('skeleton');
@@ -5015,6 +5144,18 @@ for(var i=0;i<debtTypeBtns.length;i++){
         });
     })(debtTypeBtns[i]);
 }
+
+// Обработчики подписок
+var subsAddBtn=$('subsAddBtn');
+if(subsAddBtn)subsAddBtn.addEventListener('click',function(){openSubEditModal(null);});
+var closeSubEditModalBtn=$('closeSubEditModal');
+if(closeSubEditModalBtn)closeSubEditModalBtn.addEventListener('click',closeSubEditModal);
+var cancelSubEditBtn=$('cancelSubEditBtn');
+if(cancelSubEditBtn)cancelSubEditBtn.addEventListener('click',closeSubEditModal);
+var saveSubBtn=$('saveSubBtn');
+if(saveSubBtn)saveSubBtn.addEventListener('click',saveSubscription);
+var subDeleteBtn=$('subDeleteBtn');
+if(subDeleteBtn)subDeleteBtn.addEventListener('click',deleteSubscription);
 
 })();
 
