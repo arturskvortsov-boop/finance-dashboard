@@ -1975,6 +1975,19 @@ function openEventEditModal(id,presetDate){
         $('evtDate').value=ev.date||'';
         $('evtTime').value=ev.time||'';
         $('evtNote').value=ev.note||'';
+                // Ищем, есть ли напоминание, привязанное к этому событию
+        var linkedRem = customReminders.find(function(r){ return r.linkedEventId === id; });
+        if (linkedRem) {
+            $('evtRemindToggle').checked = true;
+            $('evtRemindTimeRow').classList.remove('hidden');
+            // Достаем время из dueAt
+            var d = new Date(linkedRem.dueAt);
+            $('evtRemindTime').value = pad(d.getHours()) + ':' + pad(d.getMinutes());
+        } else {
+            $('evtRemindToggle').checked = false;
+            $('evtRemindTimeRow').classList.add('hidden');
+            $('evtRemindTime').value = '10:00';
+        }
                 var author = ev.author || currentUserName;
         var authorBtns = document.querySelectorAll('#evtAuthorToggle .type-btn');
         for(var i=0;i<authorBtns.length;i++) {
@@ -1996,6 +2009,9 @@ function openEventEditModal(id,presetDate){
         }
         $('evtTime').value='';
         $('evtNote').value='';
+        $('evtRemindToggle').checked = false;
+        $('evtRemindTimeRow').classList.add('hidden');
+        $('evtRemindTime').value = '10:00';
                 var defaultBtns = document.querySelectorAll('#evtAuthorToggle .type-btn');
         for(var i=0;i<defaultBtns.length;i++) {
             defaultBtns[i].classList.toggle('active', defaultBtns[i].dataset.author==='me');
@@ -2067,12 +2083,67 @@ function saveEvent(){
     renderCalendar();
     renderUpcomingEvents();
     if($('dayDetailModal').classList.contains('open'))renderDayDetailBody();
+        // === СОЗДАНИЕ / ОБНОВЛЕНИЕ НАПОМИНАНИЯ ===
+    var wantRemind = $('evtRemindToggle').checked;
+    var remindTime = $('evtRemindTime').value || '10:00';
+    
+    // Ищем существующее напоминание для этого события
+    var existingRemIdx = -1;
+    for(var k=0; k<customReminders.length; k++) {
+        if(customReminders[k].linkedEventId === (editingEventId || 'new')) {
+            existingRemIdx = k; 
+            break; 
+        }
+    }
+    if(!editingEventId) editingEventId = events[events.length-1].id;
+    if(wantRemind) {
+        // Считаем дату: за 1 день до события
+        var evDate = new Date(date + 'T00:00:00');
+        evDate.setDate(evDate.getDate() - 1); // минус 1 день
+        var timeParts = remindTime.split(':');
+        evDate.setHours(parseInt(timeParts[0]), parseInt(timeParts[1]), 0, 0);
+        
+        var newRem = {
+            id: 'rem_evt_' + Date.now(),
+            text: '📅 ' + title, // Текст напоминания = название события
+            dueAt: evDate.toISOString(),
+            startDate: evDate.toISOString().slice(0, 10),
+            repeatType: 'single',
+            times: [remindTime],
+            linkedEventId: editingEventId || 'new', // Привязка к событию
+            status: 'pending'
+        };
+        
+        if(existingRemIdx >= 0) {
+            // Обновляем старое
+            customReminders[existingRemIdx].dueAt = newRem.dueAt;
+            customReminders[existingRemIdx].times = [remindTime];
+            customReminders[existingRemIdx].text = '📅 ' + title;
+            customReminders[existingRemIdx].startDate = newRem.startDate;
+        } else {
+            // Добавляем новое
+            customReminders.push(newRem);
+        }
+        saveCustomReminders(customReminders);
+        scheduleSyncCustomReminders();
+    } else {
+        // Если галочку убрали, а напоминание было — удаляем его
+        if(existingRemIdx >= 0) {
+            customReminders.splice(existingRemIdx, 1);
+            saveCustomReminders(customReminders);
+            scheduleSyncCustomReminders();
+        }
+    }
     closeEventEditModal();
     haptic('success');
 }
 function deleteEvent(id){
     if(!confirm('Удалить событие?'))return;
     events=events.filter(function(e){return e.id!==id;});
+        // Удаляем связанное напоминание
+    customReminders = customReminders.filter(function(r){ return r.linkedEventId !== id; });
+    saveCustomReminders(customReminders);
+    scheduleSyncCustomReminders();
     saveEvents();
     scheduleSyncEvents();
     renderCalendar();
@@ -5195,6 +5266,15 @@ if (weatherModalEl) {
         if (e.target === this) {
             this.classList.remove('open'); 
             unlockBackground();
+        }
+    });
+}
+var evtRemindToggle = $('evtRemindToggle');
+if (evtRemindToggle) {
+    evtRemindToggle.addEventListener('change', function() {
+        var timeRow = $('evtRemindTimeRow');
+        if (timeRow) {
+            timeRow.classList.toggle('hidden', !this.checked);
         }
     });
 }
