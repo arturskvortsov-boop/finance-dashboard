@@ -394,6 +394,14 @@
         <div class="form-row"><label>Дата</label><input type="date" id="evtDate"></div>
         <div class="form-row"><label>Время (необязательно)</label><input type="time" id="evtTime"></div>
         <div class="form-row"><label>Заметка</label><input type="text" id="evtNote" placeholder="Адрес, детали"></div>
+                <div class="form-row" style="flex-direction:row; align-items:center; justify-content:space-between; margin-top:10px;">
+            <label style="margin:0; font-size:0.8rem;">🔔 Напомнить за сутки</label>
+            <input type="checkbox" id="evtRemindToggle" style="width:22px; height:22px; accent-color:var(--accent); cursor:pointer;">
+        </div>
+        <div class="form-row hidden" id="evtRemindTimeRow">
+            <label>Во сколько напомнить</label>
+            <input type="time" id="evtRemindTime" value="10:00">
+        </div>
         <button class="list-delete-btn hidden" id="eventDeleteBtn">🗑️ Удалить событие</button>
     </div>
     <div class="modal-footer">
