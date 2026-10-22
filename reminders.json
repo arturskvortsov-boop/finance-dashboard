@@ -26,5 +26,17 @@
     ],
     "status": "pending",
     "createdAt": "2026-10-20T19:09:17.635Z"
+  },
+  {
+    "id": "rem_evt_1792705629639",
+    "text": "📅 Ужин",
+    "dueAt": "2026-10-23T07:00:00.000Z",
+    "startDate": "2026-10-23",
+    "repeatType": "single",
+    "times": [
+      "10:00"
+    ],
+    "linkedEventId": "evt_1792705629638_721",
+    "status": "pending"
   }
 ]
