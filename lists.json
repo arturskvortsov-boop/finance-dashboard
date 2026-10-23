@@ -71,38 +71,44 @@
       {
         "id": "itm_1792747022803_863",
         "text": "Яйца",
-        "done": false,
-        "createdAt": "2026-10-23T09:17:02.803Z"
+        "done": true,
+        "createdAt": "2026-10-23T09:17:02.803Z",
+        "completedAt": "2026-10-23T09:28:01.125Z"
       },
       {
         "id": "itm_1792747025958_649",
         "text": "Масло",
-        "done": false,
-        "createdAt": "2026-10-23T09:17:05.958Z"
+        "done": true,
+        "createdAt": "2026-10-23T09:17:05.958Z",
+        "completedAt": "2026-10-23T09:29:18.916Z"
       },
       {
         "id": "itm_1792747029965_925",
         "text": "Шоколадка",
-        "done": false,
-        "createdAt": "2026-10-23T09:17:09.965Z"
+        "done": true,
+        "createdAt": "2026-10-23T09:17:09.965Z",
+        "completedAt": "2026-10-23T09:28:02.492Z"
       },
       {
         "id": "itm_1792747032729_868",
         "text": "Горошек",
-        "done": false,
-        "createdAt": "2026-10-23T09:17:12.729Z"
+        "done": true,
+        "createdAt": "2026-10-23T09:17:12.729Z",
+        "completedAt": "2026-10-23T09:28:02.976Z"
       },
       {
         "id": "itm_1792747035467_272",
         "text": "Молоко",
-        "done": false,
-        "createdAt": "2026-10-23T09:17:15.467Z"
+        "done": true,
+        "createdAt": "2026-10-23T09:17:15.467Z",
+        "completedAt": "2026-10-23T09:28:07.326Z"
       },
       {
         "id": "itm_1792747049209_809",
         "text": "Рикотта или творожный сыр",
-        "done": false,
-        "createdAt": "2026-10-23T09:17:29.209Z"
+        "done": true,
+        "createdAt": "2026-10-23T09:17:29.209Z",
+        "completedAt": "2026-10-23T09:29:20.257Z"
       },
       {
         "id": "itm_1792747262293_861",
