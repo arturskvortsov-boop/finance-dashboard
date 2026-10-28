@@ -38,5 +38,17 @@
     ],
     "linkedEventId": "evt_1792607898689_325",
     "status": "pending"
+  },
+  {
+    "id": "rem_evt_1793202890442",
+    "text": "📅 Стоматолог",
+    "dueAt": "2026-11-02T09:00:00.000Z",
+    "startDate": "2026-11-02",
+    "repeatType": "single",
+    "times": [
+      "12:00"
+    ],
+    "linkedEventId": "evt_1793202890441_946",
+    "status": "pending"
   }
 ]
