@@ -89,26 +89,30 @@
       {
         "id": "itm_1793781345138_721",
         "text": "Хлеб",
-        "done": false,
-        "createdAt": "2026-11-04T08:35:45.138Z"
+        "done": true,
+        "createdAt": "2026-11-04T08:35:45.138Z",
+        "completedAt": "2026-11-09T11:16:49.197Z"
       },
       {
         "id": "itm_1793781348530_985",
         "text": "Пекинка",
-        "done": false,
-        "createdAt": "2026-11-04T08:35:48.530Z"
+        "done": true,
+        "createdAt": "2026-11-04T08:35:48.530Z",
+        "completedAt": "2026-11-09T11:16:49.014Z"
       },
       {
         "id": "itm_1793781353656_832",
         "text": "Майонез",
-        "done": false,
-        "createdAt": "2026-11-04T08:35:53.656Z"
+        "done": true,
+        "createdAt": "2026-11-04T08:35:53.656Z",
+        "completedAt": "2026-11-09T11:16:48.781Z"
       },
       {
         "id": "itm_1793781367723_695",
         "text": "Дрова",
-        "done": false,
-        "createdAt": "2026-11-04T08:36:07.723Z"
+        "done": true,
+        "createdAt": "2026-11-04T08:36:07.723Z",
+        "completedAt": "2026-11-09T11:16:48.533Z"
       }
     ],
     "createdAt": "2026-11-04T08:35:40.216Z"
