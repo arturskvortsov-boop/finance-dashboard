@@ -76,5 +76,17 @@
     "daysOfMonth": [],
     "status": "pending",
     "createdAt": "2026-11-08T20:02:18.416Z"
+  },
+  {
+    "id": "rem_evt_1794223004566",
+    "text": "📅 Стельки на Гоголя",
+    "dueAt": "2026-11-11T09:00:00.000Z",
+    "startDate": "2026-11-11",
+    "repeatType": "single",
+    "times": [
+      "12:00"
+    ],
+    "linkedEventId": "evt_1794223004565_398",
+    "status": "pending"
   }
 ]
