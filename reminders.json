@@ -52,18 +52,6 @@
     "status": "pending"
   },
   {
-    "id": "rem_evt_1793734150850",
-    "text": "📅 Стоматолог",
-    "dueAt": "2026-11-13T17:00:00.000Z",
-    "startDate": "2026-11-13",
-    "repeatType": "single",
-    "times": [
-      "20:00"
-    ],
-    "linkedEventId": "evt_1793734150849_688",
-    "status": "pending"
-  },
-  {
     "id": "rem_1794168138416_645",
     "text": "Оплатить коммуналку",
     "dueAt": "2026-11-09T09:00:00.000Z",
