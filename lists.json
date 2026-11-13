@@ -122,6 +122,12 @@
         "done": false,
         "createdAt": "2026-11-13T10:05:17.479Z",
         "completedAt": null
+      },
+      {
+        "id": "itm_1794564331341_143",
+        "text": "Морковь",
+        "done": false,
+        "createdAt": "2026-11-13T10:05:31.341Z"
       }
     ],
     "createdAt": "2026-11-13T10:04:54.559Z"
