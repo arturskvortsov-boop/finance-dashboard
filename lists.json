@@ -121,27 +121,30 @@
       {
         "id": "itm_1794564317479_221",
         "text": "Пекинка маленькая",
-        "done": false,
+        "done": true,
         "createdAt": "2026-11-13T10:05:17.479Z",
-        "completedAt": null
+        "completedAt": "2026-11-13T11:01:13.165Z"
       },
       {
         "id": "itm_1794564331341_143",
         "text": "Морковь",
-        "done": false,
-        "createdAt": "2026-11-13T10:05:31.341Z"
+        "done": true,
+        "createdAt": "2026-11-13T10:05:31.341Z",
+        "completedAt": "2026-11-13T11:01:14.015Z"
       },
       {
         "id": "itm_1794564333459_45",
         "text": "Лук",
-        "done": false,
-        "createdAt": "2026-11-13T10:05:33.459Z"
+        "done": true,
+        "createdAt": "2026-11-13T10:05:33.459Z",
+        "completedAt": "2026-11-13T11:01:14.647Z"
       },
       {
         "id": "itm_1794564371787_943",
         "text": "Маслины ??",
-        "done": false,
-        "createdAt": "2026-11-13T10:06:11.787Z"
+        "done": true,
+        "createdAt": "2026-11-13T10:06:11.787Z",
+        "completedAt": "2026-11-13T11:01:15.748Z"
       },
       {
         "id": "itm_1794564389502_910",
